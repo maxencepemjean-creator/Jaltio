@@ -1,6 +1,6 @@
-# Kairos — votre coach emploi IA
+# Jalon — votre coach emploi IA
 
-*Le bon poste n'attend pas.*
+*Chaque étape, jusqu'au poste.*
 
 Site qui adapte un CV et une lettre de motivation à chaque offre d'emploi, conseille comme un coach et suit les candidatures jusqu'à l'entretien. Il fonctionne avec Claude (Anthropic).
 

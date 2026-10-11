@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kairos — votre coach emploi IA</title>
+<title>Jalon — votre coach emploi IA</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 72 72%27%3E%3Crect width=%2772%27 height=%2772%27 rx=%2718%27 fill=%27%233A2340%27/%3E%3Cpath d=%27M19 38l11 11 23-26%27 fill=%27none%27 stroke=%27white%27 stroke-width=%277%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3Ccircle cx=%2753%27 cy=%2722%27 r=%274.5%27 fill=%27none%27 stroke=%27%23F2A93B%27 stroke-width=%274%27/%3E%3C/svg%3E">
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -271,7 +271,7 @@ body.modal-open{overflow:hidden}
 @media (max-width:600px){ .overlay{padding:0} .dialog{border-radius:0} .ap-pages{grid-template-columns:1fr} }
 @media print{ .overlay{display:none!important} body.modal-open{overflow:visible} }
 
-/* ================= Identité Kairos ================= */
+/* ================= Identité Jalon ================= */
 [hidden]{display:none!important} /* un élément masqué le reste, quel que soit son style */
 body{font-family:'Figtree',system-ui,sans-serif;background:var(--bg)}
 .panel{background:#fff;border-right:1px solid var(--line)}
@@ -364,8 +364,8 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 
 <!-- ================= PANNEAU DE GAUCHE ================= -->
 <aside class="panel app-ui">
-  <div class="brand"><svg class="logo" width="40" height="40" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name" data-brand>Kairos</span></div>
-  <p class="sub" data-brand-sig>Le bon poste n'attend pas.</p>
+  <div class="brand"><svg class="logo" width="40" height="40" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name" data-brand>Jalon</span></div>
+  <p class="sub" data-brand-sig>Chaque étape, jusqu'au poste.</p>
 
   <div class="step" id="step-key" hidden>
     <h2><span class="num">!</span> Première utilisation</h2>
@@ -399,7 +399,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
       <input type="file" id="file-photo" accept="image/*" hidden>
     </div>
     <p class="hint" id="profile-saved">Enregistré automatiquement sur cet appareil.</p>
-    <p class="hint" id="retouches-info" hidden><span data-brand>Kairos</span> s'inspire de <span id="retouches-n"></span> pour écrire comme vous. <button class="btn small" id="btn-forget" type="button">Oublier</button></p>
+    <p class="hint" id="retouches-info" hidden><span data-brand>Jalon</span> s'inspire de <span id="retouches-n"></span> pour écrire comme vous. <button class="btn small" id="btn-forget" type="button">Oublier</button></p>
     <div class="row" style="margin-top:6px"><button class="btn small danger" id="btn-del-profile">Supprimer ce profil</button></div>
   </div>
 
@@ -494,11 +494,11 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
   <div class="empty app-ui" id="empty">
     <svg class="logo" width="56" height="56" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg>
     <h2>Jamais seul face à une candidature.</h2>
-    <p><span data-brand>Kairos</span>, votre coach IA : CV, lettre de motivation et suivi de vos candidatures, jusqu'à l'entretien.</p>
+    <p><span data-brand>Jalon</span>, votre coach IA : CV, lettre de motivation et suivi de vos candidatures, jusqu'à l'entretien.</p>
     <div class="how">
       <div><b>1. Votre parcours</b><span>Déposez votre ancien CV, ou décrivez-vous à voix haute.</span></div>
       <div><b>2. L'offre</b><span>Collez le lien de l'annonce : le CV et la lettre s'adaptent.</span></div>
-      <div><b>3. Postulez</b><span>Relisez, envoyez, et <span data-brand>Kairos</span> vous dit quand relancer.</span></div>
+      <div><b>3. Postulez</b><span>Relisez, envoyez, et <span data-brand>Jalon</span> vous dit quand relancer.</span></div>
     </div>
   </div>
   <div class="page-holder" id="holder-cv" hidden><div class="page cv tpl-moderne" id="page-cv" contenteditable="true" spellcheck="true" lang="fr"></div></div>
@@ -508,7 +508,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 <!-- ================= DISCUSSION AVEC CLAUDE ================= -->
 <aside class="chat app-ui" id="chat" aria-label="Discussion avec votre coach">
   <div class="chat-head">
-    <div><b>Demande à <span data-brand>Kairos</span></b><p class="hint" id="chat-ctx">Votre coach IA voit votre parcours, l'annonce, votre CV, votre lettre et votre photo.</p></div>
+    <div><b>Demande à <span data-brand>Jalon</span></b><p class="hint" id="chat-ctx">Votre coach IA voit votre parcours, l'annonce, votre CV, votre lettre et votre photo.</p></div>
     <button class="btn small" id="chat-close" aria-label="Fermer la discussion"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
   </div>
   <div class="chat-msgs" id="chat-msgs" aria-live="polite"></div>
@@ -525,13 +525,13 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <button class="mic" id="chat-mic" type="button" aria-label="Dicter au micro" title="Parler au lieu d'écrire"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5M8.5 21.5h7"/></svg></button>
     <button class="btn primary" id="chat-send" type="submit">Envoyer</button>
   </form>
-  <div class="row chat-foot"><p class="hint"><span data-brand>Kairos</span> est une IA : il peut se tromper, gardez votre jugement.</p><button class="btn small" id="chat-clear" type="button">Effacer</button></div>
+  <div class="row chat-foot"><p class="hint"><span data-brand>Jalon</span> est une IA : il peut se tromper, gardez votre jugement.</p><button class="btn small" id="chat-clear" type="button">Effacer</button></div>
 </aside>
 </div>
 
 <button class="fab app-ui" id="fab" type="button" aria-label="Demande à votre coach">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 2.5c-5.25 0-9.5 3.8-9.5 8.5 0 2.3 1 4.4 2.7 5.9L4.3 21l4.6-2.1c.97.27 2 .4 3.1.4 5.25 0 9.5-3.8 9.5-8.5S17.25 2.5 12 2.5z"/><circle cx="7.9" cy="11" r="1.35" fill="var(--accent)"/><circle cx="12" cy="11" r="1.35" fill="var(--accent)"/><circle cx="16.1" cy="11" r="1.35" fill="var(--accent)"/></svg>
-  <span class="tip">Demande à <span data-brand>Kairos</span> !</span>
+  <span class="tip">Demande à <span data-brand>Jalon</span> !</span>
 </button>
 
 <!-- ================= PRÉPARER MA CANDIDATURE ================= -->
@@ -591,7 +591,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 "use strict";
 
 /* ===== Nom et signature de la marque : à changer ICI uniquement ===== */
-const BRAND = { name: "Kairos", signature: "Le bon poste n'attend pas." };
+const BRAND = { name: "Jalon", signature: "Chaque étape, jusqu'au poste." };
 document.querySelectorAll("[data-brand]").forEach(n => { n.textContent = BRAND.name; });
 document.querySelectorAll("[data-brand-sig]").forEach(n => { n.textContent = BRAND.signature; });
 document.title = BRAND.name + " — votre coach emploi IA";
