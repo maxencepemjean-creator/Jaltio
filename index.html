@@ -155,6 +155,53 @@ details summary{cursor:pointer;font-weight:600}
   body[data-print=lettre] #holder-lettre{display:block!important}
   .page{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+/* Retouches à valider */
+.validate{display:none;align-items:center;gap:8px;background:#fffaeb;border:1px solid #fedf89;color:#7a2e0e;border-radius:999px;padding:4px 6px 4px 12px;font-size:13.5px}
+.validate.show{display:inline-flex}
+.validate .btn{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:600;border-radius:999px}
+
+/* Bulle « Demande à Claude ! » */
+.fab{position:fixed;right:22px;bottom:22px;width:62px;height:62px;border-radius:50%;border:0;background:var(--brand);color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(31,78,121,.35);display:grid;place-items:center;z-index:50;transition:transform .15s}
+.fab:hover{transform:scale(1.06)}
+.fab:focus-visible{outline:3px solid #93c5fd;outline-offset:3px}
+.fab svg{width:28px;height:28px}
+.fab .tip{position:absolute;right:76px;bottom:14px;background:#fff;color:var(--ink);font-weight:600;font-size:14.5px;padding:8px 13px;border-radius:16px 16px 4px 16px;box-shadow:0 4px 16px rgba(0,0,0,.15);white-space:nowrap;opacity:0;transform:translateX(8px);transition:opacity .18s,transform .18s;pointer-events:none}
+.fab:hover .tip,.fab:focus-visible .tip{opacity:1;transform:none}
+body.chat-open .fab{display:none}
+
+/* Panneau de discussion : colonne à droite, le document se resserre au lieu d'être caché */
+.chat{display:none;flex-direction:column;background:#fff;border-left:1px solid var(--line);position:sticky;top:0;height:100vh;min-width:0}
+body.chat-open .chat{display:flex}
+body.chat-open .app{grid-template-columns:380px 1fr 380px}
+.chat-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.chat-head b{font-size:16px}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;padding:9px 12px;border-radius:14px;font-size:14.5px;line-height:1.45;overflow-wrap:anywhere}
+.msg.user{align-self:flex-end;background:var(--brand);color:#fff;border-bottom-right-radius:4px;white-space:pre-wrap}
+.msg.ai{align-self:flex-start;background:#f3f4f6;border-bottom-left-radius:4px}
+.msg.ai p{margin:0 0 .5em}.msg.ai p:last-child{margin:0}
+.msg.ai ul{margin:.2em 0 .5em;padding-left:1.2em}
+.msg.note{align-self:center;background:#ecfdf3;color:var(--ok);font-size:13px;padding:5px 10px}
+.msg.err{align-self:center;background:#fef3f2;color:var(--danger);font-size:13px}
+.msg.wait{align-self:flex-start;background:#f3f4f6;color:var(--muted);font-style:italic}
+.chips{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.chip{text-align:left;border:1px solid #d1d5db;background:#fff;border-radius:10px;padding:8px 10px;cursor:pointer;font-size:13.5px;color:var(--ink)}
+.chip:hover{border-color:var(--brand);color:var(--brand)}
+.chat-apply{border-top:1px solid var(--line);padding:10px 16px}
+.chat-apply .row{margin-top:6px}
+.chat-apply .btn{flex:1}
+.chat-form{display:flex;gap:8px;padding:10px 16px 6px;border-top:1px solid var(--line)}
+.chat-form textarea{min-height:44px;max-height:140px;resize:none;flex:1}
+.chat-foot{padding:0 16px 10px;justify-content:space-between}
+.chat-foot .hint{margin:0}
+
+@media (max-width:1180px){
+  body.chat-open .app{grid-template-columns:1fr}
+  .chat{position:fixed;left:0;right:0;bottom:0;top:auto;height:58vh;border-left:0;border-top:1px solid var(--line);border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.15);z-index:60}
+  body.chat-open{padding-bottom:58vh}
+}
+@media (min-width:1181px) and (max-width:1400px){ body.chat-open .app{grid-template-columns:340px 1fr 340px} }
+@media print{ .chat,.fab{display:none!important} body.chat-open{padding-bottom:0} body.chat-open .app{display:block} }
 </style>
 </head>
 <body>
@@ -197,6 +244,7 @@ details summary{cursor:pointer;font-weight:600}
       <input type="file" id="file-photo" accept="image/*" hidden>
     </div>
     <p class="hint" id="profile-saved">Enregistré automatiquement sur cet appareil.</p>
+    <p class="hint" id="retouches-info" hidden>Claude s'inspire de <span id="retouches-n"></span> pour écrire comme vous. <button class="btn small" id="btn-forget" type="button">Oublier</button></p>
     <div class="row" style="margin-top:6px"><button class="btn small danger" id="btn-del-profile">Supprimer ce profil</button></div>
   </div>
 
@@ -272,6 +320,7 @@ details summary{cursor:pointer;font-weight:600}
   <div class="tabs app-ui" id="tabs" hidden>
     <button class="tab on" data-tab="cv">CV</button>
     <button class="tab" data-tab="lettre" id="tab-lettre">Lettre de motivation</button>
+    <span class="validate" id="validate">Retouches à valider <button class="btn small" id="btn-validate" type="button">✔ Valider mes retouches</button></span>
     <span class="spacer"></span>
     <span id="score" style="font-size:14px;color:var(--muted)"></span>
   </div>
@@ -284,7 +333,34 @@ details summary{cursor:pointer;font-weight:600}
   <div class="page-holder" id="holder-cv" hidden><div class="page cv tpl-moderne" id="page-cv" contenteditable="true" spellcheck="true" lang="fr"></div></div>
   <div class="page-holder" id="holder-lettre" hidden><div class="page lettre" id="page-lettre" contenteditable="true" spellcheck="true" lang="fr"></div></div>
 </section>
+
+<!-- ================= DISCUSSION AVEC CLAUDE ================= -->
+<aside class="chat app-ui" id="chat" aria-label="Discussion avec Claude">
+  <div class="chat-head">
+    <div><b>Demande à Claude</b><p class="hint" id="chat-ctx">Il voit votre parcours, l'annonce, votre CV, votre lettre et votre photo.</p></div>
+    <button class="btn small" id="chat-close" aria-label="Fermer la discussion">✕</button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs" aria-live="polite"></div>
+  <div class="chat-apply" id="chat-apply" hidden>
+    <p class="hint" style="margin:0">Appliquer ce qui a été dit dans la discussion :</p>
+    <div class="row">
+      <button class="btn small" data-apply="cv">Au CV</button>
+      <button class="btn small" data-apply="lettre">À la lettre</button>
+      <button class="btn small" data-apply="both">Aux deux</button>
+    </div>
+  </div>
+  <form class="chat-form" id="chat-form">
+    <textarea id="chat-input" rows="2" placeholder="Posez votre question… (Entrée pour envoyer)"></textarea>
+    <button class="btn primary" id="chat-send" type="submit">Envoyer</button>
+  </form>
+  <div class="row chat-foot"><p class="hint">Claude peut se tromper : gardez votre jugement.</p><button class="btn small" id="chat-clear" type="button">Effacer</button></div>
+</aside>
 </div>
+
+<button class="fab app-ui" id="fab" type="button" aria-label="Demande à Claude">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01" stroke-width="3"/></svg>
+  <span class="tip">Demande à Claude !</span>
+</button>
 
 <script>
 (function(){
@@ -344,6 +420,7 @@ function renderProfiles(){
   else { th.hidden = true; th.removeAttribute("src"); $("#btn-photo-del").hidden = true; }
   $("#btn-del-profile").hidden = profiles.length < 2;
   renderHistory();
+  if(typeof renderRetouchesInfo === "function" && $("#retouches-info")) try{ renderRetouchesInfo(); }catch(e){}
 }
 const saveProfileFields = debounce(() => {
   const p = prof(); p.name = $("#profile-name").value; p.parcours = $("#profile-parcours").value;
@@ -629,12 +706,15 @@ function storeResult(p, out, keep){
   if(!out.cv.nom && p.name) out.cv.nom = p.name;
   const h = { id:uid(), profileId:p.id, date:Date.now(), poste:str(out.poste_vise) || "Poste", entreprise:str(out.entreprise), companyColor:cleanHex(out.couleur_entreprise), data:out, cvHtml:"", lettreHtml:"" };
   currentHistId = h.id;
+  h.chat = (keep && keep.chat) || [];
   renderAll(out, keep);
   h.cvHtml = $("#page-cv").innerHTML; h.lettreHtml = $("#page-lettre").innerHTML;
+  h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; h.dirty = false;
   history.unshift(h);
   const mine = history.filter(x => x.profileId === p.id);
   if(mine.length > 15){ const gone = new Set(mine.slice(15).map(x => x.id)); history = history.filter(x => !gone.has(x.id)); }
-  saveHistory(); renderHistory(); renderSettings(); applyLook();
+  saveHistory(); renderHistory(); renderSettings(); applyLook(); refreshValidate();
+  if(document.body.classList.contains("chat-open")) renderChat();
 }
 function busy(on, label){
   ["#btn-generate", "#btn-regen"].forEach(id => { $(id).disabled = on; });
@@ -666,7 +746,7 @@ $("#btn-generate").addEventListener("click", async () => {
   try{
     const offreBloc = offre.length >= 80 ? offre + (url ? "\n(Lien de l'annonce, inutile de le lire : " + url + ")" : "")
       : "L'annonce est à lire à cette adresse : " + url;
-    const userMsg = "<parcours_du_candidat>\n" + (p.name ? "Nom : " + p.name + "\n" : "") + parcours + "\n</parcours_du_candidat>\n\n<offre_d_emploi>\n" + offreBloc + "\n</offre_d_emploi>\n\n" +
+    const userMsg = "<parcours_du_candidat>\n" + (p.name ? "Nom : " + p.name + "\n" : "") + parcours + "\n</parcours_du_candidat>\n\n<offre_d_emploi>\n" + offreBloc + "\n</offre_d_emploi>\n\n" + retouchesBlock(p) +
       (wantLettre ? "Rédige le CV ET la lettre de motivation." : "Rédige uniquement le CV ; mets \"lettre\": null.");
     const tools = [];
     if(offre.length < 80) tools.push({ type:"web_fetch_20250910", name:"web_fetch", max_uses:3, max_content_tokens:20000 });
@@ -707,12 +787,14 @@ function restoreLettreFrame(oldHtml){
 
 /* Boucle de corrections : la personne dit ce qui ne lui plaît pas, Claude refait */
 $("#btn-regen").addEventListener("click", async () => {
-  const h = history.find(x => x.id === currentHistId);
   const rq = $("#remarques").value.trim();
-  if(!h){ status("#status-gen", "err", "Générez d'abord un CV."); return; }
   if(rq.length < 4){ status("#status-gen", "err", "Expliquez ce que vous voulez changer."); $("#remarques").focus(); return; }
-  saveCurrentEdits(); // les retouches faites à la main sont conservées sur le document non corrigé
-  const target = cible();
+  if(await doRegen(cible(), rq)) $("#remarques").value = "";
+});
+async function doRegen(target, rq){
+  const h = history.find(x => x.id === currentHistId);
+  if(!h){ status("#status-gen", "err", "Générez d'abord un CV."); return false; }
+  validateEdits(true); // les retouches à la main deviennent la base de travail, et Claude les mémorise
   const p = profiles.find(x => x.id === h.profileId) || prof();
   const prev = Object.assign({}, h.data); delete prev._userMsg;
   const parcours = (h.data._userMsg && h.data._userMsg.parcours) || p.parcours;
@@ -735,27 +817,27 @@ $("#btn-regen").addEventListener("click", async () => {
       "\n</offre_d_emploi>\n\n<version_precedente>\n" + JSON.stringify(prev) + "\n</version_precedente>\n\n" +
       (cvActuel ? "<cv_tel_que_retouche_par_le_candidat>\n" + cvActuel + "\n</cv_tel_que_retouche_par_le_candidat>\nCe texte reflète les corrections faites à la main par le candidat sur son CV : elles priment sur \"cv\" de version_precedente. Intègre-les dans le JSON et conserve-les.\n\n" : "") +
       (lettreActuelle ? "La lettre de version_precedente contient déjà les corrections faites à la main par le candidat : conserve-les, sauf si ses remarques demandent de les changer.\n\n" : "") +
-      "<remarques_du_candidat>\n" + rq +
+      retouchesBlock(p) + "<remarques_du_candidat>\n" + rq +
       "\n</remarques_du_candidat>\n\n" + consigne + " Garde ce qui n'est pas concerné par les remarques et renvoie le JSON complet mis à jour. Les règles absolues restent valables : n'invente rien. Conserve \"couleur_entreprise\" et \"offre_resume\" tels quels." +
       (wantLettre ? "" : " Mets \"lettre\": null.");
     const out = await runClaude([{ role:"user", content:userMsg }], []);
     if(!str(out.couleur_entreprise)) out.couleur_entreprise = h.companyColor;
     if(!str(out.offre_resume)) out.offre_resume = h.data.offre_resume;
     // Le document non concerné est repris tel quel, retouches manuelles comprises
-    const keep = {};
+    const keep = { chat:h.chat };
     if(target === "cv"){ out.lettre = lettreActuelle || h.data.lettre || null; if(hadLettre) keep.lettreHtml = h.lettreHtml; }
     else if(hadLettre) keep.lettreFrame = h.lettreHtml;
     if(target === "lettre"){ out.cv = h.data.cv; out.alertes = h.data.alertes; out.score_adequation = h.data.score_adequation; keep.cvHtml = h.cvHtml; }
     out._userMsg = { parcours, wantLettre };
     storeResult(p, out, keep);
     if(target === "lettre") showTab("lettre");
-    $("#remarques").value = "";
     status("#status-gen", "ok", "Nouvelle version prête. L'ancienne reste dans l'historique.");
+    busy(false); return true;
   }catch(e){
     status("#status-gen", "err", e.message);
   }
-  busy(false);
-});
+  busy(false); return false;
+}
 
 /* ---------- Rendu du CV ---------- */
 function section(title){ const s = el("section", "blk"); s.appendChild(el("h3", "", title)); return s; }
@@ -846,14 +928,16 @@ function renderAll(out, html){
   $("#btn-pdf-lettre").hidden = !hasL; $("#btn-copy-lettre").hidden = !hasL;
   $("#empty").hidden = true; $("#tabs").hidden = false; $("#edit-hint").hidden = false; $("#feedback-box").hidden = false;
   $("#btn-regen").textContent = regenLabel();
-  renderSettings(); applyLook(); showTab("cv");
+  renderSettings(); applyLook(); showTab("cv"); refreshValidate();
+  if(document.body.classList.contains("chat-open")) renderChat();
 }
 
 function showEmpty(){
   currentHistId = null;
   $("#empty").hidden = false; $("#tabs").hidden = true; $("#alertes").hidden = true; $("#edit-hint").hidden = true; $("#feedback-box").hidden = true;
-  renderSettings();
+  renderSettings(); refreshValidate();
   $("#holder-cv").hidden = true; $("#holder-lettre").hidden = true;
+  if(document.body.classList.contains("chat-open")) renderChat();
 }
 
 /* Apparence (sans re-générer : les corrections manuelles sont conservées) */
@@ -902,7 +986,8 @@ function saveCurrentEdits(){
   const h = history.find(x => x.id === currentHistId); if(!h) return;
   h.cvHtml = $("#page-cv").innerHTML; h.lettreHtml = $("#page-lettre").innerHTML; saveHistory();
 }
-const onEdit = debounce(() => { saveCurrentEdits(); fitVisible(); }, 700);
+const onEditSave = debounce(() => { saveCurrentEdits(); fitVisible(); }, 700);
+const onEdit = () => { markDirty(); onEditSave(); };
 $("#page-cv").addEventListener("input", onEdit);
 $("#page-lettre").addEventListener("input", onEdit);
 
@@ -915,7 +1000,10 @@ function renderHistory(){
     const li = el("li");
     const t = el("span", "t"); t.appendChild(el("div", "", h.poste + (h.entreprise ? " — " + h.entreprise : "")));
     t.appendChild(el("div", "d", new Date(h.date).toLocaleDateString("fr-FR", { day:"numeric", month:"short", year:"numeric" })));
-    t.addEventListener("click", () => { currentHistId = h.id; renderAll(h.data, h); window.scrollTo({ top:0, behavior:"smooth" }); });
+    t.addEventListener("click", () => {
+      if(!h.baseCvHtml){ h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; }
+      currentHistId = h.id; renderAll(h.data, h); window.scrollTo({ top:0, behavior:"smooth" });
+    });
     const del = el("button", "btn small danger", "✕"); del.title = "Supprimer";
     del.addEventListener("click", () => { if(!confirm("Supprimer ce CV de l'historique ?")) return; history = history.filter(x => x.id !== h.id); saveHistory(); if(currentHistId === h.id) showEmpty(); renderHistory(); });
     li.appendChild(t); li.appendChild(del); ul.appendChild(li);
@@ -945,9 +1033,193 @@ $("#btn-copy-lettre").addEventListener("click", async () => {
   catch(e){ prompt("Copiez le texte ci-dessous :", txt); }
 });
 
+/* ---------- Retouches à la main : validation et apprentissage ---------- */
+function linesDiff(a, b){
+  // Différence ligne à ligne (plus longue sous-séquence commune) -> paires avant/après
+  const n = a.length, m = b.length, L = Array.from({ length:n + 1 }, () => new Array(m + 1).fill(0));
+  for(let i = n - 1; i >= 0; i--) for(let j = m - 1; j >= 0; j--) L[i][j] = a[i] === b[j] ? L[i+1][j+1] + 1 : Math.max(L[i+1][j], L[i][j+1]);
+  const out = []; let i = 0, j = 0, rem = [], add = [];
+  const flush = () => { if(rem.length || add.length) out.push({ avant:rem.join(" / "), apres:add.join(" / ") }); rem = []; add = []; };
+  while(i < n || j < m){
+    if(i < n && j < m && a[i] === b[j]){ flush(); i++; j++; }
+    else if(j < m && (i >= n || L[i][j+1] >= L[i+1][j])) add.push(b[j++]);
+    else rem.push(a[i++]);
+  }
+  flush();
+  return out;
+}
+const lettreLines = html => { const l = lettreFromHtml(html); return l ? [l.objet].concat(l.paragraphes).filter(Boolean) : []; };
+const cut = s => s.length > 400 ? s.slice(0, 400) + "…" : s;
+function pendingChanges(h){
+  const ch = [];
+  if(h.baseCvHtml) linesDiff(cvTextFromHtml(h.baseCvHtml).split("\n"), cvTextFromHtml(h.cvHtml).split("\n")).forEach(d => ch.push(Object.assign({ doc:"CV" }, d)));
+  if(h.baseLettreHtml && h.data.lettre) linesDiff(lettreLines(h.baseLettreHtml), lettreLines(h.lettreHtml)).forEach(d => ch.push(Object.assign({ doc:"Lettre" }, d)));
+  return ch;
+}
+/* Valide les retouches : elles deviennent la version de référence et Claude les mémorise */
+function validateEdits(silent){
+  const h = history.find(x => x.id === currentHistId); if(!h) return 0;
+  saveCurrentEdits();
+  if(!h.dirty) return 0;
+  const changes = pendingChanges(h);
+  const p = profiles.find(x => x.id === h.profileId);
+  if(p && changes.length){
+    p.retouches = (p.retouches || []).concat(changes.map(c => ({ doc:c.doc, avant:cut(c.avant), apres:cut(c.apres), poste:h.poste }))).slice(-20);
+    saveProfiles(); renderRetouchesInfo();
+  }
+  const l = lettreFromHtml(h.lettreHtml); if(l) h.data.lettre = Object.assign({}, h.data.lettre, l);
+  h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; h.dirty = false;
+  saveHistory(); refreshValidate();
+  if(!silent) status("#status-gen", "ok", changes.length
+    ? "Retouches validées (" + changes.length + "). Claude repartira de cette version et s'en inspirera pour les prochaines."
+    : "Version validée.");
+  return changes.length;
+}
+function refreshValidate(){
+  const h = currentHistId && history.find(x => x.id === currentHistId);
+  $("#validate").classList.toggle("show", !!(h && h.dirty));
+}
+function markDirty(){
+  const h = history.find(x => x.id === currentHistId);
+  if(h && !h.dirty){ h.dirty = true; refreshValidate(); }
+}
+$("#btn-validate").addEventListener("click", () => validateEdits(false));
+
+function renderRetouchesInfo(){
+  const p = prof(), n = (p.retouches || []).length, box = $("#retouches-info");
+  box.hidden = !n;
+  if(n) $("#retouches-n").textContent = n === 1 ? "1 de vos retouches" : n + " de vos retouches";
+}
+$("#btn-forget").addEventListener("click", () => {
+  if(!confirm("Claude oubliera vos retouches passées pour ce profil. Continuer ?")) return;
+  prof().retouches = []; saveProfiles(); renderRetouchesInfo();
+});
+function retouchesBlock(p){
+  const r = (p && p.retouches) || []; if(!r.length) return "";
+  return "<retouches_passees_du_candidat>\n" + r.map(x => "[" + x.doc + "] AVANT : " + (x.avant || "(rien)") + "\nAPRÈS : " + (x.apres || "(supprimé)")).join("\n\n") +
+    "\n</retouches_passees_du_candidat>\nCes retouches, faites à la main par le candidat sur des versions précédentes, révèlent ses préférences : ton, tournures, ce qu'il veut mettre en avant ou retirer. Applique ces préférences spontanément. N'en reprends pas les faits s'ils ne concernent pas cette offre, et n'invente toujours rien.\n\n";
+}
+
+/* ---------- Discussion avec Claude ---------- */
+const CHAT_SYSTEM = `Tu es Claude, coach emploi franc et bienveillant, spécialiste du recrutement en France. Tu aides le candidat à améliorer son CV et sa lettre de motivation pour l'offre visée.
+- Réponds en français, simplement : la personne n'est pas forcément à l'aise avec l'informatique ni avec le jargon RH.
+- Sois concis : 4 à 10 lignes, sauf si on te demande plus. Concret, avec une proposition de reformulation quand c'est utile.
+- Sois honnête : si quelque chose est faible, dis-le clairement et propose mieux. Pas de compliments gratuits.
+- Appuie-toi sur le contexte fourni (parcours, annonce, CV et lettre tels qu'ils sont à l'écran). N'invente jamais d'expérience, de diplôme ni de compétence.
+- Photo : juge seulement le cadrage, la lumière, le fond, la netteté, la tenue et l'expression au regard du poste visé. Ne commente jamais le physique, l'âge apparent ou l'origine.
+- Tu ne modifies pas les documents toi-même. Quand une amélioration est convenue, rappelle en une phrase que le candidat peut cliquer sur « Au CV », « À la lettre » ou « Aux deux » sous la discussion pour l'appliquer.
+- Mise en forme : paragraphes courts, listes avec « - », gras avec **…** avec parcimonie. Pas de titres, pas de tableaux.`;
+
+function chatList(){
+  const h = currentHistId && history.find(x => x.id === currentHistId);
+  if(h) return h.chat || (h.chat = []);
+  const p = prof(); return p.chat || (p.chat = []);
+}
+const saveChat = () => { if(currentHistId) saveHistory(); else saveProfiles(); };
+
+function mdLite(text){
+  // Texte de Claude -> HTML sûr (échappement d'abord, puis gras et listes)
+  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  const box = document.createElement("div"); let ul = null;
+  String(text).split(/\n/).forEach(line => {
+    const t = line.trim();
+    if(/^[-•*]\s+/.test(t)){ if(!ul){ ul = document.createElement("ul"); box.appendChild(ul); } const li = document.createElement("li"); li.innerHTML = inline(t.replace(/^[-•*]\s+/, "")); ul.appendChild(li); return; }
+    ul = null; if(!t) return;
+    const p = document.createElement("p"); p.innerHTML = inline(t); box.appendChild(p);
+  });
+  return box;
+}
+
+const SUGGESTIONS = ["Est-ce que ma photo fait professionnel ?", "Ma lettre montre-t-elle assez ma motivation ?", "Qu'est-ce qu'un recruteur risque de me reprocher ?", "Quelles questions risque-t-on de me poser en entretien ?"];
+function renderChat(){
+  const box = $("#chat-msgs"); box.innerHTML = "";
+  const list = chatList(), h = currentHistId && history.find(x => x.id === currentHistId);
+  if(!list.length){
+    const intro = el("div", "msg ai"); intro.appendChild(mdLite(h ? "Bonjour ! Posez-moi n'importe quelle question sur votre CV, votre lettre ou votre candidature. Je vois les documents tels qu'ils sont à l'écran." : "Bonjour ! Créez d'abord un CV pour que je puisse le relire. En attendant, je peux répondre à vos questions sur votre parcours."));
+    box.appendChild(intro);
+    if(h){ const chips = el("div", "chips"); SUGGESTIONS.forEach(s => { const c = el("button", "chip", s); c.type = "button"; c.addEventListener("click", () => sendChat(s)); chips.appendChild(c); }); box.appendChild(chips); }
+  }
+  list.forEach(m => {
+    if(m.role === "user") box.appendChild(el("div", "msg user", m.text));
+    else if(m.role === "note") box.appendChild(el("div", "msg note", m.text));
+    else { const d = el("div", "msg ai"); d.appendChild(mdLite(m.text)); box.appendChild(d); }
+  });
+  $("#chat-apply").hidden = !(h && list.some(m => m.role === "assistant"));
+  box.scrollTop = box.scrollHeight;
+}
+
+function chatContext(){
+  const p = prof(), h = currentHistId && history.find(x => x.id === currentHistId);
+  if(h) saveCurrentEdits();
+  let t = "<contexte>\nNom du candidat : " + (p.name || "(non renseigné)") + "\n\n<parcours>\n" + (p.parcours || "(vide)") + "\n</parcours>\n";
+  if(h){
+    t += "\n<annonce>\n" + (str(h.data.offre_resume) || (h.poste + " — " + h.entreprise)) + "\n</annonce>\n\n<cv_affiche>\n" + cvTextFromHtml(h.cvHtml) + "\n</cv_affiche>\n";
+    const l = lettreFromHtml(h.lettreHtml);
+    t += l ? "\n<lettre_affichee>\nObjet : " + l.objet + "\n\n" + l.paragraphes.join("\n\n") + "\n</lettre_affichee>\n" : "\n(Pas de lettre de motivation pour l'instant.)\n";
+  } else t += "\n(Aucun CV n'a encore été généré.)\n";
+  t += "\n" + retouchesBlock(p);
+  t += p.photo ? "La photo que le candidat met sur son CV est jointe ci-dessous.\n" : "Le candidat n'a pas mis de photo.\n";
+  const content = [{ type:"text", text:t + "</contexte>" }];
+  if(p.photo){ const m = p.photo.match(/^data:(image\/[a-z]+);base64,(.+)$/); if(m) content.push({ type:"image", source:{ type:"base64", media_type:m[1], data:m[2] } }); }
+  return content;
+}
+
+let chatBusy = false;
+async function sendChat(text){
+  text = str(text); if(!text || chatBusy) return;
+  if(!settings.apiKey){ $("#step-key").hidden = false; alert("Enregistrez d'abord la clé d'accès (encadré « Première utilisation »)."); return; }
+  const list = chatList(); list.push({ role:"user", text }); saveChat(); renderChat();
+  $("#chat-input").value = ""; chatBusy = true; $("#chat-send").disabled = true;
+  const wait = el("div", "msg wait", "Claude réfléchit…"); $("#chat-msgs").appendChild(wait); $("#chat-msgs").scrollTop = 1e9;
+  try{
+    const turns = list.filter(m => m.role === "user" || m.role === "assistant").slice(-16);
+    while(turns.length && turns[0].role !== "user") turns.shift();
+    const messages = turns.map((m, i) => ({ role:m.role, content: i === 0 ? chatContext().concat([{ type:"text", text:m.text }]) : m.text }));
+    const data = await callClaude({ model:settings.model, max_tokens:3000, system:CHAT_SYSTEM, messages }, settings.apiKey);
+    addCost(data.usage);
+    const answer = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim() || "Je n'ai pas de réponse, reformulez votre question.";
+    list.push({ role:"assistant", text:answer }); saveChat();
+  }catch(e){
+    list.pop(); saveChat(); renderChat();
+    $("#chat-input").value = text;
+    $("#chat-msgs").appendChild(el("div", "msg err", e.message)); $("#chat-msgs").scrollTop = 1e9;
+    chatBusy = false; $("#chat-send").disabled = false; return;
+  }
+  chatBusy = false; $("#chat-send").disabled = false; renderChat();
+}
+
+function openChat(open){
+  document.body.classList.toggle("chat-open", open);
+  if(open){ renderChat(); setTimeout(() => $("#chat-input").focus(), 50); }
+  scalePreview(); fitVisible();
+}
+$("#fab").addEventListener("click", () => openChat(true));
+$("#chat-close").addEventListener("click", () => openChat(false));
+$("#chat-form").addEventListener("submit", e => { e.preventDefault(); sendChat($("#chat-input").value); });
+$("#chat-input").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendChat($("#chat-input").value); } });
+$("#chat-clear").addEventListener("click", () => {
+  if(!chatList().length || !confirm("Effacer cette discussion ?")) return;
+  chatList().length = 0; saveChat(); renderChat();
+});
+document.querySelectorAll("[data-apply]").forEach(b => b.addEventListener("click", async () => {
+  const target = b.dataset.apply, list = chatList();
+  const transcript = list.filter(m => m.role === "user" || m.role === "assistant").slice(-12)
+    .map(m => (m.role === "user" ? "Candidat : " : "Claude : ") + m.text).join("\n\n");
+  const rq = "Le candidat vient d'échanger avec toi au sujet de ses documents. Applique les améliorations convenues dans cette discussion (et uniquement celles qui concernent le document à corriger) :\n\n" + transcript;
+  document.querySelectorAll("[data-apply]").forEach(x => x.disabled = true);
+  list.push({ role:"note", text:"Application en cours…" }); renderChat();
+  const ok = await doRegen(target, rq);
+  list.pop();
+  if(ok) list.push({ role:"note", text:"✓ Appliqué " + { cv:"au CV", lettre:"à la lettre", both:"au CV et à la lettre" }[target] + ". L'ancienne version reste dans l'historique." });
+  else list.push({ role:"note", text:"L'application n'a pas abouti : voir le message à gauche." });
+  saveChat(); renderChat();
+  document.querySelectorAll("[data-apply]").forEach(x => x.disabled = false);
+}));
+
 /* ---------- Démarrage ---------- */
-renderSettings(); renderProfiles(); scalePreview();
-window.__cvx = { renderAll, showTab, cleanHex }; // utilisé pour les tests
+renderSettings(); renderProfiles(); renderRetouchesInfo(); scalePreview();
+window.__cvx = { renderAll, showTab, cleanHex, linesDiff }; // utilisé pour les tests
 })();
 </script>
 </body>
