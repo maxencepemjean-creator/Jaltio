@@ -444,6 +444,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <div class="row" style="margin-top:14px">
       <button class="btn primary" id="btn-pdf-cv">Télécharger le CV (PDF)</button>
       <button class="btn" id="btn-pdf-lettre">Lettre (PDF)</button>
+      <button class="btn" id="btn-img-cv" type="button">CV en image</button>
     </div>
     <div class="row" style="margin-top:8px"><button class="btn small" id="btn-copy-lettre">Copier le texte de la lettre</button></div>
     <p class="hint">Dans la fenêtre qui s'ouvre, choisissez « Enregistrer au format PDF » comme imprimante.</p>
@@ -1370,6 +1371,40 @@ function printPage(which){
 window.addEventListener("afterprint", () => { delete document.body.dataset.print; });
 $("#btn-pdf-cv").addEventListener("click", () => printPage("cv"));
 $("#btn-pdf-lettre").addEventListener("click", () => printPage("lettre"));
+
+/* ---------- Export du CV en image (PNG) ---------- */
+async function downloadCvImage(){
+  if(!currentHistId){ alert("Générez d'abord un CV."); return; }
+  showTab("cv");
+  const btn = $("#btn-img-cv"); const old = btn.textContent;
+  btn.disabled = true; btn.textContent = "Création de l'image…";
+  let wrap = null;
+  try{
+    if(!window.html2canvas) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
+    if(document.fonts && document.fonts.ready) await document.fonts.ready;
+    const clone = $("#page-cv").cloneNode(true);
+    clone.removeAttribute("id"); clone.removeAttribute("contenteditable");
+    clone.style.transform = "none"; clone.style.boxShadow = "none";
+    wrap = document.createElement("div");
+    wrap.style.cssText = "position:absolute;left:-10000px;top:0;";
+    wrap.appendChild(clone); document.body.appendChild(wrap);
+    const canvas = await window.html2canvas(clone, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false });
+    const h = history.find(x => x.id === currentHistId);
+    const nom = (h && h.data && h.data.cv && str(h.data.cv.nom)) || "CV";
+    const fname = ("CV " + nom).replace(/[\\/:*?"<>|]+/g, "").trim() + ".png";
+    const blob = await new Promise(res => canvas.toBlob(res, "image/png"));
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = fname;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+  }catch(e){
+    alert("Impossible de créer l'image. Utilisez le bouton « Télécharger le CV (PDF) ».");
+  }finally{
+    if(wrap) wrap.remove();
+    btn.disabled = false; btn.textContent = old;
+  }
+}
+$("#btn-img-cv").addEventListener("click", downloadCvImage);
 $("#btn-copy-lettre").addEventListener("click", async () => {
   const p = $("#page-lettre"); const parts = [];
   p.querySelectorAll(".objet, p, .sign").forEach(n => parts.push(n.innerText.trim()));
