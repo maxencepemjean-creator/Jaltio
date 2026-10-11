@@ -457,7 +457,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     </div>
   </div>
 
-  <div class="step">
+  <div class="step" id="step-dl" hidden>
     <h2><span class="num">3</span> Apparence et téléchargement</h2>
     <div class="row look">
       <div><label for="tpl">Modèle</label>
@@ -1207,7 +1207,7 @@ function renderAll(out, html){
   else { hasL = renderLettre(out); if(hasL && html && html.lettreFrame) restoreLettreFrame(html.lettreFrame); }
   $("#tab-lettre").hidden = !hasL;
   $("#btn-pdf-lettre").hidden = !hasL; $("#btn-copy-lettre").hidden = !hasL;
-  $("#empty").hidden = true; $("#tabs").hidden = false; $("#edit-hint").hidden = false; $("#feedback-box").hidden = false;
+  $("#empty").hidden = true; $("#tabs").hidden = false; $("#step-dl").hidden = false; $("#edit-hint").hidden = false; $("#feedback-box").hidden = false;
   $("#btn-regen").textContent = regenLabel();
   renderSettings(); applyLook(); showTab("cv"); refreshValidate(); refreshVersions();
   if(document.body.classList.contains("chat-open")) renderChat();
@@ -1215,7 +1215,7 @@ function renderAll(out, html){
 
 function showEmpty(){
   currentHistId = null;
-  $("#empty").hidden = false; $("#tabs").hidden = true; $("#alertes").hidden = true; $("#edit-hint").hidden = true; $("#feedback-box").hidden = true;
+  $("#empty").hidden = false; $("#tabs").hidden = true; $("#step-dl").hidden = true; $("#alertes").hidden = true; $("#edit-hint").hidden = true; $("#feedback-box").hidden = true;
   renderSettings(); refreshValidate();
   $("#holder-cv").hidden = true; $("#holder-lettre").hidden = true;
   if(document.body.classList.contains("chat-open")) renderChat();
