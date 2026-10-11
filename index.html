@@ -50,6 +50,13 @@ textarea{resize:vertical;min-height:120px}
 .drop b{color:var(--ink)}
 .or{text-align:center;color:var(--muted);font-size:12.5px;margin:8px 0 0}
 #feedback-box{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.seg{display:flex;border:1px solid #d1d5db;border-radius:8px;overflow:hidden;margin-bottom:4px}
+.seg label{flex:1;margin:0;font-weight:500;font-size:14px;text-align:center;cursor:pointer}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;padding:8px 6px;border-left:1px solid #d1d5db}
+.seg label:first-child span{border-left:0}
+.seg input:checked + span{background:var(--brand);color:#fff}
+.seg input:focus-visible + span{outline:2px solid var(--brand);outline-offset:-3px}
 .swatch.company{width:auto;border-radius:999px;padding:0 10px;color:#fff;font-size:12px;font-weight:600}
 .swatches{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
 .swatch{width:28px;height:28px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #d1d5db;cursor:pointer;flex:none}
@@ -209,7 +216,13 @@ details summary{cursor:pointer;font-weight:600}
     <button class="btn primary big" id="btn-generate">Créer mon CV adapté</button>
     <div class="status" id="status-gen"></div>
     <div id="feedback-box" hidden>
-      <label for="remarques">Quelque chose ne vous plaît pas ?</label>
+      <label>Que voulez-vous corriger ?</label>
+      <div class="seg" role="radiogroup" aria-label="Document à corriger">
+        <label><input type="radio" name="cible" value="cv"><span>Le CV</span></label>
+        <label><input type="radio" name="cible" value="lettre"><span>La lettre</span></label>
+        <label><input type="radio" name="cible" value="both" checked><span>Les deux</span></label>
+      </div>
+      <label for="remarques">Qu'est-ce qui ne vous plaît pas ?</label>
       <textarea id="remarques" rows="3" style="min-height:80px" placeholder="Ex. : accroche trop longue, mettre en avant mon expérience de vendeuse, lettre moins formelle, retirer les centres d'intérêt…"></textarea>
       <div class="row" style="margin-top:8px"><button class="btn primary" id="btn-regen">Corriger le CV et la lettre</button></div>
       <p class="hint">Les petites corrections (un mot, une date) se font plus vite en cliquant directement dans le document.</p>
@@ -612,11 +625,11 @@ function cleanHex(c){
   let n = 0; while((1.05) / (lum() + .05) < 4.5 && n++ < 40){ r = Math.round(r * .92); g = Math.round(g * .92); b = Math.round(b * .92); }
   return "#" + [r,g,b].map(v => v.toString(16).padStart(2, "0")).join("");
 }
-function storeResult(p, out){
+function storeResult(p, out, keep){
   if(!out.cv.nom && p.name) out.cv.nom = p.name;
   const h = { id:uid(), profileId:p.id, date:Date.now(), poste:str(out.poste_vise) || "Poste", entreprise:str(out.entreprise), companyColor:cleanHex(out.couleur_entreprise), data:out, cvHtml:"", lettreHtml:"" };
   currentHistId = h.id;
-  renderAll(out);
+  renderAll(out, keep);
   h.cvHtml = $("#page-cv").innerHTML; h.lettreHtml = $("#page-lettre").innerHTML;
   history.unshift(h);
   const mine = history.filter(x => x.profileId === p.id);
@@ -626,8 +639,15 @@ function storeResult(p, out){
 function busy(on, label){
   ["#btn-generate", "#btn-regen"].forEach(id => { $(id).disabled = on; });
   $("#btn-generate").textContent = on && label === "gen" ? "Claude rédige…" : "Créer mon CV adapté";
-  $("#btn-regen").textContent = on && label === "regen" ? "Correction en cours…" : "Corriger le CV et la lettre";
+  $("#btn-regen").textContent = on && label === "regen" ? "Correction en cours…" : regenLabel();
 }
+const cible = () => (document.querySelector('input[name="cible"]:checked') || {}).value || "both";
+function regenLabel(){
+  const h = currentHistId && history.find(x => x.id === currentHistId);
+  const hasL = !!(h && h.data && h.data.lettre);
+  return { cv:"Corriger le CV", lettre: hasL ? "Corriger la lettre" : "Rédiger la lettre", both: hasL ? "Corriger le CV et la lettre" : "Corriger le CV et rédiger la lettre" }[cible()];
+}
+document.querySelectorAll('input[name="cible"]').forEach(r => r.addEventListener("change", () => { $("#btn-regen").textContent = regenLabel(); }));
 const URL_RE = /^https?:\/\/\S+$/i;
 
 $("#btn-generate").addEventListener("click", async () => {
@@ -668,22 +688,36 @@ $("#btn-regen").addEventListener("click", async () => {
   const rq = $("#remarques").value.trim();
   if(!h){ status("#status-gen", "err", "Générez d'abord un CV."); return; }
   if(rq.length < 4){ status("#status-gen", "err", "Expliquez ce que vous voulez changer."); $("#remarques").focus(); return; }
+  saveCurrentEdits(); // les retouches faites à la main sont conservées sur le document non corrigé
+  const target = cible();
   const p = profiles.find(x => x.id === h.profileId) || prof();
   const prev = Object.assign({}, h.data); delete prev._userMsg;
   const parcours = (h.data._userMsg && h.data._userMsg.parcours) || p.parcours;
-  const wantLettre = h.data._userMsg ? h.data._userMsg.wantLettre : !!h.data.lettre;
+  const hadLettre = !!h.data.lettre;
+  const wantLettre = target === "cv" ? hadLettre : true;
+  const consigne = {
+    cv: "Corrige UNIQUEMENT le CV (champ \"cv\" et, si besoin, \"alertes\" et \"score_adequation\"). Ne touche pas à la lettre : recopie \"lettre\" à l'identique.",
+    lettre: hadLettre ? "Corrige UNIQUEMENT la lettre de motivation (champ \"lettre\"). Ne touche pas au CV : recopie \"cv\" à l'identique."
+                      : "Rédige la lettre de motivation (champ \"lettre\") en tenant compte des remarques. Ne touche pas au CV : recopie \"cv\" à l'identique.",
+    both: "Applique les remarques au CV et à la lettre de motivation" + (hadLettre ? "." : " (rédige la lettre, elle n'existe pas encore).")
+  }[target];
   busy(true, "regen");
   status("#status-gen", "info", "Claude applique vos remarques, comptez 20 à 60 secondes.");
   try{
     const userMsg = "<parcours_du_candidat>\n" + parcours + "\n</parcours_du_candidat>\n\n<offre_d_emploi>\n" + (str(h.data.offre_resume) || h.poste + " — " + h.entreprise) +
       "\n</offre_d_emploi>\n\n<version_precedente>\n" + JSON.stringify(prev) + "\n</version_precedente>\n\n<remarques_du_candidat>\n" + rq +
-      "\n</remarques_du_candidat>\n\nApplique ces remarques à la version précédente et renvoie le JSON complet mis à jour. Garde ce qui n'est pas concerné par les remarques. Les règles absolues restent valables : n'invente rien. Conserve \"couleur_entreprise\" et \"offre_resume\" tels quels." +
+      "\n</remarques_du_candidat>\n\n" + consigne + " Garde ce qui n'est pas concerné par les remarques et renvoie le JSON complet mis à jour. Les règles absolues restent valables : n'invente rien. Conserve \"couleur_entreprise\" et \"offre_resume\" tels quels." +
       (wantLettre ? "" : " Mets \"lettre\": null.");
     const out = await runClaude([{ role:"user", content:userMsg }], []);
     if(!str(out.couleur_entreprise)) out.couleur_entreprise = h.companyColor;
     if(!str(out.offre_resume)) out.offre_resume = h.data.offre_resume;
+    // Le document non concerné est repris tel quel, retouches manuelles comprises
+    const keep = {};
+    if(target === "cv"){ out.lettre = h.data.lettre || null; if(hadLettre) keep.lettreHtml = h.lettreHtml; }
+    if(target === "lettre"){ out.cv = h.data.cv; out.alertes = h.data.alertes; out.score_adequation = h.data.score_adequation; keep.cvHtml = h.cvHtml; }
     out._userMsg = { parcours, wantLettre };
-    storeResult(p, out);
+    storeResult(p, out, keep);
+    if(target === "lettre") showTab("lettre");
     $("#remarques").value = "";
     status("#status-gen", "ok", "Nouvelle version prête. L'ancienne reste dans l'historique.");
   }catch(e){
@@ -779,6 +813,7 @@ function renderAll(out, html){
   $("#tab-lettre").hidden = !hasL;
   $("#btn-pdf-lettre").hidden = !hasL; $("#btn-copy-lettre").hidden = !hasL;
   $("#empty").hidden = true; $("#tabs").hidden = false; $("#edit-hint").hidden = false; $("#feedback-box").hidden = false;
+  $("#btn-regen").textContent = regenLabel();
   renderSettings(); applyLook(); showTab("cv");
 }
 
