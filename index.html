@@ -357,6 +357,32 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 .applied-box .btn.big{background:var(--brand);border-color:var(--brand);color:#fff}
 .applied-box .itw-btn{background:var(--ok-soft);border-color:#BFE3CC;color:var(--ok)}
 .copy.done{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+/* Panneau de gauche : la personne, puis les 3 étapes */
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.who{display:flex;gap:14px;align-items:center;padding:6px 2px 18px;margin:0 0 16px;border-bottom:1px solid var(--line)}
+.avatar{width:58px;height:58px;border-radius:50%;flex:none;border:0;padding:0;cursor:pointer;background:var(--lilas);color:var(--brand);font-family:var(--display);font-weight:800;font-size:21px;display:grid;place-items:center;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar svg{width:28px;height:28px}
+.avatar:hover{box-shadow:0 0 0 3px var(--accent-soft)}
+.avatar:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.who-main{flex:1;min-width:0}
+#profile-name{width:100%;border:0;border-bottom:1.5px solid transparent;border-radius:0;padding:2px 0 3px;font-family:var(--display);font-size:21px;font-weight:700;letter-spacing:-.01em;color:var(--ink);background:transparent}
+#profile-name:hover{border-bottom-color:var(--line)}
+#profile-name:focus{outline:none;box-shadow:none;border-bottom-color:var(--brand)}
+#profile-name::placeholder{color:#A891AC;font-weight:600}
+.who-actions{display:flex;flex-wrap:wrap;gap:2px 14px;margin-top:5px;align-items:center}
+.link{background:none;border:0;padding:2px 0;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer}
+.link:hover{color:var(--brand);text-decoration:underline}
+.link.danger:hover{color:var(--danger)}
+.link:focus-visible,.who-switch select:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.who-switch select{width:auto;max-width:190px;border:0;border-radius:0;padding:2px 0;font-size:13px;font-weight:600;color:var(--brand);background:transparent;cursor:pointer}
+.who-switch select:focus{box-shadow:none}
+.step .drop{margin-top:2px}
+.step .or{margin:10px 0 0}
+.gen-btn{margin-top:16px}
+.dl-main{margin-top:16px}
+.dl-more{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.dl-more .btn{flex:1 1 auto}
 </style>
 </head>
 <body>
@@ -376,47 +402,46 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <div class="status" id="status-key-first"></div>
   </div>
 
+  <div class="who">
+    <button class="avatar" id="btn-photo" type="button" title="Ajouter ou changer ma photo" aria-label="Ajouter ou changer ma photo">
+      <img id="photo-thumb" alt="" hidden><span id="avatar-initials" aria-hidden="true"></span>
+    </button>
+    <input type="file" id="file-photo" accept="image/*" hidden>
+    <div class="who-main">
+      <label for="profile-name" class="sr-only">Votre prénom et nom</label>
+      <input type="text" id="profile-name" placeholder="Votre prénom et nom" autocomplete="name">
+      <div class="who-actions">
+        <button class="link" id="btn-photo-del" type="button" hidden>Retirer la photo</button>
+        <span class="who-switch" id="who-switch" hidden><label for="profile-select" class="sr-only">Changer de personne</label><select id="profile-select"></select></span>
+        <button class="link" id="btn-new-profile" type="button" title="Créer un profil pour une autre personne">+ Autre personne</button>
+        <button class="link danger" id="btn-del-profile" type="button">Supprimer ce profil</button>
+      </div>
+    </div>
+  </div>
+
   <div class="step">
     <h2><span class="num">1</span> Votre parcours</h2>
-    <label for="profile-select">Profil</label>
-    <div class="row">
-      <select id="profile-select"></select>
-      <button class="btn small" id="btn-new-profile" title="Créer un autre profil">+ Nouveau</button>
-    </div>
-    <label for="profile-name">Prénom Nom</label>
-    <input type="text" id="profile-name" placeholder="Ex. : Marie Dupont">
-    <label for="profile-parcours">Votre CV actuel ou votre parcours</label>
-    <textarea id="profile-parcours" rows="10" placeholder="Collez ici votre CV actuel, ou décrivez simplement :&#10;- vos coordonnées (téléphone, e-mail, ville, permis)&#10;- vos expériences avec les dates et ce que vous faisiez&#10;- vos diplômes et formations&#10;- vos compétences, langues, centres d'intérêt&#10;&#10;Plus c'est complet, meilleur sera le CV. Rien ne sera inventé."></textarea>
     <div class="drop" id="drop" tabindex="0" role="button">
-      <b>Déposez votre ancien CV ici</b><br>ou cliquez pour le choisir — PDF, Word (.docx), texte, ou une photo de vous
+      <b>Déposez votre ancien CV</b><br>ou cliquez pour le choisir : PDF, Word ou texte
     </div>
     <input type="file" id="file-any" accept=".pdf,.docx,.txt,.md,image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" multiple hidden>
-    <label>Photo (facultatif)</label>
-    <div class="photo-row">
-      <img id="photo-thumb" alt="" hidden>
-      <button class="btn small" id="btn-photo">Choisir une photo</button>
-      <button class="btn small danger" id="btn-photo-del" hidden>Retirer</button>
-      <input type="file" id="file-photo" accept="image/*" hidden>
-    </div>
+    <p class="or">ou</p>
+    <label for="profile-parcours">Écrivez votre parcours</label>
+    <textarea id="profile-parcours" rows="8" placeholder="Décrivez simplement :&#10;- vos coordonnées (téléphone, e-mail, ville, permis)&#10;- vos expériences avec les dates et ce que vous faisiez&#10;- vos diplômes et formations&#10;- vos compétences, langues, centres d'intérêt&#10;&#10;Plus c'est complet, meilleur sera le CV. Rien ne sera inventé."></textarea>
     <p class="hint" id="profile-saved">Enregistré automatiquement sur cet appareil.</p>
     <p class="hint" id="retouches-info" hidden><span data-brand>Jalon</span> s'inspire de <span id="retouches-n"></span> pour écrire comme vous. <button class="btn small" id="btn-forget" type="button">Oublier</button></p>
-    <div class="row" style="margin-top:6px"><button class="btn small danger" id="btn-del-profile">Supprimer ce profil</button></div>
   </div>
 
   <div class="step">
     <h2><span class="num">2</span> L'offre d'emploi</h2>
     <label for="offre-url">Lien de l'annonce</label>
     <input type="text" id="offre-url" inputmode="url" placeholder="https://www.hellowork.com/fr-fr/emplois/…">
-    <p class="hint">Fonctionne bien avec HelloWork, France Travail, Welcome to the Jungle et les sites carrières. LinkedIn et Indeed bloquent souvent la lecture : dans ce cas, collez le texte ci-dessous.</p>
-    <p class="or">— ou —</p>
-    <label for="offre">Collez le texte de l'annonce</label>
-    <textarea id="offre" rows="6" placeholder="Copiez tout le texte de l'annonce (intitulé, missions, profil recherché…) et collez-le ici."></textarea>
+    <p class="hint">LinkedIn et Indeed bloquent souvent la lecture : collez alors le texte ci-dessous.</p>
+    <p class="or">ou</p>
+    <label for="offre">Texte de l'annonce</label>
+    <textarea id="offre" rows="5" placeholder="Copiez tout le texte de l'annonce (intitulé, missions, profil recherché…) et collez-le ici."></textarea>
     <label class="check"><input type="checkbox" id="opt-lettre" checked> Rédiger aussi la lettre de motivation</label>
-  </div>
-
-  <div class="step">
-    <h2><span class="num">3</span> Générer</h2>
-    <button class="btn primary big" id="btn-generate">Créer mon CV adapté</button>
+    <button class="btn primary big gen-btn" id="btn-generate">Créer mon CV adapté</button>
     <div class="status" id="status-gen"></div>
     <div id="feedback-box" hidden>
       <label>Que voulez-vous corriger ?</label>
@@ -433,21 +458,23 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
   </div>
 
   <div class="step">
-    <h2><span class="num">4</span> Apparence et téléchargement</h2>
-    <label for="tpl">Modèle</label>
-    <select id="tpl">
-      <option value="moderne">Moderne (colonne colorée)</option>
-      <option value="classique">Classique (sobre)</option>
-    </select>
+    <h2><span class="num">3</span> Apparence et téléchargement</h2>
+    <div class="row look">
+      <div><label for="tpl">Modèle</label>
+        <select id="tpl">
+          <option value="moderne">Moderne (colonne colorée)</option>
+          <option value="classique">Classique (sobre)</option>
+        </select></div>
+    </div>
     <label>Couleur</label>
     <div class="swatches" id="swatches"></div>
-    <div class="row" style="margin-top:14px">
-      <button class="btn primary" id="btn-pdf-cv">Télécharger le CV (PDF)</button>
-      <button class="btn" id="btn-pdf-lettre">Lettre (PDF)</button>
-      <button class="btn" id="btn-img-cv" type="button">CV en image</button>
+    <button class="btn primary big dl-main" id="btn-pdf-cv">Télécharger le CV (PDF)</button>
+    <div class="dl-more">
+      <button class="btn small" id="btn-pdf-lettre">Lettre (PDF)</button>
+      <button class="btn small" id="btn-img-cv" type="button">CV en image</button>
+      <button class="btn small" id="btn-copy-lettre">Copier la lettre</button>
     </div>
-    <div class="row" style="margin-top:8px"><button class="btn small" id="btn-copy-lettre">Copier le texte de la lettre</button></div>
-    <p class="hint">Dans la fenêtre qui s'ouvre, choisissez « Enregistrer au format PDF » comme imprimante.</p>
+    <p class="hint">Pour le PDF, choisissez « Enregistrer au format PDF » dans la fenêtre d'impression.</p>
   </div>
 
   <div class="step">
@@ -644,10 +671,20 @@ const str = v => (v === null || v === undefined) ? "" : String(v).trim();
 function debounce(fn, ms){ let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 
 /* ---------- Profils ---------- */
+function renderAvatar(){
+  const p = prof(), ini = $("#avatar-initials");
+  const parts = str(p.name).split(/\s+/).filter(Boolean);
+  const txt = parts.length ? (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase() : "";
+  ini.hidden = !!p.photo;
+  if(txt) ini.textContent = txt;
+  else ini.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+}
 function renderProfiles(){
   const sel = $("#profile-select"); sel.innerHTML = "";
-  profiles.forEach(p => { const o = el("option", "", p.name || "Profil sans nom"); o.value = p.id; sel.appendChild(o); });
-  sel.value = currentProfileId;
+  const ph = el("option", "", "Changer de personne"); ph.value = ""; ph.disabled = true; sel.appendChild(ph);
+  profiles.filter(p => p.id !== currentProfileId).forEach(p => { const o = el("option", "", p.name || "Profil sans nom"); o.value = p.id; sel.appendChild(o); });
+  sel.selectedIndex = 0;
+  $("#who-switch").hidden = profiles.length < 2;
   const p = prof();
   $("#profile-name").value = p.name;
   $("#profile-parcours").value = p.parcours;
@@ -655,17 +692,18 @@ function renderProfiles(){
   if(p.photo){ th.src = p.photo; th.hidden = false; $("#btn-photo-del").hidden = false; }
   else { th.hidden = true; th.removeAttribute("src"); $("#btn-photo-del").hidden = true; }
   $("#btn-del-profile").hidden = profiles.length < 2;
+  renderAvatar();
   renderHistory();
   if(typeof renderRetouchesInfo === "function" && $("#retouches-info")) try{ renderRetouchesInfo(); }catch(e){}
 }
 const saveProfileFields = debounce(() => {
   const p = prof(); p.name = $("#profile-name").value; p.parcours = $("#profile-parcours").value;
   saveProfiles();
-  const o = $("#profile-select").selectedOptions[0]; if(o) o.textContent = p.name || "Profil sans nom";
+  renderAvatar();
 }, 400);
 $("#profile-name").addEventListener("input", saveProfileFields);
 $("#profile-parcours").addEventListener("input", saveProfileFields);
-$("#profile-select").addEventListener("change", e => { currentProfileId = e.target.value; saveProfiles(); renderProfiles(); showEmpty(); });
+$("#profile-select").addEventListener("change", e => { if(!e.target.value) return; currentProfileId = e.target.value; saveProfiles(); renderProfiles(); showEmpty(); });
 $("#btn-new-profile").addEventListener("click", () => {
   const p = { id:uid(), name:"", parcours:"", photo:"" }; profiles.push(p); currentProfileId = p.id; saveProfiles(); renderProfiles(); showEmpty(); $("#profile-name").focus();
 });
