@@ -218,6 +218,55 @@ body.chat-open .app{grid-template-columns:380px 1fr 380px}
 }
 @media (min-width:1181px) and (max-width:1400px){ body.chat-open .app{grid-template-columns:340px 1fr 340px} }
 @media print{ .chat,.fab{display:none!important} body.chat-open{padding-bottom:0} body.chat-open .app{display:block} }
+/* Bouton fixe en bas du panneau de gauche */
+.panel-foot{position:sticky;bottom:-20px;margin:6px -20px -20px;padding:14px 20px 20px;background:linear-gradient(to bottom, rgba(255,255,255,0), #fff 28%);z-index:5}
+.btn.apply-btn{width:100%;padding:13px;font-size:16px;background:var(--ok);border-color:var(--ok);color:#fff;font-weight:700}
+.btn.apply-btn:hover{filter:brightness(1.08)}
+
+/* Fenêtre « Préparer ma candidature » */
+.overlay{position:fixed;inset:0;background:rgba(17,24,39,.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:2.5vh 2.5vw}
+.overlay[hidden]{display:none}
+.dialog{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.dlg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 22px;border-bottom:1px solid var(--line)}
+.dlg-head h2{margin:0;font-size:20px}
+.dlg-head .hint{margin:2px 0 0}
+.dlg-body{flex:1;overflow:auto;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr) minmax(0,.9fr)}
+.dlg-col{padding:18px 22px;border-left:1px solid var(--line);overflow:auto;min-width:0}
+.dlg-col:first-child{border-left:0;background:#f8fafc}
+.dlg-col h3{font-size:16px;margin:0 0 10px;display:flex;gap:8px;align-items:center}
+.ap-pages{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0 12px}
+.ap-label{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.ap-pages > div{min-width:0}
+.ap-label{display:flex;justify-content:space-between;align-items:center}
+.ap-zoom{font-size:12.5px;padding:3px 9px}
+.ap-pages[data-zoom]{grid-template-columns:1fr}
+.ap-pages[data-zoom=cv] > div:nth-child(2),.ap-pages[data-zoom=lettre] > div:nth-child(1){display:none}
+.ap-holder{--s:.4;width:100%;overflow:hidden;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.12);background:#fff}
+.ap-holder .page{transform:scale(var(--s));transform-origin:top left;box-shadow:none}
+.ap-empty{border:2px dashed #d1d5db;border-radius:10px;padding:24px;text-align:center;color:var(--muted);font-size:14px}
+.ap-files{list-style:none;padding:0;margin:10px 0 0}
+.ap-files li{display:flex;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;background:#fff;font-size:14px}
+.ap-files li span{flex:1;overflow-wrap:anywhere}
+.fiche{display:flex;flex-direction:column;gap:9px}
+.fiche-row label{margin:0 0 3px;font-size:12.5px;color:var(--muted);font-weight:600}
+.fiche-row .row{flex-wrap:nowrap;gap:6px}
+.fiche-row input,.fiche-row textarea{padding:7px 9px;font-size:14px}
+.fiche-row textarea{min-height:120px}
+.copy{flex:none;min-width:78px}
+.copy.done{background:#ecfdf3;border-color:var(--ok);color:var(--ok)}
+.applied-box{margin-top:18px;padding:14px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}
+.applied-box .btn.big{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:700}
+.applied-box .ok{color:var(--ok);font-weight:700;margin:0 0 6px}
+.applied-box .warn{color:var(--warn);font-weight:600;margin:0 0 8px}
+.hist li .applied{color:var(--ok);font-weight:600}
+body.modal-open{overflow:hidden}
+@media (max-width:1100px){
+  .dlg-body{grid-template-columns:1fr}
+  .dlg-col{border-left:0;border-top:1px solid var(--line);overflow:visible}
+  .dlg-col:first-child{border-top:0}
+}
+@media (max-width:600px){ .overlay{padding:0} .dialog{border-radius:0} .ap-pages{grid-template-columns:1fr} }
+@media print{ .overlay{display:none!important} body.modal-open{overflow:visible} }
 </style>
 </head>
 <body>
@@ -330,6 +379,7 @@ body.chat-open .app{grid-template-columns:380px 1fr 380px}
     <div class="status" id="status-key"></div>
     <p class="hint" id="cost">Coût cumulé sur cet appareil : 0,00 $</p>
   </details>
+  <div class="panel-foot"><button class="btn apply-btn" id="btn-apply" type="button">📨 Préparer ma candidature</button></div>
 </aside>
 
 <!-- ================= APERÇU ================= -->
@@ -380,6 +430,58 @@ body.chat-open .app{grid-template-columns:380px 1fr 380px}
   <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 2.5c-5.25 0-9.5 3.8-9.5 8.5 0 2.3 1 4.4 2.7 5.9L4.3 21l4.6-2.1c.97.27 2 .4 3.1.4 5.25 0 9.5-3.8 9.5-8.5S17.25 2.5 12 2.5z"/><circle cx="7.9" cy="11" r="1.35" fill="var(--brand)"/><circle cx="12" cy="11" r="1.35" fill="var(--brand)"/><circle cx="16.1" cy="11" r="1.35" fill="var(--brand)"/></svg>
   <span class="tip">Demande à Claude !</span>
 </button>
+
+<!-- ================= PRÉPARER MA CANDIDATURE ================= -->
+<div class="overlay app-ui" id="ap" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="ap-title">
+    <header class="dlg-head">
+      <div><h2 id="ap-title">Préparer ma candidature</h2><p class="hint" id="ap-sub"></p></div>
+      <button class="btn small" id="ap-close" type="button" aria-label="Fermer">✕ Fermer</button>
+    </header>
+    <div class="dlg-body">
+      <section class="dlg-col">
+        <h3><span class="num">1</span> Mes documents</h3>
+        <div class="seg" role="radiogroup" aria-label="Documents à envoyer">
+          <label><input type="radio" name="ap-src" value="gen" checked><span>Ceux créés ici</span></label>
+          <label><input type="radio" name="ap-src" value="own"><span>Mes propres fichiers</span></label>
+        </div>
+        <div id="ap-gen">
+          <p class="hint">Dernière relecture : cliquez dans le CV ou la lettre pour corriger, les deux à la fois si besoin. Tout est enregistré.</p>
+          <div class="ap-pages" id="ap-pages">
+            <div><div class="ap-label">CV <button class="btn small ap-zoom" type="button" data-zoom="cv">🔍 Agrandir</button></div><div class="ap-holder" id="ap-h-cv"></div></div>
+            <div><div class="ap-label">Lettre de motivation <button class="btn small ap-zoom" type="button" data-zoom="lettre">🔍 Agrandir</button></div><div class="ap-holder" id="ap-h-l"></div></div>
+          </div>
+          <div class="ap-empty" id="ap-nogen" hidden>Aucun CV créé pour cette candidature. Créez-en un, ou choisissez « Mes propres fichiers ».</div>
+          <div class="row" id="ap-pdfs">
+            <button class="btn primary" id="ap-pdf-cv" type="button">Télécharger le CV (PDF)</button>
+            <button class="btn primary" id="ap-pdf-l" type="button">Télécharger la lettre (PDF)</button>
+          </div>
+          <p class="hint">Enregistrez les deux PDF dans un dossier « Candidatures » : c'est ce que vous joindrez sur le site ou à l'e-mail.</p>
+        </div>
+        <div id="ap-own" hidden>
+          <div class="drop" id="ap-drop" tabindex="0" role="button"><b>Déposez votre CV et votre lettre ici</b><br>ou cliquez pour les choisir (PDF ou Word)</div>
+          <input type="file" id="ap-files" multiple accept=".pdf,.doc,.docx,application/pdf" hidden>
+          <ul class="ap-files" id="ap-file-list"></ul>
+          <p class="hint">Ces fichiers restent sur votre appareil : rien n'est envoyé. Ils servent à les retrouver au moment de postuler.</p>
+        </div>
+      </section>
+      <section class="dlg-col">
+        <h3><span class="num">2</span> Infos à recopier sur le site</h3>
+        <p class="hint" style="margin-top:0">Sur le site de l'offre, cliquez dans la case, puis collez avec <b>Ctrl+V</b> (<b>Cmd+V</b> sur Mac). Vous pouvez corriger chaque ligne ici.</p>
+        <div class="fiche" id="ap-fiche"></div>
+      </section>
+      <section class="dlg-col">
+        <h3><span class="num">3</span> Envoyer</h3>
+        <label for="ap-url">Lien de l'annonce</label>
+        <div class="row"><input type="text" id="ap-url" inputmode="url" placeholder="https://…"><button class="btn" id="ap-open" type="button">Ouvrir ↗</button></div>
+        <label for="ap-email">Candidature par e-mail <span style="font-weight:400;color:var(--muted)">(si l'annonce donne une adresse)</span></label>
+        <div class="row"><input type="text" id="ap-email" inputmode="email" placeholder="recrutement@entreprise.fr"><button class="btn" id="ap-mail" type="button">Préparer l'e-mail</button></div>
+        <p class="hint">L'e-mail s'ouvre déjà rédigé dans votre messagerie : il reste à joindre le CV et la lettre en PDF, puis à envoyer.</p>
+        <div class="applied-box" id="ap-applied"></div>
+      </section>
+    </div>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -663,6 +765,8 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans texte avant ni après, sans 
   "entreprise_adresse": "adresse ou ville de l'entreprise si présente dans l'offre, sinon chaîne vide",
   "score_adequation": nombre de 0 à 100 (adéquation réelle parcours/offre, sois honnête),
   "alertes": ["exigences de l'offre absentes du parcours, ou conseils pour l'entretien — 0 à 4 éléments courts"],
+  "message_court": "message de candidature de 400 à 600 caractères, à la première personne, pour la case « message au recruteur » des sites d'emploi ; reprend l'essentiel de la lettre (ou du CV s'il n'y a pas de lettre), sans « Madame, Monsieur » ni signature",
+  "candidature": { "email": "adresse e-mail pour postuler si l'annonce en donne une, sinon chaîne vide", "reference": "référence de l'offre si elle existe, sinon chaîne vide" },
   "cv": {
     "nom": "Prénom Nom",
     "titre": "…",
@@ -772,7 +876,7 @@ $("#btn-generate").addEventListener("click", async () => {
     if(offre.length < 80) tools.push({ type:"web_fetch_20250910", name:"web_fetch", max_uses:3, max_content_tokens:20000 });
     tools.push({ type:"web_search_20250305", name:"web_search", max_uses:2 });
     const out = await runClaude([{ role:"user", content:userMsg }], tools);
-    out._userMsg = { parcours, wantLettre };
+    out._userMsg = { parcours, wantLettre, url };
     storeResult(p, out);
     $("#remarques").value = "";
     status("#status-gen", "ok", "C'est prêt ! Relisez le CV à droite. Corrigez directement dans le document, ou expliquez ce qui ne va pas ci-dessous.");
@@ -839,18 +943,21 @@ async function doRegen(target, rq){
       (cvActuel ? "<cv_tel_que_retouche_par_le_candidat>\n" + cvActuel + "\n</cv_tel_que_retouche_par_le_candidat>\nCe texte reflète les corrections faites à la main par le candidat sur son CV : elles priment sur \"cv\" de version_precedente. Intègre-les dans le JSON et conserve-les.\n\n" : "") +
       (lettreActuelle ? "La lettre de version_precedente contient déjà les corrections faites à la main par le candidat : conserve-les, sauf si ses remarques demandent de les changer.\n\n" : "") +
       retouchesBlock(p) + "<remarques_du_candidat>\n" + rq +
-      "\n</remarques_du_candidat>\n\n" + consigne + " Garde ce qui n'est pas concerné par les remarques et renvoie le JSON complet mis à jour. Les règles absolues restent valables : n'invente rien. Conserve \"couleur_entreprise\" et \"offre_resume\" tels quels." +
+      "\n</remarques_du_candidat>\n\n" + consigne + " Garde ce qui n'est pas concerné par les remarques et renvoie le JSON complet mis à jour. Les règles absolues restent valables : n'invente rien. Conserve \"couleur_entreprise\", \"offre_resume\" et \"candidature\" tels quels. Mets \"message_court\" à jour s'il ne correspond plus à la lettre." +
       (wantLettre ? "" : " Mets \"lettre\": null.");
     const out = await runClaude([{ role:"user", content:userMsg }], []);
     if(!str(out.couleur_entreprise)) out.couleur_entreprise = h.companyColor;
     if(!str(out.offre_resume)) out.offre_resume = h.data.offre_resume;
+    if(!out.candidature || !str(out.candidature.email)) out.candidature = h.data.candidature || out.candidature;
+    if(target === "cv" || !str(out.message_court)) out.message_court = h.data.message_court || out.message_court;
     // Le document non concerné est repris tel quel, retouches manuelles comprises
     const keep = { chat:h.chat, groupId:groupOf(h) };
     if(target === "cv"){ out.lettre = lettreActuelle || h.data.lettre || null; if(hadLettre) keep.lettreHtml = h.lettreHtml; }
     else if(hadLettre) keep.lettreFrame = h.lettreHtml;
     if(target === "lettre"){ out.cv = h.data.cv; out.alertes = h.data.alertes; out.score_adequation = h.data.score_adequation; keep.cvHtml = h.cvHtml; }
-    out._userMsg = { parcours, wantLettre };
+    out._userMsg = { parcours, wantLettre, url:(h.data._userMsg && h.data._userMsg.url) || "" };
     storeResult(p, out, keep);
+    const nh = curHist(); if(nh){ if(h.apply) nh.apply = h.apply; if(h.fiche) nh.fiche = h.fiche; saveHistory(); }
     if(target === "lettre") showTab("lettre");
     status("#status-gen", "ok", "Nouvelle version prête. L'ancienne reste dans l'historique.");
     busy(false); return true;
@@ -1080,6 +1187,11 @@ function renderHistory(){
     const meta = el("div", "meta");
     meta.appendChild(document.createTextNode(new Date(G.last).toLocaleDateString("fr-FR", { day:"numeric", month:"short" }) + (G.versions.length > 1 ? " · " + G.versions.length + " versions" : "")));
     const left = Math.ceil((G.last + KEEP_DAYS * DAY - Date.now()) / DAY);
+    const applied = appliedOf(G);
+    if(applied){
+      meta.appendChild(document.createTextNode(" · ")); meta.appendChild(el("span", "applied", "Postulé le " + new Date(applied).toLocaleDateString("fr-FR", { day:"numeric", month:"short" })));
+      if(!relanceOf(G) && Date.now() - applied >= 7 * DAY){ meta.appendChild(document.createTextNode(" · ")); meta.appendChild(el("span", "soon", "à relancer")); }
+    }
     if(pins.has(G.id)) meta.appendChild(document.createTextNode(" · gardée"));
     else if(left <= 7){ meta.appendChild(document.createTextNode(" · ")); meta.appendChild(el("span", "soon", left <= 1 ? "supprimée demain" : "supprimée dans " + left + " j")); }
     t.appendChild(meta);
@@ -1348,6 +1460,234 @@ function setupDictation(btn, field, onUnsupported){
 const DICT_HELP = "La dictée n'est pas disponible dans ce navigateur. Utilisez Chrome, Edge ou Safari, ou la dictée intégrée à votre ordinateur : touches Windows + H sur un PC, ou touche 🎤 (ou Fn deux fois) sur un Mac.";
 setupDictation($("#chat-mic"), $("#chat-input"), () => { $("#chat-msgs").appendChild(el("div", "msg err", DICT_HELP)); $("#chat-msgs").scrollTop = 1e9; });
 setupDictation($("#regen-mic"), $("#remarques"), () => alert(DICT_HELP));
+
+/* ---------- Préparer ma candidature ---------- */
+const curHist = () => currentHistId && history.find(x => x.id === currentHistId);
+const fmtDate = t => new Date(t).toLocaleDateString("fr-FR", { day:"numeric", month:"long" });
+const appliedOf = G => G.versions.reduce((a, v) => v.applied ? Math.max(a, v.applied) : a, 0);
+const relanceOf = G => G.versions.reduce((a, v) => v.relance ? Math.max(a, v.relance) : a, 0);
+let apOwnFiles = [];
+
+function pick(re, text){ const m = String(text || "").match(re); return m ? m[0].trim() : ""; }
+/* Champs habituels des formulaires de candidature, pré-remplis depuis le CV, la lettre et le parcours */
+function ficheFields(){
+  const p = prof(), h = curHist(), d = h ? h.data : {}, cv = d.cv || {}, c = cv.contact || {};
+  const full = str(cv.nom) || str(p.name), parts = full.split(/\s+/).filter(Boolean);
+  const exp = (cv.experiences || [])[0] || {}, form = (cv.formations || [])[0] || {};
+  const parc = p.parcours || "";
+  const auto = {
+    prenom: parts[0] || "",
+    nom: parts.slice(1).join(" "),
+    email: str(c.email) || pick(/[\w.+-]+@[\w-]+\.[\w.-]+/, parc),
+    tel: str(c.telephone) || pick(/(?:\+33\s?|0)[1-9](?:[\s.-]?\d{2}){4}/, parc),
+    ville: str(c.ville),
+    linkedin: str(c.linkedin) || pick(/(?:https?:\/\/)?(?:[a-z]{2,3}\.)?linkedin\.com\/in\/[\w-]+\/?/i, parc),
+    poste: h ? (str(d.poste_vise) || h.poste) : "",
+    dernier: [str(exp.poste), str(exp.entreprise)].filter(Boolean).join(" — "),
+    diplome: [str(form.diplome), str(form.etablissement)].filter(Boolean).join(" — "),
+    message: str(d.message_court)
+  };
+  const mine = p.fiche || {}, here = (h && h.fiche) || {};
+  const F = [
+    ["prenom", "Prénom", 1], ["nom", "Nom", 1], ["email", "E-mail", 1], ["tel", "Téléphone", 1], ["ville", "Ville", 1], ["linkedin", "Profil LinkedIn", 1],
+    ["poste", "Poste visé", 0], ["dernier", "Dernier poste occupé", 0], ["diplome", "Diplôme principal", 0], ["message", "Message au recruteur", 0]
+  ];
+  return F.map(([k, label, personal]) => ({ k, label, personal, value: (personal ? mine[k] : here[k]) ?? auto[k] ?? "" }));
+}
+function saveFicheValue(k, personal, v){
+  if(personal){ const p = prof(); (p.fiche || (p.fiche = {}))[k] = v; saveProfiles(); }
+  else { const h = curHist(); if(h){ (h.fiche || (h.fiche = {}))[k] = v; saveHistory(); } }
+}
+async function copyText(text, btn){
+  try{ await navigator.clipboard.writeText(text); }
+  catch(e){ const t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select(); try{ document.execCommand("copy"); }catch(_){} t.remove(); }
+  if(btn){ const old = btn.textContent; btn.textContent = "Copié ✓"; btn.classList.add("done"); setTimeout(() => { btn.textContent = old; btn.classList.remove("done"); }, 1500); }
+}
+function renderFiche(){
+  const box = $("#ap-fiche"); box.innerHTML = "";
+  ficheFields().forEach(f => {
+    const row = el("div", "fiche-row"), id = "ap-f-" + f.k;
+    const lab = el("label", "", f.label); lab.htmlFor = id; row.appendChild(lab);
+    const line = el("div", "row");
+    const inp = el(f.k === "message" ? "textarea" : "input"); inp.id = id; if(f.k !== "message") inp.type = "text";
+    inp.value = f.value;
+    if(f.k === "message") inp.placeholder = "Quelques lignes pour la case « message » des sites. Cliquez sur « Rédiger » pour que Claude l'écrive à partir de votre lettre.";
+    inp.addEventListener("input", debounce(() => saveFicheValue(f.k, f.personal, inp.value), 400));
+    line.appendChild(inp);
+    const cp = el("button", "btn small copy", "Copier"); cp.type = "button";
+    cp.addEventListener("click", () => copyText(inp.value, cp));
+    line.appendChild(cp); row.appendChild(line);
+    if(f.k === "message"){
+      const gen = el("button", "btn small", inp.value ? "✨ Réécrire avec Claude" : "✨ Rédiger avec Claude"); gen.type = "button"; gen.style.marginTop = "6px";
+      gen.addEventListener("click", () => draftMessage(inp, gen)); row.appendChild(gen);
+    }
+    box.appendChild(row);
+  });
+  const all = el("button", "btn small", "Tout copier (pour un e-mail ou une note)"); all.type = "button"; all.style.alignSelf = "flex-start";
+  all.addEventListener("click", () => copyText(ficheFields().filter(f => f.value).map(f => f.label + " : " + f.value).join("\n"), all));
+  box.appendChild(all);
+}
+async function draftMessage(inp, btn){
+  const h = curHist();
+  if(!settings.apiKey){ alert("Enregistrez d'abord la clé d'accès."); return; }
+  if(!h){ alert("Créez d'abord un CV et une lettre pour cette candidature."); return; }
+  saveCurrentEdits();
+  const l = lettreFromHtml(h.lettreHtml), cvTxt = cvTextFromHtml(h.cvHtml);
+  btn.disabled = true; const old = btn.textContent; btn.textContent = "Claude écrit…";
+  try{
+    const data = await callClaude({ model:settings.model, max_tokens:2000,
+      system:"Tu rédiges des messages de candidature courts, en français, pour la case « message au recruteur » des sites d'emploi.",
+      messages:[{ role:"user", content:"Poste visé : " + h.poste + (h.entreprise ? " chez " + h.entreprise : "") + "\n\n" +
+        (l ? "<lettre>\n" + l.paragraphes.join("\n\n") + "\n</lettre>\n\n" : "") + "<cv>\n" + cvTxt + "\n</cv>\n\n" + retouchesBlock(prof()) +
+        "Rédige un message de 400 à 600 caractères, à la première personne, professionnel et sincère, qui donne envie d'ouvrir le CV. Pas de « Madame, Monsieur », pas de signature, pas d'objet. N'invente rien. Réponds uniquement par le message." }] }, settings.apiKey);
+    addCost(data.usage);
+    const msg = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim();
+    if(msg){ inp.value = msg; saveFicheValue("message", 0, msg); btn.textContent = "✨ Réécrire avec Claude"; btn.disabled = false; return; }
+  }catch(e){ alert(e.message); }
+  btn.disabled = false; btn.textContent = old;
+}
+
+/* Relecture : copies modifiables du CV et de la lettre, synchronisées avec les vrais documents */
+function apClone(srcSel, holderSel){
+  const holder = $(holderSel); holder.innerHTML = "";
+  const src = $(srcSel), c = src.cloneNode(true); c.removeAttribute("id"); c.classList.add("ap-copy");
+  holder.appendChild(c);
+  const s = holder.clientWidth / 794; holder.style.setProperty("--s", s); holder.style.height = (1123 * s) + "px";
+  fitPage(c, srcSel === "#page-cv" ? 10.5 : 11, srcSel === "#page-cv" ? 8.25 : 9.5);
+  c.addEventListener("input", debounce(() => { src.innerHTML = c.innerHTML; markDirty(); saveCurrentEdits(); }, 500));
+}
+function apScale(){
+  ["#ap-h-cv", "#ap-h-l"].forEach(sel => { const h = $(sel); if(!h.firstChild || !h.clientWidth) return; const s = h.clientWidth / 794; h.style.setProperty("--s", s); h.style.height = (1123 * s) + "px"; });
+}
+document.querySelectorAll(".ap-zoom").forEach(b => b.addEventListener("click", () => {
+  const pages = $("#ap-pages"), z = b.dataset.zoom, on = pages.dataset.zoom === z;
+  if(on) delete pages.dataset.zoom; else pages.dataset.zoom = z;
+  document.querySelectorAll(".ap-zoom").forEach(x => { x.textContent = pages.dataset.zoom === x.dataset.zoom ? "Côte à côte" : "🔍 Agrandir"; });
+  apScale();
+}));
+function renderApDocs(){
+  const own = (document.querySelector('input[name="ap-src"]:checked') || {}).value === "own", h = curHist();
+  $("#ap-gen").hidden = own; $("#ap-own").hidden = !own;
+  if(!own){
+    const hasL = !!(h && h.data && h.data.lettre);
+    $("#ap-pages").hidden = !h; $("#ap-pdfs").hidden = !h; $("#ap-nogen").hidden = !!h;
+    if(h){
+      saveCurrentEdits();
+      apClone("#page-cv", "#ap-h-cv");
+      $("#ap-h-l").parentElement.hidden = !hasL; $("#ap-pdf-l").hidden = !hasL;
+      if(hasL) apClone("#page-lettre", "#ap-h-l");
+    }
+  } else renderOwnFiles();
+}
+function renderOwnFiles(){
+  const ul = $("#ap-file-list"); ul.innerHTML = "";
+  apOwnFiles.forEach((f, i) => {
+    const li = el("li"); li.appendChild(el("span", "", "📄 " + f.name));
+    const open = el("button", "btn small", "Ouvrir"); open.type = "button";
+    open.addEventListener("click", () => window.open(f.url, "_blank", "noopener"));
+    const del = el("button", "btn small danger", "✕"); del.type = "button"; del.title = "Retirer";
+    del.addEventListener("click", () => { URL.revokeObjectURL(f.url); apOwnFiles.splice(i, 1); renderOwnFiles(); });
+    if(/\.pdf$/i.test(f.name)) li.appendChild(open);
+    li.appendChild(del); ul.appendChild(li);
+  });
+}
+function addOwnFiles(files){
+  files.filter(f => /\.(pdf|docx?|odt)$/i.test(f.name)).forEach(f => apOwnFiles.push({ name:f.name, url:URL.createObjectURL(f) }));
+  renderOwnFiles();
+}
+const apDrop = $("#ap-drop");
+apDrop.addEventListener("click", () => $("#ap-files").click());
+apDrop.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); $("#ap-files").click(); } });
+["dragenter", "dragover"].forEach(ev => apDrop.addEventListener(ev, e => { e.preventDefault(); apDrop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => apDrop.addEventListener(ev, e => { e.preventDefault(); apDrop.classList.remove("over"); }));
+apDrop.addEventListener("drop", e => addOwnFiles([...e.dataTransfer.files]));
+$("#ap-files").addEventListener("change", e => { addOwnFiles([...e.target.files]); e.target.value = ""; });
+document.querySelectorAll('input[name="ap-src"]').forEach(r => r.addEventListener("change", renderApDocs));
+
+/* Envoi : annonce, e-mail, suivi */
+function apSave(key, v){ const h = curHist(); if(h){ (h.apply || (h.apply = {}))[key] = v; saveHistory(); } }
+$("#ap-url").addEventListener("input", debounce(e => apSave("url", e.target.value.trim()), 400));
+$("#ap-email").addEventListener("input", debounce(e => apSave("email", e.target.value.trim()), 400));
+$("#ap-open").addEventListener("click", () => {
+  const u = $("#ap-url").value.trim();
+  if(!URL_RE.test(u)){ alert("Collez d'abord le lien de l'annonce (il commence par https://)."); $("#ap-url").focus(); return; }
+  window.open(u, "_blank", "noopener");
+});
+const openMail = u => (window.__cvxOpenMail || (x => { window.location.href = x; }))(u);
+function mailto(to, subject, body){ return "mailto:" + encodeURIComponent(to).replace(/%40/g, "@") + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body); }
+const nomComplet = () => { const f = ficheFields(); const g = k => (f.find(x => x.k === k) || {}).value || ""; return [g("prenom"), g("nom")].filter(Boolean).join(" "); };
+$("#ap-mail").addEventListener("click", () => {
+  const to = $("#ap-email").value.trim(), h = curHist();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)){ alert("Indiquez l'adresse e-mail donnée dans l'annonce."); $("#ap-email").focus(); return; }
+  const f = ficheFields(), g = k => (f.find(x => x.k === k) || {}).value || "";
+  const ref = h && h.data.candidature && str(h.data.candidature.reference);
+  const subject = "Candidature – " + (g("poste") || "poste") + (ref ? " (réf. " + ref + ")" : "") + " – " + nomComplet();
+  const body = "Madame, Monsieur,\n\n" + (g("message") || "Je vous adresse ma candidature au poste de " + (g("poste") || "…") + ".") +
+    "\n\nVous trouverez ci-joint mon CV et ma lettre de motivation.\n\nJe reste à votre disposition pour un entretien.\n\nCordialement,\n" + nomComplet() + (g("tel") ? "\n" + g("tel") : "");
+  openMail(mailto(to, subject, body));
+});
+function renderApplied(){
+  const box = $("#ap-applied"); box.innerHTML = "";
+  const h = curHist();
+  if(!h){ box.appendChild(el("p", "hint", "Le suivi « J'ai postulé » est disponible pour les candidatures créées ici.")); return; }
+  const G = groupsFor(h.profileId).find(g => g.id === groupOf(h));
+  const applied = appliedOf(G), relance = relanceOf(G);
+  if(!applied){
+    const b = el("button", "btn big", "✅ J'ai postulé"); b.type = "button";
+    b.addEventListener("click", () => { h.applied = Date.now(); h.touched = Date.now(); saveHistory(); renderApplied(); renderHistory(); });
+    box.appendChild(b);
+    box.appendChild(el("p", "hint", "Cliquez une fois la candidature envoyée : l'historique l'affichera et vous rappellera de relancer au bout d'une semaine."));
+    return;
+  }
+  box.appendChild(el("p", "ok", "✓ Postulé le " + fmtDate(applied)));
+  const days = Math.floor((Date.now() - applied) / DAY);
+  if(relance) box.appendChild(el("p", "hint", "Relance faite le " + fmtDate(relance) + "."));
+  else if(days >= 7) box.appendChild(el("p", "warn", "Une semaine est passée sans réponse ? C'est le moment de relancer."));
+  else box.appendChild(el("p", "hint", "Sans réponse, relancez à partir du " + fmtDate(applied + 7 * DAY) + "."));
+  const f = ficheFields(), g = k => (f.find(x => x.k === k) || {}).value || "";
+  const relanceTxt = "Madame, Monsieur,\n\nLe " + fmtDate(applied) + ", je vous ai adressé ma candidature au poste de " + (g("poste") || "…") + ". Je me permets de revenir vers vous pour savoir si elle a retenu votre attention.\n\nCe poste m'intéresse toujours vivement et je reste à votre disposition pour un entretien.\n\nCordialement,\n" + nomComplet() + (g("tel") ? "\n" + g("tel") : "");
+  const row = el("div", "row"); row.style.marginTop = "8px";
+  const prep = el("button", "btn small", "Préparer la relance"); prep.type = "button";
+  prep.addEventListener("click", () => {
+    const to = $("#ap-email").value.trim();
+    if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) openMail(mailto(to, "Suivi de ma candidature – " + (g("poste") || "") + " – " + nomComplet(), relanceTxt));
+    else { copyText(relanceTxt, prep); alert("Texte de relance copié. Collez-le dans la messagerie du site, ou dans un e-mail au recruteur."); }
+  });
+  row.appendChild(prep);
+  if(!relance){ const done = el("button", "btn small", "J'ai relancé"); done.type = "button"; done.addEventListener("click", () => { h.relance = Date.now(); h.touched = Date.now(); saveHistory(); renderApplied(); renderHistory(); }); row.appendChild(done); }
+  const undo = el("button", "btn small danger", "Annuler"); undo.type = "button"; undo.title = "Ce n'était pas encore envoyé";
+  undo.addEventListener("click", () => { G.versions.forEach(v => { delete v.applied; delete v.relance; }); saveHistory(); renderApplied(); renderHistory(); });
+  row.appendChild(undo);
+  box.appendChild(row);
+}
+
+function openApply(){
+  stopDictation();
+  const h = curHist();
+  $("#ap-sub").textContent = h ? h.poste + (h.entreprise ? " — " + h.entreprise : "") : "Aucune candidature ouverte : vous pouvez utiliser vos propres fichiers.";
+  // Par défaut : les documents créés ici s'il y en a, sinon ses propres fichiers
+  document.querySelector('input[name="ap-src"][value="' + (h ? "gen" : "own") + '"]').checked = true;
+  const ap = (h && h.apply) || {}, d = h ? h.data : {};
+  $("#ap-url").value = ap.url ?? ((d._userMsg && d._userMsg.url) || "");
+  $("#ap-email").value = ap.email ?? ((d.candidature && str(d.candidature.email)) || "");
+  delete $("#ap-pages").dataset.zoom; document.querySelectorAll(".ap-zoom").forEach(x => { x.textContent = "🔍 Agrandir"; });
+  $("#ap").hidden = false; document.body.classList.add("modal-open");
+  renderApDocs(); renderFiche(); renderApplied();
+  $("#ap-close").focus();
+}
+function closeApply(){
+  $("#ap").hidden = true; document.body.classList.remove("modal-open");
+  $("#ap-h-cv").innerHTML = ""; $("#ap-h-l").innerHTML = "";
+  refreshValidate(); fitVisible(); renderHistory();
+  $("#btn-apply").focus();
+}
+$("#btn-apply").addEventListener("click", openApply);
+$("#ap-close").addEventListener("click", closeApply);
+$("#ap").addEventListener("mousedown", e => { if(e.target === $("#ap")) closeApply(); });   // clic à côté de la fenêtre = fermer
+document.addEventListener("keydown", e => { if(e.key === "Escape" && !$("#ap").hidden) closeApply(); });
+window.addEventListener("resize", () => { if(!$("#ap").hidden) apScale(); });
+$("#ap-pdf-cv").addEventListener("click", () => printPage("cv"));
+$("#ap-pdf-l").addEventListener("click", () => printPage("lettre"));
 
 /* ---------- Démarrage ---------- */
 /* Migration : les anciennes versions d'une même candidature sont regroupées (même profil, même poste, même entreprise) */
