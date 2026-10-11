@@ -383,6 +383,49 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 .dl-main{margin-top:16px}
 .dl-more{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .dl-more .btn{flex:1 1 auto}
+/* Panneaux flottants aux bords arrondis */
+:root{--float:0 1px 2px rgba(58,35,64,.05),0 16px 44px rgba(58,35,64,.09)}
+.panel{scrollbar-width:thin;scrollbar-color:#E2D3C3 transparent}
+.panel .step{border-color:#F1E4D6;border-radius:20px}
+@media (min-width:901px){
+  .app{padding:16px;gap:16px;grid-template-columns:400px minmax(0,1fr)}
+  .panel{top:16px;max-height:calc(100vh - 32px);border:1px solid var(--line);border-radius:28px;box-shadow:var(--float)}
+  .preview{padding:4px 0 20px}
+}
+@media (min-width:1181px){
+  body.chat-open .app{grid-template-columns:380px minmax(0,1fr) 380px}
+  .chat{top:16px;height:calc(100vh - 32px);border:1px solid var(--line);border-radius:28px;box-shadow:var(--float);overflow:hidden}
+}
+@media (min-width:1181px) and (max-width:1400px){ body.chat-open .app{grid-template-columns:340px minmax(0,1fr) 340px} }
+@media (max-width:1180px){
+  .chat{left:12px;right:12px;bottom:12px;height:min(62vh,640px);border:1px solid var(--line);border-radius:28px;box-shadow:0 20px 60px rgba(58,35,64,.25);overflow:hidden}
+  body.chat-open{padding-bottom:calc(min(62vh,640px) + 24px)}
+}
+@media (max-width:900px){
+  .app{padding:12px;gap:12px}
+  .panel{border:1px solid var(--line);border-radius:24px;box-shadow:var(--float)}
+}
+.chat-head{padding:18px 20px 14px}
+.chat-msgs{padding:16px 20px}
+/* Zone de saisie façon messagerie : micro, puis flèche d'envoi dès qu'on écrit */
+.chat-form{display:block;padding:10px 14px 6px;border-top:0}
+.composer{display:flex;align-items:flex-end;gap:4px;background:#FBF6F1;border:1px solid var(--line);border-radius:24px;padding:5px 5px 5px 16px;transition:border-color .15s,box-shadow .15s,background .15s}
+.composer:focus-within{background:#fff;border-color:var(--brand);box-shadow:0 0 0 3px rgba(242,169,59,.28)}
+#chat-input{flex:1;width:auto;min-width:0;border:0;border-radius:0;background:transparent;resize:none;min-height:36px;max-height:140px;padding:8px 0;font-size:15px;line-height:1.4;color:var(--ink);box-shadow:none;outline:none}
+#chat-input:focus{border:0;box-shadow:none}
+#chat-input::placeholder{color:#A891AC}
+.composer .mic,.composer .send{width:36px;height:36px;border-radius:50%;border:0;flex:none;display:grid;place-items:center;padding:0;cursor:pointer}
+.composer .mic{background:transparent;color:var(--muted)}
+.composer .mic:hover{background:var(--lilas);color:var(--brand)}
+.composer .mic.on{background:var(--danger);color:#fff}
+.composer .send{background:var(--brand);color:#fff}
+.composer .send:hover{background:#4A2F52}
+.composer .send:disabled{opacity:.5;cursor:wait}
+.composer .send svg{width:18px;height:18px}
+.composer .mic svg{width:20px;height:20px}
+.composer button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.chat-foot{padding:2px 20px 14px}
+.chat-foot .hint{font-size:12px}
 </style>
 </head>
 <body>
@@ -549,9 +592,12 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     </div>
   </div>
   <form class="chat-form" id="chat-form">
-    <textarea id="chat-input" rows="2" placeholder="Posez votre question… (Entrée pour envoyer)"></textarea>
-    <button class="mic" id="chat-mic" type="button" aria-label="Dicter au micro" title="Parler au lieu d'écrire"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5M8.5 21.5h7"/></svg></button>
-    <button class="btn primary" id="chat-send" type="submit">Envoyer</button>
+    <div class="composer">
+      <label for="chat-input" class="sr-only">Votre question</label>
+      <textarea id="chat-input" rows="1" placeholder="Posez votre question…"></textarea>
+      <button class="mic" id="chat-mic" type="button" aria-label="Dicter au micro" title="Parler au lieu d'écrire"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5M8.5 21.5h7"/></svg></button>
+      <button class="send" id="chat-send" type="submit" aria-label="Envoyer" title="Envoyer" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></button>
+    </div>
   </form>
   <div class="row chat-foot"><p class="hint"><span data-brand>Jalon</span> est une IA : il peut se tromper, gardez votre jugement.</p><button class="btn small" id="chat-clear" type="button">Effacer</button></div>
 </aside>
@@ -1601,7 +1647,7 @@ async function sendChat(text){
     list.push({ role:"assistant", text:answer }); saveChat();
   }catch(e){
     list.pop(); saveChat(); renderChat();
-    $("#chat-input").value = text;
+    $("#chat-input").value = text; growChat();
     $("#chat-msgs").appendChild(el("div", "msg err", e.message)); $("#chat-msgs").scrollTop = 1e9;
     chatBusy = false; $("#chat-send").disabled = false; return;
   }
@@ -1637,7 +1683,13 @@ document.querySelectorAll("[data-apply]").forEach(b => b.addEventListener("click
 }));
 
 /* La zone de saisie grandit avec le texte (dictée comprise) */
-const growChat = () => { const t = $("#chat-input"); t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight + 2, 140) + "px"; };
+function updateComposer(){
+  const dictating = !!(activeDictation && activeDictation.btn === $("#chat-mic"));
+  const hasText = $("#chat-input").value.trim().length > 0;
+  $("#chat-send").hidden = dictating || !hasText;
+  $("#chat-mic").hidden = !dictating && hasText;
+}
+const growChat = () => { const t = $("#chat-input"); t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 140) + "px"; updateComposer(); };
 $("#chat-input").addEventListener("input", growChat);
 
 /* ---------- Dictée vocale (micro) ---------- */
@@ -1670,10 +1722,11 @@ function setupDictation(btn, field, onUnsupported){
       else if(e.error === "audio-capture") alert("Aucun micro n'a été trouvé sur cet appareil.");
       else if(e.error === "network") alert("La dictée a besoin d'Internet. Vérifiez la connexion et réessayez.");
     };
-    rec.onend = () => { btn.classList.remove("on"); btn.setAttribute("aria-pressed", "false"); if(activeDictation && activeDictation.rec === rec) activeDictation = null; };
+    rec.onend = () => { btn.classList.remove("on"); btn.setAttribute("aria-pressed", "false"); if(activeDictation && activeDictation.rec === rec) activeDictation = null; field.dispatchEvent(new Event("input", { bubbles:true })); };
     try{ rec.start(); }catch(e){ return; }
     activeDictation = { rec, btn };
     btn.classList.add("on"); btn.setAttribute("aria-pressed", "true");
+    field.dispatchEvent(new Event("input", { bubbles:true }));
     field.focus();
   });
 }
