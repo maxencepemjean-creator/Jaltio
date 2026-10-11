@@ -682,6 +682,29 @@ $("#btn-generate").addEventListener("click", async () => {
   busy(false);
 });
 
+/* Lecture des documents tels qu'ils sont à l'écran, retouches manuelles comprises */
+function frag(html){ const t = document.createElement("template"); t.innerHTML = html || ""; return t.content; }
+const txt = n => (n.textContent || "").replace(/\s+/g, " ").trim();
+function lettreFromHtml(html){
+  const root = frag(html); let objet = "", after = false; const paras = [];
+  [...root.children].forEach(n => {
+    if(n.classList.contains("objet")){ objet = txt(n).replace(/^objet\s*:\s*/i, ""); after = true; return; }
+    if(!after || n.classList.contains("sign")) return;
+    const t = txt(n); if(!t || /^madame,?\s*monsieur,?$/i.test(t)) return;
+    paras.push(t);
+  });
+  return paras.length ? { objet, paragraphes: paras } : null;
+}
+function cvTextFromHtml(html){
+  return [...frag(html).querySelectorAll("h1,h2,h3,p,.exp-top,.org,li")].map(n =>
+    n.classList.contains("exp-top") ? [...n.children].map(txt).filter(Boolean).join(" | ") : txt(n)).filter(Boolean).join("\n");
+}
+/* Remet l'en-tête de lettre retouché (coordonnées, destinataire, lieu, signature) sur la nouvelle version */
+function restoreLettreFrame(oldHtml){
+  const old = frag(oldHtml), page = $("#page-lettre");
+  [".exp-bloc", ".dest", ".lieu", ".sign"].forEach(sel => { const o = old.querySelector(sel), n = page.querySelector(sel); if(o && n) n.replaceWith(o.cloneNode(true)); });
+}
+
 /* Boucle de corrections : la personne dit ce qui ne lui plaît pas, Claude refait */
 $("#btn-regen").addEventListener("click", async () => {
   const h = history.find(x => x.id === currentHistId);
@@ -695,6 +718,10 @@ $("#btn-regen").addEventListener("click", async () => {
   const parcours = (h.data._userMsg && h.data._userMsg.parcours) || p.parcours;
   const hadLettre = !!h.data.lettre;
   const wantLettre = target === "cv" ? hadLettre : true;
+  // La version de départ = ce que la personne voit, avec ses retouches
+  const lettreActuelle = hadLettre ? lettreFromHtml(h.lettreHtml) : null;
+  if(lettreActuelle) prev.lettre = lettreActuelle;
+  const cvActuel = target !== "lettre" ? cvTextFromHtml(h.cvHtml) : "";
   const consigne = {
     cv: "Corrige UNIQUEMENT le CV (champ \"cv\" et, si besoin, \"alertes\" et \"score_adequation\"). Ne touche pas à la lettre : recopie \"lettre\" à l'identique.",
     lettre: hadLettre ? "Corrige UNIQUEMENT la lettre de motivation (champ \"lettre\"). Ne touche pas au CV : recopie \"cv\" à l'identique."
@@ -705,7 +732,10 @@ $("#btn-regen").addEventListener("click", async () => {
   status("#status-gen", "info", "Claude applique vos remarques, comptez 20 à 60 secondes.");
   try{
     const userMsg = "<parcours_du_candidat>\n" + parcours + "\n</parcours_du_candidat>\n\n<offre_d_emploi>\n" + (str(h.data.offre_resume) || h.poste + " — " + h.entreprise) +
-      "\n</offre_d_emploi>\n\n<version_precedente>\n" + JSON.stringify(prev) + "\n</version_precedente>\n\n<remarques_du_candidat>\n" + rq +
+      "\n</offre_d_emploi>\n\n<version_precedente>\n" + JSON.stringify(prev) + "\n</version_precedente>\n\n" +
+      (cvActuel ? "<cv_tel_que_retouche_par_le_candidat>\n" + cvActuel + "\n</cv_tel_que_retouche_par_le_candidat>\nCe texte reflète les corrections faites à la main par le candidat sur son CV : elles priment sur \"cv\" de version_precedente. Intègre-les dans le JSON et conserve-les.\n\n" : "") +
+      (lettreActuelle ? "La lettre de version_precedente contient déjà les corrections faites à la main par le candidat : conserve-les, sauf si ses remarques demandent de les changer.\n\n" : "") +
+      "<remarques_du_candidat>\n" + rq +
       "\n</remarques_du_candidat>\n\n" + consigne + " Garde ce qui n'est pas concerné par les remarques et renvoie le JSON complet mis à jour. Les règles absolues restent valables : n'invente rien. Conserve \"couleur_entreprise\" et \"offre_resume\" tels quels." +
       (wantLettre ? "" : " Mets \"lettre\": null.");
     const out = await runClaude([{ role:"user", content:userMsg }], []);
@@ -713,7 +743,8 @@ $("#btn-regen").addEventListener("click", async () => {
     if(!str(out.offre_resume)) out.offre_resume = h.data.offre_resume;
     // Le document non concerné est repris tel quel, retouches manuelles comprises
     const keep = {};
-    if(target === "cv"){ out.lettre = h.data.lettre || null; if(hadLettre) keep.lettreHtml = h.lettreHtml; }
+    if(target === "cv"){ out.lettre = lettreActuelle || h.data.lettre || null; if(hadLettre) keep.lettreHtml = h.lettreHtml; }
+    else if(hadLettre) keep.lettreFrame = h.lettreHtml;
     if(target === "lettre"){ out.cv = h.data.cv; out.alertes = h.data.alertes; out.score_adequation = h.data.score_adequation; keep.cvHtml = h.cvHtml; }
     out._userMsg = { parcours, wantLettre };
     storeResult(p, out, keep);
@@ -809,7 +840,8 @@ function renderAll(out, html){
   renderAlertes(out);
   if(html && html.cvHtml){ $("#page-cv").innerHTML = html.cvHtml; } else renderCV(out);
   let hasL;
-  if(html && html.lettreHtml){ $("#page-lettre").innerHTML = html.lettreHtml; hasL = true; } else hasL = renderLettre(out);
+  if(html && html.lettreHtml){ $("#page-lettre").innerHTML = html.lettreHtml; hasL = true; }
+  else { hasL = renderLettre(out); if(hasL && html && html.lettreFrame) restoreLettreFrame(html.lettreFrame); }
   $("#tab-lettre").hidden = !hasL;
   $("#btn-pdf-lettre").hidden = !hasL; $("#btn-copy-lettre").hidden = !hasL;
   $("#empty").hidden = true; $("#tabs").hidden = false; $("#edit-hint").hidden = false; $("#feedback-box").hidden = false;
