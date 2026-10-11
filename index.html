@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CV Express</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f4f6; --panel:#ffffff; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
+  --brand:#1f4e79; --brand-ink:#ffffff; --danger:#b42318; --ok:#067647; --warn:#b54708;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit}
+.app{display:grid;grid-template-columns:420px 1fr;min-height:100vh}
+.panel{background:var(--panel);border-right:1px solid var(--line);padding:20px;overflow-y:auto;max-height:100vh;position:sticky;top:0}
+.panel h1{font-size:22px;margin:0 0 4px}
+.panel .sub{color:var(--muted);margin:0 0 18px;font-size:14px}
+.step{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.step h2{font-size:16px;margin:0 0 10px;display:flex;gap:8px;align-items:center}
+.num{background:var(--brand);color:#fff;border-radius:50%;width:24px;height:24px;display:inline-grid;place-items:center;font-size:13px;flex:none}
+label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+.hint{font-size:12.5px;color:var(--muted);margin:4px 0 0}
+input[type=text],input[type=password],select,textarea{width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 10px;background:#fff;color:var(--ink)}
+textarea{resize:vertical;min-height:120px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row > *{flex:1}
+.btn{border:1px solid #d1d5db;background:#fff;color:var(--ink);border-radius:8px;padding:9px 12px;cursor:pointer;font-weight:500;flex:none}
+.btn:hover{background:#f9fafb}
+.btn.primary{background:var(--brand);color:#fff;border-color:var(--brand);font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.big{width:100%;padding:13px;font-size:16px}
+.btn.small{padding:5px 9px;font-size:13px}
+.btn.danger{color:var(--danger)}
+.btn:disabled{opacity:.55;cursor:wait}
+.check{display:flex;gap:8px;align-items:center;font-weight:500;font-size:14px;margin-top:10px}
+.status{margin-top:10px;font-size:14px;border-radius:8px;padding:0}
+.status.show{padding:10px 12px}
+.status.info{background:#eff6ff;color:#1e40af}
+.status.err{background:#fef3f2;color:var(--danger)}
+.status.ok{background:#ecfdf3;color:var(--ok)}
+.photo-row{display:flex;gap:10px;align-items:center;margin-top:6px}
+.photo-row img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+.drop{border:2px dashed #cbd5e1;border-radius:10px;padding:14px;text-align:center;color:var(--muted);font-size:13.5px;cursor:pointer;margin-top:8px;transition:background .15s,border-color .15s}
+.drop:hover,.drop.over{background:#eff6ff;border-color:var(--brand);color:var(--brand)}
+.drop b{color:var(--ink)}
+.or{text-align:center;color:var(--muted);font-size:12.5px;margin:8px 0 0}
+#feedback-box{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.swatch.company{width:auto;border-radius:999px;padding:0 10px;color:#fff;font-size:12px;font-weight:600}
+.swatches{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
+.swatch{width:28px;height:28px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #d1d5db;cursor:pointer;flex:none}
+.swatch.on{box-shadow:0 0 0 2px var(--ink)}
+.hist{list-style:none;margin:0;padding:0}
+.hist li{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.hist li .t{flex:1;cursor:pointer}
+.hist li .t:hover{text-decoration:underline}
+.hist li .d{color:var(--muted);font-size:12px}
+details summary{cursor:pointer;font-weight:600}
+.preview{padding:20px;min-width:0}
+.tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.tab{border:1px solid #d1d5db;background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;font-weight:500}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tabs .spacer{flex:1}
+.alertes{background:#fffaeb;border:1px solid #fedf89;color:#7a2e0e;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:14px}
+.alertes b{display:block;margin-bottom:4px}
+.alertes ul{margin:4px 0 0;padding-left:18px}
+.empty{border:2px dashed #d1d5db;border-radius:14px;padding:50px 20px;text-align:center;color:var(--muted)}
+.edit-hint{font-size:13px;color:var(--muted);margin:0 0 10px}
+.page-holder{--s:1;width:calc(210mm * var(--s));overflow:hidden;margin:0 auto 20px}
+.page-holder .page{transform:scale(var(--s));transform-origin:top left}
+
+/* ---------- PAGE A4 ---------- */
+.page{width:210mm;height:297mm;background:#fff;color:#1f2937;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.12);position:relative;font-size:var(--fs,10.5pt);line-height:1.38;font-family:Inter,Arial,sans-serif;--accent:#1f4e79;outline:none}
+.page h1,.page h2,.page h3,.page p,.page ul{margin:0}
+.page ul{padding-left:1.1em}
+.cv{display:grid}
+.cv .cv-head{grid-area:head}
+.cv .cv-side{grid-area:side}
+.cv .cv-main{grid-area:main}
+.cv h1{font-size:2.3em;line-height:1.1;font-weight:700;letter-spacing:-.01em}
+.cv h2{font-size:1.2em;font-weight:500;margin-top:.25em}
+.cv h3{font-size:.9em;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:.5em}
+.cv .blk{margin-bottom:1.15em}
+.cv .accroche{text-align:justify}
+.cv .exp{margin-bottom:.8em;break-inside:avoid}
+.cv .exp-top{display:flex;justify-content:space-between;gap:1em;align-items:baseline}
+.cv .poste{font-weight:700}
+.cv .dates{font-size:.88em;color:#6b7280;white-space:nowrap;flex:none}
+.cv .org{font-weight:500;color:var(--accent);font-size:.95em;margin-bottom:.2em}
+.cv .exp li{margin-bottom:.12em}
+.cv .form{margin-bottom:.55em}
+.cv .form .poste{display:block}
+.cv .list{list-style:none;padding:0}
+.cv .list li{margin-bottom:.3em}
+.cv .photo{width:34mm;height:34mm;border-radius:50%;object-fit:cover;display:block}
+
+/* Modèle moderne : colonne colorée à gauche */
+.cv.tpl-moderne{grid-template-columns:70mm 1fr;grid-template-rows:auto 1fr;grid-template-areas:"side head" "side main";height:297mm}
+.cv.tpl-moderne .cv-side{background:var(--accent);color:#fff;padding:14mm 8mm 10mm}
+.cv.tpl-moderne .cv-side h3{color:#fff;border-bottom:1px solid rgba(255,255,255,.35);padding-bottom:.3em}
+.cv.tpl-moderne .photo{margin:0 auto 8mm;border:3px solid rgba(255,255,255,.6)}
+.cv.tpl-moderne .cv-head{padding:16mm 12mm 6mm}
+.cv.tpl-moderne .cv-head h1{color:var(--accent)}
+.cv.tpl-moderne .cv-main{padding:0 12mm 10mm}
+.cv.tpl-moderne .cv-main h3{color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:.25em}
+.cv .side-contact li{overflow-wrap:anywhere;font-size:.92em}
+
+/* Modèle classique : bandeau en haut, colonne fine à droite */
+.cv.tpl-classique{grid-template-columns:1fr 60mm;grid-template-rows:auto 1fr;grid-template-areas:"head head" "main side";height:297mm}
+.cv.tpl-classique .cv-head{padding:14mm 14mm 7mm;border-bottom:3px solid var(--accent);margin-bottom:7mm;font-family:Lora,Georgia,serif}
+.cv.tpl-classique .cv-head h1{color:#111827}
+.cv.tpl-classique .cv-head h2{color:var(--accent);font-family:Inter,Arial,sans-serif}
+.cv.tpl-classique .cv-main{padding:0 8mm 10mm 14mm}
+.cv.tpl-classique .cv-side{padding:0 14mm 10mm 6mm;border-left:1px solid #e5e7eb}
+.cv.tpl-classique h3{color:var(--accent);font-family:Lora,Georgia,serif;letter-spacing:.04em}
+.cv.tpl-classique .photo{width:28mm;height:28mm;margin-bottom:6mm}
+
+/* Lettre */
+.lettre{padding:20mm 22mm;font-size:var(--fs,11pt);line-height:1.5}
+.lettre .exp-bloc{margin-bottom:10mm}
+.lettre .exp-bloc .nm{font-weight:700;font-size:1.15em;color:var(--accent)}
+.lettre .dest{margin-left:auto;width:75mm;margin-bottom:10mm}
+.lettre .lieu{text-align:right;margin-bottom:8mm}
+.lettre .objet{font-weight:700;margin-bottom:7mm}
+.lettre p{margin:0 0 .85em;text-align:justify}
+.lettre .sign{margin-top:8mm;font-weight:600}
+
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .panel{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line)}
+}
+
+@page{size:A4;margin:0}
+@media print{
+  html,body{background:#fff}
+  .app-ui{display:none!important}
+  .app{display:block}
+  .preview{padding:0}
+  .page-holder{width:auto!important;margin:0!important;overflow:visible}
+  .page-holder .page{transform:none!important;box-shadow:none}
+  body[data-print=cv] #holder-lettre{display:none!important}
+  body[data-print=cv] #holder-cv{display:block!important}
+  body[data-print=lettre] #holder-cv{display:none!important}
+  body[data-print=lettre] #holder-lettre{display:block!important}
+  .page{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ================= PANNEAU DE GAUCHE ================= -->
+<aside class="panel app-ui">
+  <h1>CV Express</h1>
+  <p class="sub">Collez une offre d'emploi, Claude adapte votre CV en moins d'une minute.</p>
+
+  <div class="step" id="step-key" hidden>
+    <h2><span class="num">!</span> Première utilisation</h2>
+    <p class="hint" style="margin-top:0">Collez la clé d'accès fournie par Maxence. Elle reste enregistrée sur cet appareil uniquement.</p>
+    <label for="key-first">Clé d'accès</label>
+    <input type="password" id="key-first" placeholder="sk-ant-..." autocomplete="off">
+    <div class="row" style="margin-top:8px"><button class="btn primary" id="btn-key-first">Enregistrer</button></div>
+    <div class="status" id="status-key-first"></div>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">1</span> Votre parcours</h2>
+    <label for="profile-select">Profil</label>
+    <div class="row">
+      <select id="profile-select"></select>
+      <button class="btn small" id="btn-new-profile" title="Créer un autre profil">+ Nouveau</button>
+    </div>
+    <label for="profile-name">Prénom Nom</label>
+    <input type="text" id="profile-name" placeholder="Ex. : Marie Dupont">
+    <label for="profile-parcours">Votre CV actuel ou votre parcours</label>
+    <textarea id="profile-parcours" rows="10" placeholder="Collez ici votre CV actuel, ou décrivez simplement :&#10;- vos coordonnées (téléphone, e-mail, ville, permis)&#10;- vos expériences avec les dates et ce que vous faisiez&#10;- vos diplômes et formations&#10;- vos compétences, langues, centres d'intérêt&#10;&#10;Plus c'est complet, meilleur sera le CV. Rien ne sera inventé."></textarea>
+    <div class="drop" id="drop" tabindex="0" role="button">
+      <b>Déposez votre ancien CV ici</b><br>ou cliquez pour le choisir — PDF, Word (.docx), texte, ou une photo de vous
+    </div>
+    <input type="file" id="file-any" accept=".pdf,.docx,.txt,.md,image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" multiple hidden>
+    <label>Photo (facultatif)</label>
+    <div class="photo-row">
+      <img id="photo-thumb" alt="" hidden>
+      <button class="btn small" id="btn-photo">Choisir une photo</button>
+      <button class="btn small danger" id="btn-photo-del" hidden>Retirer</button>
+      <input type="file" id="file-photo" accept="image/*" hidden>
+    </div>
+    <p class="hint" id="profile-saved">Enregistré automatiquement sur cet appareil.</p>
+    <div class="row" style="margin-top:6px"><button class="btn small danger" id="btn-del-profile">Supprimer ce profil</button></div>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">2</span> L'offre d'emploi</h2>
+    <label for="offre-url">Lien de l'annonce</label>
+    <input type="text" id="offre-url" inputmode="url" placeholder="https://www.hellowork.com/fr-fr/emplois/…">
+    <p class="hint">Fonctionne bien avec HelloWork, France Travail, Welcome to the Jungle et les sites carrières. LinkedIn et Indeed bloquent souvent la lecture : dans ce cas, collez le texte ci-dessous.</p>
+    <p class="or">— ou —</p>
+    <label for="offre">Collez le texte de l'annonce</label>
+    <textarea id="offre" rows="6" placeholder="Copiez tout le texte de l'annonce (intitulé, missions, profil recherché…) et collez-le ici."></textarea>
+    <label class="check"><input type="checkbox" id="opt-lettre" checked> Rédiger aussi la lettre de motivation</label>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">3</span> Générer</h2>
+    <button class="btn primary big" id="btn-generate">Créer mon CV adapté</button>
+    <div class="status" id="status-gen"></div>
+    <div id="feedback-box" hidden>
+      <label for="remarques">Quelque chose ne vous plaît pas ?</label>
+      <textarea id="remarques" rows="3" style="min-height:80px" placeholder="Ex. : accroche trop longue, mettre en avant mon expérience de vendeuse, lettre moins formelle, retirer les centres d'intérêt…"></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn primary" id="btn-regen">Corriger le CV et la lettre</button></div>
+      <p class="hint">Les petites corrections (un mot, une date) se font plus vite en cliquant directement dans le document.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">4</span> Apparence et téléchargement</h2>
+    <label for="tpl">Modèle</label>
+    <select id="tpl">
+      <option value="moderne">Moderne (colonne colorée)</option>
+      <option value="classique">Classique (sobre)</option>
+    </select>
+    <label>Couleur</label>
+    <div class="swatches" id="swatches"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn primary" id="btn-pdf-cv">Télécharger le CV (PDF)</button>
+      <button class="btn" id="btn-pdf-lettre">Lettre (PDF)</button>
+    </div>
+    <div class="row" style="margin-top:8px"><button class="btn small" id="btn-copy-lettre">Copier le texte de la lettre</button></div>
+    <p class="hint">Dans la fenêtre qui s'ouvre, choisissez « Enregistrer au format PDF » comme imprimante.</p>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">↺</span> Historique</h2>
+    <ul class="hist" id="hist"></ul>
+    <p class="hint" id="hist-empty">Aucun CV généré pour l'instant.</p>
+  </div>
+
+  <details class="step">
+    <summary>Réglages</summary>
+    <label for="key">Clé d'accès (API Claude)</label>
+    <input type="password" id="key" placeholder="sk-ant-..." autocomplete="off">
+    <label for="model">Qualité</label>
+    <select id="model">
+      <option value="claude-sonnet-5-5">Standard — rapide (recommandé)</option>
+      <option value="claude-opus-5-5">Maximale — plus lent, 2× plus cher</option>
+    </select>
+    <div class="row" style="margin-top:10px"><button class="btn small" id="btn-test-key">Tester la clé</button></div>
+    <div class="status" id="status-key"></div>
+    <p class="hint" id="cost">Coût cumulé sur cet appareil : 0,00 $</p>
+  </details>
+</aside>
+
+<!-- ================= APERÇU ================= -->
+<section class="preview" id="preview">
+  <div class="tabs app-ui" id="tabs" hidden>
+    <button class="tab on" data-tab="cv">CV</button>
+    <button class="tab" data-tab="lettre" id="tab-lettre">Lettre de motivation</button>
+    <span class="spacer"></span>
+    <span id="score" style="font-size:14px;color:var(--muted)"></span>
+  </div>
+  <div class="alertes app-ui" id="alertes" hidden></div>
+  <p class="edit-hint app-ui" id="edit-hint" hidden>Astuce : cliquez directement dans le CV pour corriger un mot. Vos modifications sont enregistrées.</p>
+  <div class="empty app-ui" id="empty">
+    <p style="font-size:17px;margin:0 0 6px"><b>Votre CV apparaîtra ici</b></p>
+    <p style="margin:0">Remplissez votre parcours, collez une offre, puis cliquez sur « Créer mon CV adapté ».</p>
+  </div>
+  <div class="page-holder" id="holder-cv" hidden><div class="page cv tpl-moderne" id="page-cv" contenteditable="true" spellcheck="true" lang="fr"></div></div>
+  <div class="page-holder" id="holder-lettre" hidden><div class="page lettre" id="page-lettre" contenteditable="true" spellcheck="true" lang="fr"></div></div>
+</section>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Stockage local ---------- */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem("cvx_"+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem("cvx_"+k, JSON.stringify(v)); return true; }
+    catch(e){ alert("Impossible d'enregistrer (mémoire du navigateur pleine ou navigation privée). Supprimez d'anciens CV de l'historique."); return false; } }
+};
+const $ = s => document.querySelector(s);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+const COLORS = ["#1f4e79","#0f766e","#7a2e5a","#374151","#9a3412","#3f3f8f"];
+const PRICES = { "claude-sonnet-5-5":[2,10], "claude-opus-5-5":[4,20] }; // $ par million de tokens (entrée, sortie)
+
+let settings = Object.assign({ apiKey:"", model:"claude-sonnet-5-5", tpl:"moderne", color:COLORS[0], useCompany:true, cost:0 }, store.get("settings", {}));
+let profiles = store.get("profiles", []);
+let currentProfileId = store.get("currentProfile", null);
+let history = store.get("history", []);
+let currentHistId = null;
+
+if(!profiles.length){ profiles = [{ id:uid(), name:"", parcours:"", photo:"" }]; }
+if(!profiles.find(p => p.id === currentProfileId)) currentProfileId = profiles[0].id;
+const prof = () => profiles.find(p => p.id === currentProfileId);
+const saveSettings = () => store.set("settings", settings);
+const saveProfiles = () => { store.set("profiles", profiles); store.set("currentProfile", currentProfileId); };
+const saveHistory = () => store.set("history", history);
+
+/* ---------- Helpers DOM ---------- */
+function el(tag, cls, text){
+  const e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(text !== undefined && text !== null && text !== "") e.textContent = text;
+  return e;
+}
+function status(id, type, msg){
+  const s = $(id);
+  s.className = "status" + (msg ? " show " + type : "");
+  s.textContent = msg || "";
+}
+const arr = v => Array.isArray(v) ? v.filter(x => x !== null && x !== undefined && String(x).trim() !== "") : [];
+const str = v => (v === null || v === undefined) ? "" : String(v).trim();
+function debounce(fn, ms){ let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+/* ---------- Profils ---------- */
+function renderProfiles(){
+  const sel = $("#profile-select"); sel.innerHTML = "";
+  profiles.forEach(p => { const o = el("option", "", p.name || "Profil sans nom"); o.value = p.id; sel.appendChild(o); });
+  sel.value = currentProfileId;
+  const p = prof();
+  $("#profile-name").value = p.name;
+  $("#profile-parcours").value = p.parcours;
+  const th = $("#photo-thumb");
+  if(p.photo){ th.src = p.photo; th.hidden = false; $("#btn-photo-del").hidden = false; }
+  else { th.hidden = true; th.removeAttribute("src"); $("#btn-photo-del").hidden = true; }
+  $("#btn-del-profile").hidden = profiles.length < 2;
+  renderHistory();
+}
+const saveProfileFields = debounce(() => {
+  const p = prof(); p.name = $("#profile-name").value; p.parcours = $("#profile-parcours").value;
+  saveProfiles();
+  const o = $("#profile-select").selectedOptions[0]; if(o) o.textContent = p.name || "Profil sans nom";
+}, 400);
+$("#profile-name").addEventListener("input", saveProfileFields);
+$("#profile-parcours").addEventListener("input", saveProfileFields);
+$("#profile-select").addEventListener("change", e => { currentProfileId = e.target.value; saveProfiles(); renderProfiles(); showEmpty(); });
+$("#btn-new-profile").addEventListener("click", () => {
+  const p = { id:uid(), name:"", parcours:"", photo:"" }; profiles.push(p); currentProfileId = p.id; saveProfiles(); renderProfiles(); showEmpty(); $("#profile-name").focus();
+});
+$("#btn-del-profile").addEventListener("click", () => {
+  const p = prof();
+  if(!confirm("Supprimer le profil « " + (p.name || "sans nom") + " » et ses CV ?")) return;
+  profiles = profiles.filter(x => x.id !== p.id);
+  history = history.filter(h => h.profileId !== p.id); saveHistory();
+  currentProfileId = profiles[0].id; saveProfiles(); renderProfiles(); showEmpty();
+});
+
+/* Photo : redimensionnée pour ne pas saturer la mémoire */
+$("#btn-photo").addEventListener("click", () => $("#file-photo").click());
+$("#file-photo").addEventListener("change", e => { const f = e.target.files[0]; if(f) setPhotoFromFile(f); e.target.value = ""; });
+$("#btn-photo-del").addEventListener("click", () => { prof().photo = ""; saveProfiles(); renderProfiles(); const ph = $("#page-cv .photo"); if(ph){ ph.remove(); saveCurrentEdits(); } });
+
+/* ---------- Dépôt de fichiers : ancien CV (PDF, Word, texte) ou photo ---------- */
+function loadScript(src){ return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+const drop = $("#drop");
+drop.addEventListener("click", () => $("#file-any").click());
+drop.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); $("#file-any").click(); } });
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => handleFiles([...e.dataTransfer.files]));
+$("#file-any").addEventListener("change", e => { handleFiles([...e.target.files]); e.target.value = ""; });
+const DROP_HTML = drop.innerHTML;
+
+async function pdfToText(buf){
+  if(!window.pdfjsLib){
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+  const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+  let txt = "";
+  for(let i = 1; i <= pdf.numPages; i++){
+    const tc = await (await pdf.getPage(i)).getTextContent();
+    let lastY = null;
+    tc.items.forEach(it => { const y = it.transform[5]; if(lastY !== null && Math.abs(y - lastY) > 4) txt += "\n"; else if(lastY !== null) txt += " "; txt += it.str; lastY = y; });
+    txt += "\n\n";
+  }
+  return txt.replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+}
+async function docxToText(buf){
+  if(!window.mammoth) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js");
+  const r = await window.mammoth.extractRawText({ arrayBuffer: buf });
+  return r.value.replace(/\n{3,}/g, "\n\n").trim();
+}
+function toBase64(buf){
+  let s = ""; const b = new Uint8Array(buf);
+  for(let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+/* PDF scanné (image) : Claude le lit et le retranscrit une fois pour toutes */
+async function pdfViaClaude(buf){
+  if(!settings.apiKey) throw new Error("nokey");
+  const data = await callClaude({ model:settings.model, max_tokens:4000, messages:[{ role:"user", content:[
+    { type:"document", source:{ type:"base64", media_type:"application/pdf", data:toBase64(buf) } },
+    { type:"text", text:"Retranscris fidèlement le contenu de ce CV en texte brut, section par section (coordonnées, expériences avec dates, formations, compétences, langues, centres d'intérêt). N'ajoute rien, ne commente pas." }
+  ]}] }, settings.apiKey);
+  addCost(data.usage);
+  return (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim();
+}
+function setPhotoFromFile(f){
+  return new Promise(res => {
+    const img = new Image(); const url = URL.createObjectURL(f);
+    img.onload = () => {
+      const S = 360, c = document.createElement("canvas"); c.width = S; c.height = S;
+      const m = Math.min(img.width, img.height);
+      c.getContext("2d").drawImage(img, (img.width-m)/2, (img.height-m)/2, m, m, 0, 0, S, S);
+      prof().photo = c.toDataURL("image/jpeg", 0.85); saveProfiles(); renderProfiles(); URL.revokeObjectURL(url);
+      const side = currentHistId && $("#page-cv .cv-side");
+      if(side){ let im = side.querySelector(".photo"); if(!im){ im = el("img", "photo"); im.alt = ""; side.prepend(im); } im.src = prof().photo; saveCurrentEdits(); fitVisible(); }
+      res();
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); res(); };
+    img.src = url;
+  });
+}
+async function handleFiles(files){
+  for(const f of files){
+    const name = f.name.toLowerCase();
+    if(f.type.startsWith("image/")){ await setPhotoFromFile(f); continue; }
+    drop.innerHTML = "<b>Lecture de « " + f.name.replace(/[<>&"]/g, "") + " »…</b>";
+    try{
+      const buf = await f.arrayBuffer();
+      let txt = "";
+      if(name.endsWith(".pdf")){
+        txt = await pdfToText(buf.slice(0));
+        if(txt.length < 80){
+          drop.innerHTML = "<b>PDF scanné : Claude le lit… (10 à 30 s)</b>";
+          try{ txt = await pdfViaClaude(buf); }
+          catch(e){ throw new Error(e.message === "nokey" ? "Ce PDF est une image scannée. Enregistrez d'abord la clé d'accès pour que Claude puisse le lire." : e.message); }
+        }
+      } else if(name.endsWith(".docx")){ txt = await docxToText(buf); }
+      else if(name.endsWith(".doc")){ throw new Error("Les anciens fichiers Word (.doc) ne sont pas lisibles. Ouvrez-le dans Word et enregistrez-le en .docx ou en PDF."); }
+      else if(name.endsWith(".txt") || name.endsWith(".md") || f.type === "text/plain"){ txt = new TextDecoder().decode(buf).trim(); }
+      else throw new Error("Format non pris en charge : utilisez un PDF, un .docx ou un fichier texte.");
+      if(txt.length < 40) throw new Error("Aucun texte trouvé dans ce fichier. Copiez-collez votre parcours à la main.");
+      const ta = $("#profile-parcours");
+      if(ta.value.trim() && !confirm("Remplacer le texte actuel par le contenu de « " + f.name + " » ?")) continue;
+      ta.value = txt; prof().parcours = txt; saveProfiles();
+      alert("CV importé. Relisez le texte et complétez ce qui manque (téléphone, permis…).");
+    }catch(e){
+      alert(e.message && e.message.length > 12 ? e.message : "Ce fichier n'a pas pu être lu. Copiez-collez votre parcours à la main.");
+    }finally{ drop.innerHTML = DROP_HTML; }
+  }
+}
+
+/* ---------- Réglages & clé ---------- */
+function renderSettings(){
+  $("#key").value = settings.apiKey;
+  $("#model").value = settings.model;
+  $("#tpl").value = settings.tpl;
+  $("#step-key").hidden = !!settings.apiKey;
+  $("#cost").textContent = "Coût cumulé sur cet appareil : " + settings.cost.toFixed(2).replace(".", ",") + " $";
+  const sw = $("#swatches"); sw.innerHTML = "";
+  const h = currentHistId && history.find(x => x.id === currentHistId);
+  const company = h && h.companyColor;
+  if(company){
+    const b = el("button", "swatch company" + (settings.useCompany ? " on" : ""), "Couleur " + (h.entreprise || "entreprise"));
+    b.style.background = company; b.title = "Couleur de l'entreprise (" + company + ")";
+    b.addEventListener("click", () => { settings.useCompany = true; saveSettings(); renderSettings(); applyLook(); }); sw.appendChild(b);
+  }
+  COLORS.forEach(c => { const b = el("button", "swatch" + (c === settings.color && !(company && settings.useCompany) ? " on" : "")); b.style.background = c; b.title = c;
+    b.addEventListener("click", () => { settings.color = c; settings.useCompany = false; saveSettings(); renderSettings(); applyLook(); }); sw.appendChild(b); });
+}
+function currentColor(){
+  const h = currentHistId && history.find(x => x.id === currentHistId);
+  return (settings.useCompany && h && h.companyColor) ? h.companyColor : settings.color;
+}
+$("#key").addEventListener("change", e => { settings.apiKey = e.target.value.trim(); saveSettings(); renderSettings(); });
+$("#model").addEventListener("change", e => { settings.model = e.target.value; saveSettings(); });
+$("#tpl").addEventListener("change", e => { settings.tpl = e.target.value; saveSettings(); applyLook(); });
+$("#btn-key-first").addEventListener("click", async () => {
+  const k = $("#key-first").value.trim();
+  if(!k.startsWith("sk-ant-")){ status("#status-key-first", "err", "Cette clé ne ressemble pas à une clé Claude (elle commence par sk-ant-)."); return; }
+  status("#status-key-first", "info", "Vérification…");
+  const r = await testKey(k);
+  if(r.ok){ settings.apiKey = k; saveSettings(); renderSettings(); status("#status-key-first", "", ""); }
+  else status("#status-key-first", "err", r.msg);
+});
+$("#btn-test-key").addEventListener("click", async () => {
+  status("#status-key", "info", "Vérification…");
+  const r = await testKey(settings.apiKey);
+  status("#status-key", r.ok ? "ok" : "err", r.ok ? "La clé fonctionne." : r.msg);
+});
+
+/* ---------- Appel à l'API Claude ---------- */
+async function callClaude(body, key){
+  let res;
+  try{
+    res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{
+        "content-type":"application/json",
+        "x-api-key": key,
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body: JSON.stringify(body)
+    });
+  }catch(e){ throw new Error("Pas de connexion à Internet, ou service injoignable. Réessayez."); }
+  let data = null; try{ data = await res.json(); }catch(e){}
+  if(!res.ok){
+    const m = (data && data.error && data.error.message) || "";
+    if(res.status === 401) throw new Error("Clé d'accès refusée. Vérifiez-la dans les Réglages ou demandez-en une nouvelle à Maxence.");
+    if(res.status === 403) throw new Error("Cette clé n'a pas l'autorisation. Prévenez Maxence.");
+    if(res.status === 429) throw new Error("Trop de demandes d'un coup. Patientez une minute et réessayez.");
+    if(res.status === 529 || res.status >= 500) throw new Error("Le service Claude est surchargé. Réessayez dans quelques minutes.");
+    if(/credit|balance|billing/i.test(m)) throw new Error("Le crédit est épuisé. Prévenez Maxence pour qu'il recharge le compte.");
+    throw new Error("Erreur " + res.status + (m ? " : " + m : ""));
+  }
+  return data;
+}
+async function testKey(k){
+  if(!k) return { ok:false, msg:"Aucune clé saisie." };
+  try{ await callClaude({ model:settings.model, max_tokens:16, messages:[{ role:"user", content:"Réponds OK." }] }, k); return { ok:true }; }
+  catch(e){ return { ok:false, msg:e.message }; }
+}
+
+const SYSTEM = `Tu es un recruteur et rédacteur de CV expérimenté sur le marché de l'emploi français.
+Ta mission : à partir du parcours réel d'un candidat et d'une offre d'emploi, produire un CV d'une page parfaitement ciblé sur cette offre.
+
+RÈGLES ABSOLUES
+1. N'invente RIEN. Aucun poste, employeur, date, diplôme, certification, chiffre, outil, langue ou compétence qui ne figure pas, au moins implicitement, dans le parcours. Si l'offre exige un élément absent du parcours, ne l'ajoute pas : signale-le dans "alertes".
+2. Adapte, reformule, réordonne : mets en avant ce qui correspond à l'offre, résume ou supprime ce qui est hors sujet. Reprends le vocabulaire exact de l'offre quand il décrit une réalité du parcours (les logiciels de tri des recruteurs cherchent ces mots-clés).
+3. Le CV tient sur UNE page : 5 expériences au maximum (les plus pertinentes, les plus récentes en premier), 2 à 4 puces par expérience, chaque puce commence par un verbe d'action et fait une ligne ou deux. Regroupe ou abrège les expériences anciennes ou sans rapport.
+4. Accroche : 2 à 3 phrases, à la première personne implicite (sans « je »), qui relient le parcours au poste visé. Pas de clichés creux (« dynamique et motivé »).
+5. Titre du CV = intitulé du poste visé, éventuellement complété (ex. « Conseiller clientèle — 3 ans d'expérience en relation client »), seulement si c'est vrai.
+6. Français impeccable, typographie française. Dates au format « 2021 – 2023 » ou « Depuis 2024 ».
+7. Compétences : 6 à 10 éléments courts, les plus pertinents pour l'offre d'abord.
+8. N'indique jamais d'âge, de situation familiale ni de nationalité, sauf si le candidat l'a écrit.
+
+LETTRE DE MOTIVATION (uniquement si demandée)
+- 3 à 4 paragraphes, 250 à 350 mots au total : (1) pourquoi cette entreprise et ce poste, (2) ce que le candidat apporte, avec des faits tirés du parcours, (3) disponibilité et demande d'entretien, (4) formule de politesse.
+- Ne commence pas par « Madame, Monsieur » (ajouté automatiquement). Termine par la formule de politesse complète.
+- Ton professionnel, sincère, concret. Aucune information inventée sur le candidat. Sur l'entreprise, n'utilise que ce que dit l'offre.
+
+OUTILS
+- Si l'annonce est donnée sous forme de lien, lis-la avec l'outil web_fetch. Si la page est inaccessible, demande une connexion, ou ne contient pas d'annonce d'emploi, N'INVENTE PAS l'annonce : réponds seulement {"offre_lue": false, "raison": "explication courte"}.
+- Si l'outil web_search est disponible et que l'entreprise est nommée, fais UNE recherche pour trouver la couleur principale de son logo ou de sa charte graphique. Renvoie-la en hexadécimal dans "couleur_entreprise". En cas de doute, chaîne vide. Ne cite jamais ces recherches dans le CV.
+- Après avoir utilisé les outils, ta réponse finale est uniquement le JSON.
+
+FORMAT DE RÉPONSE
+Réponds UNIQUEMENT avec un objet JSON valide, sans texte avant ni après, sans bloc de code, selon ce schéma exact :
+{
+  "offre_lue": true,
+  "offre_resume": "résumé factuel de l'annonce en 150 mots maximum : intitulé, entreprise, lieu, missions, exigences",
+  "couleur_entreprise": "#RRGGBB ou chaîne vide",
+  "poste_vise": "intitulé du poste",
+  "entreprise": "nom de l'entreprise ou chaîne vide si inconnue",
+  "entreprise_adresse": "adresse ou ville de l'entreprise si présente dans l'offre, sinon chaîne vide",
+  "score_adequation": nombre de 0 à 100 (adéquation réelle parcours/offre, sois honnête),
+  "alertes": ["exigences de l'offre absentes du parcours, ou conseils pour l'entretien — 0 à 4 éléments courts"],
+  "cv": {
+    "nom": "Prénom Nom",
+    "titre": "…",
+    "accroche": "…",
+    "contact": { "telephone": "", "email": "", "ville": "", "linkedin": "", "permis": "" },
+    "experiences": [ { "poste": "", "entreprise": "", "lieu": "", "dates": "", "points": ["…"] } ],
+    "formations": [ { "diplome": "", "etablissement": "", "dates": "" } ],
+    "competences": ["…"],
+    "langues": ["Anglais — courant"],
+    "interets": ["…"]
+  },
+  "lettre": null ou { "objet": "Candidature au poste de …", "paragraphes": ["…", "…"] }
+}
+Laisse une chaîne vide ou une liste vide pour tout ce qui est inconnu.`;
+
+function parseJSON(text){
+  const a = text.indexOf("{"), b = text.lastIndexOf("}");
+  if(a < 0 || b <= a) throw new Error("bad");
+  return JSON.parse(text.slice(a, b + 1));
+}
+
+function addCost(u){
+  if(!u) return;
+  const pr = PRICES[settings.model] || [2,10];
+  const searches = (u.server_tool_use && u.server_tool_use.web_search_requests) || 0;
+  settings.cost += ((u.input_tokens || 0) * pr[0] + (u.output_tokens || 0) * pr[1]) / 1e6 + searches * 0.01;
+  saveSettings(); renderSettings();
+}
+/* Appel avec outils serveur (lecture du lien, recherche de couleur), en gérant les pauses */
+async function runClaude(messages, tools){
+  const body = { model:settings.model, max_tokens:16000, system:SYSTEM, messages:messages.slice() };
+  if(tools && tools.length) body.tools = tools;
+  let data;
+  for(let i = 0; i < 4; i++){
+    data = await callClaude(body, settings.apiKey);
+    addCost(data.usage);
+    if(data.stop_reason !== "pause_turn") break;
+    body.messages = body.messages.concat([{ role:"assistant", content:data.content }]);
+  }
+  if(data.stop_reason === "max_tokens") throw new Error("La réponse a été coupée. Raccourcissez le parcours ou l'offre et réessayez.");
+  const blocks = data.content || [];
+  let last = -1; blocks.forEach((b, i) => { if(/_tool_result$/.test(b.type)) last = i; });
+  const text = blocks.slice(last + 1).filter(b => b.type === "text").map(b => b.text).join("");
+  let out; try{ out = parseJSON(text); }catch(e){ throw new Error("La réponse n'a pas pu être lue. Cliquez à nouveau sur le bouton."); }
+  if(out.offre_lue === false) throw new Error("Impossible de lire l'annonce à partir du lien" + (out.raison ? " (" + str(out.raison) + ")" : "") + ". Copiez-collez le texte de l'annonce dans le cadre prévu.");
+  if(!out.cv) throw new Error("La réponse est incomplète. Réessayez.");
+  return out;
+}
+function cleanHex(c){
+  c = str(c); if(!/^#?[0-9a-f]{6}$/i.test(c)) return "";
+  c = c.replace("#", "");
+  let r = parseInt(c.slice(0,2),16), g = parseInt(c.slice(2,4),16), b = parseInt(c.slice(4,6),16);
+  const lum = () => { const f = v => { v /= 255; return v <= .03928 ? v/12.92 : Math.pow((v+.055)/1.055, 2.4); }; return .2126*f(r) + .7152*f(g) + .0722*f(b); };
+  if(lum() > .9 || (Math.max(r,g,b) - Math.min(r,g,b) < 18 && lum() > .5)) return ""; // blanc ou gris clair : inutilisable
+  // Assombrit jusqu'à ce que le texte blanc reste lisible (contraste >= 4.5)
+  let n = 0; while((1.05) / (lum() + .05) < 4.5 && n++ < 40){ r = Math.round(r * .92); g = Math.round(g * .92); b = Math.round(b * .92); }
+  return "#" + [r,g,b].map(v => v.toString(16).padStart(2, "0")).join("");
+}
+function storeResult(p, out){
+  if(!out.cv.nom && p.name) out.cv.nom = p.name;
+  const h = { id:uid(), profileId:p.id, date:Date.now(), poste:str(out.poste_vise) || "Poste", entreprise:str(out.entreprise), companyColor:cleanHex(out.couleur_entreprise), data:out, cvHtml:"", lettreHtml:"" };
+  currentHistId = h.id;
+  renderAll(out);
+  h.cvHtml = $("#page-cv").innerHTML; h.lettreHtml = $("#page-lettre").innerHTML;
+  history.unshift(h);
+  const mine = history.filter(x => x.profileId === p.id);
+  if(mine.length > 15){ const gone = new Set(mine.slice(15).map(x => x.id)); history = history.filter(x => !gone.has(x.id)); }
+  saveHistory(); renderHistory(); renderSettings(); applyLook();
+}
+function busy(on, label){
+  ["#btn-generate", "#btn-regen"].forEach(id => { $(id).disabled = on; });
+  $("#btn-generate").textContent = on && label === "gen" ? "Claude rédige…" : "Créer mon CV adapté";
+  $("#btn-regen").textContent = on && label === "regen" ? "Correction en cours…" : "Corriger le CV et la lettre";
+}
+const URL_RE = /^https?:\/\/\S+$/i;
+
+$("#btn-generate").addEventListener("click", async () => {
+  const p = prof();
+  const parcours = $("#profile-parcours").value.trim();
+  const url = $("#offre-url").value.trim();
+  const offre = $("#offre").value.trim();
+  const wantLettre = $("#opt-lettre").checked;
+  if(!settings.apiKey){ status("#status-gen", "err", "Enregistrez d'abord la clé d'accès (encadré « Première utilisation » ou Réglages)."); $("#step-key").hidden = false; return; }
+  if(parcours.length < 80){ status("#status-gen", "err", "Votre parcours est trop court. Déposez votre ancien CV ou décrivez vos expériences."); $("#profile-parcours").focus(); return; }
+  if(url && !URL_RE.test(url)){ status("#status-gen", "err", "Le lien de l'annonce doit commencer par https://"); $("#offre-url").focus(); return; }
+  if(!url && offre.length < 80){ status("#status-gen", "err", "Indiquez le lien de l'annonce ou collez son texte complet."); $("#offre-url").focus(); return; }
+
+  busy(true, "gen");
+  status("#status-gen", "info", (url && offre.length < 80 ? "Lecture de l'annonce puis rédaction" : "Rédaction en cours") + ", comptez 30 à 90 secondes. Ne fermez pas la page.");
+  try{
+    const offreBloc = offre.length >= 80 ? offre + (url ? "\n(Lien de l'annonce, inutile de le lire : " + url + ")" : "")
+      : "L'annonce est à lire à cette adresse : " + url;
+    const userMsg = "<parcours_du_candidat>\n" + (p.name ? "Nom : " + p.name + "\n" : "") + parcours + "\n</parcours_du_candidat>\n\n<offre_d_emploi>\n" + offreBloc + "\n</offre_d_emploi>\n\n" +
+      (wantLettre ? "Rédige le CV ET la lettre de motivation." : "Rédige uniquement le CV ; mets \"lettre\": null.");
+    const tools = [];
+    if(offre.length < 80) tools.push({ type:"web_fetch_20250910", name:"web_fetch", max_uses:3, max_content_tokens:20000 });
+    tools.push({ type:"web_search_20250305", name:"web_search", max_uses:2 });
+    const out = await runClaude([{ role:"user", content:userMsg }], tools);
+    out._userMsg = { parcours, wantLettre };
+    storeResult(p, out);
+    $("#remarques").value = "";
+    status("#status-gen", "ok", "C'est prêt ! Relisez le CV à droite. Corrigez directement dans le document, ou expliquez ce qui ne va pas ci-dessous.");
+  }catch(e){
+    status("#status-gen", "err", e.message);
+  }
+  busy(false);
+});
+
+/* Boucle de corrections : la personne dit ce qui ne lui plaît pas, Claude refait */
+$("#btn-regen").addEventListener("click", async () => {
+  const h = history.find(x => x.id === currentHistId);
+  const rq = $("#remarques").value.trim();
+  if(!h){ status("#status-gen", "err", "Générez d'abord un CV."); return; }
+  if(rq.length < 4){ status("#status-gen", "err", "Expliquez ce que vous voulez changer."); $("#remarques").focus(); return; }
+  const p = profiles.find(x => x.id === h.profileId) || prof();
+  const prev = Object.assign({}, h.data); delete prev._userMsg;
+  const parcours = (h.data._userMsg && h.data._userMsg.parcours) || p.parcours;
+  const wantLettre = h.data._userMsg ? h.data._userMsg.wantLettre : !!h.data.lettre;
+  busy(true, "regen");
+  status("#status-gen", "info", "Claude applique vos remarques, comptez 20 à 60 secondes.");
+  try{
+    const userMsg = "<parcours_du_candidat>\n" + parcours + "\n</parcours_du_candidat>\n\n<offre_d_emploi>\n" + (str(h.data.offre_resume) || h.poste + " — " + h.entreprise) +
+      "\n</offre_d_emploi>\n\n<version_precedente>\n" + JSON.stringify(prev) + "\n</version_precedente>\n\n<remarques_du_candidat>\n" + rq +
+      "\n</remarques_du_candidat>\n\nApplique ces remarques à la version précédente et renvoie le JSON complet mis à jour. Garde ce qui n'est pas concerné par les remarques. Les règles absolues restent valables : n'invente rien. Conserve \"couleur_entreprise\" et \"offre_resume\" tels quels." +
+      (wantLettre ? "" : " Mets \"lettre\": null.");
+    const out = await runClaude([{ role:"user", content:userMsg }], []);
+    if(!str(out.couleur_entreprise)) out.couleur_entreprise = h.companyColor;
+    if(!str(out.offre_resume)) out.offre_resume = h.data.offre_resume;
+    out._userMsg = { parcours, wantLettre };
+    storeResult(p, out);
+    $("#remarques").value = "";
+    status("#status-gen", "ok", "Nouvelle version prête. L'ancienne reste dans l'historique.");
+  }catch(e){
+    status("#status-gen", "err", e.message);
+  }
+  busy(false);
+});
+
+/* ---------- Rendu du CV ---------- */
+function section(title){ const s = el("section", "blk"); s.appendChild(el("h3", "", title)); return s; }
+function renderCV(out){
+  const cv = out.cv || {}, c = cv.contact || {};
+  const page = $("#page-cv"); page.innerHTML = "";
+
+  const head = el("header", "cv-head");
+  head.appendChild(el("h1", "", str(cv.nom)));
+  if(str(cv.titre)) head.appendChild(el("h2", "", str(cv.titre)));
+
+  const side = el("aside", "cv-side");
+  if(prof().photo){ const im = el("img", "photo"); im.src = prof().photo; im.alt = ""; side.appendChild(im); }
+  const contacts = [c.telephone, c.email, c.ville, c.linkedin, c.permis].map(str).filter(Boolean);
+  if(contacts.length){ const s = section("Contact"); const ul = el("ul", "list side-contact"); contacts.forEach(x => ul.appendChild(el("li", "", x))); s.appendChild(ul); side.appendChild(s); }
+  [["Compétences", cv.competences], ["Langues", cv.langues], ["Centres d'intérêt", cv.interets]].forEach(([t, l]) => {
+    const items = arr(l); if(!items.length) return;
+    const s = section(t); const ul = el("ul", "list"); items.forEach(x => ul.appendChild(el("li", "", str(x)))); s.appendChild(ul); side.appendChild(s);
+  });
+
+  const main = el("main", "cv-main");
+  if(str(cv.accroche)){ const s = section("Profil"); s.appendChild(el("p", "accroche", str(cv.accroche))); main.appendChild(s); }
+  const exps = arr(cv.experiences);
+  if(exps.length){
+    const s = section("Expérience professionnelle");
+    exps.forEach(x => {
+      const d = el("div", "exp"), top = el("div", "exp-top");
+      top.appendChild(el("span", "poste", str(x.poste))); top.appendChild(el("span", "dates", str(x.dates))); d.appendChild(top);
+      const org = [str(x.entreprise), str(x.lieu)].filter(Boolean).join(" — "); if(org) d.appendChild(el("div", "org", org));
+      const pts = arr(x.points); if(pts.length){ const ul = el("ul"); pts.forEach(t => ul.appendChild(el("li", "", str(t)))); d.appendChild(ul); }
+      s.appendChild(d);
+    });
+    main.appendChild(s);
+  }
+  const forms = arr(cv.formations);
+  if(forms.length){
+    const s = section("Formation");
+    forms.forEach(x => {
+      const d = el("div", "form"), top = el("div", "exp-top");
+      top.appendChild(el("span", "poste", str(x.diplome))); top.appendChild(el("span", "dates", str(x.dates))); d.appendChild(top);
+      if(str(x.etablissement)) d.appendChild(el("div", "org", str(x.etablissement)));
+      s.appendChild(d);
+    });
+    main.appendChild(s);
+  }
+  page.appendChild(head); page.appendChild(side); page.appendChild(main);
+}
+
+function renderLettre(out){
+  const page = $("#page-lettre"); page.innerHTML = "";
+  const L = out.lettre; if(!L) return false;
+  const cv = out.cv || {}, c = cv.contact || {};
+  const exp = el("div", "exp-bloc"); exp.appendChild(el("div", "nm", str(cv.nom)));
+  [c.ville, c.telephone, c.email].map(str).filter(Boolean).forEach(x => exp.appendChild(el("div", "", x)));
+  page.appendChild(exp);
+  const dest = el("div", "dest");
+  dest.appendChild(el("div", "", str(out.entreprise) ? str(out.entreprise) : "Service des ressources humaines"));
+  if(str(out.entreprise)) dest.appendChild(el("div", "", "Service des ressources humaines"));
+  if(str(out.entreprise_adresse)) dest.appendChild(el("div", "", str(out.entreprise_adresse)));
+  page.appendChild(dest);
+  const today = new Date().toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
+  page.appendChild(el("div", "lieu", (str(c.ville) ? "À " + str(c.ville).split(/[,(]/)[0].trim() + ", le " : "Le ") + today));
+  page.appendChild(el("div", "objet", "Objet : " + (str(L.objet).replace(/^objet\s*:\s*/i, "") || "Candidature")));
+  page.appendChild(el("p", "", "Madame, Monsieur,"));
+  arr(L.paragraphes).forEach(t => page.appendChild(el("p", "", str(t))));
+  page.appendChild(el("div", "sign", str(cv.nom)));
+  return true;
+}
+
+function renderAlertes(out){
+  const a = $("#alertes"); a.innerHTML = "";
+  const items = arr(out.alertes);
+  if(items.length){
+    a.appendChild(el("b", "", "À savoir avant d'envoyer :"));
+    const ul = el("ul"); items.forEach(t => ul.appendChild(el("li", "", str(t)))); a.appendChild(ul); a.hidden = false;
+  } else a.hidden = true;
+  const sc = Number(out.score_adequation);
+  $("#score").textContent = isFinite(sc) && sc > 0 ? "Adéquation avec l'offre : " + Math.round(sc) + " %" : "";
+}
+
+function renderAll(out, html){
+  renderAlertes(out);
+  if(html && html.cvHtml){ $("#page-cv").innerHTML = html.cvHtml; } else renderCV(out);
+  let hasL;
+  if(html && html.lettreHtml){ $("#page-lettre").innerHTML = html.lettreHtml; hasL = true; } else hasL = renderLettre(out);
+  $("#tab-lettre").hidden = !hasL;
+  $("#btn-pdf-lettre").hidden = !hasL; $("#btn-copy-lettre").hidden = !hasL;
+  $("#empty").hidden = true; $("#tabs").hidden = false; $("#edit-hint").hidden = false; $("#feedback-box").hidden = false;
+  renderSettings(); applyLook(); showTab("cv");
+}
+
+function showEmpty(){
+  currentHistId = null;
+  $("#empty").hidden = false; $("#tabs").hidden = true; $("#alertes").hidden = true; $("#edit-hint").hidden = true; $("#feedback-box").hidden = true;
+  renderSettings();
+  $("#holder-cv").hidden = true; $("#holder-lettre").hidden = true;
+}
+
+/* Apparence (sans re-générer : les corrections manuelles sont conservées) */
+function applyLook(){
+  const cv = $("#page-cv");
+  cv.classList.remove("tpl-moderne", "tpl-classique"); cv.classList.add("tpl-" + settings.tpl);
+  const col = currentColor();
+  cv.style.setProperty("--accent", col);
+  $("#page-lettre").style.setProperty("--accent", col);
+  fitVisible();
+}
+
+/* Réduit la taille du texte si le contenu dépasse une page */
+function fitPage(page, start, min){
+  let fs = start; page.style.setProperty("--fs", fs + "pt");
+  while(page.scrollHeight > page.clientHeight + 1 && fs > min){ fs = Math.round((fs - 0.25) * 100) / 100; page.style.setProperty("--fs", fs + "pt"); }
+  return page.scrollHeight <= page.clientHeight + 1;
+}
+let activeTab = "cv";
+function fitVisible(){
+  if(activeTab === "cv" && !$("#holder-cv").hidden){
+    const ok = fitPage($("#page-cv"), 10.5, 8.25);
+    $("#edit-hint").textContent = ok ? "Astuce : cliquez directement dans le CV pour corriger un mot. Vos modifications sont enregistrées."
+      : "Attention : le CV dépasse une page. Supprimez une ou deux puces (cliquez dans le texte) ou régénérez.";
+    $("#edit-hint").style.color = ok ? "" : "var(--danger)";
+  }
+  if(activeTab === "lettre" && !$("#holder-lettre").hidden) fitPage($("#page-lettre"), 11, 9.5);
+}
+function showTab(t){
+  activeTab = t;
+  document.querySelectorAll(".tab").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  $("#holder-cv").hidden = t !== "cv"; $("#holder-lettre").hidden = t !== "lettre";
+  scalePreview(); fitVisible();
+}
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+
+function scalePreview(){
+  const w = $("#preview").clientWidth - 40;
+  const s = Math.min(1, w / 794);
+  document.querySelectorAll(".page-holder").forEach(h => { h.style.setProperty("--s", s); h.style.height = (1123 * s) + "px"; });
+}
+window.addEventListener("resize", scalePreview);
+
+/* Enregistrement des corrections manuelles */
+function saveCurrentEdits(){
+  const h = history.find(x => x.id === currentHistId); if(!h) return;
+  h.cvHtml = $("#page-cv").innerHTML; h.lettreHtml = $("#page-lettre").innerHTML; saveHistory();
+}
+const onEdit = debounce(() => { saveCurrentEdits(); fitVisible(); }, 700);
+$("#page-cv").addEventListener("input", onEdit);
+$("#page-lettre").addEventListener("input", onEdit);
+
+/* ---------- Historique ---------- */
+function renderHistory(){
+  const ul = $("#hist"); ul.innerHTML = "";
+  const mine = history.filter(h => h.profileId === currentProfileId);
+  $("#hist-empty").hidden = mine.length > 0;
+  mine.forEach(h => {
+    const li = el("li");
+    const t = el("span", "t"); t.appendChild(el("div", "", h.poste + (h.entreprise ? " — " + h.entreprise : "")));
+    t.appendChild(el("div", "d", new Date(h.date).toLocaleDateString("fr-FR", { day:"numeric", month:"short", year:"numeric" })));
+    t.addEventListener("click", () => { currentHistId = h.id; renderAll(h.data, h); window.scrollTo({ top:0, behavior:"smooth" }); });
+    const del = el("button", "btn small danger", "✕"); del.title = "Supprimer";
+    del.addEventListener("click", () => { if(!confirm("Supprimer ce CV de l'historique ?")) return; history = history.filter(x => x.id !== h.id); saveHistory(); if(currentHistId === h.id) showEmpty(); renderHistory(); });
+    li.appendChild(t); li.appendChild(del); ul.appendChild(li);
+  });
+}
+
+/* ---------- Export PDF & copie ---------- */
+function printPage(which){
+  if(!currentHistId){ alert("Générez d'abord un CV."); return; }
+  if(which === "lettre" && $("#tab-lettre").hidden){ alert("Aucune lettre pour ce CV."); return; }
+  showTab(which);
+  const h = history.find(x => x.id === currentHistId);
+  const nom = (h && h.data && h.data.cv && str(h.data.cv.nom)) || "CV";
+  const old = document.title;
+  document.title = (which === "cv" ? "CV " : "Lettre ") + nom + (h && h.entreprise ? " - " + h.entreprise : "");
+  document.body.dataset.print = which;
+  setTimeout(() => { window.print(); document.title = old; }, 50);
+}
+window.addEventListener("afterprint", () => { delete document.body.dataset.print; });
+$("#btn-pdf-cv").addEventListener("click", () => printPage("cv"));
+$("#btn-pdf-lettre").addEventListener("click", () => printPage("lettre"));
+$("#btn-copy-lettre").addEventListener("click", async () => {
+  const p = $("#page-lettre"); const parts = [];
+  p.querySelectorAll(".objet, p, .sign").forEach(n => parts.push(n.innerText.trim()));
+  const txt = parts.join("\n\n");
+  try{ await navigator.clipboard.writeText(txt); alert("Texte de la lettre copié. Vous pouvez le coller dans un e-mail ou un formulaire."); }
+  catch(e){ prompt("Copiez le texte ci-dessous :", txt); }
+});
+
+/* ---------- Démarrage ---------- */
+renderSettings(); renderProfiles(); scalePreview();
+window.__cvx = { renderAll, showTab, cleanHex }; // utilisé pour les tests
+})();
+</script>
+</body>
+</html>
