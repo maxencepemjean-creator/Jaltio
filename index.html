@@ -67,6 +67,14 @@ textarea{resize:vertical;min-height:120px}
 .hist li .t:hover{text-decoration:underline}
 .hist li .d{color:var(--muted);font-size:12px}
 details summary{cursor:pointer;font-weight:600}
+.hist li .meta{color:var(--muted);font-size:12px}
+.hist li .soon{color:var(--warn);font-weight:600}
+.pin{border:1px solid transparent;background:none;cursor:pointer;font-size:15px;opacity:.35;padding:3px 5px;border-radius:6px;filter:grayscale(1)}
+.pin:hover{opacity:.8;border-color:var(--line)}
+.pin[aria-pressed=true]{opacity:1;filter:none}
+.versions{display:none;align-items:center;gap:4px;font-size:13.5px;color:var(--muted)}
+.versions.show{display:inline-flex}
+.versions .btn{padding:3px 9px;font-size:15px;line-height:1}
 .preview{padding:20px;min-width:0}
 .tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
 .tab{border:1px solid #d1d5db;background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;font-weight:500}
@@ -298,6 +306,7 @@ body.chat-open .app{grid-template-columns:380px 1fr 380px}
     <h2><span class="num">↺</span> Historique</h2>
     <ul class="hist" id="hist"></ul>
     <p class="hint" id="hist-empty">Aucun CV généré pour l'instant.</p>
+    <p class="hint" id="hist-rule">Une ligne par candidature. Sans activité pendant 30 jours, elle est supprimée automatiquement. Cliquez sur 📌 pour la garder.</p>
   </div>
 
   <details class="step">
@@ -321,6 +330,7 @@ body.chat-open .app{grid-template-columns:380px 1fr 380px}
     <button class="tab on" data-tab="cv">CV</button>
     <button class="tab" data-tab="lettre" id="tab-lettre">Lettre de motivation</button>
     <span class="validate" id="validate">Retouches à valider <button class="btn small" id="btn-validate" type="button">✔ Valider mes retouches</button></span>
+    <span class="versions" id="versions"><button class="btn small" id="v-prev" type="button" aria-label="Version précédente">‹</button><span id="v-label"></span><button class="btn small" id="v-next" type="button" aria-label="Version suivante">›</button></span>
     <span class="spacer"></span>
     <span id="score" style="font-size:14px;color:var(--muted)"></span>
   </div>
@@ -705,15 +715,16 @@ function cleanHex(c){
 function storeResult(p, out, keep){
   if(!out.cv.nom && p.name) out.cv.nom = p.name;
   const h = { id:uid(), profileId:p.id, date:Date.now(), poste:str(out.poste_vise) || "Poste", entreprise:str(out.entreprise), companyColor:cleanHex(out.couleur_entreprise), data:out, cvHtml:"", lettreHtml:"" };
+  h.groupId = (keep && keep.groupId) || h.id;
   currentHistId = h.id;
   h.chat = (keep && keep.chat) || [];
   renderAll(out, keep);
   h.cvHtml = $("#page-cv").innerHTML; h.lettreHtml = $("#page-lettre").innerHTML;
   h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; h.dirty = false;
   history.unshift(h);
-  const mine = history.filter(x => x.profileId === p.id);
-  if(mine.length > 15){ const gone = new Set(mine.slice(15).map(x => x.id)); history = history.filter(x => !gone.has(x.id)); }
-  saveHistory(); renderHistory(); renderSettings(); applyLook(); refreshValidate();
+  const versions = history.filter(x => groupOf(x) === h.groupId);
+  if(versions.length > MAX_VERSIONS){ const gone = new Set(versions.slice(MAX_VERSIONS).map(x => x.id)); history = history.filter(x => !gone.has(x.id)); }
+  purgeOld(); saveHistory(); renderHistory(); renderSettings(); applyLook(); refreshValidate(); refreshVersions();
   if(document.body.classList.contains("chat-open")) renderChat();
 }
 function busy(on, label){
@@ -824,7 +835,7 @@ async function doRegen(target, rq){
     if(!str(out.couleur_entreprise)) out.couleur_entreprise = h.companyColor;
     if(!str(out.offre_resume)) out.offre_resume = h.data.offre_resume;
     // Le document non concerné est repris tel quel, retouches manuelles comprises
-    const keep = { chat:h.chat };
+    const keep = { chat:h.chat, groupId:groupOf(h) };
     if(target === "cv"){ out.lettre = lettreActuelle || h.data.lettre || null; if(hadLettre) keep.lettreHtml = h.lettreHtml; }
     else if(hadLettre) keep.lettreFrame = h.lettreHtml;
     if(target === "lettre"){ out.cv = h.data.cv; out.alertes = h.data.alertes; out.score_adequation = h.data.score_adequation; keep.cvHtml = h.cvHtml; }
@@ -928,7 +939,7 @@ function renderAll(out, html){
   $("#btn-pdf-lettre").hidden = !hasL; $("#btn-copy-lettre").hidden = !hasL;
   $("#empty").hidden = true; $("#tabs").hidden = false; $("#edit-hint").hidden = false; $("#feedback-box").hidden = false;
   $("#btn-regen").textContent = regenLabel();
-  renderSettings(); applyLook(); showTab("cv"); refreshValidate();
+  renderSettings(); applyLook(); showTab("cv"); refreshValidate(); refreshVersions();
   if(document.body.classList.contains("chat-open")) renderChat();
 }
 
@@ -984,29 +995,95 @@ window.addEventListener("resize", scalePreview);
 /* Enregistrement des corrections manuelles */
 function saveCurrentEdits(){
   const h = history.find(x => x.id === currentHistId); if(!h) return;
-  h.cvHtml = $("#page-cv").innerHTML; h.lettreHtml = $("#page-lettre").innerHTML; saveHistory();
+  h.cvHtml = $("#page-cv").innerHTML; h.lettreHtml = $("#page-lettre").innerHTML; h.touched = Date.now(); saveHistory();
 }
 const onEditSave = debounce(() => { saveCurrentEdits(); fitVisible(); }, 700);
 const onEdit = () => { markDirty(); onEditSave(); };
 $("#page-cv").addEventListener("input", onEdit);
 $("#page-lettre").addEventListener("input", onEdit);
 
-/* ---------- Historique ---------- */
+/* ---------- Historique : une ligne par candidature, versions dedans ---------- */
+const MAX_VERSIONS = 10, KEEP_DAYS = 30, DAY = 864e5;
+let pins = new Set(store.get("pins", []));
+const savePins = () => store.set("pins", [...pins]);
+const groupOf = h => h.groupId || h.id;
+const lastActivity = h => Math.max(h.date || 0, h.touched || 0);
+function groupsFor(profileId){
+  const map = new Map();
+  history.filter(h => h.profileId === profileId).forEach(h => {
+    const g = groupOf(h);
+    if(!map.has(g)) map.set(g, { id:g, versions:[], last:0 });
+    const G = map.get(g); G.versions.push(h); G.last = Math.max(G.last, lastActivity(h));
+  });
+  const list = [...map.values()];
+  list.forEach(G => G.versions.sort((a, b) => a.date - b.date));
+  return list.sort((a, b) => b.last - a.last);
+}
+/* Supprime les candidatures sans activité depuis 30 jours (sauf épinglées) */
+function purgeOld(){
+  const limit = Date.now() - KEEP_DAYS * DAY, gone = new Set();
+  const lastByGroup = new Map();
+  history.forEach(h => lastByGroup.set(groupOf(h), Math.max(lastByGroup.get(groupOf(h)) || 0, lastActivity(h))));
+  lastByGroup.forEach((last, g) => { if(last < limit && !pins.has(g)) gone.add(g); });
+  if(!gone.size) return 0;
+  const before = history.length;
+  history = history.filter(h => !gone.has(groupOf(h)));
+  [...pins].forEach(g => { if(!lastByGroup.has(g)) pins.delete(g); });
+  savePins(); saveHistory();
+  if(currentHistId && !history.find(x => x.id === currentHistId)) showEmpty();
+  return before - history.length;
+}
+function openHist(h){
+  if(!h.baseCvHtml){ h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; }
+  currentHistId = h.id; renderAll(h.data, h); renderHistory();
+}
+function refreshVersions(){
+  const h = currentHistId && history.find(x => x.id === currentHistId), box = $("#versions");
+  if(!h){ box.classList.remove("show"); return; }
+  const G = groupsFor(h.profileId).find(g => g.id === groupOf(h));
+  const n = G ? G.versions.length : 1, i = G ? G.versions.indexOf(h) : 0;
+  box.classList.toggle("show", n > 1);
+  $("#v-label").textContent = "Version " + (i + 1) + " sur " + n;
+  $("#v-prev").disabled = i <= 0; $("#v-next").disabled = i >= n - 1;
+}
+function stepVersion(d){
+  const h = history.find(x => x.id === currentHistId); if(!h) return;
+  saveCurrentEdits();
+  const G = groupsFor(h.profileId).find(g => g.id === groupOf(h)); if(!G) return;
+  const t = G.versions[G.versions.indexOf(h) + d]; if(t) openHist(t);
+}
+$("#v-prev").addEventListener("click", () => stepVersion(-1));
+$("#v-next").addEventListener("click", () => stepVersion(1));
+
 function renderHistory(){
   const ul = $("#hist"); ul.innerHTML = "";
-  const mine = history.filter(h => h.profileId === currentProfileId);
-  $("#hist-empty").hidden = mine.length > 0;
-  mine.forEach(h => {
-    const li = el("li");
-    const t = el("span", "t"); t.appendChild(el("div", "", h.poste + (h.entreprise ? " — " + h.entreprise : "")));
-    t.appendChild(el("div", "d", new Date(h.date).toLocaleDateString("fr-FR", { day:"numeric", month:"short", year:"numeric" })));
-    t.addEventListener("click", () => {
-      if(!h.baseCvHtml){ h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; }
-      currentHistId = h.id; renderAll(h.data, h); window.scrollTo({ top:0, behavior:"smooth" });
+  const groups = groupsFor(currentProfileId), cur = currentHistId && history.find(x => x.id === currentHistId);
+  $("#hist-empty").hidden = groups.length > 0;
+  $("#hist-rule").hidden = !groups.length;
+  groups.forEach(G => {
+    const latest = G.versions[G.versions.length - 1], li = el("li");
+    const t = el("span", "t");
+    const first = G.versions[0]; // le titre reste celui de la candidature, même si une correction renomme le poste
+    const title = el("div", "", first.poste + (first.entreprise ? " — " + first.entreprise : ""));
+    if(cur && groupOf(cur) === G.id) title.style.fontWeight = "600";
+    t.appendChild(title);
+    const meta = el("div", "meta");
+    meta.appendChild(document.createTextNode(new Date(G.last).toLocaleDateString("fr-FR", { day:"numeric", month:"short" }) + (G.versions.length > 1 ? " · " + G.versions.length + " versions" : "")));
+    const left = Math.ceil((G.last + KEEP_DAYS * DAY - Date.now()) / DAY);
+    if(pins.has(G.id)) meta.appendChild(document.createTextNode(" · gardée"));
+    else if(left <= 7){ meta.appendChild(document.createTextNode(" · ")); meta.appendChild(el("span", "soon", left <= 1 ? "supprimée demain" : "supprimée dans " + left + " j")); }
+    t.appendChild(meta);
+    t.addEventListener("click", () => { openHist(latest); window.scrollTo({ top:0, behavior:"smooth" }); });
+    const pin = el("button", "pin", "📌"); pin.type = "button";
+    pin.setAttribute("aria-pressed", pins.has(G.id)); pin.title = pins.has(G.id) ? "Ne plus garder (suppression après 30 jours sans activité)" : "Garder cette candidature (pas de suppression automatique)";
+    pin.addEventListener("click", () => { pins.has(G.id) ? pins.delete(G.id) : pins.add(G.id); savePins(); renderHistory(); });
+    const del = el("button", "btn small danger", "✕"); del.type = "button"; del.title = "Supprimer cette candidature";
+    del.addEventListener("click", () => {
+      if(!confirm("Supprimer cette candidature" + (G.versions.length > 1 ? " et ses " + G.versions.length + " versions" : "") + " ?")) return;
+      history = history.filter(x => groupOf(x) !== G.id); pins.delete(G.id); savePins(); saveHistory();
+      if(cur && groupOf(cur) === G.id) showEmpty(); renderHistory();
     });
-    const del = el("button", "btn small danger", "✕"); del.title = "Supprimer";
-    del.addEventListener("click", () => { if(!confirm("Supprimer ce CV de l'historique ?")) return; history = history.filter(x => x.id !== h.id); saveHistory(); if(currentHistId === h.id) showEmpty(); renderHistory(); });
-    li.appendChild(t); li.appendChild(del); ul.appendChild(li);
+    li.appendChild(t); li.appendChild(pin); li.appendChild(del); ul.appendChild(li);
   });
 }
 
@@ -1218,8 +1295,19 @@ document.querySelectorAll("[data-apply]").forEach(b => b.addEventListener("click
 }));
 
 /* ---------- Démarrage ---------- */
-renderSettings(); renderProfiles(); renderRetouchesInfo(); scalePreview();
-window.__cvx = { renderAll, showTab, cleanHex, linesDiff }; // utilisé pour les tests
+/* Migration : les anciennes versions d'une même candidature sont regroupées (même profil, même poste, même entreprise) */
+(function migrateGroups(){
+  const first = new Map(); let changed = false;
+  history.slice().sort((x, y) => x.date - y.date).forEach(h => {
+    if(h.groupId) return;
+    const k = h.profileId + "|" + h.poste + "|" + h.entreprise;
+    if(!first.has(k)) first.set(k, h.id);
+    h.groupId = first.get(k); changed = true;
+  });
+  if(changed) saveHistory();
+})();
+purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); scalePreview();
+window.__cvx = { renderAll, showTab, cleanHex, linesDiff, purgeOld }; // utilisé pour les tests
 })();
 </script>
 </body>
