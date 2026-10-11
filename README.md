@@ -1,6 +1,10 @@
-# CV Express
+# Kairos — votre coach emploi IA
 
-Petit site qui adapte un CV et une lettre de motivation à une offre d'emploi, grâce à Claude.
+*Le bon poste n'attend pas.*
+
+Site qui adapte un CV et une lettre de motivation à chaque offre d'emploi, conseille comme un coach et suit les candidatures jusqu'à l'entretien. Il fonctionne avec Claude (Anthropic).
+
+Le nom de la marque se change à un seul endroit : la constante `BRAND` au début du script de `index.html`.
 Pensé pour un usage familial : 2 ou 3 personnes, avec la clé API de Maxence.
 
 ## Ce que fait le site

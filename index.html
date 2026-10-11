@@ -3,14 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CV Express</title>
+<title>Kairos — votre coach emploi IA</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 72 72%27%3E%3Crect width=%2772%27 height=%2772%27 rx=%2718%27 fill=%27%233A2340%27/%3E%3Cpath d=%27M19 38l11 11 23-26%27 fill=%27none%27 stroke=%27white%27 stroke-width=%277%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3Ccircle cx=%2753%27 cy=%2722%27 r=%274.5%27 fill=%27none%27 stroke=%27%23F2A93B%27 stroke-width=%274%27/%3E%3C/svg%3E">
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f3f4f6; --panel:#ffffff; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
-  --brand:#1f4e79; --brand-ink:#ffffff; --danger:#b42318; --ok:#067647; --warn:#b54708;
+  --bg:#FFF8F0; --panel:#ffffff; --ink:#2A1A2F; --muted:#6E5872; --line:#EEDFCF;
+  --brand:#3A2340; --brand-ink:#ffffff; --accent:#F2A93B; --accent-soft:#FDEBCB; --lilas:#EFE4F2;
+  --danger:#B42318; --ok:#1F6B45; --ok-soft:#E3F4EA; --warn:#8A5A08;
+  --display:'Bricolage Grotesque', 'Figtree', system-ui, sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -267,6 +270,93 @@ body.modal-open{overflow:hidden}
 }
 @media (max-width:600px){ .overlay{padding:0} .dialog{border-radius:0} .ap-pages{grid-template-columns:1fr} }
 @media print{ .overlay{display:none!important} body.modal-open{overflow:visible} }
+
+/* ================= Identité Kairos ================= */
+[hidden]{display:none!important} /* un élément masqué le reste, quel que soit son style */
+body{font-family:'Figtree',system-ui,sans-serif;background:var(--bg)}
+.panel{background:#fff;border-right:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px;margin:0 0 4px}
+.brand .name{font-family:var(--display);font-size:30px;font-weight:800;letter-spacing:-.02em;color:var(--brand);line-height:1}
+.panel .sub{font-size:14.5px;color:var(--muted);margin:2px 0 18px}
+.step{border:1px solid var(--line);border-radius:18px;padding:16px;background:#fff}
+.step h2{font-family:var(--display);font-weight:700;font-size:17px;color:var(--brand)}
+.num{background:var(--brand);font-family:var(--display);font-weight:700}
+.num svg{width:13px;height:13px}
+label{color:var(--ink)}
+.hint{color:var(--muted)}
+input[type=text],input[type=password],select,textarea{border-color:#E2D3C3;border-radius:12px}
+input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(242,169,59,.35)}
+.btn{border-color:#E2D3C3;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{background:#FBF4EC}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{background:#4A2F52;filter:none}
+.btn.danger{color:var(--danger)}
+.btn:focus-visible,.tab:focus-visible,.chip:focus-visible,.pin:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.ic{flex:none}
+.drop{border-color:#E2D3C3;border-radius:14px}
+.drop:hover,.drop.over{background:var(--lilas);border-color:var(--brand);color:var(--brand)}
+.status.info{background:var(--lilas);color:var(--brand)}
+.status.ok{background:var(--ok-soft);color:var(--ok)}
+.status{border-radius:12px}
+.seg{border-color:#E2D3C3;border-radius:999px}
+.seg span{border-color:#E2D3C3}
+.seg input:checked + span{background:var(--brand)}
+.swatch.on{box-shadow:0 0 0 2px var(--brand)}
+.preview{background:var(--bg)}
+.tab{border-color:#E2D3C3;font-weight:600}
+.tab.on{background:var(--brand);border-color:var(--brand)}
+.alertes{background:var(--accent-soft);border-color:#F4D38F;color:#5A3A08;border-radius:16px}
+.validate{background:var(--accent-soft);border-color:#F4D38F;color:#5A3A08}
+.validate .btn{background:var(--brand);border-color:var(--brand)}
+.empty{border:0;background:#fff;border-radius:24px;padding:44px 40px;text-align:left;color:var(--ink);box-shadow:0 10px 40px rgba(58,35,64,.08);max-width:760px;margin:10px auto}
+.empty h2{font-family:var(--display);font-size:38px;line-height:1.08;font-weight:800;letter-spacing:-.02em;color:var(--brand);margin:16px 0 10px}
+.empty p{font-size:16.5px;line-height:1.55;color:#4A3650;margin:0}
+.empty .how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:26px}
+.empty .how div{background:var(--lilas);border-radius:16px;padding:14px 16px}
+.empty .how b{display:block;font-family:var(--display);color:var(--brand);font-size:15.5px;margin-bottom:3px}
+.empty .how span{font-size:13.5px;color:#4A3650}
+.empty .how div:last-child{background:var(--accent-soft)}
+.empty .how div:last-child b{color:#6B4204}
+@media (max-width:600px){.empty .how{grid-template-columns:1fr}.empty h2{font-size:30px}}
+.hist li{border-color:var(--line)}
+.hist li .applied{color:var(--ok)}
+.hist li .itw{color:var(--ok);font-weight:700}
+.pin{opacity:.4;filter:none;color:var(--muted);display:inline-grid;place-items:center}
+.pin[aria-pressed=true]{opacity:1;color:var(--brand)}
+.pin[aria-pressed=true] svg{fill:var(--accent)}
+.btn.apply-btn{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.btn.apply-btn:hover{background:#E99C2A;filter:none}
+.panel-foot{background:linear-gradient(to bottom, rgba(255,255,255,0), #fff 28%)}
+/* Tableau de suivi */
+.board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.tile{border:2px solid transparent;border-radius:14px;padding:10px 12px;text-align:left;cursor:pointer;background:#F4EEF5;color:#4A3650;font:inherit}
+.tile .n{display:block;font-family:var(--display);font-size:26px;font-weight:800;line-height:1.1;color:var(--ink)}
+.tile .l{font-size:13px}
+.tile.relance{background:var(--accent-soft);color:#6B4204}.tile.relance .n{color:#6B4204}
+.tile.itw{background:var(--ok-soft);color:var(--ok)}.tile.itw .n{color:var(--ok)}
+.tile[aria-pressed=true]{border-color:var(--brand)}
+.tile:hover{filter:brightness(.98)}
+.filter-note{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);margin:0 0 6px}
+/* Bulle et discussion */
+.fab{background:var(--brand);box-shadow:0 8px 24px rgba(58,35,64,.35)}
+.fab:focus-visible{outline:3px solid var(--accent)}
+.fab .tip{font-family:var(--display);color:var(--brand)}
+.chat-head b{font-family:var(--display);font-size:18px;color:var(--brand)}
+.msg.user{background:var(--brand)}
+.msg.ai{background:#FBF4EC}
+.msg.note{background:var(--ok-soft);color:var(--ok)}
+.chip{border-color:#E2D3C3;border-radius:14px}
+.chip:hover{border-color:var(--brand);color:var(--brand);background:var(--lilas)}
+.mic{border-color:#E2D3C3}
+/* Fenêtre de candidature */
+.dialog{border-radius:24px}
+.dlg-head h2{font-family:var(--display);color:var(--brand);font-weight:800}
+.dlg-col:first-child{background:#FBF4EC}
+.dlg-col h3{font-family:var(--display);color:var(--brand)}
+.applied-box{background:#FBF4EC;border-color:var(--line);border-radius:16px}
+.applied-box .btn.big{background:var(--brand);border-color:var(--brand);color:#fff}
+.applied-box .itw-btn{background:var(--ok-soft);border-color:#BFE3CC;color:var(--ok)}
+.copy.done{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
 </style>
 </head>
 <body>
@@ -274,8 +364,8 @@ body.modal-open{overflow:hidden}
 
 <!-- ================= PANNEAU DE GAUCHE ================= -->
 <aside class="panel app-ui">
-  <h1>CV Express</h1>
-  <p class="sub">Collez une offre d'emploi, Claude adapte votre CV en moins d'une minute.</p>
+  <div class="brand"><svg class="logo" width="40" height="40" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name" data-brand>Kairos</span></div>
+  <p class="sub" data-brand-sig>Le bon poste n'attend pas.</p>
 
   <div class="step" id="step-key" hidden>
     <h2><span class="num">!</span> Première utilisation</h2>
@@ -309,7 +399,7 @@ body.modal-open{overflow:hidden}
       <input type="file" id="file-photo" accept="image/*" hidden>
     </div>
     <p class="hint" id="profile-saved">Enregistré automatiquement sur cet appareil.</p>
-    <p class="hint" id="retouches-info" hidden>Claude s'inspire de <span id="retouches-n"></span> pour écrire comme vous. <button class="btn small" id="btn-forget" type="button">Oublier</button></p>
+    <p class="hint" id="retouches-info" hidden><span data-brand>Kairos</span> s'inspire de <span id="retouches-n"></span> pour écrire comme vous. <button class="btn small" id="btn-forget" type="button">Oublier</button></p>
     <div class="row" style="margin-top:6px"><button class="btn small danger" id="btn-del-profile">Supprimer ce profil</button></div>
   </div>
 
@@ -360,10 +450,17 @@ body.modal-open{overflow:hidden}
   </div>
 
   <div class="step">
-    <h2><span class="num">↺</span> Historique</h2>
+    <h2><span class="num"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span> Mes candidatures</h2>
+    <div class="board" id="board" role="group" aria-label="Suivi des candidatures">
+      <button type="button" class="tile" data-f="todo" aria-pressed="false"><span class="n" id="t-todo">0</span><span class="l">À envoyer</span></button>
+      <button type="button" class="tile" data-f="sent" aria-pressed="false"><span class="n" id="t-sent">0</span><span class="l">Envoyées</span></button>
+      <button type="button" class="tile relance" data-f="relance" aria-pressed="false"><span class="n" id="t-relance">0</span><span class="l">À relancer</span></button>
+      <button type="button" class="tile itw" data-f="itw" aria-pressed="false"><span class="n" id="t-itw">0</span><span class="l">Entretiens</span></button>
+    </div>
+    <div class="filter-note" id="filter-note" hidden><span id="filter-label"></span><button type="button" class="btn small" id="filter-clear">Tout voir</button></div>
     <ul class="hist" id="hist"></ul>
     <p class="hint" id="hist-empty">Aucun CV généré pour l'instant.</p>
-    <p class="hint" id="hist-rule">Une ligne par candidature. Sans activité pendant 30 jours, elle est supprimée automatiquement. Cliquez sur 📌 pour la garder.</p>
+    <p class="hint" id="hist-rule">Une ligne par candidature. Sans activité pendant 30 jours, elle est supprimée automatiquement. Cliquez sur l'épingle pour la garder.</p>
   </div>
 
   <details class="step">
@@ -379,7 +476,7 @@ body.modal-open{overflow:hidden}
     <div class="status" id="status-key"></div>
     <p class="hint" id="cost">Coût cumulé sur cet appareil : 0,00 $</p>
   </details>
-  <div class="panel-foot"><button class="btn apply-btn" id="btn-apply" type="button">📨 Préparer ma candidature</button></div>
+  <div class="panel-foot"><button class="btn apply-btn" id="btn-apply" type="button"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg> Préparer ma candidature</button></div>
 </aside>
 
 <!-- ================= APERÇU ================= -->
@@ -387,7 +484,7 @@ body.modal-open{overflow:hidden}
   <div class="tabs app-ui" id="tabs" hidden>
     <button class="tab on" data-tab="cv">CV</button>
     <button class="tab" data-tab="lettre" id="tab-lettre">Lettre de motivation</button>
-    <span class="validate" id="validate">Retouches à valider <button class="btn small" id="btn-validate" type="button">✔ Valider mes retouches</button></span>
+    <span class="validate" id="validate">Retouches à valider <button class="btn small" id="btn-validate" type="button"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Valider mes retouches</button></span>
     <span class="versions" id="versions"><button class="btn small" id="v-prev" type="button" aria-label="Version précédente">‹</button><span id="v-label"></span><button class="btn small" id="v-next" type="button" aria-label="Version suivante">›</button></span>
     <span class="spacer"></span>
     <span id="score" style="font-size:14px;color:var(--muted)"></span>
@@ -395,18 +492,24 @@ body.modal-open{overflow:hidden}
   <div class="alertes app-ui" id="alertes" hidden></div>
   <p class="edit-hint app-ui" id="edit-hint" hidden>Astuce : cliquez directement dans le CV pour corriger un mot. Vos modifications sont enregistrées.</p>
   <div class="empty app-ui" id="empty">
-    <p style="font-size:17px;margin:0 0 6px"><b>Votre CV apparaîtra ici</b></p>
-    <p style="margin:0">Remplissez votre parcours, collez une offre, puis cliquez sur « Créer mon CV adapté ».</p>
+    <svg class="logo" width="56" height="56" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg>
+    <h2>Jamais seul face à une candidature.</h2>
+    <p><span data-brand>Kairos</span>, votre coach IA : CV, lettre de motivation et suivi de vos candidatures, jusqu'à l'entretien.</p>
+    <div class="how">
+      <div><b>1. Votre parcours</b><span>Déposez votre ancien CV, ou décrivez-vous à voix haute.</span></div>
+      <div><b>2. L'offre</b><span>Collez le lien de l'annonce : le CV et la lettre s'adaptent.</span></div>
+      <div><b>3. Postulez</b><span>Relisez, envoyez, et <span data-brand>Kairos</span> vous dit quand relancer.</span></div>
+    </div>
   </div>
   <div class="page-holder" id="holder-cv" hidden><div class="page cv tpl-moderne" id="page-cv" contenteditable="true" spellcheck="true" lang="fr"></div></div>
   <div class="page-holder" id="holder-lettre" hidden><div class="page lettre" id="page-lettre" contenteditable="true" spellcheck="true" lang="fr"></div></div>
 </section>
 
 <!-- ================= DISCUSSION AVEC CLAUDE ================= -->
-<aside class="chat app-ui" id="chat" aria-label="Discussion avec Claude">
+<aside class="chat app-ui" id="chat" aria-label="Discussion avec votre coach">
   <div class="chat-head">
-    <div><b>Demande à Claude</b><p class="hint" id="chat-ctx">Il voit votre parcours, l'annonce, votre CV, votre lettre et votre photo.</p></div>
-    <button class="btn small" id="chat-close" aria-label="Fermer la discussion">✕</button>
+    <div><b>Demande à <span data-brand>Kairos</span></b><p class="hint" id="chat-ctx">Votre coach IA voit votre parcours, l'annonce, votre CV, votre lettre et votre photo.</p></div>
+    <button class="btn small" id="chat-close" aria-label="Fermer la discussion"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
   </div>
   <div class="chat-msgs" id="chat-msgs" aria-live="polite"></div>
   <div class="chat-apply" id="chat-apply" hidden>
@@ -422,13 +525,13 @@ body.modal-open{overflow:hidden}
     <button class="mic" id="chat-mic" type="button" aria-label="Dicter au micro" title="Parler au lieu d'écrire"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5M8.5 21.5h7"/></svg></button>
     <button class="btn primary" id="chat-send" type="submit">Envoyer</button>
   </form>
-  <div class="row chat-foot"><p class="hint">Claude peut se tromper : gardez votre jugement.</p><button class="btn small" id="chat-clear" type="button">Effacer</button></div>
+  <div class="row chat-foot"><p class="hint"><span data-brand>Kairos</span> est une IA : il peut se tromper, gardez votre jugement.</p><button class="btn small" id="chat-clear" type="button">Effacer</button></div>
 </aside>
 </div>
 
-<button class="fab app-ui" id="fab" type="button" aria-label="Demande à Claude">
-  <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 2.5c-5.25 0-9.5 3.8-9.5 8.5 0 2.3 1 4.4 2.7 5.9L4.3 21l4.6-2.1c.97.27 2 .4 3.1.4 5.25 0 9.5-3.8 9.5-8.5S17.25 2.5 12 2.5z"/><circle cx="7.9" cy="11" r="1.35" fill="var(--brand)"/><circle cx="12" cy="11" r="1.35" fill="var(--brand)"/><circle cx="16.1" cy="11" r="1.35" fill="var(--brand)"/></svg>
-  <span class="tip">Demande à Claude !</span>
+<button class="fab app-ui" id="fab" type="button" aria-label="Demande à votre coach">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 2.5c-5.25 0-9.5 3.8-9.5 8.5 0 2.3 1 4.4 2.7 5.9L4.3 21l4.6-2.1c.97.27 2 .4 3.1.4 5.25 0 9.5-3.8 9.5-8.5S17.25 2.5 12 2.5z"/><circle cx="7.9" cy="11" r="1.35" fill="var(--accent)"/><circle cx="12" cy="11" r="1.35" fill="var(--accent)"/><circle cx="16.1" cy="11" r="1.35" fill="var(--accent)"/></svg>
+  <span class="tip">Demande à <span data-brand>Kairos</span> !</span>
 </button>
 
 <!-- ================= PRÉPARER MA CANDIDATURE ================= -->
@@ -436,7 +539,7 @@ body.modal-open{overflow:hidden}
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="ap-title">
     <header class="dlg-head">
       <div><h2 id="ap-title">Préparer ma candidature</h2><p class="hint" id="ap-sub"></p></div>
-      <button class="btn small" id="ap-close" type="button" aria-label="Fermer">✕ Fermer</button>
+      <button class="btn small" id="ap-close" type="button"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg> Fermer</button>
     </header>
     <div class="dlg-body">
       <section class="dlg-col">
@@ -448,8 +551,8 @@ body.modal-open{overflow:hidden}
         <div id="ap-gen">
           <p class="hint">Dernière relecture : cliquez dans le CV ou la lettre pour corriger, les deux à la fois si besoin. Tout est enregistré.</p>
           <div class="ap-pages" id="ap-pages">
-            <div><div class="ap-label">CV <button class="btn small ap-zoom" type="button" data-zoom="cv">🔍 Agrandir</button></div><div class="ap-holder" id="ap-h-cv"></div></div>
-            <div><div class="ap-label">Lettre de motivation <button class="btn small ap-zoom" type="button" data-zoom="lettre">🔍 Agrandir</button></div><div class="ap-holder" id="ap-h-l"></div></div>
+            <div><div class="ap-label">CV <button class="btn small ap-zoom" type="button" data-zoom="cv">Agrandir</button></div><div class="ap-holder" id="ap-h-cv"></div></div>
+            <div><div class="ap-label">Lettre de motivation <button class="btn small ap-zoom" type="button" data-zoom="lettre">Agrandir</button></div><div class="ap-holder" id="ap-h-l"></div></div>
           </div>
           <div class="ap-empty" id="ap-nogen" hidden>Aucun CV créé pour cette candidature. Créez-en un, ou choisissez « Mes propres fichiers ».</div>
           <div class="row" id="ap-pdfs">
@@ -473,7 +576,7 @@ body.modal-open{overflow:hidden}
       <section class="dlg-col">
         <h3><span class="num">3</span> Envoyer</h3>
         <label for="ap-url">Lien de l'annonce</label>
-        <div class="row"><input type="text" id="ap-url" inputmode="url" placeholder="https://…"><button class="btn" id="ap-open" type="button">Ouvrir ↗</button></div>
+        <div class="row"><input type="text" id="ap-url" inputmode="url" placeholder="https://…"><button class="btn" id="ap-open" type="button">Ouvrir <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></button></div>
         <label for="ap-email">Candidature par e-mail <span style="font-weight:400;color:var(--muted)">(si l'annonce donne une adresse)</span></label>
         <div class="row"><input type="text" id="ap-email" inputmode="email" placeholder="recrutement@entreprise.fr"><button class="btn" id="ap-mail" type="button">Préparer l'e-mail</button></div>
         <p class="hint">L'e-mail s'ouvre déjà rédigé dans votre messagerie : il reste à joindre le CV et la lettre en PDF, puis à envoyer.</p>
@@ -486,6 +589,17 @@ body.modal-open{overflow:hidden}
 <script>
 (function(){
 "use strict";
+
+/* ===== Nom et signature de la marque : à changer ICI uniquement ===== */
+const BRAND = { name: "Kairos", signature: "Le bon poste n'attend pas." };
+document.querySelectorAll("[data-brand]").forEach(n => { n.textContent = BRAND.name; });
+document.querySelectorAll("[data-brand-sig]").forEach(n => { n.textContent = BRAND.signature; });
+document.title = BRAND.name + " — votre coach emploi IA";
+document.querySelectorAll("svg.logo").forEach(n => n.setAttribute("aria-label", "Logo " + BRAND.name));
+const ICON = {
+  pin: '<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 3h6l-1 6 4 4H6l4-4z"/></svg>',
+  x: '<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>'
+};
 
 /* ---------- Stockage local ---------- */
 const store = {
@@ -640,9 +754,9 @@ async function handleFiles(files){
       if(name.endsWith(".pdf")){
         txt = await pdfToText(buf.slice(0));
         if(txt.length < 80){
-          drop.innerHTML = "<b>PDF scanné : Claude le lit… (10 à 30 s)</b>";
+          drop.innerHTML = "<b>PDF scanné : lecture en cours… (10 à 30 s)</b>";
           try{ txt = await pdfViaClaude(buf); }
-          catch(e){ throw new Error(e.message === "nokey" ? "Ce PDF est une image scannée. Enregistrez d'abord la clé d'accès pour que Claude puisse le lire." : e.message); }
+          catch(e){ throw new Error(e.message === "nokey" ? "Ce PDF est une image scannée. Enregistrez d'abord la clé d'accès pour qu'il puisse être lu." : e.message); }
         }
       } else if(name.endsWith(".docx")){ txt = await docxToText(buf); }
       else if(name.endsWith(".doc")){ throw new Error("Les anciens fichiers Word (.doc) ne sont pas lisibles. Ouvrez-le dans Word et enregistrez-le en .docx ou en PDF."); }
@@ -842,7 +956,7 @@ function storeResult(p, out, keep){
 }
 function busy(on, label){
   ["#btn-generate", "#btn-regen"].forEach(id => { $(id).disabled = on; });
-  $("#btn-generate").textContent = on && label === "gen" ? "Claude rédige…" : "Créer mon CV adapté";
+  $("#btn-generate").textContent = on && label === "gen" ? BRAND.name + " rédige…" : "Créer mon CV adapté";
   $("#btn-regen").textContent = on && label === "regen" ? "Correction en cours…" : regenLabel();
 }
 const cible = () => (document.querySelector('input[name="cible"]:checked') || {}).value || "both";
@@ -936,7 +1050,7 @@ async function doRegen(target, rq){
     both: "Applique les remarques au CV et à la lettre de motivation" + (hadLettre ? "." : " (rédige la lettre, elle n'existe pas encore).")
   }[target];
   busy(true, "regen");
-  status("#status-gen", "info", "Claude applique vos remarques, comptez 20 à 60 secondes.");
+  status("#status-gen", "info", BRAND.name + " applique vos remarques, comptez 20 à 60 secondes.");
   try{
     const userMsg = "<parcours_du_candidat>\n" + parcours + "\n</parcours_du_candidat>\n\n<offre_d_emploi>\n" + (str(h.data.offre_resume) || h.poste + " — " + h.entreprise) +
       "\n</offre_d_emploi>\n\n<version_precedente>\n" + JSON.stringify(prev) + "\n</version_precedente>\n\n" +
@@ -1172,11 +1286,42 @@ function stepVersion(d){
 $("#v-prev").addEventListener("click", () => stepVersion(-1));
 $("#v-next").addEventListener("click", () => stepVersion(1));
 
+/* Statut d'une candidature : à envoyer, envoyée, à relancer, entretien */
+const interviewOf = G => G.versions.reduce((a, v) => v.interview ? Math.max(a, v.interview) : a, 0);
+function statusOf(G){
+  if(interviewOf(G)) return "itw";
+  const a = appliedOf(G);
+  if(!a) return "todo";
+  return (!relanceOf(G) && Date.now() - a >= 7 * DAY) ? "relance" : "sent";
+}
+let histFilter = null;
+const FILTER_LABEL = { todo:"À envoyer", sent:"Envoyées", relance:"À relancer", itw:"Entretiens" };
+function inFilter(G){
+  if(!histFilter) return true;
+  const st = statusOf(G);
+  return histFilter === "sent" ? st !== "todo" : st === histFilter;
+}
+function renderBoard(groups){
+  const c = { todo:0, sent:0, relance:0, itw:0 };
+  groups.forEach(G => { const st = statusOf(G); c[st === "todo" ? "todo" : "sent"]++; if(st === "relance") c.relance++; if(st === "itw") c.itw++; });
+  Object.keys(c).forEach(k => { $("#t-" + k).textContent = c[k]; });
+  document.querySelectorAll(".tile").forEach(t => t.setAttribute("aria-pressed", t.dataset.f === histFilter));
+  $("#board").hidden = !groups.length;
+  $("#filter-note").hidden = !histFilter;
+  if(histFilter) $("#filter-label").textContent = "Filtre : " + FILTER_LABEL[histFilter];
+}
+document.querySelectorAll(".tile").forEach(t => t.addEventListener("click", () => { histFilter = histFilter === t.dataset.f ? null : t.dataset.f; renderHistory(); }));
+$("#filter-clear").addEventListener("click", () => { histFilter = null; renderHistory(); });
+
 function renderHistory(){
   const ul = $("#hist"); ul.innerHTML = "";
-  const groups = groupsFor(currentProfileId), cur = currentHistId && history.find(x => x.id === currentHistId);
-  $("#hist-empty").hidden = groups.length > 0;
-  $("#hist-rule").hidden = !groups.length;
+  const all = groupsFor(currentProfileId), cur = currentHistId && history.find(x => x.id === currentHistId);
+  renderBoard(all);
+  const groups = all.filter(inFilter);
+  $("#hist-empty").hidden = all.length > 0;
+  $("#hist-empty").textContent = "Aucune candidature pour l'instant.";
+  $("#hist-rule").hidden = !all.length;
+  if(all.length && !groups.length) ul.appendChild(el("li", "", "Aucune candidature dans cette catégorie."));
   groups.forEach(G => {
     const latest = G.versions[G.versions.length - 1], li = el("li");
     const t = el("span", "t");
@@ -1190,16 +1335,17 @@ function renderHistory(){
     const applied = appliedOf(G);
     if(applied){
       meta.appendChild(document.createTextNode(" · ")); meta.appendChild(el("span", "applied", "Postulé le " + new Date(applied).toLocaleDateString("fr-FR", { day:"numeric", month:"short" })));
-      if(!relanceOf(G) && Date.now() - applied >= 7 * DAY){ meta.appendChild(document.createTextNode(" · ")); meta.appendChild(el("span", "soon", "à relancer")); }
+      if(interviewOf(G)){ meta.appendChild(document.createTextNode(" · ")); meta.appendChild(el("span", "itw", "Entretien")); }
+      else if(!relanceOf(G) && Date.now() - applied >= 7 * DAY){ meta.appendChild(document.createTextNode(" · ")); meta.appendChild(el("span", "soon", "à relancer")); }
     }
     if(pins.has(G.id)) meta.appendChild(document.createTextNode(" · gardée"));
     else if(left <= 7){ meta.appendChild(document.createTextNode(" · ")); meta.appendChild(el("span", "soon", left <= 1 ? "supprimée demain" : "supprimée dans " + left + " j")); }
     t.appendChild(meta);
     t.addEventListener("click", () => { openHist(latest); window.scrollTo({ top:0, behavior:"smooth" }); });
-    const pin = el("button", "pin", "📌"); pin.type = "button";
-    pin.setAttribute("aria-pressed", pins.has(G.id)); pin.title = pins.has(G.id) ? "Ne plus garder (suppression après 30 jours sans activité)" : "Garder cette candidature (pas de suppression automatique)";
+    const pin = el("button", "pin"); pin.innerHTML = ICON.pin; pin.type = "button";
+    pin.setAttribute("aria-pressed", pins.has(G.id)); pin.setAttribute("aria-label", pins.has(G.id) ? "Ne plus garder" : "Garder cette candidature"); pin.title = pins.has(G.id) ? "Ne plus garder (suppression après 30 jours sans activité)" : "Garder cette candidature (pas de suppression automatique)";
     pin.addEventListener("click", () => { pins.has(G.id) ? pins.delete(G.id) : pins.add(G.id); savePins(); renderHistory(); });
-    const del = el("button", "btn small danger", "✕"); del.type = "button"; del.title = "Supprimer cette candidature";
+    const del = el("button", "btn small danger"); del.innerHTML = ICON.x; del.setAttribute("aria-label", "Supprimer cette candidature"); del.type = "button"; del.title = "Supprimer cette candidature";
     del.addEventListener("click", () => {
       if(!confirm("Supprimer cette candidature" + (G.versions.length > 1 ? " et ses " + G.versions.length + " versions" : "") + " ?")) return;
       history = history.filter(x => groupOf(x) !== G.id); pins.delete(G.id); savePins(); saveHistory();
@@ -1270,7 +1416,7 @@ function validateEdits(silent){
   h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; h.dirty = false;
   saveHistory(); refreshValidate();
   if(!silent) status("#status-gen", "ok", changes.length
-    ? "Retouches validées (" + changes.length + "). Claude repartira de cette version et s'en inspirera pour les prochaines."
+    ? "Retouches validées (" + changes.length + "). " + BRAND.name + " repartira de cette version et s'en inspirera pour les prochaines."
     : "Version validée.");
   return changes.length;
 }
@@ -1290,7 +1436,7 @@ function renderRetouchesInfo(){
   if(n) $("#retouches-n").textContent = n === 1 ? "1 de vos retouches" : n + " de vos retouches";
 }
 $("#btn-forget").addEventListener("click", () => {
-  if(!confirm("Claude oubliera vos retouches passées pour ce profil. Continuer ?")) return;
+  if(!confirm(BRAND.name + " oubliera vos retouches passées pour ce profil. Continuer ?")) return;
   prof().retouches = []; saveProfiles(); renderRetouchesInfo();
 });
 function retouchesBlock(p){
@@ -1300,14 +1446,15 @@ function retouchesBlock(p){
 }
 
 /* ---------- Discussion avec Claude ---------- */
-const CHAT_SYSTEM = `Tu es Claude, coach emploi franc et bienveillant, spécialiste du recrutement en France. Tu aides le candidat à améliorer son CV et sa lettre de motivation pour l'offre visée.
+const CHAT_SYSTEM = `Tu es ${BRAND.name}, un coach emploi virtuel (une intelligence artificielle), franc et bienveillant, spécialiste du recrutement en France. Tu aides le candidat à améliorer son CV et sa lettre de motivation pour l'offre visée.
 - Réponds en français, simplement : la personne n'est pas forcément à l'aise avec l'informatique ni avec le jargon RH.
 - Sois concis : 4 à 10 lignes, sauf si on te demande plus. Concret, avec une proposition de reformulation quand c'est utile.
 - Sois honnête : si quelque chose est faible, dis-le clairement et propose mieux. Pas de compliments gratuits.
 - Appuie-toi sur le contexte fourni (parcours, annonce, CV et lettre tels qu'ils sont à l'écran). N'invente jamais d'expérience, de diplôme ni de compétence.
 - Photo : juge seulement le cadrage, la lumière, le fond, la netteté, la tenue et l'expression au regard du poste visé. Ne commente jamais le physique, l'âge apparent ou l'origine.
 - Tu ne modifies pas les documents toi-même. Quand une amélioration est convenue, rappelle en une phrase que le candidat peut cliquer sur « Au CV », « À la lettre » ou « Aux deux » sous la discussion pour l'appliquer.
-- Mise en forme : paragraphes courts, listes avec « - », gras avec **…** avec parcimonie. Pas de titres, pas de tableaux.`;
+- Mise en forme : paragraphes courts, listes avec « - », gras avec **…** avec parcimonie. Pas de titres, pas de tableaux.
+- Si on te demande qui tu es, dis clairement que tu es une intelligence artificielle, jamais une personne.`;
 
 function chatList(){
   const h = currentHistId && history.find(x => x.id === currentHistId);
@@ -1370,7 +1517,7 @@ async function sendChat(text){
   if(!settings.apiKey){ $("#step-key").hidden = false; alert("Enregistrez d'abord la clé d'accès (encadré « Première utilisation »)."); return; }
   const list = chatList(); list.push({ role:"user", text }); saveChat(); renderChat();
   stopDictation(); $("#chat-input").value = ""; growChat(); chatBusy = true; $("#chat-send").disabled = true;
-  const wait = el("div", "msg wait", "Claude réfléchit…"); $("#chat-msgs").appendChild(wait); $("#chat-msgs").scrollTop = 1e9;
+  const wait = el("div", "msg wait", BRAND.name + " réfléchit…"); $("#chat-msgs").appendChild(wait); $("#chat-msgs").scrollTop = 1e9;
   try{
     const turns = list.filter(m => m.role === "user" || m.role === "assistant").slice(-16);
     while(turns.length && turns[0].role !== "user") turns.shift();
@@ -1404,7 +1551,7 @@ $("#chat-clear").addEventListener("click", () => {
 document.querySelectorAll("[data-apply]").forEach(b => b.addEventListener("click", async () => {
   const target = b.dataset.apply, list = chatList();
   const transcript = list.filter(m => m.role === "user" || m.role === "assistant").slice(-12)
-    .map(m => (m.role === "user" ? "Candidat : " : "Claude : ") + m.text).join("\n\n");
+    .map(m => (m.role === "user" ? "Candidat : " : "Coach : ") + m.text).join("\n\n");
   const rq = "Le candidat vient d'échanger avec toi au sujet de ses documents. Applique les améliorations convenues dans cette discussion (et uniquement celles qui concernent le document à corriger) :\n\n" + transcript;
   document.querySelectorAll("[data-apply]").forEach(x => x.disabled = true);
   list.push({ role:"note", text:"Application en cours…" }); renderChat();
@@ -1457,7 +1604,7 @@ function setupDictation(btn, field, onUnsupported){
     field.focus();
   });
 }
-const DICT_HELP = "La dictée n'est pas disponible dans ce navigateur. Utilisez Chrome, Edge ou Safari, ou la dictée intégrée à votre ordinateur : touches Windows + H sur un PC, ou touche 🎤 (ou Fn deux fois) sur un Mac.";
+const DICT_HELP = "La dictée n'est pas disponible dans ce navigateur. Utilisez Chrome, Edge ou Safari, ou la dictée intégrée à votre ordinateur : touches Windows + H sur un PC, ou touche micro (ou Fn deux fois) sur un Mac.";
 setupDictation($("#chat-mic"), $("#chat-input"), () => { $("#chat-msgs").appendChild(el("div", "msg err", DICT_HELP)); $("#chat-msgs").scrollTop = 1e9; });
 setupDictation($("#regen-mic"), $("#remarques"), () => alert(DICT_HELP));
 
@@ -1511,14 +1658,14 @@ function renderFiche(){
     const line = el("div", "row");
     const inp = el(f.k === "message" ? "textarea" : "input"); inp.id = id; if(f.k !== "message") inp.type = "text";
     inp.value = f.value;
-    if(f.k === "message") inp.placeholder = "Quelques lignes pour la case « message » des sites. Cliquez sur « Rédiger » pour que Claude l'écrive à partir de votre lettre.";
+    if(f.k === "message") inp.placeholder = "Quelques lignes pour la case « message » des sites. Cliquez sur « Rédiger » pour que " + BRAND.name + " l'écrive à partir de votre lettre.";
     inp.addEventListener("input", debounce(() => saveFicheValue(f.k, f.personal, inp.value), 400));
     line.appendChild(inp);
     const cp = el("button", "btn small copy", "Copier"); cp.type = "button";
     cp.addEventListener("click", () => copyText(inp.value, cp));
     line.appendChild(cp); row.appendChild(line);
     if(f.k === "message"){
-      const gen = el("button", "btn small", inp.value ? "✨ Réécrire avec Claude" : "✨ Rédiger avec Claude"); gen.type = "button"; gen.style.marginTop = "6px";
+      const gen = el("button", "btn small", inp.value ? "Réécrire avec " + BRAND.name : "Rédiger avec " + BRAND.name); gen.type = "button"; gen.style.marginTop = "6px";
       gen.addEventListener("click", () => draftMessage(inp, gen)); row.appendChild(gen);
     }
     box.appendChild(row);
@@ -1533,7 +1680,7 @@ async function draftMessage(inp, btn){
   if(!h){ alert("Créez d'abord un CV et une lettre pour cette candidature."); return; }
   saveCurrentEdits();
   const l = lettreFromHtml(h.lettreHtml), cvTxt = cvTextFromHtml(h.cvHtml);
-  btn.disabled = true; const old = btn.textContent; btn.textContent = "Claude écrit…";
+  btn.disabled = true; const old = btn.textContent; btn.textContent = BRAND.name + " écrit…";
   try{
     const data = await callClaude({ model:settings.model, max_tokens:2000,
       system:"Tu rédiges des messages de candidature courts, en français, pour la case « message au recruteur » des sites d'emploi.",
@@ -1542,7 +1689,7 @@ async function draftMessage(inp, btn){
         "Rédige un message de 400 à 600 caractères, à la première personne, professionnel et sincère, qui donne envie d'ouvrir le CV. Pas de « Madame, Monsieur », pas de signature, pas d'objet. N'invente rien. Réponds uniquement par le message." }] }, settings.apiKey);
     addCost(data.usage);
     const msg = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim();
-    if(msg){ inp.value = msg; saveFicheValue("message", 0, msg); btn.textContent = "✨ Réécrire avec Claude"; btn.disabled = false; return; }
+    if(msg){ inp.value = msg; saveFicheValue("message", 0, msg); btn.textContent = "Réécrire avec " + BRAND.name; btn.disabled = false; return; }
   }catch(e){ alert(e.message); }
   btn.disabled = false; btn.textContent = old;
 }
@@ -1562,7 +1709,7 @@ function apScale(){
 document.querySelectorAll(".ap-zoom").forEach(b => b.addEventListener("click", () => {
   const pages = $("#ap-pages"), z = b.dataset.zoom, on = pages.dataset.zoom === z;
   if(on) delete pages.dataset.zoom; else pages.dataset.zoom = z;
-  document.querySelectorAll(".ap-zoom").forEach(x => { x.textContent = pages.dataset.zoom === x.dataset.zoom ? "Côte à côte" : "🔍 Agrandir"; });
+  document.querySelectorAll(".ap-zoom").forEach(x => { x.textContent = pages.dataset.zoom === x.dataset.zoom ? "Côte à côte" : "Agrandir"; });
   apScale();
 }));
 function renderApDocs(){
@@ -1582,10 +1729,10 @@ function renderApDocs(){
 function renderOwnFiles(){
   const ul = $("#ap-file-list"); ul.innerHTML = "";
   apOwnFiles.forEach((f, i) => {
-    const li = el("li"); li.appendChild(el("span", "", "📄 " + f.name));
+    const li = el("li"); li.appendChild(el("span", "", f.name));
     const open = el("button", "btn small", "Ouvrir"); open.type = "button";
     open.addEventListener("click", () => window.open(f.url, "_blank", "noopener"));
-    const del = el("button", "btn small danger", "✕"); del.type = "button"; del.title = "Retirer";
+    const del = el("button", "btn small danger"); del.innerHTML = ICON.x; del.setAttribute("aria-label", "Retirer ce fichier"); del.type = "button"; del.title = "Retirer";
     del.addEventListener("click", () => { URL.revokeObjectURL(f.url); apOwnFiles.splice(i, 1); renderOwnFiles(); });
     if(/\.pdf$/i.test(f.name)) li.appendChild(open);
     li.appendChild(del); ul.appendChild(li);
@@ -1633,15 +1780,19 @@ function renderApplied(){
   const G = groupsFor(h.profileId).find(g => g.id === groupOf(h));
   const applied = appliedOf(G), relance = relanceOf(G);
   if(!applied){
-    const b = el("button", "btn big", "✅ J'ai postulé"); b.type = "button";
+    const b = el("button", "btn big", "J'ai postulé"); b.type = "button";
     b.addEventListener("click", () => { h.applied = Date.now(); h.touched = Date.now(); saveHistory(); renderApplied(); renderHistory(); });
     box.appendChild(b);
     box.appendChild(el("p", "hint", "Cliquez une fois la candidature envoyée : l'historique l'affichera et vous rappellera de relancer au bout d'une semaine."));
     return;
   }
   box.appendChild(el("p", "ok", "✓ Postulé le " + fmtDate(applied)));
-  const days = Math.floor((Date.now() - applied) / DAY);
-  if(relance) box.appendChild(el("p", "hint", "Relance faite le " + fmtDate(relance) + "."));
+  const days = Math.floor((Date.now() - applied) / DAY), itw = interviewOf(G);
+  if(itw){
+    box.appendChild(el("p", "ok", "✓ Entretien obtenu le " + fmtDate(itw) + ". Bravo !"));
+    box.appendChild(el("p", "hint", "Préparez-le avec " + BRAND.name + " : ouvrez la discussion et demandez les questions qu'on risque de vous poser."));
+  }
+  else if(relance) box.appendChild(el("p", "hint", "Relance faite le " + fmtDate(relance) + "."));
   else if(days >= 7) box.appendChild(el("p", "warn", "Une semaine est passée sans réponse ? C'est le moment de relancer."));
   else box.appendChild(el("p", "hint", "Sans réponse, relancez à partir du " + fmtDate(applied + 7 * DAY) + "."));
   const f = ficheFields(), g = k => (f.find(x => x.k === k) || {}).value || "";
@@ -1653,10 +1804,11 @@ function renderApplied(){
     if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) openMail(mailto(to, "Suivi de ma candidature – " + (g("poste") || "") + " – " + nomComplet(), relanceTxt));
     else { copyText(relanceTxt, prep); alert("Texte de relance copié. Collez-le dans la messagerie du site, ou dans un e-mail au recruteur."); }
   });
-  row.appendChild(prep);
-  if(!relance){ const done = el("button", "btn small", "J'ai relancé"); done.type = "button"; done.addEventListener("click", () => { h.relance = Date.now(); h.touched = Date.now(); saveHistory(); renderApplied(); renderHistory(); }); row.appendChild(done); }
+  if(!itw) row.appendChild(prep);
+  if(!itw){ const ib = el("button", "btn small itw-btn", "J'ai obtenu un entretien"); ib.type = "button"; ib.addEventListener("click", () => { h.interview = Date.now(); h.touched = Date.now(); saveHistory(); renderApplied(); renderHistory(); }); row.appendChild(ib); }
+  if(!relance && !itw){ const done = el("button", "btn small", "J'ai relancé"); done.type = "button"; done.addEventListener("click", () => { h.relance = Date.now(); h.touched = Date.now(); saveHistory(); renderApplied(); renderHistory(); }); row.appendChild(done); }
   const undo = el("button", "btn small danger", "Annuler"); undo.type = "button"; undo.title = "Ce n'était pas encore envoyé";
-  undo.addEventListener("click", () => { G.versions.forEach(v => { delete v.applied; delete v.relance; }); saveHistory(); renderApplied(); renderHistory(); });
+  undo.addEventListener("click", () => { G.versions.forEach(v => { delete v.applied; delete v.relance; delete v.interview; }); saveHistory(); renderApplied(); renderHistory(); });
   row.appendChild(undo);
   box.appendChild(row);
 }
@@ -1670,7 +1822,7 @@ function openApply(){
   const ap = (h && h.apply) || {}, d = h ? h.data : {};
   $("#ap-url").value = ap.url ?? ((d._userMsg && d._userMsg.url) || "");
   $("#ap-email").value = ap.email ?? ((d.candidature && str(d.candidature.email)) || "");
-  delete $("#ap-pages").dataset.zoom; document.querySelectorAll(".ap-zoom").forEach(x => { x.textContent = "🔍 Agrandir"; });
+  delete $("#ap-pages").dataset.zoom; document.querySelectorAll(".ap-zoom").forEach(x => { x.textContent = "Agrandir"; });
   $("#ap").hidden = false; document.body.classList.add("modal-open");
   renderApDocs(); renderFiche(); renderApplied();
   $("#ap-close").focus();
