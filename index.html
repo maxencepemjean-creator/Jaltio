@@ -447,15 +447,15 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 .cv.tpl-bandeau .cv-side li::marker,.cv.tpl-bandeau .cv-main li::marker{color:var(--dark)}
 .cv.tpl-bandeau .photo{width:30mm;height:30mm;margin:0 auto 7mm;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--accent)}
 .cv.tpl-bandeau .cv-main .blk{margin-bottom:calc(1.45em + var(--sp,0px))}
-.cv.tpl-bandeau .exp,.cv.tpl-bandeau .form{display:grid;grid-template-columns:auto 1fr;margin-bottom:calc(1em + var(--sp,0px) * .5)}
-.cv.tpl-bandeau .exp > *,.cv.tpl-bandeau .form > *{grid-column:1 / -1}
+.cv.tpl-bandeau .exp,.cv.tpl-bandeau .form{display:flex;flex-wrap:wrap;align-items:baseline;margin-bottom:calc(1em + var(--sp,0px) * .5)}
+.cv.tpl-bandeau .exp > *,.cv.tpl-bandeau .form > *{flex:0 0 100%;order:9}
 .cv.tpl-bandeau .exp-top{display:contents}
-.cv.tpl-bandeau .poste{grid-row:1;color:var(--accent);font-weight:900;text-transform:uppercase;font-size:1.02em;letter-spacing:.01em;line-height:1.25}
-.cv.tpl-bandeau .org{grid-row:2;grid-column:1;color:#3f4654;font-weight:700;font-size:.84em;margin:.25em 0 0}
-.cv.tpl-bandeau .dates{grid-row:2;grid-column:2;color:#3f4654;font-weight:700;font-size:.84em;margin-top:.25em;white-space:normal}
+.cv.tpl-bandeau .poste{flex:0 0 100%;order:1;color:var(--accent);font-weight:900;text-transform:uppercase;font-size:1.02em;letter-spacing:.01em;line-height:1.25}
+.cv.tpl-bandeau .org{flex:0 1 auto;order:2;color:#3f4654;font-weight:700;font-size:.84em;margin:.25em 0 0}
+.cv.tpl-bandeau .dates{flex:0 0 auto;order:3;color:#3f4654;font-weight:700;font-size:.84em;margin-top:.25em;white-space:normal}
 .cv.tpl-bandeau .has-org .dates::before{content:"|";margin:0 .6em;font-weight:400;color:#9aa1ad}
-.cv.tpl-bandeau .ctx{grid-row:3;margin:.35em 0 0;text-align:justify;hyphens:auto}
-.cv.tpl-bandeau .exp ul{grid-row:4;padding-left:1.15em;margin-top:.4em}
+.cv.tpl-bandeau .ctx{order:4;margin:.35em 0 0;text-align:justify;hyphens:auto}
+.cv.tpl-bandeau .exp ul{order:5;padding-left:1.15em;margin-top:.4em}
 .cv.tpl-bandeau .exp li{margin-bottom:.32em}
 .cv .autres{font-style:italic;color:#6b7280;font-size:.86em;margin-top:.2em}
 .cv .cle b,.cv li b,.cv .ctx b{font-weight:700}
@@ -1438,7 +1438,7 @@ function fitCV(page){
   }
   [[".cv-main", "--sp"], [".cv-side", "--sps"]].forEach(([sel, v]) => {
     const col = page.querySelector(sel); if(!col) return;
-    let lo = 0, hi = 60;
+    let lo = 0, hi = v === "--sps" ? 26 : 60;
     while(hi - lo > 1){ const mid = (lo + hi) >> 1; page.style.setProperty(v, mid + "px"); if(over()) hi = mid; else lo = mid; }
     page.style.setProperty(v, lo + "px");
   });
