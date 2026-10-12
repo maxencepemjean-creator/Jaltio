@@ -1010,24 +1010,28 @@ $("#btn-test-key").addEventListener("click", async () => {
 });
 
 /* ---------- Appel à l'API Claude ---------- */
+// Relais Cloudflare : la vraie clé reste sur le serveur, le navigateur n'envoie qu'un code d'accès.
+// Laisser vide tant que le relais n'est pas en ligne. Une clé « sk-ant-… » saisie dans Réglages passe toujours en direct.
+const RELAIS = "";
 async function callClaude(body, key){
   let res;
+  const direct = !RELAIS || /^sk-ant-/.test(key || "");
   try{
-    res = await fetch("https://api.anthropic.com/v1/messages", {
+    res = await fetch(direct ? "https://api.anthropic.com/v1/messages" : RELAIS, {
       method:"POST",
-      headers:{
+      headers: direct ? {
         "content-type":"application/json",
         "x-api-key": key,
         "anthropic-version":"2023-06-01",
         "anthropic-dangerous-direct-browser-access":"true"
-      },
+      } : { "content-type":"application/json", "x-jalon-code": key },
       body: JSON.stringify(body)
     });
   }catch(e){ throw new Error("Pas de connexion à Internet, ou service injoignable. Réessayez."); }
   let data = null; try{ data = await res.json(); }catch(e){}
   if(!res.ok){
     const m = (data && data.error && data.error.message) || "";
-    if(res.status === 401) throw new Error("Clé d'accès refusée. Vérifiez-la dans les Réglages ou demandez-en une nouvelle à Maxence.");
+    if(res.status === 401) throw new Error("Code ou clé d'accès refusé. Vérifiez-la dans les Réglages ou demandez-en une nouvelle à Maxence.");
     if(res.status === 403) throw new Error("Cette clé n'a pas l'autorisation. Prévenez Maxence.");
     if(res.status === 429) throw new Error("Trop de demandes d'un coup. Patientez une minute et réessayez.");
     if(res.status === 529 || res.status >= 500) throw new Error("Le service Claude est surchargé. Réessayez dans quelques minutes.");
