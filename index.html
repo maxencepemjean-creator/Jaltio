@@ -483,9 +483,9 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 
   <div class="step" id="step-key" hidden>
     <h2><span class="num">!</span> Première utilisation</h2>
-    <p class="hint" style="margin-top:0">Collez la clé d'accès fournie par Maxence. Elle reste enregistrée sur cet appareil uniquement.</p>
-    <label for="key-first">Clé d'accès</label>
-    <input type="password" id="key-first" placeholder="sk-ant-..." autocomplete="off">
+    <p class="hint" style="margin-top:0">Saisissez le code d'accès fourni par Maxence. Il reste enregistré sur cet appareil uniquement.</p>
+    <label for="key-first">Code d'accès</label>
+    <input type="text" id="key-first" placeholder="ex. prenom-ab12" autocomplete="off" autocapitalize="off" spellcheck="false">
     <div class="row" style="margin-top:8px"><button class="btn primary" id="btn-key-first">Enregistrer</button></div>
     <div class="status" id="status-key-first"></div>
   </div>
@@ -586,14 +586,14 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 
   <details class="step">
     <summary>Réglages</summary>
-    <label for="key">Clé d'accès (API Claude)</label>
-    <input type="password" id="key" placeholder="sk-ant-..." autocomplete="off">
+    <label for="key">Code d'accès</label>
+    <input type="password" id="key" placeholder="code fourni par Maxence" autocomplete="off">
     <label for="model">Qualité</label>
     <select id="model">
       <option value="claude-sonnet-5-5">Standard — rapide (recommandé)</option>
       <option value="claude-opus-5-5">Maximale — plus lent, 2× plus cher</option>
     </select>
-    <div class="row" style="margin-top:10px"><button class="btn small" id="btn-test-key">Tester la clé</button></div>
+    <div class="row" style="margin-top:10px"><button class="btn small" id="btn-test-key">Tester le code</button></div>
     <div class="status" id="status-key"></div>
     <p class="hint" id="cost">Coût cumulé sur cet appareil : 0,00 $</p>
   </details>
@@ -997,7 +997,7 @@ $("#model").addEventListener("change", e => { settings.model = e.target.value; s
 $("#tpl").addEventListener("change", e => { settings.tpl = e.target.value; saveSettings(); applyLook(); });
 $("#btn-key-first").addEventListener("click", async () => {
   const k = $("#key-first").value.trim();
-  if(!k.startsWith("sk-ant-")){ status("#status-key-first", "err", "Cette clé ne ressemble pas à une clé Claude (elle commence par sk-ant-)."); return; }
+  if(!k){ status("#status-key-first", "err", "Saisissez le code d'accès."); return; }
   status("#status-key-first", "info", "Vérification…");
   const r = await testKey(k);
   if(r.ok){ settings.apiKey = k; saveSettings(); renderSettings(); status("#status-key-first", "", ""); }
@@ -1012,7 +1012,7 @@ $("#btn-test-key").addEventListener("click", async () => {
 /* ---------- Appel à l'API Claude ---------- */
 // Relais Cloudflare : la vraie clé reste sur le serveur, le navigateur n'envoie qu'un code d'accès.
 // Laisser vide tant que le relais n'est pas en ligne. Une clé « sk-ant-… » saisie dans Réglages passe toujours en direct.
-const RELAIS = "";
+const RELAIS = "https://jalon-relais.jalon-emploi.workers.dev/";
 async function callClaude(body, key){
   let res;
   const direct = !RELAIS || /^sk-ant-/.test(key || "");
