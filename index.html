@@ -1431,17 +1431,16 @@ function fitCV(page){
   if(!H) return true;
   while(over() && fs > 8.25){ fs = Math.round((fs - .25) * 100) / 100; page.style.setProperty("--fs", fs + "pt"); }
   if(over()) return false;
-  while(fs < 12){
+  while(fs < 11.5){
     const next = Math.round((fs + .25) * 100) / 100; page.style.setProperty("--fs", next + "pt");
     if(over()){ page.style.setProperty("--fs", fs + "pt"); break; }
     fs = next;
   }
-  [[".cv-main", "--sp", ".blk, .exp, .form"], [".cv-side", "--sps", ".blk"]].forEach(([sel, v, gaps]) => {
+  [[".cv-main", "--sp"], [".cv-side", "--sps"]].forEach(([sel, v]) => {
     const col = page.querySelector(sel); if(!col) return;
-    const n = col.querySelectorAll(gaps).length; if(!n) return;
-    let sp = Math.min(Math.floor((room - bottomOf(col)) / n), 26);
-    while(sp > 0){ page.style.setProperty(v, sp + "px"); if(!over()) break; sp--; }
-    if(sp <= 0) page.style.setProperty(v, "0px");
+    let lo = 0, hi = 60;
+    while(hi - lo > 1){ const mid = (lo + hi) >> 1; page.style.setProperty(v, mid + "px"); if(over()) hi = mid; else lo = mid; }
+    page.style.setProperty(v, lo + "px");
   });
   return true;
 }
