@@ -435,7 +435,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 .cv.tpl-bandeau .cv-head .cle{font-weight:700;color:#fff;margin-top:.45em}
 .cv.tpl-bandeau .cv-head .cle b{font-weight:900}
 .cv.tpl-bandeau:has(.cle) .profil{display:none}
-.cv.tpl-bandeau .cv-side{background:var(--tint);color:#1d2433;padding:9mm 7mm 10mm 8mm}
+.cv.tpl-bandeau .cv-side{background:var(--tint);color:#1d2433;padding:9mm 7mm 10mm 8mm;font-size:.92em}
 .cv.tpl-bandeau .cv-main{padding:9mm 11mm 10mm 8mm}
 .cv.tpl-bandeau h3{font-size:1.16em;font-weight:900;text-transform:uppercase;letter-spacing:.01em;color:var(--dark);margin-bottom:.75em;border:0;padding:0}
 .cv.tpl-bandeau .cv-side h3{font-size:1.08em}
@@ -443,20 +443,20 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 .cv.tpl-bandeau .contact-blk{padding-bottom:1.2em;border-bottom:1.5px solid var(--accent);margin-bottom:calc(1.6em + var(--sps,0px))}
 .cv.tpl-bandeau .side-contact li{margin-bottom:.22em;font-size:.95em}
 .cv.tpl-bandeau .cv-side .list:not(.side-contact){list-style:disc;padding-left:1.1em}
-.cv.tpl-bandeau .cv-side .list:not(.side-contact) li{margin-bottom:.6em}
+.cv.tpl-bandeau .cv-side .list:not(.side-contact) li{margin-bottom:calc(.55em + var(--sps,0px) * .15)}
 .cv.tpl-bandeau .cv-side li::marker,.cv.tpl-bandeau .cv-main li::marker{color:var(--dark)}
 .cv.tpl-bandeau .photo{width:30mm;height:30mm;margin:0 auto 7mm;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--accent)}
 .cv.tpl-bandeau .cv-main .blk{margin-bottom:calc(1.45em + var(--sp,0px))}
-.cv.tpl-bandeau .exp,.cv.tpl-bandeau .form{display:flex;flex-wrap:wrap;align-items:baseline;margin-bottom:calc(1em + var(--sp,0px) * .5)}
+.cv.tpl-bandeau .exp,.cv.tpl-bandeau .form{display:flex;flex-wrap:wrap;align-items:baseline;margin-bottom:calc(1em + var(--sp,0px) * .45)}
 .cv.tpl-bandeau .exp > *,.cv.tpl-bandeau .form > *{flex:0 0 100%;order:9}
 .cv.tpl-bandeau .exp-top{display:contents}
 .cv.tpl-bandeau .poste{flex:0 0 100%;order:1;color:var(--accent);font-weight:900;text-transform:uppercase;font-size:1.02em;letter-spacing:.01em;line-height:1.25}
 .cv.tpl-bandeau .org{flex:0 1 auto;order:2;color:#3f4654;font-weight:700;font-size:.84em;margin:.25em 0 0}
 .cv.tpl-bandeau .dates{flex:0 0 auto;order:3;color:#3f4654;font-weight:700;font-size:.84em;margin-top:.25em;white-space:normal}
 .cv.tpl-bandeau .has-org .dates::before{content:"|";margin:0 .6em;font-weight:400;color:#9aa1ad}
-.cv.tpl-bandeau .ctx{order:4;margin:.35em 0 0;text-align:justify;hyphens:auto}
-.cv.tpl-bandeau .exp ul{order:5;padding-left:1.15em;margin-top:.4em}
-.cv.tpl-bandeau .exp li{margin-bottom:.32em}
+.cv.tpl-bandeau .ctx{order:4;margin:calc(.35em + var(--sp,0px) * .12) 0 0;text-align:left;hyphens:manual}
+.cv.tpl-bandeau .exp ul{order:5;padding-left:1.15em;margin-top:calc(.4em + var(--sp,0px) * .12)}
+.cv.tpl-bandeau .exp li{margin-bottom:calc(.32em + var(--sp,0px) * .14)}
 .cv .autres{font-style:italic;color:#6b7280;font-size:.86em;margin-top:.2em}
 .cv .cle b,.cv li b,.cv .ctx b{font-weight:700}
 .cv.tpl-bandeau li b,.cv.tpl-bandeau .ctx b{font-weight:900}
@@ -831,7 +831,8 @@ $("#profile-name").addEventListener("input", saveProfileFields);
 $("#profile-parcours").addEventListener("input", saveProfileFields);
 $("#profile-select").addEventListener("change", e => { if(!e.target.value) return; currentProfileId = e.target.value; saveProfiles(); renderProfiles(); showEmpty(); });
 $("#btn-new-profile").addEventListener("click", () => {
-  const p = { id:uid(), name:"", parcours:"", photo:"" }; profiles.push(p); currentProfileId = p.id; saveProfiles(); renderProfiles(); showEmpty(); $("#profile-name").focus();
+  const p = { id:uid(), name:"", parcours:"", photo:"" }; profiles.push(p); currentProfileId = p.id; saveProfiles(); renderProfiles(); showEmpty();
+  $("#offre").value = ""; $("#offre-url").value = ""; $("#profile-name").focus();
 });
 $("#btn-del-profile").addEventListener("click", () => {
   const p = prof();
@@ -1431,7 +1432,7 @@ function fitCV(page){
   if(!H) return true;
   while(over() && fs > 8.25){ fs = Math.round((fs - .25) * 100) / 100; page.style.setProperty("--fs", fs + "pt"); }
   if(over()) return false;
-  while(fs < 11.5){
+  while(fs < 11.25){
     const next = Math.round((fs + .25) * 100) / 100; page.style.setProperty("--fs", next + "pt");
     if(over()){ page.style.setProperty("--fs", fs + "pt"); break; }
     fs = next;
