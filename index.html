@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 72 72%27%3E%3Crect width=%2772%27 height=%2772%27 rx=%2718%27 fill=%27%233A2340%27/%3E%3Cpath d=%27M19 38l11 11 23-26%27 fill=%27none%27 stroke=%27white%27 stroke-width=%277%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3Ccircle cx=%2753%27 cy=%2722%27 r=%274.5%27 fill=%27none%27 stroke=%27%23F2A93B%27 stroke-width=%274%27/%3E%3C/svg%3E">
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Lato:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#FFF8F0; --panel:#ffffff; --ink:#2A1A2F; --muted:#6E5872; --line:#EEDFCF;
@@ -102,9 +102,10 @@ details summary{cursor:pointer;font-weight:600}
 .cv h1{font-size:2.3em;line-height:1.1;font-weight:700;letter-spacing:-.01em}
 .cv h2{font-size:1.2em;font-weight:500;margin-top:.25em}
 .cv h3{font-size:.9em;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:.5em}
-.cv .blk{margin-bottom:1.15em}
+.cv .blk{margin-bottom:calc(1.15em + var(--sp,0px))}
+.cv .cv-side .blk{margin-bottom:calc(1.15em + var(--sps,0px))}
 .cv .accroche{text-align:left}
-.cv .exp{margin-bottom:.8em;break-inside:avoid}
+.cv .exp{margin-bottom:calc(.8em + var(--sp,0px) * .5);break-inside:avoid}
 .cv .exp-top{display:flex;justify-content:space-between;gap:1em;align-items:baseline}
 .cv .poste{font-weight:700}
 .cv .dates{font-size:.88em;color:#6b7280;white-space:nowrap;flex:none}
@@ -426,6 +427,49 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 .composer button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
 .chat-foot{padding:2px 20px 14px}
 .chat-foot .hint{font-size:12px}
+/* ---------- Modèle « Bandeau » : bandeau sombre, colonne teintée jusqu'en bas ---------- */
+.cv.tpl-bandeau{grid-template-columns:70mm 1fr;grid-template-rows:auto 1fr;grid-template-areas:"head head" "side main";height:297mm;font-family:Lato,Carlito,Calibri,Arial,sans-serif;color:#1d2433;line-height:1.42}
+.cv.tpl-bandeau .cv-head{background:var(--dark);color:#fff;padding:9mm 12mm 8mm 12mm}
+.cv.tpl-bandeau .cv-head h1{font-size:2.7em;font-weight:900;line-height:1.05;letter-spacing:-.005em;color:#fff}
+.cv.tpl-bandeau .cv-head h2{font-size:1.08em;font-weight:400;color:var(--light);margin-top:.5em}
+.cv.tpl-bandeau .cv-head .cle{font-weight:700;color:#fff;margin-top:.45em}
+.cv.tpl-bandeau .cv-head .cle b{font-weight:900}
+.cv.tpl-bandeau:has(.cle) .profil{display:none}
+.cv.tpl-bandeau .cv-side{background:var(--tint);color:#1d2433;padding:9mm 7mm 10mm 8mm}
+.cv.tpl-bandeau .cv-main{padding:9mm 11mm 10mm 8mm}
+.cv.tpl-bandeau h3{font-size:1.16em;font-weight:900;text-transform:uppercase;letter-spacing:.01em;color:var(--dark);margin-bottom:.75em;border:0;padding:0}
+.cv.tpl-bandeau .cv-side h3{font-size:1.08em}
+.cv.tpl-bandeau .contact-blk h3{display:none}
+.cv.tpl-bandeau .contact-blk{padding-bottom:1.2em;border-bottom:1.5px solid var(--accent);margin-bottom:calc(1.6em + var(--sps,0px))}
+.cv.tpl-bandeau .side-contact li{margin-bottom:.22em;font-size:.95em}
+.cv.tpl-bandeau .cv-side .list:not(.side-contact){list-style:disc;padding-left:1.1em}
+.cv.tpl-bandeau .cv-side .list:not(.side-contact) li{margin-bottom:.6em}
+.cv.tpl-bandeau .cv-side li::marker,.cv.tpl-bandeau .cv-main li::marker{color:var(--dark)}
+.cv.tpl-bandeau .photo{width:30mm;height:30mm;margin:0 auto 7mm;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--accent)}
+.cv.tpl-bandeau .cv-main .blk{margin-bottom:calc(1.45em + var(--sp,0px))}
+.cv.tpl-bandeau .exp,.cv.tpl-bandeau .form{display:grid;grid-template-columns:auto 1fr;margin-bottom:calc(1em + var(--sp,0px) * .5)}
+.cv.tpl-bandeau .exp > *,.cv.tpl-bandeau .form > *{grid-column:1 / -1}
+.cv.tpl-bandeau .exp-top{display:contents}
+.cv.tpl-bandeau .poste{grid-row:1;color:var(--accent);font-weight:900;text-transform:uppercase;font-size:1.02em;letter-spacing:.01em;line-height:1.25}
+.cv.tpl-bandeau .org{grid-row:2;grid-column:1;color:#3f4654;font-weight:700;font-size:.84em;margin:.25em 0 0}
+.cv.tpl-bandeau .dates{grid-row:2;grid-column:2;color:#3f4654;font-weight:700;font-size:.84em;margin-top:.25em;white-space:normal}
+.cv.tpl-bandeau .has-org .dates::before{content:"|";margin:0 .6em;font-weight:400;color:#9aa1ad}
+.cv.tpl-bandeau .ctx{grid-row:3;margin:.35em 0 0;text-align:justify;hyphens:auto}
+.cv.tpl-bandeau .exp ul{grid-row:4;padding-left:1.15em;margin-top:.4em}
+.cv.tpl-bandeau .exp li{margin-bottom:.32em}
+.cv .autres{font-style:italic;color:#6b7280;font-size:.86em;margin-top:.2em}
+.cv .cle b,.cv li b,.cv .ctx b{font-weight:700}
+.cv.tpl-bandeau li b,.cv.tpl-bandeau .ctx b{font-weight:900}
+.swatch.pal{border:2px solid #fff}
+.swatch.dice{display:grid;place-items:center;background:#fff;color:var(--brand);box-shadow:0 0 0 1px #E2D3C3}
+.swatch.dice svg{width:16px;height:16px}
+.swatch.mine{width:auto;border-radius:999px;padding:0 11px;background:#fff;color:var(--brand);font-size:12px;font-weight:700;box-shadow:0 0 0 1px #E2D3C3}
+.swatch.mine.on,.swatch.dice.on{box-shadow:0 0 0 2px var(--brand)}
+.custom-pal{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap}
+.custom-pal label{display:flex;align-items:center;gap:8px;margin:0;font-weight:600;font-size:13px}
+.custom-pal input[type=color]{width:34px;height:34px;padding:0;border:1px solid #E2D3C3;border-radius:50%;background:none;cursor:pointer;overflow:hidden}
+.custom-pal input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+.custom-pal input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}
 </style>
 </head>
 <body>
@@ -505,12 +549,17 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <div class="row look">
       <div><label for="tpl">Modèle</label>
         <select id="tpl">
-          <option value="moderne">Moderne (colonne colorée)</option>
+          <option value="bandeau">Bandeau (recommandé)</option>
+          <option value="moderne">Colonne colorée</option>
           <option value="classique">Classique (sobre)</option>
         </select></div>
     </div>
-    <label>Couleur</label>
+    <label>Couleurs</label>
     <div class="swatches" id="swatches"></div>
+    <div class="custom-pal" id="custom-pal" hidden>
+      <label><input type="color" id="cp-dark" value="#0C1B33"> Bandeau</label>
+      <label><input type="color" id="cp-accent" value="#2A62D4"> Titres</label>
+    </div>
     <button class="btn primary big dl-main" id="btn-pdf-cv">Télécharger le CV (PDF)</button>
     <div class="dl-more">
       <button class="btn small" id="btn-pdf-lettre">Lettre (PDF)</button>
@@ -685,6 +734,36 @@ const $ = s => document.querySelector(s);
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
 const COLORS = ["#1f4e79","#0f766e","#7a2e5a","#374151","#9a3412","#3f3f8f"];
+/* Palettes de CV : bandeau sombre + couleur des titres (la teinte de la colonne en découle) */
+const PALETTES = [
+  { id:"marine", nom:"Marine", dark:"#0C1B33", accent:"#2A62D4" },
+  { id:"foret", nom:"Forêt", dark:"#0F2A1F", accent:"#23794A" },
+  { id:"prune", nom:"Prune", dark:"#2A1330", accent:"#8E3A84" },
+  { id:"brique", nom:"Brique", dark:"#2B140E", accent:"#B4472A" },
+  { id:"lagon", nom:"Lagon", dark:"#06262B", accent:"#0B7A86" },
+  { id:"bordeaux", nom:"Bordeaux", dark:"#290C15", accent:"#A12A44" },
+  { id:"ardoise", nom:"Ardoise", dark:"#1C232C", accent:"#46637F" },
+  { id:"ambre", nom:"Ambre", dark:"#2A1F0C", accent:"#9A6A0A" },
+  { id:"indigo", nom:"Indigo", dark:"#16163A", accent:"#5050C8" },
+  { id:"olive", nom:"Olive", dark:"#1D2213", accent:"#5F7222" }
+];
+const hx = c => { c = String(c).replace("#", ""); return [0, 2, 4].map(i => parseInt(c.slice(i, i + 2), 16) || 0); };
+const toHex = a => "#" + a.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
+const mixHex = (a, b, t) => { const A = hx(a), B = hx(b); return toHex(A.map((v, i) => v + (B[i] - v) * t)); };
+function lumHex(c){ return hx(c).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }).reduce((s, v, i) => s + v * [.2126, .7152, .0722][i], 0); }
+const contrastHex = (a, b) => { const x = lumHex(a), y = lumHex(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+function darkenTo(c, ratio){ let x = c, n = 0; while(contrastHex(x, "#ffffff") < ratio && n++ < 60) x = mixHex(x, "#000000", .08); return x; }
+function makePal(dark, accent){
+  dark = darkenTo(dark, 11); accent = darkenTo(accent, 4.6);
+  return { dark, accent, tint: mixHex(accent, "#ffffff", .91), light: mixHex(accent, "#ffffff", .6) };
+}
+const palFromColor = c => makePal(mixHex(c, "#000000", .6), c);
+const presetLook = p => ({ src:"preset:" + p.id, pal: makePal(p.dark, p.accent) });
+function randomLook(avoid){
+  const pool = PALETTES.filter(p => !avoid || !avoid.has("preset:" + p.id));
+  const list = pool.length ? pool : PALETTES;
+  return presetLook(list[Math.floor(Math.random() * list.length)]);
+}
 const PRICES = { "claude-sonnet-5-5":[2,10], "claude-opus-5-5":[4,20] }; // $ par million de tokens (entrée, sortie)
 
 let settings = Object.assign({ apiKey:"", model:"claude-sonnet-5-5", tpl:"moderne", color:COLORS[0], useCompany:true, cost:0 }, store.get("settings", {}));
@@ -697,6 +776,7 @@ if(!profiles.length){ profiles = [{ id:uid(), name:"", parcours:"", photo:"" }];
 if(!profiles.find(p => p.id === currentProfileId)) currentProfileId = profiles[0].id;
 const prof = () => profiles.find(p => p.id === currentProfileId);
 const saveSettings = () => store.set("settings", settings);
+if(settings.tplV !== 2){ settings.tpl = "bandeau"; settings.tplV = 2; saveSettings(); }
 const saveProfiles = () => { store.set("profiles", profiles); store.set("currentProfile", currentProfileId); };
 const saveHistory = () => store.set("history", history);
 
@@ -865,21 +945,51 @@ function renderSettings(){
   $("#tpl").value = settings.tpl;
   $("#step-key").hidden = !!settings.apiKey;
   $("#cost").textContent = "Coût cumulé sur cet appareil : " + settings.cost.toFixed(2).replace(".", ",") + " $";
+  renderSwatches();
+}
+function histNow(){ return currentHistId && history.find(x => x.id === currentHistId); }
+function renderSwatches(){
   const sw = $("#swatches"); sw.innerHTML = "";
-  const h = currentHistId && history.find(x => x.id === currentHistId);
-  const company = h && h.companyColor;
-  if(company){
-    const b = el("button", "swatch company" + (settings.useCompany ? " on" : ""), "Couleur " + (h.entreprise || "entreprise"));
-    b.style.background = company; b.title = "Couleur de l'entreprise (" + company + ")";
-    b.addEventListener("click", () => { settings.useCompany = true; saveSettings(); renderSettings(); applyLook(); }); sw.appendChild(b);
+  const h = histNow(), src = (h && h.look && h.look.src) || "";
+  const mk = (cls, label, on, fn) => { const b = el("button", "swatch " + cls + (on ? " on" : "")); b.type = "button"; b.title = label; b.setAttribute("aria-label", label); b.setAttribute("aria-pressed", on ? "true" : "false"); b.addEventListener("click", fn); sw.appendChild(b); return b; };
+  if(h && h.companyColor){
+    const pal = palFromColor(h.companyColor);
+    const b = mk("company", "Couleurs de " + (h.entreprise || "l'entreprise"), src === "company", () => setLook({ src:"company", pal }));
+    b.textContent = "Couleurs " + (h.entreprise || "de l'entreprise"); b.style.background = pal.accent;
   }
-  COLORS.forEach(c => { const b = el("button", "swatch" + (c === settings.color && !(company && settings.useCompany) ? " on" : "")); b.style.background = c; b.title = c;
-    b.addEventListener("click", () => { settings.color = c; settings.useCompany = false; saveSettings(); renderSettings(); applyLook(); }); sw.appendChild(b); });
+  PALETTES.forEach(p => {
+    const b = mk("pal", "Palette " + p.nom, src === "preset:" + p.id, () => setLook(presetLook(p)));
+    const L = makePal(p.dark, p.accent); b.style.background = "linear-gradient(135deg," + L.dark + " 50%," + L.accent + " 50%)";
+  });
+  const d = mk("dice", "Palette au hasard", false, () => setLook(randomLook(new Set([src]))));
+  d.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>';
+  const m = mk("mine", "Créer ma palette", src === "custom", () => {
+    const box = $("#custom-pal"); box.hidden = !box.hidden;
+    if(!box.hidden){ const pal = currentPal(); $("#cp-dark").value = pal.dark; $("#cp-accent").value = pal.accent; }
+  });
+  m.textContent = "Ma palette";
+  if(src !== "custom") $("#custom-pal").hidden = true;
 }
-function currentColor(){
-  const h = currentHistId && history.find(x => x.id === currentHistId);
-  return (settings.useCompany && h && h.companyColor) ? h.companyColor : settings.color;
+function setLook(look){
+  const h = histNow(); if(!h) return;
+  h.look = look; saveHistory(); renderSwatches(); applyLook();
 }
+function currentPal(){
+  const h = histNow();
+  if(h && h.look && h.look.pal) return h.look.pal;
+  return palFromColor((settings.useCompany && h && h.companyColor) ? h.companyColor : settings.color);
+}
+function currentColor(){ return currentPal().accent; }
+const debounceSaveHist = debounce(() => saveHistory(), 400);
+const onCustom = () => {
+  const h = histNow(); if(!h) return;
+  h.look = { src:"custom", pal: makePal($("#cp-dark").value, $("#cp-accent").value) };
+  settings.customPal = { dark: $("#cp-dark").value, accent: $("#cp-accent").value }; saveSettings();
+  document.querySelectorAll("#swatches .swatch").forEach(b => { const on = b.classList.contains("mine"); b.classList.toggle("on", on); b.setAttribute("aria-pressed", on ? "true" : "false"); });
+  applyLook(); debounceSaveHist();
+};
+$("#cp-dark").addEventListener("input", onCustom);
+$("#cp-accent").addEventListener("input", onCustom);
 $("#key").addEventListener("change", e => { settings.apiKey = e.target.value.trim(); saveSettings(); renderSettings(); });
 $("#model").addEventListener("change", e => { settings.model = e.target.value; saveSettings(); });
 $("#tpl").addEventListener("change", e => { settings.tpl = e.target.value; saveSettings(); applyLook(); });
@@ -940,8 +1050,13 @@ RÈGLES ABSOLUES
 4. Accroche : 2 à 3 phrases à la première personne implicite, qui relient le parcours au poste visé. Aucun pronom personnel : ni « je », « me », « m' », « mon », « ma », ni « il », « elle ». Utilise des phrases nominales ou au participe (« Secrétaire médicale formée à… », « Habituée à… »). Pas de clichés creux (« dynamique et motivé »).
 5. Titre du CV = intitulé du poste visé, éventuellement complété (ex. « Conseiller clientèle — 3 ans d'expérience en relation client »), seulement si c'est vrai.
 6. Français impeccable, typographie française. Dates au format « 2021 – 2023 » ou « Depuis 2024 ».
-7. Compétences : 6 à 10 éléments courts, les plus pertinents pour l'offre d'abord.
-8. N'indique jamais d'âge, de situation familiale ni de nationalité, sauf si le candidat l'a écrit.
+7. Compétences : 4 à 7 éléments, les plus pertinents pour l'offre d'abord. Chaque élément au format « **Domaine :** détails concrets tirés du parcours » (ex. « **Soins d'hygiène :** toilettes, levers, couchers, prévention des escarres »).
+8. Phrase clé (champ "phrase_cle") : UNE phrase de 70 à 130 caractères, placée sous le nom, qui résume l'argument le plus fort du candidat pour ce poste, avec un chiffre réel s'il existe dans le parcours (ex. « 7 ans auprès de personnes âgées dépendantes, dont 4 en EHPAD de 80 lits. »). Sans pronom personnel.
+9. Expériences : pour les 1 ou 2 plus importantes, "contexte" = une phrase qui situe le poste (structure, public, équipe, périmètre). Pour les autres, chaîne vide. Les petites expériences sans rapport avec l'offre ne prennent pas de bloc : regroupe-les dans "autres_experiences" en une ligne (« Autres expériences : … »), ou chaîne vide.
+10. Mise en valeur : entoure de ** les chiffres clés et les résultats concrets (« **28 résidents** », « **sans accident en 4 ans** »), 3 à 7 fois dans tout le CV, seulement dans "phrase_cle", "contexte", "points" et "competences". Jamais une puce entière en gras.
+11. "certifications" : habilitations, permis spéciaux, CACES, AFGSU, cartes professionnelles, au format « **Intitulé** — précision, année ». Liste vide s'il n'y en a pas. Ne les répète pas dans "competences".
+12. Remplis la page sans la dépasser : plus le parcours est riche, plus tu détailles les expériences liées à l'offre (jusqu'à 5 puces pour l'expérience principale).
+13. N'indique jamais d'âge, de situation familiale ni de nationalité, sauf si le candidat l'a écrit.
 
 LETTRE DE MOTIVATION (uniquement si demandée)
 - 3 à 4 paragraphes, 250 à 350 mots au total : (1) pourquoi cette entreprise et ce poste, (2) ce que le candidat apporte, avec des faits tirés du parcours, (3) disponibilité et demande d'entretien, (4) formule de politesse.
@@ -969,10 +1084,13 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans texte avant ni après, sans 
   "cv": {
     "nom": "Prénom Nom",
     "titre": "…",
+    "phrase_cle": "…",
     "accroche": "…",
-    "contact": { "telephone": "", "email": "", "ville": "", "linkedin": "", "permis": "" },
-    "experiences": [ { "poste": "", "entreprise": "", "lieu": "", "dates": "", "points": ["…"] } ],
-    "formations": [ { "diplome": "", "etablissement": "", "dates": "" } ],
+    "contact": { "adresse": "rue et code postal si le parcours les donne", "ville": "", "telephone": "", "email": "", "linkedin": "", "permis": "Permis B — véhiculé, si le parcours le dit" },
+    "experiences": [ { "poste": "", "entreprise": "", "lieu": "", "dates": "", "contexte": "", "points": ["…"] } ],
+    "autres_experiences": "",
+    "formations": [ { "diplome": "", "detail": "option, spécialité, durée ou mention", "etablissement": "", "dates": "" } ],
+    "certifications": ["…"],
     "competences": ["…"],
     "langues": ["Anglais — courant"],
     "interets": ["…"]
@@ -1028,6 +1146,9 @@ function storeResult(p, out, keep){
   if(!out.cv.nom && p.name) out.cv.nom = p.name;
   const h = { id:uid(), profileId:p.id, date:Date.now(), poste:str(out.poste_vise) || "Poste", entreprise:str(out.entreprise), companyColor:cleanHex(out.couleur_entreprise), data:out, cvHtml:"", lettreHtml:"" };
   h.groupId = (keep && keep.groupId) || h.id;
+  if(keep && keep.look) h.look = keep.look;
+  else if(h.companyColor) h.look = { src:"company", pal: palFromColor(h.companyColor) };
+  else { const recent = new Set(history.slice(0, 3).map(x => x.look && x.look.src).filter(Boolean)); h.look = randomLook(recent); }
   currentHistId = h.id;
   h.chat = (keep && keep.chat) || [];
   renderAll(out, keep);
@@ -1150,7 +1271,7 @@ async function doRegen(target, rq){
     if(!out.candidature || !str(out.candidature.email)) out.candidature = h.data.candidature || out.candidature;
     if(target === "cv" || !str(out.message_court)) out.message_court = h.data.message_court || out.message_court;
     // Le document non concerné est repris tel quel, retouches manuelles comprises
-    const keep = { chat:h.chat, groupId:groupOf(h) };
+    const keep = { chat:h.chat, groupId:groupOf(h), look:h.look };
     if(target === "cv"){ out.lettre = lettreActuelle || h.data.lettre || null; if(hadLettre) keep.lettreHtml = h.lettreHtml; }
     else if(hadLettre) keep.lettreFrame = h.lettreHtml;
     if(target === "lettre"){ out.cv = h.data.cv; out.alertes = h.data.alertes; out.score_adequation = h.data.score_adequation; keep.cvHtml = h.cvHtml; }
@@ -1167,45 +1288,62 @@ async function doRegen(target, rq){
 }
 
 /* ---------- Rendu du CV ---------- */
-function section(title){ const s = el("section", "blk"); s.appendChild(el("h3", "", title)); return s; }
+function section(title, cls){ const s = el("section", "blk" + (cls ? " " + cls : "")); s.appendChild(el("h3", "", title)); return s; }
+/* Texte avec mise en gras des passages entourés de ** (sans HTML : aucun risque d'injection) */
+function rich(tag, cls, text){
+  const e = el(tag, cls);
+  str(text).split(/(\*\*[^*]+\*\*)/g).forEach(part => {
+    if(!part) return;
+    const m = part.match(/^\*\*([^*]+)\*\*$/);
+    e.appendChild(m ? el("b", "", m[1]) : document.createTextNode(part));
+  });
+  return e;
+}
+const plain = t => str(t).replace(/\*\*/g, "");
 function renderCV(out){
   const cv = out.cv || {}, c = cv.contact || {};
   const page = $("#page-cv"); page.innerHTML = "";
 
   const head = el("header", "cv-head");
-  head.appendChild(el("h1", "", str(cv.nom)));
-  if(str(cv.titre)) head.appendChild(el("h2", "", str(cv.titre)));
+  head.appendChild(el("h1", "", plain(cv.nom)));
+  if(str(cv.titre)) head.appendChild(el("h2", "", plain(cv.titre)));
+  if(str(cv.phrase_cle)) head.appendChild(rich("p", "cle", cv.phrase_cle));
 
   const side = el("aside", "cv-side");
   if(prof().photo){ const im = el("img", "photo"); im.src = prof().photo; im.alt = ""; side.appendChild(im); }
-  const contacts = [c.telephone, c.email, c.ville, c.linkedin, c.permis].map(str).filter(Boolean);
-  if(contacts.length){ const s = section("Contact"); const ul = el("ul", "list side-contact"); contacts.forEach(x => ul.appendChild(el("li", "", x))); s.appendChild(ul); side.appendChild(s); }
-  [["Compétences", cv.competences], ["Langues", cv.langues], ["Centres d'intérêt", cv.interets]].forEach(([t, l]) => {
+  const contacts = [c.adresse, c.ville, c.telephone, c.email, c.linkedin, c.permis].map(plain).filter(Boolean)
+    .filter((x, i, a) => a.indexOf(x) === i);
+  if(contacts.length){ const s = section("Contact", "contact-blk"); const ul = el("ul", "list side-contact"); contacts.forEach(x => ul.appendChild(el("li", "", x))); s.appendChild(ul); side.appendChild(s); }
+  [["Habilitations", cv.certifications], ["Compétences", cv.competences], ["Langues", cv.langues], ["Centres d'intérêt", cv.interets]].forEach(([t, l]) => {
     const items = arr(l); if(!items.length) return;
-    const s = section(t); const ul = el("ul", "list"); items.forEach(x => ul.appendChild(el("li", "", str(x)))); s.appendChild(ul); side.appendChild(s);
+    const s = section(t); const ul = el("ul", "list"); items.forEach(x => ul.appendChild(rich("li", "", x))); s.appendChild(ul); side.appendChild(s);
   });
 
   const main = el("main", "cv-main");
-  if(str(cv.accroche)){ const s = section("Profil"); s.appendChild(el("p", "accroche", str(cv.accroche))); main.appendChild(s); }
+  if(str(cv.accroche)){ const s = section("Profil", "profil"); s.appendChild(rich("p", "accroche", cv.accroche)); main.appendChild(s); }
   const exps = arr(cv.experiences);
-  if(exps.length){
+  if(exps.length || str(cv.autres_experiences)){
     const s = section("Expérience professionnelle");
     exps.forEach(x => {
-      const d = el("div", "exp"), top = el("div", "exp-top");
-      top.appendChild(el("span", "poste", str(x.poste))); top.appendChild(el("span", "dates", str(x.dates))); d.appendChild(top);
-      const org = [str(x.entreprise), str(x.lieu)].filter(Boolean).join(" — "); if(org) d.appendChild(el("div", "org", org));
-      const pts = arr(x.points); if(pts.length){ const ul = el("ul"); pts.forEach(t => ul.appendChild(el("li", "", str(t)))); d.appendChild(ul); }
+      const org = [plain(x.entreprise), plain(x.lieu)].filter(Boolean).join(" — ");
+      const d = el("div", "exp" + (org ? " has-org" : "")), top = el("div", "exp-top");
+      top.appendChild(el("span", "poste", plain(x.poste))); top.appendChild(el("span", "dates", plain(x.dates))); d.appendChild(top);
+      if(org) d.appendChild(el("div", "org", org));
+      if(str(x.contexte)) d.appendChild(rich("p", "ctx", x.contexte));
+      const pts = arr(x.points); if(pts.length){ const ul = el("ul"); pts.forEach(t => ul.appendChild(rich("li", "", t))); d.appendChild(ul); }
       s.appendChild(d);
     });
+    if(str(cv.autres_experiences)) s.appendChild(el("p", "autres", plain(cv.autres_experiences)));
     main.appendChild(s);
   }
   const forms = arr(cv.formations);
   if(forms.length){
     const s = section("Formation");
     forms.forEach(x => {
-      const d = el("div", "form"), top = el("div", "exp-top");
-      top.appendChild(el("span", "poste", str(x.diplome))); top.appendChild(el("span", "dates", str(x.dates))); d.appendChild(top);
-      if(str(x.etablissement)) d.appendChild(el("div", "org", str(x.etablissement)));
+      const org = [plain(x.detail), plain(x.etablissement)].filter(Boolean).join(" — ");
+      const d = el("div", "form" + (org ? " has-org" : "")), top = el("div", "exp-top");
+      top.appendChild(el("span", "poste", plain(x.diplome))); top.appendChild(el("span", "dates", plain(x.dates))); d.appendChild(top);
+      if(org) d.appendChild(el("div", "org", org));
       s.appendChild(d);
     });
     main.appendChild(s);
@@ -1270,10 +1408,9 @@ function showEmpty(){
 /* Apparence (sans re-générer : les corrections manuelles sont conservées) */
 function applyLook(){
   const cv = $("#page-cv");
-  cv.classList.remove("tpl-moderne", "tpl-classique"); cv.classList.add("tpl-" + settings.tpl);
-  const col = currentColor();
-  cv.style.setProperty("--accent", col);
-  $("#page-lettre").style.setProperty("--accent", col);
+  cv.classList.remove("tpl-moderne", "tpl-classique", "tpl-bandeau"); cv.classList.add("tpl-" + settings.tpl);
+  const pal = currentPal();
+  [cv, $("#page-lettre")].forEach(pg => { pg.style.setProperty("--accent", pal.accent); pg.style.setProperty("--dark", pal.dark); pg.style.setProperty("--tint", pal.tint); pg.style.setProperty("--light", pal.light); });
   fitVisible();
 }
 
@@ -1283,10 +1420,35 @@ function fitPage(page, start, min){
   while(page.scrollHeight > page.clientHeight + 1 && fs > min){ fs = Math.round((fs - 0.25) * 100) / 100; page.style.setProperty("--fs", fs + "pt"); }
   return page.scrollHeight <= page.clientHeight + 1;
 }
+/* CV : réduit si ça déborde, sinon agrandit le texte puis répartit l'espace pour remplir la page */
+function fitCV(page){
+  const H = page.clientHeight, room = H - 38;
+  const cols = [".cv-main", ".cv-side"].map(s => page.querySelector(s)).filter(Boolean);
+  const bottomOf = col => { const k = col && col.lastElementChild; return k ? k.offsetTop + k.offsetHeight : 0; };
+  const over = () => page.scrollHeight > H + 1 || cols.some(c => bottomOf(c) > room);
+  page.style.setProperty("--sp", "0px"); page.style.setProperty("--sps", "0px");
+  let fs = 10.25; page.style.setProperty("--fs", fs + "pt");
+  if(!H) return true;
+  while(over() && fs > 8.25){ fs = Math.round((fs - .25) * 100) / 100; page.style.setProperty("--fs", fs + "pt"); }
+  if(over()) return false;
+  while(fs < 12){
+    const next = Math.round((fs + .25) * 100) / 100; page.style.setProperty("--fs", next + "pt");
+    if(over()){ page.style.setProperty("--fs", fs + "pt"); break; }
+    fs = next;
+  }
+  [[".cv-main", "--sp", ".blk, .exp, .form"], [".cv-side", "--sps", ".blk"]].forEach(([sel, v, gaps]) => {
+    const col = page.querySelector(sel); if(!col) return;
+    const n = col.querySelectorAll(gaps).length; if(!n) return;
+    let sp = Math.min(Math.floor((room - bottomOf(col)) / n), 26);
+    while(sp > 0){ page.style.setProperty(v, sp + "px"); if(!over()) break; sp--; }
+    if(sp <= 0) page.style.setProperty(v, "0px");
+  });
+  return true;
+}
 let activeTab = "cv";
 function fitVisible(){
   if(activeTab === "cv" && !$("#holder-cv").hidden){
-    const ok = fitPage($("#page-cv"), 10.5, 8.25);
+    const ok = fitCV($("#page-cv"));
     $("#edit-hint").textContent = ok ? "Astuce : cliquez directement dans le CV pour corriger un mot. Vos modifications sont enregistrées."
       : "Attention : le CV dépasse une page. Supprimez une ou deux puces (cliquez dans le texte) ou régénérez.";
     $("#edit-hint").style.color = ok ? "" : "var(--danger)";
@@ -1826,7 +1988,7 @@ function apClone(srcSel, holderSel){
   const src = $(srcSel), c = src.cloneNode(true); c.removeAttribute("id"); c.classList.add("ap-copy");
   holder.appendChild(c);
   const s = holder.clientWidth / 794; holder.style.setProperty("--s", s); holder.style.height = (1123 * s) + "px";
-  fitPage(c, srcSel === "#page-cv" ? 10.5 : 11, srcSel === "#page-cv" ? 8.25 : 9.5);
+  if(srcSel === "#page-cv") fitCV(c); else fitPage(c, 11, 9.5);
   c.addEventListener("input", debounce(() => { src.innerHTML = c.innerHTML; markDirty(); saveCurrentEdits(); }, 500));
 }
 function apScale(){
