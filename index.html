@@ -280,6 +280,32 @@ body[data-view="profile"] [data-v]:not([data-v~="profile"]){display:none!importa
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.spin{animation:none}}
 
+/* ===== Fiche profil modifiable ===== */
+.m-only{display:none}
+@media (max-width:700px){ .m-only{display:inline} .d-only{display:none} }
+.pv-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.pv-head h3{margin:0}
+.pv-edit{border:1px solid var(--line);background:#fff;color:var(--brand);border-radius:10px;padding:6px 10px;min-height:36px;font-weight:600;font-size:13.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;flex:none}
+.pv-edit:hover{border-color:#D9C6DC;background:var(--lilas)}
+.pv-list li{position:relative;min-height:44px}
+.pv-list li .pv-edit{position:absolute;top:0;right:0}
+.pv-list li .pv-t{padding-right:96px;display:flex;flex-direction:column;gap:2px}
+.pv-miss{margin:6px 0 0;padding-left:18px;color:var(--ink);font-size:14px;display:flex;flex-direction:column;gap:3px}
+.pv-form{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:4px 0}
+.pv-form .full{grid-column:1/-1}
+.pv-form label{margin-top:6px}
+.pv-form input,.pv-form textarea{width:100%}
+.pv-form textarea{min-height:110px}
+.pv-form .row{grid-column:1/-1;margin-top:10px}
+.pv-add{margin-top:12px;border:1px dashed #D9C6DC;background:none;color:var(--brand);border-radius:12px;min-height:44px;width:100%;font-weight:600;cursor:pointer}
+.pv-add:hover{background:var(--lilas)}
+.profil-view .chips span{display:inline-flex;align-items:center;gap:4px}
+.chips .x{border:0;background:none;color:var(--brand);width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:16px;line-height:1;display:grid;place-items:center;margin-right:-4px}
+.chips .x:hover{background:#fff}
+.chip-add{display:flex;gap:8px;margin-top:10px}
+.chip-add input{flex:1;min-width:0}
+@media (max-width:700px){ .pv-form{grid-template-columns:1fr} .pv-list li .pv-t{padding-right:0} .pv-list li .pv-edit{position:static;align-self:flex-start;margin-top:6px} .pv-list li{display:flex;flex-direction:column} }
+
 /* ===== Suivi : « À faire » + jalons ===== */
 .apps-hello h2{font-family:var(--display);font-size:24px;color:var(--brand);margin:0}
 .apps-hello p{margin:2px 0 14px;color:var(--muted)}
@@ -745,10 +771,10 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <div id="pc-done" hidden>
       <p class="pc-ok"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Votre CV est bien enregistré</p>
       <p class="hint pc-meta" id="pc-meta"></p>
-      <button class="btn primary" id="pc-edit" type="button" aria-expanded="false" style="width:100%;min-height:48px;border-radius:14px">Modifier mon CV</button>
-      <div class="pc-edit-box" id="pc-edit-box" hidden>
+      <p class="hint" style="margin:0 0 10px">Vérifiez et modifiez vos informations directement dans la fiche<span class="m-only"> ci-dessous</span><span class="d-only"> à droite</span>.</p>
+      <div class="pc-edit-box" id="pc-edit-box">
+        <button class="btn" id="pc-add" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5M8.5 21.5h7"/></svg>Ajouter quelque chose à l'écrit ou à la voix</button>
         <button class="btn" id="pc-reimport" type="button">Importer un autre CV</button>
-        <button class="btn" id="pc-add" type="button">Ajouter ou corriger une information</button>
         <button class="link danger" id="pc-reset" type="button">Tout effacer et recommencer</button>
       </div>
     </div>
@@ -2585,13 +2611,37 @@ $("#m-new").addEventListener("click", () => { $("#offre").value = ""; $("#offre-
 
 
 /* ===================== Mon profil : le CV de départ ===================== */
+/* La fiche (p.resume) est la référence ; le texte d'origine du CV reste en complément pour les détails. */
 let pcMode = "replace";
+const LISTS = { competences:"Compétences", langues:"Langues", certifications:"Permis, certifications et habilitations", interets:"Centres d'intérêt" };
+function profileText(r){
+  const L = [];
+  if(str(r.nom)) L.push("Nom : " + r.nom);
+  if(str(r.titre)) L.push("Métier : " + r.titre);
+  const c = [["Ville", r.ville], ["Téléphone", r.telephone], ["E-mail", r.email], ["Permis", r.permis]].filter(x => str(x[1])).map(x => x[0] + " : " + str(x[1]));
+  if(c.length) L.push(c.join(" · "));
+  const ex = arr(r.experiences);
+  if(ex.length){ L.push("", "EXPÉRIENCES"); ex.forEach(x => { L.push("- " + [x.poste, x.entreprise, x.lieu].map(str).filter(Boolean).join(", ") + (str(x.dates) ? " (" + str(x.dates) + ")" : "")); arr(x.missions).map(str).filter(Boolean).forEach(m => L.push("  • " + m)); }); }
+  const fo = arr(r.formations);
+  if(fo.length){ L.push("", "FORMATIONS"); fo.forEach(x => L.push("- " + [x.diplome, x.etablissement].map(str).filter(Boolean).join(", ") + (str(x.dates) ? " (" + str(x.dates) + ")" : ""))); }
+  Object.keys(LISTS).forEach(k => { const xs = arr(r[k]).map(str).filter(Boolean); if(xs.length) L.push("", LISTS[k].toUpperCase() + " : " + xs.join(", ")); });
+  return L.join("\n").trim();
+}
+function syncParcours(p){
+  if(!p.resume){ return; }
+  const raw = str(p.parcoursRaw);
+  p.parcours = "Fiche du candidat, vérifiée et corrigée par lui (elle fait foi) :\n" + profileText(p.resume) +
+    (raw ? "\n\n--- Texte d'origine de son CV, à n'utiliser que pour des détails absents de la fiche ; en cas de différence, la fiche fait foi ---\n" + raw : "");
+  p.parcoursAt = Date.now();
+  if(p.id === currentProfileId) $("#profile-parcours").value = p.parcours;
+  saveProfiles(); updateForWho();
+}
 function setParcours(txt, src){
   const p = prof();
-  p.parcours = txt; p.parcoursAt = Date.now(); p.parcoursSrc = src || ""; delete p.resume; p.resumeErr = false;
+  p.parcours = txt; p.parcoursRaw = txt; p.parcoursAt = Date.now(); p.parcoursSrc = src || ""; delete p.resume; p.resumeErr = false;
   $("#profile-parcours").value = txt; saveProfiles();
   status("#pc-status", "", "");
-  renderParcoursUI(); updateForWho();
+  pvEdit = null; renderParcoursUI(); updateForWho();
   analyzeParcours(p);
 }
 function renderParcoursUI(){
@@ -2602,7 +2652,7 @@ function renderParcoursUI(){
   $("#pc-done").hidden = !has || writing;
   if(has){
     const r = p.resume, nExp = r ? arr(r.experiences).length : 0;
-    $("#pc-meta").textContent = (p.parcoursAt ? "Mis à jour le " + fmtDay(p.parcoursAt) : "Enregistré sur cet appareil") + (p.parcoursSrc ? " à partir de " + p.parcoursSrc : "") + (nExp ? " · " + nExp + " expérience" + (nExp > 1 ? "s" : "") + " retenue" + (nExp > 1 ? "s" : "") : "") + ".";
+    $("#pc-meta").textContent = (p.parcoursAt ? "Mis à jour le " + fmtDay(p.parcoursAt) : "Enregistré sur cet appareil") + (p.parcoursSrc ? " à partir de " + p.parcoursSrc : "") + (nExp ? " · " + nExp + " expérience" + (nExp > 1 ? "s" : "") : "") + ".";
   }
   renderProfilView();
 }
@@ -2610,10 +2660,11 @@ function openWrite(mode){
   pcMode = mode;
   $("#pc-input").value = "";
   $("#pc-write-label").textContent = mode === "append" ? "Qu'est-ce qu'il faut ajouter ou corriger ?" : "Racontez votre parcours";
-  $("#pc-input").placeholder = mode === "append" ? "Ex. : j'ai aussi le CACES 1 depuis 2022. Mon téléphone est le 06 12 34 56 78. J'étais caissière et pas vendeuse chez Super U."
+  $("#pc-input").placeholder = mode === "append" ? "Ex. : j'ai aussi le CACES 1 depuis 2022. Chez Super U j'étais caissière, pas vendeuse. Ajoute la natation dans mes loisirs."
     : "Vos coordonnées (ville, téléphone, e-mail, permis), vos expériences avec les dates et ce que vous faisiez, vos diplômes, vos langues. Rien ne sera inventé.";
-  $("#pc-write-box").hidden = false; $("#pc-edit-box").hidden = true; $("#pc-edit").setAttribute("aria-expanded", "false");
+  $("#pc-write-box").hidden = false;
   renderParcoursUI(); $("#pc-input").focus();
+  if(isM()) setTimeout(() => $("#pc-write-box").scrollIntoView({ behavior:"smooth", block:"center" }), 60);
 }
 function closeWrite(){ stopDictation(); $("#pc-write-box").hidden = true; renderParcoursUI(); }
 $("#pc-write").addEventListener("click", () => openWrite("replace"));
@@ -2624,7 +2675,8 @@ $("#pc-save").addEventListener("click", () => {
   if(pcMode === "append"){
     if(t.length < 3){ $("#pc-input").focus(); return; }
     stopDictation(); $("#pc-write-box").hidden = true;
-    setParcours(str(p.parcours).trim() + "\n\nPrécisions et corrections du candidat (elles priment sur ce qui précède) :\n" + t, p.parcoursSrc || "");
+    if(p.resume) updateResumeWithNote(p, t);
+    else setParcours(str(p.parcours).trim() + "\n\nPrécisions et corrections du candidat (elles priment sur ce qui précède) :\n" + t, p.parcoursSrc || "");
   } else {
     if(t.length < 80){ status("#pc-status", "err", "C'est un peu court : ajoutez vos expériences avec les dates, vos diplômes et vos coordonnées."); $("#pc-input").focus(); return; }
     stopDictation(); $("#pc-write-box").hidden = true;
@@ -2632,33 +2684,83 @@ $("#pc-save").addEventListener("click", () => {
   }
 });
 setupDictation($("#pc-mic"), $("#pc-input"), () => status("#pc-status", "err", DICT_HELP));
-$("#pc-edit").addEventListener("click", () => { const b = $("#pc-edit-box"); b.hidden = !b.hidden; $("#pc-edit").setAttribute("aria-expanded", b.hidden ? "false" : "true"); });
 $("#pc-reimport").addEventListener("click", () => $("#file-any").click());
 $("#pc-add").addEventListener("click", () => openWrite("append"));
 $("#pc-reset").addEventListener("click", () => {
   if(!confirm("Effacer votre CV enregistré ? Vos candidatures déjà créées sont gardées.")) return;
-  const p = prof(); p.parcours = ""; delete p.resume; delete p.parcoursAt; delete p.parcoursSrc;
-  $("#profile-parcours").value = ""; saveProfiles(); $("#pc-edit-box").hidden = true; renderParcoursUI(); updateForWho();
+  const p = prof(); p.parcours = ""; delete p.resume; delete p.parcoursAt; delete p.parcoursSrc; delete p.parcoursRaw;
+  $("#profile-parcours").value = ""; saveProfiles(); renderParcoursUI(); updateForWho();
 });
 
-/* Ce que Jalon a retenu du CV : un résumé fidèle, pour confirmer l'import */
-const RESUME_SYSTEM = "Tu lis le parcours d'un candidat (texte extrait de son CV, parfois en vrac) et tu le résumes fidèlement. N'invente rien, ne reformule pas les intitulés. " +
-  "Si le texte contient une section « Précisions et corrections du candidat », elle prime sur le reste. " +
-  "Réponds UNIQUEMENT avec un objet JSON valide : {\"nom\":\"\",\"titre\":\"métier principal en quelques mots\",\"ville\":\"\",\"telephone\":\"\",\"email\":\"\",\"permis\":\"\",\"experiences\":[{\"poste\":\"\",\"entreprise\":\"\",\"dates\":\"\"}],\"formations\":[{\"diplome\":\"\",\"etablissement\":\"\",\"dates\":\"\"}],\"competences\":[\"5 à 10 compétences courtes\"],\"langues\":[\"\"],\"manques\":[\"0 à 3 informations utiles absentes ou floues, formulées simplement, ex. : Aucun numéro de téléphone\"]}. Expériences de la plus récente à la plus ancienne. Chaîne ou liste vide si inconnu.";
+/* Lecture du CV par l'IA */
+const RESUME_SCHEMA = "{\"nom\":\"\",\"titre\":\"métier principal en quelques mots\",\"ville\":\"\",\"telephone\":\"\",\"email\":\"\",\"permis\":\"\",\"experiences\":[{\"poste\":\"\",\"entreprise\":\"\",\"lieu\":\"\",\"dates\":\"\",\"missions\":[\"tâches et résultats, tels qu'écrits\"]}],\"formations\":[{\"diplome\":\"\",\"etablissement\":\"\",\"dates\":\"\"}],\"competences\":[\"compétences courtes\"],\"langues\":[\"Anglais — courant\"],\"certifications\":[\"CACES, habilitations, cartes pro (pas le permis B)\"],\"interets\":[\"\"]}";
+const RESUME_SYSTEM = "Tu lis le parcours d'un candidat (texte extrait de son CV, parfois en vrac) et tu le ranges fidèlement dans une fiche. N'invente rien, ne reformule pas les intitulés, garde toutes les missions décrites. " +
+  "Si le texte contient une section « Précisions et corrections du candidat », elle prime sur le reste. Expériences de la plus récente à la plus ancienne. Chaîne ou liste vide si inconnu. " +
+  "Réponds UNIQUEMENT avec un objet JSON valide de cette forme : " + RESUME_SCHEMA;
+const RESUME_UPDATE_SYSTEM = "Tu tiens à jour la fiche CV d'un candidat. On te donne la fiche actuelle (JSON) et une demande du candidat (ajout, correction, suppression). Applique UNIQUEMENT ce qu'il demande, garde tout le reste à l'identique, n'invente rien. " +
+  "Réponds UNIQUEMENT avec la fiche complète mise à jour, objet JSON valide de cette forme : " + RESUME_SCHEMA;
 let analyzing = null;
+async function askResume(system, content){
+  const data = await callClaude({ model:"claude-sonnet-5-5", max_tokens:4000, system, messages:[{ role:"user", content }] }, settings.apiKey);
+  addCost(data.usage);
+  return parseJSON((data.content || []).filter(x => x.type === "text").map(x => x.text).join(""));
+}
 async function analyzeParcours(p){
   if(!p || str(p.parcours).length < 80 || !settings.apiKey){ renderProfilView(); return; }
+  if(!p.parcoursRaw) p.parcoursRaw = p.parcours;
   const id = p.id; analyzing = id; renderProfilView();
   try{
-    const data = await callClaude({ model:"claude-sonnet-5-5", max_tokens:2500, system:RESUME_SYSTEM, messages:[{ role:"user", content:"<parcours>\n" + p.parcours + "\n</parcours>" }] }, settings.apiKey);
-    addCost(data.usage);
-    const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("");
-    const q = profiles.find(x => x.id === id); if(q){ q.resume = parseJSON(text); q.resumeErr = false;
-      if(!str(q.name) && str(q.resume.nom)){ q.name = str(q.resume.nom); if(q.id === currentProfileId){ $("#profile-name").value = q.name; renderAvatar(); } }
-      saveProfiles(); }
+    const r = await askResume(RESUME_SYSTEM, "<parcours>\n" + p.parcoursRaw + "\n</parcours>");
+    const q = profiles.find(x => x.id === id);
+    if(q){
+      q.resume = r; q.resumeErr = false;
+      if(!str(q.name) && str(r.nom)){ q.name = str(r.nom); if(q.id === currentProfileId){ $("#profile-name").value = q.name; renderAvatar(); } }
+      syncParcours(q);
+    }
   }catch(e){ const q = profiles.find(x => x.id === id); if(q){ q.resumeErr = true; saveProfiles(); } }
   if(analyzing === id) analyzing = null;
   renderParcoursUI();
+}
+async function updateResumeWithNote(p, note){
+  const id = p.id; analyzing = id; renderProfilView();
+  try{
+    const r = await askResume(RESUME_UPDATE_SYSTEM, "<fiche_actuelle>\n" + JSON.stringify(p.resume) + "\n</fiche_actuelle>\n\n<demande_du_candidat>\n" + note + "\n</demande_du_candidat>");
+    const q = profiles.find(x => x.id === id); if(q && r && typeof r === "object"){ q.resume = r; syncParcours(q); }
+    status("#pc-status", "ok", "C'est ajouté à votre fiche.");
+  }catch(e){ status("#pc-status", "err", "La modification n'a pas pu être faite : " + e.message); }
+  if(analyzing === id) analyzing = null;
+  renderParcoursUI();
+}
+
+/* ===================== La fiche à droite, modifiable sur place ===================== */
+let pvEdit = null;   // "id", "exp-3", "exp-new", "form-1", "form-new"
+function manques(r){
+  const m = [];
+  if(!str(r.telephone)) m.push("Aucun numéro de téléphone");
+  if(!str(r.email)) m.push("Aucune adresse e-mail");
+  if(!str(r.ville)) m.push("Pas de ville");
+  const sansDate = arr(r.experiences).filter(x => !str(x.dates)).length;
+  if(sansDate) m.push(sansDate === 1 ? "Une expérience sans dates" : sansDate + " expériences sans dates");
+  if(!arr(r.competences).length) m.push("Aucune compétence");
+  return m;
+}
+function field(form, label, value, opts){
+  opts = opts || {};
+  const w = el("div", opts.full ? "full" : ""), id = "pv-" + Math.random().toString(36).slice(2, 8);
+  const l = el("label", "", label); l.htmlFor = id;
+  const inp = document.createElement(opts.area ? "textarea" : "input"); inp.id = id; if(!opts.area) inp.type = opts.type || "text";
+  inp.value = value || ""; if(opts.ph) inp.placeholder = opts.ph;
+  w.appendChild(l); w.appendChild(inp); form.appendChild(w); return inp;
+}
+function editBtn(label, fn){ const b = el("button", "pv-edit"); b.type = "button"; b.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>'; b.appendChild(document.createTextNode(label)); b.addEventListener("click", fn); return b; }
+function saveResume(p){ syncParcours(p); pvEdit = null; renderParcoursUI(); }
+function formRow(onSave, onDelete, extra){
+  const row = el("div", "row");
+  row.appendChild(btn("Enregistrer", "primary", onSave));
+  row.appendChild(btn("Annuler", "", () => { pvEdit = null; renderProfilView(); }));
+  (extra || []).forEach(x => row.appendChild(x));
+  if(onDelete) row.appendChild(btn("Supprimer", "small danger", onDelete));
+  return row;
 }
 function renderProfilView(){
   const box = $("#profil-view"); if(!box) return;
@@ -2666,37 +2768,120 @@ function renderProfilView(){
   const p = prof(); if(!p) return;
   if(str(p.parcours).length < 80){
     const c = card("Votre CV apparaîtra ici");
-    c.appendChild(el("p", "", "Importez votre CV actuel, ou racontez votre parcours par écrit ou à voix haute. " + BRAND.name + " vous montrera ici ce qu'il a retenu, pour que vous puissiez vérifier que rien ne manque."));
+    c.appendChild(el("p", "", "Importez votre CV actuel, ou racontez votre parcours par écrit ou à voix haute. " + BRAND.name + " le range ici en fiche, que vous pourrez vérifier et compléter."));
     box.appendChild(c); return;
   }
   const r = p.resume;
   if(analyzing === p.id){
     const c = card("", "pv-ok"); const w = el("div", "pv-wait"); w.appendChild(el("span", "spin")); const t = el("div");
-    t.appendChild(el("b", "", "CV bien reçu.")); t.appendChild(el("p", "hint", BRAND.name + " le lit pour vous montrer ce qu'il a retenu (10 à 20 secondes).")); w.appendChild(t); c.appendChild(w);
-    box.appendChild(c); return;
+    t.appendChild(el("b", "", r ? "Mise à jour de votre fiche…" : "CV bien reçu.")); t.appendChild(el("p", "hint", r ? "Quelques secondes." : BRAND.name + " le lit et le range en fiche (10 à 20 secondes).")); w.appendChild(t); c.appendChild(w);
+    box.appendChild(c); if(!r) return;
   }
   if(!r){
     const c = card("Votre CV est enregistré", "pv-ok");
-    c.appendChild(el("p", "", !settings.apiKey ? "Votre CV est bien pris en compte. Saisissez votre code d'accès (encadré « Première utilisation ») pour voir ce que " + BRAND.name + " en a retenu."
-      : p.resumeErr ? "L'aperçu n'a pas pu être préparé, mais votre CV est bien pris en compte : vous pouvez créer vos CV adaptés." : "Votre CV est bien pris en compte."));
-    if(settings.apiKey) c.appendChild(btn("Afficher ce que " + BRAND.name + " a retenu", "small", () => analyzeParcours(p)));
+    c.appendChild(el("p", "", !settings.apiKey ? "Votre CV est bien pris en compte. Saisissez votre code d'accès (encadré « Première utilisation ») pour le voir rangé en fiche."
+      : p.resumeErr ? "La fiche n'a pas pu être préparée, mais votre CV est bien pris en compte : vous pouvez créer vos CV adaptés." : "Votre CV est bien pris en compte."));
+    if(settings.apiKey) c.appendChild(btn("Ranger mon CV en fiche", "small", () => analyzeParcours(p)));
     box.appendChild(c); return;
   }
-  const ok = card("Votre CV a bien été pris en compte", "pv-ok");
-  ok.appendChild(el("p", "", "Voici ce que " + BRAND.name + " a retenu. Si quelque chose manque ou est faux, utilisez « Modifier mon CV »."));
-  box.appendChild(ok);
-  const id = card("");
-  id.appendChild(el("h2", "", str(r.nom) || str(p.name) || "Vous")); id.querySelector("h2").style.cssText = "font-family:var(--display);color:var(--brand);font-size:26px;margin:0";
-  if(str(r.titre)) id.appendChild(el("p", "", str(r.titre))).style.margin = "4px 0 0";
-  const row = el("div", "pv-id"); [r.ville, r.telephone, r.email, r.permis].map(str).filter(Boolean).forEach(t => row.appendChild(el("span", "", t))); id.appendChild(row);
-  box.appendChild(id);
-  const list = (title, items, fmt) => { const xs = arr(items).filter(Boolean); if(!xs.length) return; const c = card(title); const ul = el("ul", "pv-list"); xs.forEach(x => { const li = el("li"); fmt(li, x); ul.appendChild(li); }); c.appendChild(ul); box.appendChild(c); };
-  list("Expériences (" + arr(r.experiences).length + ")", r.experiences, (li, x) => { li.appendChild(el("b", "", str(x.poste) || "Poste")); li.appendChild(el("span", "", [x.entreprise, x.dates].map(str).filter(Boolean).join(" · "))); });
-  list("Formations", r.formations, (li, x) => { li.appendChild(el("b", "", str(x.diplome))); li.appendChild(el("span", "", [x.etablissement, x.dates].map(str).filter(Boolean).join(" · "))); });
-  const chips = (title, items) => { const xs = arr(items).map(str).filter(Boolean); if(!xs.length) return; const c = card(title); const d = el("div", "chips"); xs.forEach(t => d.appendChild(el("span", "", t))); c.appendChild(d); box.appendChild(c); };
-  chips("Compétences", r.competences); chips("Langues", r.langues);
-  const m = arr(r.manques).map(str).filter(Boolean);
-  if(m.length){ const c = card("À compléter si possible", "pv-warn"); const ul = el("ul", "fv-list"); m.forEach(t => ul.appendChild(el("li", "", t))); c.appendChild(ul); c.appendChild(btn("Ajouter ces informations", "small", () => openWrite("append"))); box.appendChild(c); }
+  if(analyzing !== p.id){
+    const ok = card("Votre CV a bien été pris en compte", "pv-ok");
+    ok.appendChild(el("p", "", "Vérifiez chaque bloc : le bouton « Modifier » corrige une information, les boutons « + Ajouter » complètent votre fiche. Tout est enregistré et servira à vos prochains CV."));
+    const m = manques(r);
+    if(m.length){ const ul = el("ul", "pv-miss"); m.forEach(t => ul.appendChild(el("li", "", t))); ok.appendChild(el("b", "", "À compléter si possible :")); ok.appendChild(ul); }
+    box.appendChild(ok);
+  }
+
+  /* Identité */
+  const idc = card("");
+  if(pvEdit === "id"){
+    const hd = el("div", "pv-head"); hd.appendChild(el("h3", "", "Mes informations")); idc.appendChild(hd);
+    const f = el("div", "pv-form");
+    const i = { nom:field(f, "Prénom et nom", r.nom), titre:field(f, "Métier recherché", r.titre), ville:field(f, "Ville", r.ville), telephone:field(f, "Téléphone", r.telephone, { type:"tel" }),
+      email:field(f, "E-mail", r.email, { type:"email" }), permis:field(f, "Permis", r.permis, { ph:"Ex. : Permis B, véhiculé" }) };
+    f.appendChild(formRow(() => { Object.keys(i).forEach(k => { r[k] = i[k].value.trim(); }); saveResume(p); }));
+    idc.appendChild(f); setTimeout(() => i.nom.focus(), 0);
+  } else {
+    const hd = el("div", "pv-head");
+    const t = el("h2", "", str(r.nom) || str(p.name) || "Vous"); t.style.cssText = "font-family:var(--display);color:var(--brand);font-size:26px;margin:0";
+    hd.appendChild(t); hd.appendChild(editBtn("Modifier", () => { pvEdit = "id"; renderProfilView(); })); idc.appendChild(hd);
+    if(str(r.titre)) idc.appendChild(el("p", "", str(r.titre))).style.margin = "0";
+    const row = el("div", "pv-id"); [r.ville, r.telephone, r.email, r.permis].map(str).filter(Boolean).forEach(x => row.appendChild(el("span", "", x))); idc.appendChild(row);
+  }
+  box.appendChild(idc);
+
+  /* Expériences et formations */
+  const listCard = (key, title, items, view, formFn, empty) => {
+    const c = card(""); const hd = el("div", "pv-head"); hd.appendChild(el("h3", "", title + (items.length ? " (" + items.length + ")" : ""))); c.appendChild(hd);
+    const ul = el("ul", "pv-list");
+    if(pvEdit === key + "-new"){ const li = el("li"); li.appendChild(formFn(null, -1)); ul.appendChild(li); }
+    items.forEach((x, i) => {
+      const li = el("li");
+      if(pvEdit === key + "-" + i) li.appendChild(formFn(x, i));
+      else { const t = el("div", "pv-t"); view(t, x); li.appendChild(t); li.appendChild(editBtn("Modifier", () => { pvEdit = key + "-" + i; renderProfilView(); })); }
+      ul.appendChild(li);
+    });
+    if(!items.length && pvEdit !== key + "-new") c.appendChild(el("p", "hint", empty));
+    c.appendChild(ul);
+    if(pvEdit !== key + "-new"){ const a = el("button", "pv-add", "+ Ajouter " + (key === "exp" ? "une expérience" : "une formation")); a.type = "button"; a.addEventListener("click", () => { pvEdit = key + "-new"; renderProfilView(); }); c.appendChild(a); }
+    box.appendChild(c);
+  };
+  if(!Array.isArray(r.experiences)) r.experiences = [];
+  if(!Array.isArray(r.formations)) r.formations = [];
+  const moveBtns = (list, i) => {
+    const out = [];
+    if(i > 0) out.push(btn("Monter", "small", () => { [list[i - 1], list[i]] = [list[i], list[i - 1]]; saveResume(p); }));
+    if(i >= 0 && i < list.length - 1) out.push(btn("Descendre", "small", () => { [list[i + 1], list[i]] = [list[i], list[i + 1]]; saveResume(p); }));
+    return out;
+  };
+  listCard("exp", "Expériences", r.experiences,
+    (t, x) => { t.appendChild(el("b", "", str(x.poste) || "Poste")); t.appendChild(el("span", "", [x.entreprise, x.lieu, x.dates].map(str).filter(Boolean).join(" · "))); const n = arr(x.missions).length; if(n) t.appendChild(el("span", "", n + " mission" + (n > 1 ? "s" : "") + " décrite" + (n > 1 ? "s" : ""))); },
+    (x, i) => {
+      const f = el("div", "pv-form"); x = x || {};
+      const a = { poste:field(f, "Poste", x.poste), entreprise:field(f, "Entreprise", x.entreprise, { ph:"Ex. : Super U" }), lieu:field(f, "Ville", x.lieu), dates:field(f, "Dates", x.dates, { ph:"Ex. : 2020 – 2025, ou Depuis 2024" }) };
+      const mi = field(f, "Ce que vous faisiez (une ligne par tâche ou résultat)", arr(x.missions).join("\n"), { area:true, full:true, ph:"Mise en rayon des produits frais\nRéception d'environ 2 palettes par jour" });
+      f.appendChild(formRow(() => {
+        const o = { poste:a.poste.value.trim(), entreprise:a.entreprise.value.trim(), lieu:a.lieu.value.trim(), dates:a.dates.value.trim(), missions:mi.value.split("\n").map(s => s.trim()).filter(Boolean) };
+        if(!o.poste){ a.poste.focus(); return; }
+        if(i < 0) r.experiences.unshift(o); else r.experiences[i] = o; saveResume(p);
+      }, i < 0 ? null : () => { if(confirm("Supprimer cette expérience ?")){ r.experiences.splice(i, 1); saveResume(p); } }, i < 0 ? [] : moveBtns(r.experiences, i)));
+      setTimeout(() => a.poste.focus(), 0); return f;
+    }, "Aucune expérience pour l'instant.");
+  listCard("form", "Formations", r.formations,
+    (t, x) => { t.appendChild(el("b", "", str(x.diplome) || "Diplôme")); t.appendChild(el("span", "", [x.etablissement, x.dates].map(str).filter(Boolean).join(" · "))); },
+    (x, i) => {
+      const f = el("div", "pv-form"); x = x || {};
+      const a = { diplome:field(f, "Diplôme ou formation", x.diplome, { full:true, ph:"Ex. : CAP Employé de vente" }), etablissement:field(f, "Établissement", x.etablissement), dates:field(f, "Année", x.dates) };
+      f.appendChild(formRow(() => {
+        const o = { diplome:a.diplome.value.trim(), etablissement:a.etablissement.value.trim(), dates:a.dates.value.trim() };
+        if(!o.diplome){ a.diplome.focus(); return; }
+        if(i < 0) r.formations.unshift(o); else r.formations[i] = o; saveResume(p);
+      }, i < 0 ? null : () => { if(confirm("Supprimer cette formation ?")){ r.formations.splice(i, 1); saveResume(p); } }, i < 0 ? [] : moveBtns(r.formations, i)));
+      setTimeout(() => a.diplome.focus(), 0); return f;
+    }, "Aucune formation pour l'instant.");
+
+  /* Compétences, langues, certifications, centres d'intérêt */
+  const PH = { competences:"Ex. : Mise en rayon", langues:"Ex. : Anglais — notions", certifications:"Ex. : CACES R489 cat. 1", interets:"Ex. : Couture" };
+  Object.keys(LISTS).forEach(k => {
+    if(!Array.isArray(r[k])) r[k] = [];
+    const c = card(LISTS[k]);
+    const d = el("div", "chips");
+    r[k].forEach((t, i) => {
+      const s = el("span", "", str(t));
+      const x = el("button", "x", "×"); x.type = "button"; x.setAttribute("aria-label", "Retirer « " + str(t) + " »");
+      x.addEventListener("click", () => { r[k].splice(i, 1); syncParcours(p); renderProfilView(); });
+      s.appendChild(x); d.appendChild(s);
+    });
+    if(!r[k].length) d.appendChild(el("p", "hint", "Rien pour l'instant."));
+    c.appendChild(d);
+    const add = el("form", "chip-add");
+    const inp = document.createElement("input"); inp.type = "text"; inp.placeholder = PH[k]; inp.setAttribute("aria-label", "Ajouter : " + LISTS[k]);
+    const b = el("button", "btn", "Ajouter"); b.type = "submit";
+    add.appendChild(inp); add.appendChild(b);
+    add.addEventListener("submit", e => { e.preventDefault(); const v = inp.value.trim(); if(!v) return; v.split(/\s*[,;]\s*/).filter(Boolean).forEach(x => r[k].push(x)); syncParcours(p); renderProfilView(); const again = $("#profil-view").querySelector('input[aria-label="Ajouter : ' + LISTS[k] + '"]'); if(again) again.focus(); });
+    c.appendChild(add);
+    box.appendChild(c);
+  });
 }
 
 /* ===================== Fiche d'une candidature ===================== */
