@@ -2629,6 +2629,8 @@ function profileText(r){
 }
 function syncParcours(p){
   if(!p.resume){ return; }
+  // Profils créés avant la fiche : on garde le texte d'origine du CV, pour ne perdre aucun détail
+  if(!p.parcoursRaw && str(p.parcours) && !/^Fiche du candidat/.test(p.parcours)) p.parcoursRaw = p.parcours;
   const raw = str(p.parcoursRaw);
   p.parcours = "Fiche du candidat, vérifiée et corrigée par lui (elle fait foi) :\n" + profileText(p.resume) +
     (raw ? "\n\n--- Texte d'origine de son CV, à n'utiliser que pour des détails absents de la fiche ; en cas de différence, la fiche fait foi ---\n" + raw : "");
