@@ -426,6 +426,40 @@ body[data-view="profile"] [data-v]:not([data-v~="profile"]){display:none!importa
 @media (prefers-reduced-motion:reduce){.save-fab{animation:none}}
 @media (max-width:560px){.save-fab{bottom:96px}}
 
+/* Fenêtre d'aide « Comment modifier mon CV ? » (affichée une fois, puis via le lien près du CV) */
+.overlay.hlp{z-index:110;padding:16px}
+.hlp-box{background:#fff;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:100%;max-width:440px;max-height:100%;overflow:auto;padding:22px 22px 20px;text-align:center}
+.hlp-box h2{margin:0 0 12px;font-size:21px;color:var(--brand)}
+.hlp-box p{margin:14px 0 18px;font-size:16px;line-height:1.5}
+.hlp-box .btn{min-height:48px;min-width:160px;font-size:16px}
+.hlp-demo{display:flex;justify-content:center}
+.hd-page{position:relative;width:210px;height:150px;background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.12);padding:14px 16px;text-align:left;overflow:hidden;isolation:isolate}
+.hd-bar{height:14px;width:55%;border-radius:3px;background:var(--brand);margin-bottom:12px}
+.hd-line{height:7px;border-radius:3px;background:#E3D8E6;margin-bottom:9px}
+.hd-line.w80{width:80%} .hd-line.w60{width:60%} .hd-line.w90{width:90%} .hd-line.w70{width:70%}
+.hd-edit{position:relative;background:#cdbfd2}
+.hd-edit::before{content:"";position:absolute;inset:-4px -5px;border-radius:5px;background:var(--accent-soft);border:2px solid var(--accent);z-index:-1;opacity:0;animation:hdglow 4s ease-out infinite}
+.hd-caret{position:absolute;left:calc(100% + 3px);top:-3px;width:2px;height:13px;background:var(--brand);opacity:0;animation:hdcaret 4s linear infinite}
+.hd-cursor{position:absolute;left:0;top:0;width:22px;height:22px;opacity:0;animation:hdmove 4s ease-out infinite;pointer-events:none}
+.hd-cursor svg{display:block;width:22px;height:22px}
+.hd-ring{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;border:2px solid var(--accent);opacity:0;animation:hdring 4s ease-out infinite}
+@keyframes hdmove{0%{opacity:0;transform:translate(150px,118px)}12%{opacity:1;transform:translate(150px,118px)}38%{opacity:1;transform:translate(84px,58px)}85%{opacity:1;transform:translate(84px,58px)}100%{opacity:0;transform:translate(84px,58px)}}
+@keyframes hdring{0%,38%{opacity:0;transform:scale(.4)}42%{opacity:.9;transform:scale(.6)}56%{opacity:0;transform:scale(1.6)}100%{opacity:0;transform:scale(1.6)}}
+@keyframes hdglow{0%,40%{opacity:0}48%{opacity:1}88%{opacity:1}100%{opacity:0}}
+@keyframes hdcaret{0%,48%{opacity:0}50%{opacity:1}58%{opacity:0}66%{opacity:1}74%{opacity:0}82%{opacity:1}90%,100%{opacity:0}}
+.hd-fix{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 20px;border-radius:16px;border:1px solid #E2D3C3;background:#fff;color:var(--ink);font:inherit;font-weight:600;font-size:15.5px}
+.hd-fix::after,.m-fix-pulse::after{content:"";position:absolute;inset:-4px;border-radius:19px;border:3px solid var(--accent);opacity:0;pointer-events:none;animation:fixring 1.4s ease-out infinite}
+@keyframes fixring{0%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(1.07)}}
+.m-fix-pulse{position:relative}
+.m-fix-pulse::after{animation-iteration-count:3}
+.hlp-link[hidden]{display:none}
+.hlp-link{display:block;margin:0 0 10px;min-height:44px;padding:0;color:var(--brand);text-decoration:underline;font-size:14px}
+@media (prefers-reduced-motion:reduce){
+  .hd-edit::before{animation:none;opacity:1} .hd-caret{animation:none;opacity:1} .hd-cursor,.hd-ring{animation:none;opacity:0}
+  .hd-fix::after,.m-fix-pulse::after{animation:none;opacity:.9}
+}
+@media print{ .overlay.hlp{display:none!important} }
+
 /* Bulle « Demande à Claude ! » */
 .fab{position:fixed;right:22px;bottom:22px;width:62px;height:62px;border-radius:50%;border:0;background:var(--brand);color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(31,78,121,.35);display:grid;place-items:center;z-index:50;transition:transform .15s}
 .fab:hover{transform:scale(1.06)}
@@ -725,6 +759,89 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 .custom-pal input[type=color]{width:34px;height:34px;padding:0;border:1px solid #E2D3C3;border-radius:50%;background:none;cursor:pointer;overflow:hidden}
 .custom-pal input[type=color]::-webkit-color-swatch-wrapper{padding:0}
 .custom-pal input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}
+
+/* ================= Synchronisation entre appareils ================= */
+.sync-warn{background:var(--accent-soft);border:1px solid #F4D38F;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.45;margin:10px 0 12px;color:#4A3207}
+#step-backup input[type=email],#step-backup input[type=password]{min-height:46px;font-size:16px}
+.sync-check{display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:14px;margin-top:12px;min-height:44px;cursor:pointer}
+.sync-check input{width:24px;height:24px;flex:none;margin:0}
+#step-backup .btn{min-height:46px}
+#step-backup .btn.small{min-height:40px}
+.sync-link{min-height:44px;padding:0 6px;font-size:14px}
+.sync-backup{display:flex;flex-wrap:wrap;align-items:center;gap:0 4px;margin-top:6px}
+.sync-state{display:flex;align-items:center;gap:8px;margin:0 0 4px;font-size:15px}
+.sync-dot{width:10px;height:10px;border-radius:50%;background:var(--ok);flex:none}
+.sync-dot.wait{background:var(--accent)} .sync-dot.err{background:var(--danger)} .sync-dot.off{background:#9a8aa0}
+.sync-pill{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--muted);font:600 12px 'Figtree',system-ui,sans-serif;padding:0 2px;min-height:28px;cursor:pointer;margin:-2px 0 6px}
+.sync-pill[hidden]{display:none}
+.sync-pill .sync-dot{width:8px;height:8px}
+.sync-pill:hover{color:var(--brand)}
+.sync-pill:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.sync-rgpd{margin:14px 0 4px;font-size:13px;color:var(--muted)}
+.sync-rgpd summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center;color:var(--brand)}
+.sync-rgpd p{margin:6px 0;line-height:1.45}
+.sync-dlg-btns{display:flex;flex-direction:column;gap:10px;margin:0 0 6px}
+.sync-dlg-btns .btn{min-height:50px;width:100%;font-size:15.5px;white-space:normal;line-height:1.25;padding:10px 14px}
+.sync-dlg-btns .btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+#sync-dlg-link{display:block;margin:4px auto 0}
+#sync-dlg-link[hidden]{display:none}
+.sync-toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:60;display:flex;align-items:center;gap:10px;background:var(--brand);color:#fff;border-radius:999px;padding:8px 8px 8px 18px;font-size:14.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:calc(100vw - 24px)}
+.sync-toast[hidden]{display:none}
+.sync-toast .btn{min-height:44px;background:var(--accent);border-color:var(--accent);color:#2A1A2F;border-radius:999px;font-weight:700}
+@media (max-width:700px){ .sync-toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))} }
+@media print{ .sync-pill,.sync-toast{display:none!important} }
+
+/* ================= Animations légères =================
+   Règles : opacity + transform seulement, 150 à 260 ms (page : 260 ms), ease-out.
+   Tout est coupé si l'appareil demande moins de mouvement, et rien ne s'applique à l'impression / au PDF. */
+@media screen and (prefers-reduced-motion:no-preference){
+  @keyframes mo-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes mo-in-soft{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @keyframes mo-fade{from{opacity:0}to{opacity:1}}
+  @keyframes mo-pop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+  @keyframes mo-chip{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:none}}
+  @keyframes mo-slide{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+  @keyframes mo-tab{from{transform:scale(.82)}to{transform:none}}
+  @keyframes mo-g-fade{from{opacity:1}to{opacity:0}}
+  @keyframes mo-g-pop{from{opacity:1;transform:none}to{opacity:0;transform:translateY(6px) scale(.98)}}
+  @keyframes mo-g-chip{from{opacity:1;transform:none}to{opacity:0;transform:scale(.8)}}
+  @keyframes mo-g-slide{from{opacity:1;transform:none}to{opacity:0;transform:translateX(16px)}}
+
+  /* Changement de vue (Créer / Candidatures / Mon profil) : ce qui s'affiche arrive en douceur */
+  .panel [data-v]:not(.panel-foot),
+  #fiche-view:not([hidden]), #profil-view:not([hidden]),
+  #tabs:not([hidden]), #alertes:not([hidden]), #empty:not([hidden]), #edit-hint:not([hidden]), #help-link:not([hidden]){animation:mo-in 240ms ease-out}
+  body.m .preview{animation:mo-in 240ms ease-out}                 /* téléphone : passage « offre → CV » */
+  .m-cv-actions{animation:mo-in 220ms ease-out}
+  /* Sous-onglets CV / Lettre et apparition du CV généré : le CV reste lisible tout de suite (départ à 35 %) */
+  @keyframes mo-in-soft-b{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .page-holder:not([hidden]){animation:mo-in-soft 200ms ease-out}
+  .page-holder.mo-r2{animation-name:mo-in-soft-b}   /* on alterne mo-r1 / mo-r2 pour relancer l'animation d'un CV régénéré */
+  /* Cartes et listes (ajoutées seulement le temps d'un changement de vue ou de sous-onglet) */
+  body.mo-run #fiche-view > .fv-card, body.mo-run #profil-view > .fv-card,
+  body.mo-run #hist > li, body.mo-run .board > *, body.mo-sub #fiche-view > .fv-card{animation:mo-in 200ms ease-out backwards}
+  body.mo-run #hist > li:nth-child(2), body.mo-run .board > :nth-child(2), body.mo-run #fiche-view > .fv-card:nth-of-type(2), body.mo-run #profil-view > .fv-card:nth-of-type(2), body.mo-sub #fiche-view > .fv-card:nth-of-type(2){animation-delay:25ms}
+  body.mo-run #hist > li:nth-child(3), body.mo-run .board > :nth-child(3), body.mo-run #fiche-view > .fv-card:nth-of-type(3), body.mo-run #profil-view > .fv-card:nth-of-type(3), body.mo-sub #fiche-view > .fv-card:nth-of-type(3){animation-delay:50ms}
+  body.mo-run #hist > li:nth-child(4), body.mo-run .board > :nth-child(4), body.mo-run #fiche-view > .fv-card:nth-of-type(4), body.mo-run #profil-view > .fv-card:nth-of-type(4), body.mo-sub #fiche-view > .fv-card:nth-of-type(4){animation-delay:75ms}
+  body.mo-run #hist > li:nth-child(n+5), body.mo-run #fiche-view > .fv-card:nth-of-type(n+5), body.mo-run #profil-view > .fv-card:nth-of-type(n+5), body.mo-sub #fiche-view > .fv-card:nth-of-type(n+5){animation-delay:100ms}
+  /* Barres d'onglets : l'onglet choisi « se pose » */
+  .view-tab[aria-selected="true"], .tabbar button[aria-selected="true"] svg, .fv-seg button[aria-selected="true"]{animation:mo-tab 180ms ease-out}
+  /* Coach */
+  body.chat-open .chat{animation:mo-slide 220ms ease-out}
+  /* Pop-ups */
+  .overlay:not([hidden]){animation:mo-fade 180ms ease-out}
+  .overlay:not([hidden]) > .dialog, .overlay:not([hidden]) > .hlp-box{animation:mo-pop 220ms ease-out}
+  /* Pastilles de compétences */
+  .mo-pop{animation:mo-chip 180ms ease-out}
+  /* Fantômes de sortie : copie figée de l'élément qui vient de disparaître, qui s'efface puis se retire (jamais cliquable) */
+  .mo-ghost{position:fixed;z-index:130;pointer-events:none;box-sizing:border-box}
+  .mo-ghost.mo-g-fade{animation:mo-g-fade 170ms ease-out forwards}
+  .mo-ghost.mo-g-fade > .dialog, .mo-ghost.mo-g-fade > .hlp-box{animation:mo-g-pop 170ms ease-out forwards}
+  .mo-ghost.mo-g-slide{animation:mo-g-slide 170ms ease-out forwards}
+  .mo-ghost.mo-g-chip{animation:mo-g-chip 150ms ease-out forwards;display:inline-flex;align-items:center;gap:4px;background:var(--lilas);color:var(--brand);border-radius:999px;padding:5px 11px;font-size:13.5px;font-weight:600}
+  .mo-ghost.mo-g-chip .x{border:0;background:none;color:var(--brand);width:24px;height:24px;margin-right:-4px;font-size:16px;line-height:1;display:grid;place-items:center}
+}
+@media print{ .mo-ghost{display:none!important} }
 </style>
 </head>
 <body>
@@ -734,6 +851,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 <aside class="panel app-ui">
   <div class="brand"><svg class="logo" width="40" height="40" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name" data-brand>Jalon</span></div>
   <p class="sub" data-brand-sig>Chaque étape, jusqu'au poste.</p>
+  <button class="sync-pill app-ui" id="sync-pill" type="button" data-goto="profile" hidden><span class="sync-dot" aria-hidden="true"></span><span id="sync-pill-txt"></span></button>
   <nav class="views" role="tablist" aria-label="Sections de Jalon">
     <button class="view-tab" role="tab" type="button" data-view="create" aria-selected="true">Créer</button>
     <button class="view-tab" role="tab" type="button" data-view="apps" aria-selected="false">Mes candidatures <span class="badge" id="nav-badge" hidden></span></button>
@@ -881,15 +999,53 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   </div>
 
   <div class="step" data-v="profile" id="step-backup">
-    <h2><span class="num"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></span> Sauvegarde</h2>
-    <p class="hint" style="margin-top:0">Votre parcours, vos CV et le suivi de vos candidatures sont enregistrés sur cet appareil uniquement. Téléchargez une sauvegarde pour ne rien perdre, ou pour tout retrouver sur un autre appareil.</p>
-    <p class="hint warn-ios" id="ios-warn" hidden><b>iPhone et iPad :</b> Safari peut effacer les données d'un site après 7 jours sans visite. Faites une sauvegarde chaque semaine.</p>
-    <div class="row" style="margin-top:10px">
-      <button class="btn primary" id="btn-backup" type="button">Télécharger ma sauvegarde</button>
-      <button class="btn" id="btn-restore" type="button">Restaurer</button>
+    <h2><span class="num"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span> Retrouver <span data-brand>Jalon</span> sur tous mes appareils</h2>
+
+    <div id="sync-off">
+      <p class="hint" style="margin-top:0">Choisissez un identifiant (votre e-mail) et un mot de passe. Sur un autre appareil, entrez les mêmes : vous retrouvez votre parcours, vos CV, vos candidatures et votre suivi.</p>
+      <div class="sync-warn" role="note"><b>À lire avant de commencer.</b> Vos données sont verrouillées avec votre mot de passe, sur votre appareil, avant d'être envoyées. Personne d'autre ne peut les lire, pas même <span data-brand>Jalon</span>. <b>Conséquence : si vous oubliez ce mot de passe, vos données en ligne sont perdues pour toujours, personne ne peut les récupérer.</b> Gardez-le dans un endroit sûr (le gestionnaire de mots de passe de votre téléphone, par exemple).</div>
+      <form id="sync-form" autocomplete="on" novalidate>
+        <label for="sync-mail">Identifiant (votre e-mail)</label>
+        <input type="email" id="sync-mail" name="username" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="prenom.nom@exemple.fr">
+        <label for="sync-pw">Mot de passe (8 caractères minimum)</label>
+        <input type="password" id="sync-pw" name="password" autocomplete="current-password" minlength="8">
+        <div id="sync-new" hidden>
+          <label for="sync-pw2">Retapez le mot de passe</label>
+          <input type="password" id="sync-pw2" name="password2" autocomplete="new-password">
+          <label class="sync-check"><input type="checkbox" id="sync-ok"><span>J'ai compris : si j'oublie ce mot de passe, mes données en ligne sont perdues.</span></label>
+        </div>
+        <div class="row" style="margin-top:12px"><button class="btn primary" type="submit" id="sync-go">Activer la synchronisation</button></div>
+      </form>
     </div>
+
+    <div id="sync-on" hidden>
+      <p class="sync-state"><span class="sync-dot" id="sync-dot" aria-hidden="true"></span><b id="sync-line" role="status" aria-live="polite">Synchronisation activée</b></p>
+      <p class="hint" id="sync-who" style="margin-top:0"></p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="sync-now" type="button">Synchroniser maintenant</button>
+        <button class="btn" id="sync-out" type="button">Se déconnecter de cet appareil</button>
+      </div>
+      <p class="hint" style="margin-top:8px">Se déconnecter garde vos données sur cet appareil et en ligne. Le code d'accès à <span data-brand>Jalon</span> n'est jamais synchronisé : il reste propre à chaque appareil.</p>
+      <button class="link danger sync-link" id="sync-del" type="button">Supprimer mes données en ligne</button>
+    </div>
+
+    <div class="status" id="sync-msg" role="status"></div>
+
+    <details class="sync-rgpd">
+      <summary>Vos données et vos droits</summary>
+      <p><b>Ce qui est enregistré en ligne :</b> un bloc de données chiffré sur votre appareil avec votre mot de passe (parcours, CV, lettres, suivi, objectifs), un identifiant haché dérivé de votre e-mail, et des dates techniques. <span data-brand>Jalon</span> ne reçoit jamais votre e-mail, votre mot de passe ni le contenu lisible de vos documents.</p>
+      <p><b>Hébergement :</b> Cloudflare. <b>Durée :</b> tant que vous utilisez la synchronisation ; sans aucune connexion pendant 400 jours (environ 13 mois), le bloc est supprimé automatiquement.</p>
+      <p><b>Vos droits :</b> supprimer vos données en ligne à tout moment avec le bouton ci-dessus ; récupérer une copie avec « Exporter mes données » ci-dessous. Pour toute question : jalon.emploi@gmail.com (responsable du service : Maxence Pemjean).</p>
+    </details>
+
+    <p class="hint sync-backup">
+      <button class="link sync-link" id="btn-backup" type="button">Exporter mes données</button>
+      <span aria-hidden="true">·</span>
+      <button class="link sync-link" id="btn-restore" type="button">Importer un fichier</button>
+      <span id="backup-last"></span>
+    </p>
+    <p class="hint warn-ios" id="ios-warn" hidden><b>iPhone et iPad :</b> Safari peut effacer les données d'un site après 7 jours sans visite. La synchronisation vous protège ; sinon, exportez vos données chaque semaine.</p>
     <input type="file" id="file-restore" accept=".json,application/json" hidden>
-    <p class="hint" id="backup-last"></p>
     <div class="status" id="status-backup"></div>
   </div>
 
@@ -912,6 +1068,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
     <button class="link" id="m-new" type="button">Créer un CV pour une autre offre</button>
   </div>
   <p class="edit-hint app-ui" id="edit-hint" hidden>Astuce : cliquez directement dans le CV pour corriger un mot. Vos modifications sont enregistrées.</p>
+  <button class="link hlp-link app-ui" id="help-link" type="button" hidden>Comment modifier mon CV ?</button>
   <div class="empty app-ui" id="empty">
     <svg class="logo" width="56" height="56" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg>
     <h2>Jamais seul face à une candidature.</h2>
@@ -967,6 +1124,27 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 2.5c-5.25 0-9.5 3.8-9.5 8.5 0 2.3 1 4.4 2.7 5.9L4.3 21l4.6-2.1c.97.27 2 .4 3.1.4 5.25 0 9.5-3.8 9.5-8.5S17.25 2.5 12 2.5z"/><circle cx="7.9" cy="11" r="1.35" fill="var(--accent)"/><circle cx="12" cy="11" r="1.35" fill="var(--accent)"/><circle cx="16.1" cy="11" r="1.35" fill="var(--accent)"/></svg>
   <span class="tip">Demande à <span data-brand>Jalon</span> !</span>
 </button>
+
+<!-- ================= SYNCHRO : CHOIX À FAIRE ================= -->
+<div class="overlay hlp app-ui" id="sync-dlg" hidden>
+  <div class="hlp-box" role="dialog" aria-modal="true" aria-labelledby="sync-dlg-title" aria-describedby="sync-dlg-desc">
+    <h2 id="sync-dlg-title"></h2>
+    <p id="sync-dlg-desc"></p>
+    <div class="sync-dlg-btns" id="sync-dlg-btns"></div>
+    <button class="link sync-link" id="sync-dlg-link" type="button" hidden></button>
+  </div>
+</div>
+<div class="sync-toast app-ui" id="sync-toast" role="status" hidden><span id="sync-toast-txt"></span> <button class="btn small primary" id="sync-toast-go" type="button">Actualiser</button></div>
+
+<!-- ================= AIDE : COMMENT MODIFIER MON CV ================= -->
+<div class="overlay hlp app-ui" id="help" hidden>
+  <div class="hlp-box" role="dialog" aria-modal="true" aria-labelledby="help-title" aria-describedby="help-desc">
+    <h2 id="help-title">Comment modifier mon CV ?</h2>
+    <div class="hlp-demo" id="help-demo" aria-hidden="true"></div>
+    <p id="help-desc"></p>
+    <button class="btn primary" id="help-ok" type="button">J'ai compris</button>
+  </div>
+</div>
 
 <!-- ================= PRÉPARER MA CANDIDATURE ================= -->
 <div class="overlay app-ui" id="ap" hidden>
@@ -1036,13 +1214,60 @@ const ICON = {
 };
 
 /* ---------- Stockage local ---------- */
+/* Données qui voyagent d'un appareil à l'autre (jamais le code d'accès, ni la vue, ni les réglages propres à l'appareil) */
+const SYNC_KEYS = ["profiles", "currentProfile", "history", "pins", "suivi", "goal", "settings"];
+let syncSt = null, syncApplying = false, syncTimer = 0;   // état de la synchro (voir « Synchronisation entre appareils »)
 const store = {
   get(k, d){ try{ const v = localStorage.getItem("cvx_"+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem("cvx_"+k, JSON.stringify(v)); return true; }
-    catch(e){ alert("Impossible d'enregistrer (mémoire du navigateur pleine ou navigation privée). Supprimez d'anciens CV de l'historique."); return false; } }
+  set(k, v){
+    let changed = false;
+    try{ const s = JSON.stringify(v), prev = localStorage.getItem("cvx_"+k); localStorage.setItem("cvx_"+k, s); changed = prev !== s; }
+    catch(e){ alert("Impossible d'enregistrer (mémoire du navigateur pleine ou navigation privée). Supprimez d'anciens CV de l'historique."); return false; }
+    if(changed && syncSt && SYNC_KEYS.includes(k)) syncDirty();
+    return true;
+  }
 };
+syncSt = store.get("sync", null);
 const $ = s => document.querySelector(s);
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+/* ---------- Animations légères (le style est dans le CSS ; ici, seulement les sorties et les relances) ---------- */
+const moQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+const moOK = () => !moQuery.matches;
+const moTimers = {};
+let moNewChip = "";
+/* Ajoute une classe au <body> le temps d'un changement de vue : les cartes et listes affichées arrivent en douceur */
+function moRun(cls){
+  if(!moOK()) return;
+  document.body.classList.add(cls); clearTimeout(moTimers[cls]);
+  moTimers[cls] = setTimeout(() => document.body.classList.remove(cls), 520);
+}
+/* Relance l'animation d'entrée d'un bloc déjà affiché (ex. CV régénéré) */
+function moReplay(n){ if(n && moOK()) n.classList.toggle("mo-r2"); }
+/* Sortie en douceur : on fige une copie de l'élément à l'écran, elle s'efface puis disparaît. L'état réel change tout de suite. */
+function ghostOut(src, kind){
+  try{
+    if(!moOK() || !src || src.hidden) return;
+    const r = src.getBoundingClientRect(); if(!r.width || !r.height) return;
+    const g = src.cloneNode(true);
+    g.removeAttribute("id"); g.removeAttribute("hidden");
+    g.querySelectorAll("[id]").forEach(n => n.removeAttribute("id"));
+    g.setAttribute("aria-hidden", "true"); g.setAttribute("inert", "");
+    g.classList.add("mo-ghost", "mo-g-" + kind, "app-ui");
+    const s = g.style;
+    s.position = "fixed"; s.margin = "0"; s.top = r.top + "px"; s.left = r.left + "px"; s.right = "auto"; s.bottom = "auto";
+    s.width = r.width + "px"; s.height = r.height + "px"; s.display = getComputedStyle(src).display;
+    document.body.appendChild(g);
+    const rm = () => { if(g.parentNode) g.remove(); };
+    g.addEventListener("animationend", e => { if(e.target === g) rm(); });
+    setTimeout(rm, 600);
+  }catch(e){}
+}
+/* Retrait d'une pastille de compétence : la pastille s'efface avant que la liste ne se redessine */
+document.addEventListener("click", e => {
+  const x = e.target && e.target.closest ? e.target.closest(".profil-view .chips .x") : null;
+  if(x && x.parentElement) ghostOut(x.parentElement, "chip");
+}, true);
 
 const COLORS = ["#1f4e79","#0f766e","#7a2e5a","#374151","#9a3412","#3f3f8f"];
 /* Palettes de CV : bandeau sombre + couleur des titres (la teinte de la colonne en découle) */
@@ -1508,6 +1733,7 @@ $("#btn-generate").addEventListener("click", async () => {
     out._userMsg = { parcours, wantLettre, url };
     storeResult(p, out);
     setMStep("cv"); if(isM()) window.scrollTo({ top:0, behavior:"smooth" });
+    maybeShowHelp();
     $("#remarques").value = "";
     status("#status-gen", "ok", "C'est prêt ! Relisez le CV à droite. Corrigez directement dans le document, ou expliquez ce qui ne va pas ci-dessous.");
   }catch(e){
@@ -1701,15 +1927,16 @@ function renderAll(out, html){
   else { hasL = renderLettre(out); if(hasL && html && html.lettreFrame) restoreLettreFrame(html.lettreFrame); }
   $("#tab-lettre").hidden = !hasL;
   $("#btn-pdf-lettre").hidden = !hasL; $("#btn-copy-lettre").hidden = !hasL;
-  $("#empty").hidden = true; $("#tabs").hidden = false; $("#step-dl").hidden = false; $("#edit-hint").hidden = false; $("#feedback-box").hidden = false;
+  $("#empty").hidden = true; $("#tabs").hidden = false; $("#step-dl").hidden = false; $("#edit-hint").hidden = false; $("#help-link").hidden = false; $("#feedback-box").hidden = false;
   $("#btn-regen").textContent = regenLabel();
   renderSettings(); applyLook(); showTab("cv"); refreshValidate(); refreshVersions();
+  moReplay($("#holder-cv"));   // CV régénéré ou rouvert : il « se pose » sans jamais être masqué
   if(document.body.classList.contains("chat-open")) renderChat();
 }
 
 function showEmpty(){
   currentHistId = null;
-  $("#empty").hidden = false; $("#tabs").hidden = true; $("#step-dl").hidden = true; $("#alertes").hidden = true; $("#edit-hint").hidden = true; $("#feedback-box").hidden = true;
+  $("#empty").hidden = false; $("#tabs").hidden = true; $("#step-dl").hidden = true; $("#alertes").hidden = true; $("#edit-hint").hidden = true; $("#help-link").hidden = true; $("#feedback-box").hidden = true;
   renderSettings(); refreshValidate();
   $("#holder-cv").hidden = true; $("#holder-lettre").hidden = true;
   if(document.body.classList.contains("chat-open")) renderChat();
@@ -2233,6 +2460,7 @@ async function sendChat(text){
 }
 
 function openChat(open){
+  if(!open && document.body.classList.contains("chat-open")) ghostOut($("#chat"), "slide");
   document.body.classList.toggle("chat-open", open);
   if(typeof syncTabbar === "function") setTimeout(syncTabbar, 0);
   if(open){ renderChat(); setTimeout(() => $("#chat-input").focus(), 50); }
@@ -2533,6 +2761,7 @@ function openApply(){
   $("#ap-close").focus();
 }
 function closeApply(){
+  ghostOut($("#ap"), "fade");
   $("#ap").hidden = true; document.body.classList.remove("modal-open");
   $("#ap-h-cv").innerHTML = ""; $("#ap-h-l").innerHTML = "";
   refreshValidate(); fitVisible(); renderHistory();
@@ -2552,12 +2781,14 @@ function setSub(s){
   const h = curHist();
   if(!h || h.manual) s = "suivi";
   if(s === "lettre" && h && !h.lettreHtml) s = "cv";
+  if(s !== document.body.dataset.sub) moRun("mo-sub");
   document.body.dataset.sub = s;
   if(h && !h.manual) document.body.dataset.hasDoc = "1"; else delete document.body.dataset.hasDoc;
   if(s === "cv" || s === "lettre"){ showTab(s); refreshValidate(); }
 }
 function setView(v){
   if(!["create", "apps", "profile"].includes(v)) v = "create";
+  if(v !== document.body.dataset.view) moRun("mo-run");
   const cur = curHist();
   if(v !== "apps" && cur && cur.manual) showEmpty();
   if(v === "create" && curHist()) showTab(document.body.dataset.sub === "lettre" ? "lettre" : "cv");
@@ -2626,6 +2857,62 @@ $("#m-fix").addEventListener("click", () => {
   setTimeout(() => { fb.scrollIntoView({ behavior:"smooth", block:"start" }); $("#remarques").focus(); }, 60);
 });
 $("#m-new").addEventListener("click", () => { $("#offre").value = ""; $("#offre-url").value = ""; showEmpty(); setMStep("offre"); window.scrollTo({ top:0 }); });
+
+
+/* ===================== Aide « Comment modifier mon CV ? » ===================== */
+/* Affichée une seule fois par appareil, après la première génération réussie ; ensuite via le lien près du CV */
+const HELP_CURSOR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 2l15 9-6.5 1.6L9 19z" fill="#2A1A2F" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+let helpReturnFocus = null;
+function fillHelp(){
+  const m = isM();
+  $("#help-demo").innerHTML = m
+    ? '<span class="hd-fix"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg>Je veux changer quelque chose</span>'
+    : '<div class="hd-page"><div class="hd-bar"></div><div class="hd-line w80"></div><div class="hd-line hd-edit w60"><span class="hd-caret"></span></div><div class="hd-line w90"></div><div class="hd-line w70"></div><div class="hd-cursor">' + HELP_CURSOR + '<span class="hd-ring"></span></div></div>';
+  $("#help-desc").textContent = m
+    ? "Quelque chose ne vous plaît pas ? Touchez « Je veux changer quelque chose » et dites-le, à l'écrit ou à la voix."
+    : "Vous pouvez modifier votre CV directement : cliquez sur n'importe quel texte et écrivez. Pensez ensuite à « Enregistrer mes retouches ».";
+}
+function helpFocusables(){ return [...$("#help").querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")].filter(n => !n.disabled && !n.hidden); }
+function openHelp(){
+  if(!$("#help").hidden) return;
+  helpReturnFocus = document.activeElement;
+  fillHelp();
+  $("#help").hidden = false; document.body.classList.add("modal-open");
+  $("#help-ok").focus({ preventScroll:true });
+}
+function closeHelp(){
+  if($("#help").hidden) return;
+  ghostOut($("#help"), "fade");
+  $("#help").hidden = true; document.body.classList.remove("modal-open");
+  const back = helpReturnFocus; helpReturnFocus = null;
+  if(isM()){
+    const fix = $("#m-fix");
+    if(fix && fix.offsetParent){ fix.classList.add("m-fix-pulse"); setTimeout(() => fix.classList.remove("m-fix-pulse"), 4500); }
+  } else if(back && back.focus && document.contains(back)){ try{ back.focus({ preventScroll:true }); }catch(e){} }
+}
+function maybeShowHelp(){
+  if(store.get("helpSeen", false)) return;
+  setTimeout(() => {
+    if(store.get("helpSeen", false) || !$("#ap").hidden) return;
+    if(document.body.dataset.view !== "create" || ($("#holder-cv").hidden && $("#holder-lettre").hidden)) return;
+    store.set("helpSeen", true);
+    openHelp();
+  }, 700);   // le CV s'affiche d'abord, l'aide arrive après
+}
+$("#help-ok").addEventListener("click", closeHelp);
+$("#help-link").addEventListener("click", openHelp);
+$("#help").addEventListener("mousedown", e => { if(e.target === $("#help")) closeHelp(); });
+document.addEventListener("keydown", e => {
+  if($("#help").hidden) return;
+  if(e.key === "Escape"){ e.preventDefault(); closeHelp(); return; }
+  if(e.key === "Tab"){
+    const f = helpFocusables(); if(!f.length) return;
+    const first = f[0], last = f[f.length - 1], a = document.activeElement;
+    if(!$("#help").contains(a)){ e.preventDefault(); first.focus(); }
+    else if(e.shiftKey && a === first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && a === last){ e.preventDefault(); first.focus(); }
+  }
+});
 
 
 /* ===================== Mon profil : le CV de départ ===================== */
@@ -2995,14 +3282,14 @@ function renderProfilView(){
     c.appendChild(el("p", "hint", HELP[k]));
     const d = el("div", "chips");
     r[k].forEach((t, i) => {
-      const s = el("span", "", str(t));
+      const s = el("span", moNewChip === k && i === r[k].length - 1 ? "mo-pop" : "", str(t));
       const x = el("button", "x", "×"); x.type = "button"; x.setAttribute("aria-label", "Retirer « " + str(t) + " »");
       x.addEventListener("click", () => { r[k].splice(i, 1); syncParcours(p); renderProfilView(); });
       s.appendChild(x); d.appendChild(s);
     });
     if(!r[k].length) d.appendChild(el("p", "hint", "Rien pour l'instant."));
     c.appendChild(d);
-    c.appendChild(chipSearch(k, r[k], v => { r[k].push(v); syncParcours(p); renderProfilView();
+    c.appendChild(chipSearch(k, r[k], v => { moNewChip = k; r[k].push(v); syncParcours(p); renderProfilView();
       const again = $("#profil-view").querySelector('.chip-add[data-k="' + k + '"] input'); if(again) again.focus(); }));
     if(k === "competences"){
       const ideas = el("div", "pv-ideas");
@@ -3011,7 +3298,7 @@ function renderProfilView(){
       else if(left.length){
         ideas.appendChild(el("b", "", "Suggestions d'après votre parcours (touchez pour ajouter) :"));
         const sc = el("div", "chips");
-        left.forEach(x => { const bb = el("button", "", "+ " + x); bb.type = "button"; bb.addEventListener("click", () => { r.competences.push(x); syncParcours(p); renderProfilView(); }); sc.appendChild(bb); });
+        left.forEach(x => { const bb = el("button", "", "+ " + x); bb.type = "button"; bb.addEventListener("click", () => { moNewChip = "competences"; r.competences.push(x); syncParcours(p); renderProfilView(); }); sc.appendChild(bb); });
         ideas.appendChild(sc);
       } else if(settings.apiKey){
         ideas.appendChild(btn(p.sugg ? "Proposer d'autres compétences" : "Proposer des compétences d'après mon parcours", "small", () => suggestSkills(p)));
@@ -3020,6 +3307,7 @@ function renderProfilView(){
     }
     box.appendChild(c);
   });
+  moNewChip = "";
 }
 
 /* ===================== Fiche d'une candidature ===================== */
@@ -3209,27 +3497,27 @@ function resultatsBlock(p){
     "Si tu t'en sers pour choisir ce que tu mets en avant, ajoute une alerte courte qui le dit.\n\n";
 }
 
-/* ===================== Sauvegarde et restauration ===================== */
+/* ===================== Export / import de secours ===================== */
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 function updateBackupInfo(){
   const last = store.get("lastBackup", 0);
-  $("#ios-warn").hidden = !isIOS;
-  $("#backup-last").textContent = last ? "Dernière sauvegarde : " + fmtDay(last) + "." : "Aucune sauvegarde pour l'instant.";
+  $("#ios-warn").hidden = !isIOS || !!syncSt;
+  $("#backup-last").textContent = last ? " Dernier export : " + fmtDay(last) + "." : "";
   const n = $("#backup-nudge");
   const old = !last || Date.now() - last > 7 * DAY;
-  n.hidden = !(history.length && old && isIOS);
-  if(!n.hidden){ n.innerHTML = ""; n.appendChild(document.createTextNode("Pensez à sauvegarder vos candidatures : ")); const l = el("button", "link", "Mon profil › Sauvegarde"); l.type = "button"; l.dataset.goto = "profile"; n.appendChild(l); }
+  n.hidden = !(history.length && old && isIOS && !syncSt);
+  if(!n.hidden){ n.innerHTML = ""; n.appendChild(document.createTextNode("Pour ne pas perdre vos candidatures, activez la synchronisation : ")); const l = el("button", "link", "Mon profil › Retrouver " + BRAND.name + " sur tous mes appareils"); l.type = "button"; l.dataset.goto = "profile"; n.appendChild(l); }
 }
-$("#btn-backup").addEventListener("click", () => {
+function exportData(){
   const data = {};
   for(let i = 0; i < localStorage.length; i++){
     const k = localStorage.key(i);
     if(!k || k.indexOf("cvx_") !== 0) continue;
     data[k] = localStorage.getItem(k);
   }
-  // Le code d'accès n'est jamais mis dans la sauvegarde
+  // Le code d'accès n'est jamais mis dans l'export, ni les réglages de synchro
   try{ const s = JSON.parse(data.cvx_settings || "{}"); delete s.apiKey; data.cvx_settings = JSON.stringify(s); }catch(e){}
-  delete data.cvx_lastBackup;
+  delete data.cvx_lastBackup; delete data.cvx_sync;
   const file = { app:"jalon", version:1, date:new Date().toISOString(), data };
   const blob = new Blob([JSON.stringify(file)], { type:"application/json" });
   const a = document.createElement("a");
@@ -3238,21 +3526,355 @@ $("#btn-backup").addEventListener("click", () => {
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   store.set("lastBackup", Date.now()); updateBackupInfo();
-  status("#status-backup", "ok", "Sauvegarde téléchargée. Gardez ce fichier : il contient votre parcours et vos CV.");
-});
+  status("#status-backup", "ok", "Fichier téléchargé. Gardez-le : il contient votre parcours et vos CV, en clair.");
+}
+$("#btn-backup").addEventListener("click", exportData);
 $("#btn-restore").addEventListener("click", () => $("#file-restore").click());
 $("#file-restore").addEventListener("change", async e => {
   const f = e.target.files && e.target.files[0]; e.target.value = "";
   if(!f) return;
   let file;
-  try{ file = JSON.parse(await f.text()); }catch(err){ status("#status-backup", "err", "Ce fichier n'est pas une sauvegarde " + BRAND.name + "."); return; }
-  if(!file || file.app !== "jalon" || !file.data || typeof file.data !== "object"){ status("#status-backup", "err", "Ce fichier n'est pas une sauvegarde " + BRAND.name + "."); return; }
-  if(!confirm("Restaurer la sauvegarde du " + fmtDay(Date.parse(file.date) || Date.now()) + " ? Les données actuelles de cet appareil seront remplacées.")) return;
+  try{ file = JSON.parse(await f.text()); }catch(err){ status("#status-backup", "err", "Ce fichier n'est pas un export " + BRAND.name + "."); return; }
+  if(!file || file.app !== "jalon" || !file.data || typeof file.data !== "object"){ status("#status-backup", "err", "Ce fichier n'est pas un export " + BRAND.name + "."); return; }
+  if(!confirm("Importer le fichier du " + fmtDay(Date.parse(file.date) || Date.now()) + " ? Les données actuelles de cet appareil seront remplacées.")) return;
   const key = settings.apiKey;
-  Object.keys(file.data).forEach(k => { if(k.indexOf("cvx_") === 0 && typeof file.data[k] === "string") try{ localStorage.setItem(k, file.data[k]); }catch(err){} });
+  syncApplying = true;
+  Object.keys(file.data).forEach(k => { if(k.indexOf("cvx_") === 0 && k !== "cvx_sync" && typeof file.data[k] === "string") try{ localStorage.setItem(k, file.data[k]); }catch(err){} });
   try{ const s = JSON.parse(localStorage.getItem("cvx_settings") || "{}"); s.apiKey = key; localStorage.setItem("cvx_settings", JSON.stringify(s)); }catch(err){}
+  if(syncSt){ syncSt.dirty = true; syncSt.dirtyAt = Date.now(); syncSave(); }   // le fichier importé sera envoyé à la prochaine synchro
   location.reload();
 });
+
+/* ===================== Synchronisation entre appareils (chiffrée de bout en bout) =====================
+   Navigateur : clé = PBKDF2-SHA256 (310 000 itérations, sel aléatoire) puis HKDF → une clé AES-GCM et un jeton d'accès distincts.
+   Le serveur ne reçoit que : un identifiant haché, l'empreinte du jeton, le sel et un bloc chiffré. Jamais l'e-mail ni le mot de passe. */
+const SYNC_ITER = 310000, SYNC_MAX_CT = 1800000;
+const te = new TextEncoder(), td = new TextDecoder();
+function toB64(buf){ const a = new Uint8Array(buf); let s = ""; for(let i = 0; i < a.length; i += 0x8000) s += String.fromCharCode.apply(null, a.subarray(i, i + 0x8000)); return btoa(s); }
+function fromB64(s){ return Uint8Array.from(atob(s), c => c.charCodeAt(0)); }
+function hexOf(buf){ return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+async function sha256Hex(s){ return hexOf(await crypto.subtle.digest("SHA-256", te.encode(s))); }
+const syncAccountId = mail => sha256Hex("jalon-sync-v1|" + mail.trim().toLowerCase());
+async function deriveKeys(password, salt){
+  const base = await crypto.subtle.importKey("raw", te.encode(password), "PBKDF2", false, ["deriveBits"]);
+  const master = await crypto.subtle.deriveBits({ name:"PBKDF2", hash:"SHA-256", salt, iterations:SYNC_ITER }, base, 256);
+  const hk = await crypto.subtle.importKey("raw", master, "HKDF", false, ["deriveBits"]);
+  const part = info => crypto.subtle.deriveBits({ name:"HKDF", hash:"SHA-256", salt:new Uint8Array(0), info:te.encode(info) }, hk, 256);
+  return { auth: hexOf(await part("jalon-auth-v1")), key: toB64(await part("jalon-enc-v1")) };
+}
+async function gzip(bytes, compress){
+  const stream = new Blob([bytes]).stream().pipeThrough(compress ? new CompressionStream("gzip") : new DecompressionStream("gzip"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+async function encryptPayload(obj, keyB64){
+  const json = te.encode(JSON.stringify(obj));
+  let raw = json, fmt = 0;
+  if(typeof CompressionStream === "function"){ try{ raw = await gzip(json, true); fmt = 1; }catch(e){ raw = json; fmt = 0; } }
+  const plain = new Uint8Array(raw.length + 1); plain[0] = fmt; plain.set(raw, 1);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await crypto.subtle.importKey("raw", fromB64(keyB64), "AES-GCM", false, ["encrypt"]);
+  const ct = await crypto.subtle.encrypt({ name:"AES-GCM", iv, additionalData:te.encode("jalon-sync-v1") }, key, plain);
+  return { iv: toB64(iv), ct: toB64(ct) };
+}
+async function decryptPayload(blob, keyB64){
+  const key = await crypto.subtle.importKey("raw", fromB64(keyB64), "AES-GCM", false, ["decrypt"]);
+  const plain = new Uint8Array(await crypto.subtle.decrypt({ name:"AES-GCM", iv:fromB64(blob.iv), additionalData:te.encode("jalon-sync-v1") }, key, fromB64(blob.ct)));
+  let raw = plain.subarray(1);
+  if(plain[0] === 1){
+    if(typeof DecompressionStream !== "function") throw new Error("Votre navigateur est trop ancien pour lire ces données. Mettez-le à jour.");
+    raw = await gzip(raw, false);
+  }
+  return JSON.parse(td.decode(raw));
+}
+const validPayload = p => !!p && p.app === "jalon" && !!p.data && typeof p.data === "object" && Object.keys(p.data).every(k => SYNC_KEYS.includes(k) && typeof p.data[k] === "string");
+
+async function syncCall(path, body, withCode){
+  if(!RELAIS) throw new Error("La synchronisation n'est pas disponible pour l'instant.");
+  const headers = { "content-type":"application/json" };
+  if(withCode && settings.apiKey && !/^sk-ant-/.test(settings.apiKey)) headers["x-jalon-code"] = settings.apiKey;
+  let res;
+  try{ res = await fetch(RELAIS.replace(/\/+$/, "") + "/sync/" + path, { method:"POST", headers, body:JSON.stringify(body) }); }
+  catch(e){ const err = new Error("Pas de connexion."); err.offline = true; throw err; }
+  let data = null; try{ data = await res.json(); }catch(e){}
+  if(!res.ok){
+    const err = new Error((data && data.error && data.error.message) || ("Erreur " + res.status));
+    err.status = res.status; err.data = data || {}; throw err;
+  }
+  return data;
+}
+
+/* ----- État, texte et affichage ----- */
+function syncSave(){ try{ if(syncSt) localStorage.setItem("cvx_sync", JSON.stringify(syncSt)); else localStorage.removeItem("cvx_sync"); }catch(e){} }
+function maskMail(m){ const [u, d] = m.split("@"); return (u.slice(0, 1) + "•••") + "@" + d; }
+function ago(t){
+  const s = Math.max(0, (Date.now() - t) / 1000);
+  if(s < 45) return "à l'instant";
+  if(s < 3600) return "il y a " + Math.max(1, Math.round(s / 60)) + " min";
+  if(s < 86400) return "il y a " + Math.round(s / 3600) + " h";
+  return "le " + fmtDay(t);
+}
+const fmtWhen = t => new Date(t).toLocaleString("fr-FR", { day:"numeric", month:"long", hour:"2-digit", minute:"2-digit" });
+let syncBusy = false, syncPending = false, syncRetry = 0, syncPostponed = 0, syncDlgOpen = false, syncTouched = false, syncLastTry = 0;
+document.addEventListener("input", () => { syncTouched = true; }, true);
+function syncState(){      // { txt (ligne complète), short (pastille), cls }
+  if(!syncSt) return null;
+  if(syncBusy) return { txt:"Synchronisation en cours…", short:"Synchronisation…", cls:"wait" };
+  if(syncSt.err === "conflict") return { txt:"En attente de votre choix : deux versions existent", short:"À vérifier", cls:"wait" };
+  if(syncSt.err === "offline") return { txt: syncSt.dirty ? "Hors ligne, synchro en attente" : "Hors ligne", short: syncSt.dirty ? "Hors ligne, synchro en attente" : "Hors ligne", cls:"wait" };
+  if(syncSt.err === "auth") return { txt:"Mot de passe refusé : déconnectez cet appareil puis reconnectez-vous", short:"Reconnexion nécessaire", cls:"err" };
+  if(syncSt.err) return { txt: syncSt.err, short:"Synchro en pause", cls:"err" };
+  if(syncSt.dirty) return { txt:"Modifications en attente d'envoi…", short:"Envoi en attente", cls:"wait" };
+  return { txt:"Synchronisé " + ago(syncSt.lastSyncAt || Date.now()), short:"Synchronisé", cls:"" };
+}
+function setSyncUi(){
+  const on = !!syncSt;
+  $("#sync-off").hidden = on; $("#sync-on").hidden = !on;
+  const pill = $("#sync-pill"); pill.hidden = !on;
+  if(on){
+    const s = syncState();
+    $("#sync-line").textContent = s.txt;
+    $("#sync-dot").className = "sync-dot " + s.cls;
+    $("#sync-who").textContent = "Connecté avec " + syncSt.mail + ". Vos données sont chiffrées avant l'envoi.";
+    $("#sync-pill-txt").textContent = s.short; pill.title = s.txt;
+    pill.querySelector(".sync-dot").className = "sync-dot " + s.cls;
+  }
+  updateBackupInfo();
+}
+setInterval(() => { if(syncSt && !syncBusy) setSyncUi(); }, 30000);
+
+/* ----- Boîte de choix ----- */
+let syncDlgCancel = null, syncDlgReturn = null;
+function openSyncDlg(o){
+  syncDlgOpen = true; syncDlgReturn = document.activeElement;
+  $("#sync-dlg-title").textContent = o.title; $("#sync-dlg-desc").textContent = o.text;
+  const box = $("#sync-dlg-btns"); box.innerHTML = ""; syncDlgCancel = null;
+  o.buttons.forEach(b => {
+    const n = el("button", "btn " + (b.cls || ""), b.label); n.type = "button";
+    n.addEventListener("click", () => { closeSyncDlg(); b.fn && b.fn(); });
+    box.appendChild(n); if(b.cancel) syncDlgCancel = b;
+  });
+  const l = $("#sync-dlg-link"); l.hidden = !o.link;
+  if(o.link){ l.textContent = o.link.label; l.onclick = o.link.fn; }
+  $("#sync-dlg").hidden = false; document.body.classList.add("modal-open");
+  box.firstChild.focus({ preventScroll:true });
+}
+function closeSyncDlg(){
+  if($("#sync-dlg").hidden) return;
+  ghostOut($("#sync-dlg"), "fade");
+  $("#sync-dlg").hidden = true; document.body.classList.remove("modal-open"); syncDlgOpen = false;
+  const back = syncDlgReturn; syncDlgReturn = null;
+  if(back && back.focus && document.contains(back)){ try{ back.focus({ preventScroll:true }); }catch(e){} }
+}
+document.addEventListener("keydown", e => {
+  if($("#sync-dlg").hidden) return;
+  if(e.key === "Escape"){ e.preventDefault(); if(syncDlgCancel){ closeSyncDlg(); syncDlgCancel.fn && syncDlgCancel.fn(); } return; }
+  if(e.key === "Tab"){
+    const f = [...$("#sync-dlg").querySelectorAll("button")].filter(n => !n.hidden && !n.disabled); if(!f.length) return;
+    const a = document.activeElement, first = f[0], last = f[f.length - 1];
+    if(!$("#sync-dlg").contains(a)){ e.preventDefault(); first.focus(); }
+    else if(e.shiftKey && a === first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && a === last){ e.preventDefault(); first.focus(); }
+  }
+});
+
+/* ----- Lecture / écriture des données locales ----- */
+function syncSnapshot(){
+  const data = {};
+  SYNC_KEYS.forEach(k => { const v = localStorage.getItem("cvx_" + k); if(v !== null) data[k] = v; });
+  try{ const s = JSON.parse(data.settings || "{}"); delete s.apiKey; data.settings = JSON.stringify(s); }catch(e){}
+  return { app:"jalon", v:1, t:Date.now(), data };
+}
+const hasLocalData = () => history.length > 0 || profiles.some(p => str(p.parcours) || str(p.name) || p.resume);
+function syncApply(payload, version){
+  const keep = settings.apiKey, prev = {};
+  SYNC_KEYS.forEach(k => { prev[k] = localStorage.getItem("cvx_" + k); });
+  syncApplying = true;
+  try{
+    SYNC_KEYS.forEach(k => { const v = payload.data[k]; if(typeof v === "string") localStorage.setItem("cvx_" + k, v); else localStorage.removeItem("cvx_" + k); });
+    try{ const s = JSON.parse(localStorage.getItem("cvx_settings") || "{}"); if(keep) s.apiKey = keep; else delete s.apiKey; localStorage.setItem("cvx_settings", JSON.stringify(s)); }catch(e){}
+  }catch(e){
+    SYNC_KEYS.forEach(k => { try{ if(prev[k] === null) localStorage.removeItem("cvx_" + k); else localStorage.setItem("cvx_" + k, prev[k]); }catch(err){} });
+    syncApplying = false;
+    throw new Error("Pas assez de place sur cet appareil pour recevoir vos données. Supprimez d'anciennes candidatures et réessayez.");
+  }
+  syncSt.version = version; syncSt.dirty = false; syncSt.dirtyAt = 0; syncSt.lastSyncAt = Date.now(); syncSt.err = ""; syncSave();
+  location.reload();
+}
+
+/* ----- Envoi, réception ----- */
+function syncDirty(){
+  if(!syncSt || syncApplying) return;
+  syncSt.dirty = true; syncSt.dirtyAt = Date.now(); syncSave(); setSyncUi();
+  clearTimeout(syncTimer); syncTimer = setTimeout(() => syncNow("change"), 3000);   // on regroupe les changements
+}
+async function syncPush(base){
+  const at = syncSt.dirtyAt || 0;
+  const blob = await encryptPayload(syncSnapshot(), syncSt.key);
+  if(blob.ct.length > SYNC_MAX_CT){ const e = new Error("Vos données dépassent la taille autorisée pour la synchronisation. Supprimez d'anciennes candidatures ou la photo de profil."); e.fatal = true; throw e; }
+  const res = await syncCall("put", { id:syncSt.id, auth:syncSt.auth, iv:blob.iv, ct:blob.ct, baseVersion:base });
+  syncSt.version = res.version; syncSt.lastSyncAt = Date.now(); syncSt.err = "";
+  if((syncSt.dirtyAt || 0) === at){ syncSt.dirty = false; } else { syncPending = true; }   // modifié pendant l'envoi : on renverra
+  syncSave();
+}
+async function syncPull(){
+  const g = await syncCall("get", { id:syncSt.id, auth:syncSt.auth });
+  const payload = await decryptPayload(g, syncSt.key);
+  if(!validPayload(payload)) throw new Error("Les données en ligne ne sont pas lisibles par cette version de l'appli.");
+  return { payload, version:g.version, updated:g.updated };
+}
+function showToast(txt, go){
+  $("#sync-toast-txt").textContent = txt; $("#sync-toast").hidden = false;
+  $("#sync-toast-go").onclick = () => { $("#sync-toast").hidden = true; go(); };
+}
+function syncDisconnect(msg, kind){
+  clearTimeout(syncTimer); clearTimeout(syncRetry); syncSt = null; syncSave(); $("#sync-toast").hidden = true;
+  setSyncUi(); if(msg) status("#sync-msg", kind || "info", msg);
+}
+function askConflict(meta, remoteInfo){
+  syncSt.err = "conflict"; syncSave(); setSyncUi();
+  openSyncDlg({
+    title:"Deux versions de vos données",
+    text:"Vous avez modifié des données sur cet appareil (" + ago(syncSt.dirtyAt || Date.now()) + "), et une version plus récente a été envoyée depuis un autre appareil (" + fmtWhen(meta.updated) + "). Laquelle garder ? L'autre sera remplacée.",
+    buttons:[
+      { label:"Garder celle de cet appareil", fn: async () => { syncSt.err = ""; try{ syncBusy = true; setSyncUi(); await syncPush(meta.version); }catch(e){ syncFail(e); } finally { syncBusy = false; setSyncUi(); } } },
+      { label:"Garder celle des autres appareils", fn: async () => { try{ const r = await syncPull(); syncApply(r.payload, r.version); }catch(e){ syncFail(e); setSyncUi(); } } },
+      { label:"Décider plus tard", cls:"alt", cancel:true, fn: () => { syncPostponed = meta.version; } }
+    ],
+    link:{ label:"Télécharger d'abord une copie de cet appareil", fn: exportData }
+  });
+}
+function syncFail(e){
+  if(e.offline){ syncSt.err = "offline"; scheduleRetry(60000); }
+  else if(e.status === 401){ syncSt.err = "auth"; }
+  else if(e.status === 404 || (e.data && e.data.gone)){ syncDisconnect("Les données en ligne ont été supprimées depuis un autre appareil. La synchronisation est désactivée ici ; vos données restent sur cet appareil.", "info"); return; }
+  else if(e.status === 429){ syncSt.err = "Trop de demandes : nouvel essai dans une minute."; scheduleRetry(65000); }
+  else if(e.status >= 500){ syncSt.err = "Serveur momentanément indisponible : nouvel essai bientôt."; scheduleRetry(120000); }
+  else if(e.fatal){ syncSt.err = e.message; }
+  else { syncSt.err = e.message || "Erreur de synchronisation."; scheduleRetry(120000); }
+  syncSave();
+}
+function scheduleRetry(ms){ clearTimeout(syncRetry); syncRetry = setTimeout(() => syncNow("retry"), ms); }
+async function syncNow(reason){
+  if(!syncSt || syncDlgOpen) return;
+  if(syncBusy){ syncPending = true; return; }
+  if(reason !== "manual" && Date.now() - syncLastTry < 2500) return;
+  if(navigator.onLine === false){ syncSt.err = "offline"; setSyncUi(); return; }
+  syncBusy = true; syncLastTry = Date.now(); setSyncUi();
+  try{
+    const meta = await syncCall("meta", { id:syncSt.id });
+    if(!meta.exists){ syncDisconnect("Les données en ligne ont été supprimées depuis un autre appareil. La synchronisation est désactivée ici ; vos données restent sur cet appareil.", "info"); return; }
+    if(syncSt.err === "offline" || syncSt.err === "auth") syncSt.err = "";
+    if(meta.version > syncSt.version){
+      if(syncSt.dirty){
+        if(reason === "manual" || syncPostponed !== meta.version) askConflict(meta); else syncSt.err = "conflict";
+      }else{
+        const r = await syncPull();
+        if(!syncTouched && performance.now() < 20000){ syncApply(r.payload, r.version); return; }
+        syncSt.err = ""; showToast("Une version plus récente de vos données est disponible.", () => { try{ syncApply(r.payload, r.version); }catch(e){ status("#sync-msg", "err", e.message); } });
+      }
+    }else if(syncSt.dirty){ await syncPush(meta.version); }
+    else { syncSt.lastSyncAt = Date.now(); if(syncSt.err !== "conflict") syncSt.err = ""; }
+    syncSave();
+  }catch(e){
+    if(e.status === 409){ syncPending = true; }          // quelqu'un a envoyé entre-temps : on réexamine
+    else syncFail(e);
+  }finally{
+    syncBusy = false; setSyncUi();
+    if(syncPending && syncSt){ syncPending = false; setTimeout(() => syncNow("pending"), 600); }
+  }
+}
+window.addEventListener("online", () => syncNow("online"));
+window.addEventListener("offline", () => { if(syncSt){ syncSt.err = "offline"; setSyncUi(); } });
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible" && syncSt) syncNow("visible"); });
+
+/* ----- Activation, déconnexion, suppression ----- */
+let syncStarting = false;
+async function syncStart(){
+  if(syncStarting) return;
+  const mail = $("#sync-mail").value.trim().toLowerCase(), pw = $("#sync-pw").value.normalize("NFKC");
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ status("#sync-msg", "err", "Entrez une adresse e-mail valide : c'est votre identifiant."); $("#sync-mail").focus(); return; }
+  if(pw.length < 8){ status("#sync-msg", "err", "Le mot de passe doit faire au moins 8 caractères."); $("#sync-pw").focus(); return; }
+  if(!syncAvailableNow()){ status("#sync-msg", "err", "Ce navigateur ne permet pas le chiffrement nécessaire. Utilisez une version récente de Safari, Chrome ou Firefox."); return; }
+  syncStarting = true; $("#sync-go").disabled = true; status("#sync-msg", "info", "Vérification en cours…");
+  try{
+    const id = await syncAccountId(mail);
+    const meta = await syncCall("meta", { id });
+    if(!meta.exists){
+      if($("#sync-new").hidden){
+        $("#sync-new").hidden = false; $("#sync-pw2").focus();
+        status("#sync-msg", "info", "Aucune synchronisation avec cet identifiant : on la crée. Retapez le mot de passe et cochez la case.");
+        return;
+      }
+      if(pw !== $("#sync-pw2").value.normalize("NFKC")){ status("#sync-msg", "err", "Les deux mots de passe sont différents."); $("#sync-pw2").focus(); return; }
+      if(!$("#sync-ok").checked){ status("#sync-msg", "err", "Cochez la case pour confirmer que vous avez compris."); return; }
+      status("#sync-msg", "info", "Création de votre espace chiffré…");
+      const salt = crypto.getRandomValues(new Uint8Array(16)), k = await deriveKeys(pw, salt);
+      const blob = await encryptPayload(syncSnapshot(), k.key);
+      if(blob.ct.length > SYNC_MAX_CT){ status("#sync-msg", "err", "Vos données dépassent la taille autorisée. Supprimez d'anciennes candidatures ou la photo de profil."); return; }
+      const res = await syncCall("put", { id, auth:k.auth, salt:toB64(salt), iv:blob.iv, ct:blob.ct, baseVersion:0 }, true);
+      syncSt = { id, auth:k.auth, key:k.key, mail:maskMail(mail), version:res.version, dirty:false, dirtyAt:0, lastSyncAt:Date.now(), err:"" };
+      syncSave(); syncResetForm(); setSyncUi();
+      status("#sync-msg", "ok", "Synchronisation activée. Sur un autre appareil, entrez le même identifiant et le même mot de passe.");
+      return;
+    }
+    $("#sync-new").hidden = true;
+    status("#sync-msg", "info", "Déverrouillage de vos données…");
+    const k = await deriveKeys(pw, fromB64(meta.salt));
+    let g;
+    try{ g = await syncCall("get", { id, auth:k.auth }); }
+    catch(e){ if(e.status === 401){ status("#sync-msg", "err", "Identifiant ou mot de passe incorrect."); return; } throw e; }
+    let payload;
+    try{ payload = await decryptPayload(g, k.key); }catch(e){ status("#sync-msg", "err", e.message && /navigateur/.test(e.message) ? e.message : "Impossible de lire les données en ligne avec ce mot de passe."); return; }
+    if(!validPayload(payload)){ status("#sync-msg", "err", "Les données en ligne ne sont pas lisibles par cette version de l'appli."); return; }
+    const st = { id, auth:k.auth, key:k.key, mail:maskMail(mail), version:g.version, dirty:false, dirtyAt:0, lastSyncAt:Date.now(), err:"" };
+    syncResetForm();
+    if(!hasLocalData()){ syncSt = st; syncSave(); status("#sync-msg", "ok", "Données retrouvées. Chargement…"); syncApply(payload, g.version); return; }
+    status("#sync-msg", "", "");
+    openSyncDlg({
+      title:"Des données existent déjà ici et en ligne",
+      text:"Cet appareil contient déjà des données, et des données ont été envoyées en ligne le " + fmtWhen(g.updated) + ". Lesquelles garder ? L'autre version sera remplacée.",
+      buttons:[
+        { label:"Garder celles de cet appareil", fn: async () => {
+            syncSt = st; syncSt.dirty = true; syncSt.dirtyAt = Date.now(); syncSave();
+            try{ syncBusy = true; setSyncUi(); await syncPush(g.version); status("#sync-msg", "ok", "Synchronisation activée : les données de cet appareil sont en ligne."); }
+            catch(e){ syncFail(e); status("#sync-msg", "err", syncSt ? (syncSt.err || e.message) : e.message); }
+            finally{ syncBusy = false; setSyncUi(); } } },
+        { label:"Garder celles qui sont en ligne", fn: () => { syncSt = st; syncSave(); try{ syncApply(payload, g.version); }catch(e){ syncSt = null; syncSave(); status("#sync-msg", "err", e.message); } } },
+        { label:"Annuler", cls:"alt", cancel:true, fn: () => { status("#sync-msg", "info", "Rien n'a été changé."); } }
+      ],
+      link:{ label:"Télécharger d'abord une copie de cet appareil", fn: exportData }
+    });
+  }catch(e){
+    status("#sync-msg", "err", e.offline ? "Pas de connexion. Réessayez quand vous serez en ligne." : (e.message || "Erreur."));
+  }finally{
+    syncStarting = false; $("#sync-go").disabled = false;
+  }
+}
+const syncAvailableNow = () => !!(window.crypto && crypto.subtle && crypto.getRandomValues);
+function syncResetForm(){ ["#sync-pw", "#sync-pw2"].forEach(s => { $(s).value = ""; }); $("#sync-ok").checked = false; $("#sync-new").hidden = true; }
+$("#sync-form").addEventListener("submit", e => { e.preventDefault(); syncStart(); });
+$("#sync-mail").addEventListener("input", () => { $("#sync-new").hidden = true; });
+$("#sync-now").addEventListener("click", () => { postponeReset(); syncNow("manual"); });
+function postponeReset(){ syncPostponed = 0; if(syncSt && syncSt.err === "conflict") syncSt.err = ""; }
+$("#sync-pill").addEventListener("click", () => { if(syncSt && syncSt.err === "conflict") postponeReset(); });
+$("#sync-out").addEventListener("click", () => {
+  if(!syncSt) return;
+  const go = () => syncDisconnect("Cet appareil est déconnecté. Vos données y restent, et restent aussi en ligne.", "ok");
+  if(!syncSt.dirty){ go(); return; }
+  openSyncDlg({ title:"Modifications non envoyées", text:"Des modifications de cet appareil n'ont pas encore été envoyées. Si vous vous déconnectez maintenant, elles resteront ici mais ne seront pas en ligne.",
+    buttons:[{ label:"Envoyer, puis me déconnecter", fn: async () => { try{ await syncPush((await syncCall("meta", { id:syncSt.id })).version); go(); }catch(e){ status("#sync-msg", "err", "Envoi impossible : " + (e.message || "erreur") + ". Vous êtes toujours connecté."); } } },
+             { label:"Me déconnecter quand même", cls:"danger", fn: go }, { label:"Annuler", cls:"alt", cancel:true, fn: () => {} }] });
+});
+$("#sync-del").addEventListener("click", () => {
+  if(!syncSt) return;
+  openSyncDlg({ title:"Supprimer vos données en ligne ?", text:"Vos données seront effacées du serveur, définitivement, et la synchronisation s'arrêtera sur tous vos appareils. Les données déjà présentes sur chaque appareil ne sont pas touchées.",
+    buttons:[{ label:"Supprimer mes données en ligne", cls:"danger", fn: async () => {
+                try{ await syncCall("delete", { id:syncSt.id, auth:syncSt.auth }); syncDisconnect("Vos données en ligne ont été supprimées. Vos données restent sur cet appareil.", "ok"); }
+                catch(e){ status("#sync-msg", "err", e.status === 401 ? "Mot de passe refusé : déconnectez cet appareil puis reconnectez-vous pour supprimer." : ("Suppression impossible : " + (e.message || "erreur"))); } } },
+             { label:"Annuler", cls:"alt", cancel:true, fn: () => {} }] });
+});
+$("#sync-toast").addEventListener("keydown", e => { if(e.key === "Escape") $("#sync-toast").hidden = true; });
+if(syncSt) setTimeout(() => syncNow("open"), 500);
 
 /* ---------- Démarrage ---------- */
 /* Migration : les anciennes versions d'une même candidature sont regroupées (même profil, même poste, même entreprise) */
@@ -3266,7 +3888,7 @@ $("#file-restore").addEventListener("change", async e => {
   });
   if(changed) saveHistory();
 })();
-purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); scalePreview();
+purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); setSyncUi(); scalePreview();
 applyMobile();
 setView(str((prof() || {}).parcours).length < 80 ? "profile" : store.get("view", "create"));
 window.__cvx = { renderAll, showTab, cleanHex, linesDiff, purgeOld, setView, resultatsBlock, statusOf, groupsFor }; // utilisé pour les tests
