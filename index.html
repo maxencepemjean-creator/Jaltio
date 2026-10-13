@@ -3620,7 +3620,16 @@ function ago(t){
 }
 const fmtWhen = t => new Date(t).toLocaleString("fr-FR", { day:"numeric", month:"long", hour:"2-digit", minute:"2-digit" });
 let syncBusy = false, syncPending = false, syncRetry = 0, syncPostponed = 0, syncDlgOpen = false, syncTouched = false, syncLastTry = 0;
-document.addEventListener("input", () => { syncTouched = true; }, true);
+let syncLastInput = 0;
+document.addEventListener("input", () => { syncTouched = true; syncLastInput = Date.now(); }, true);
+document.addEventListener("keydown", () => { syncLastInput = Date.now(); }, true);
+// Peut-on recharger la page sans gêner ? Pas de saisie récente, aucune fenêtre ouverte, aucune génération en cours.
+function syncIdle(){
+  if(Date.now() - syncLastInput < 8000) return false;
+  if(document.querySelector(".overlay:not([hidden])")) return false;
+  if($("#btn-generate").disabled || $("#btn-regen").disabled || chatBusy) return false;
+  return true;
+}
 function syncState(){      // { txt (ligne complète), short (pastille), cls }
   if(!syncSt) return null;
   if(syncBusy) return { txt:"Synchronisation en cours…", short:"Synchronisation…", cls:"wait" };
@@ -3763,6 +3772,7 @@ async function syncNow(reason){
   if(!syncSt || syncDlgOpen) return;
   if(syncBusy){ syncPending = true; return; }
   if(reason !== "manual" && Date.now() - syncLastTry < 2500) return;
+  if(syncSt.err === "auth" && reason !== "manual") return;   // un mot de passe refusé ne se réessaie pas tout seul (verrouillage serveur)
   if(navigator.onLine === false){ syncSt.err = "offline"; setSyncUi(); return; }
   syncBusy = true; syncLastTry = Date.now(); setSyncUi();
   try{
@@ -3774,7 +3784,7 @@ async function syncNow(reason){
         if(reason === "manual" || syncPostponed !== meta.version) askConflict(meta); else syncSt.err = "conflict";
       }else{
         const r = await syncPull();
-        if(!syncTouched && performance.now() < 20000){ syncApply(r.payload, r.version); return; }
+        if(syncIdle()){ syncApply(r.payload, r.version); return; }
         syncSt.err = ""; showToast("Une version plus récente de vos données est disponible.", () => { try{ syncApply(r.payload, r.version); }catch(e){ status("#sync-msg", "err", e.message); } });
       }
     }else if(syncSt.dirty){ await syncPush(meta.version); }
@@ -3885,6 +3895,8 @@ $("#sync-del").addEventListener("click", () => {
 });
 $("#sync-toast").addEventListener("keydown", e => { if(e.key === "Escape") $("#sync-toast").hidden = true; });
 if(syncSt) setTimeout(() => syncNow("open"), 500);
+// Vérification régulière : une petite requête toutes les 20 s tant que l'onglet est visible
+setInterval(() => { if(syncSt && document.visibilityState === "visible" && !syncBusy && !syncDlgOpen) syncNow("poll"); }, 20000);
 
 /* ---------- Démarrage ---------- */
 /* Migration : les anciennes versions d'une même candidature sont regroupées (même profil, même poste, même entreprise) */
