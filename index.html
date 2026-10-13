@@ -172,6 +172,16 @@ details summary{cursor:pointer;font-weight:600}
 .validate.show{display:inline-flex}
 .validate .btn{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:600;border-radius:999px}
 
+/* Bulle flottante « Enregistrer mes retouches » : toujours visible pendant qu'on retouche */
+.save-fab{position:fixed;right:22px;bottom:98px;z-index:51;display:none;align-items:center;gap:8px;border:0;border-radius:999px;padding:12px 18px 12px 14px;background:var(--ok);color:#fff;font:inherit;font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.22);animation:savepop .25s ease-out}
+.save-fab.show{display:inline-flex}
+.save-fab:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
+.save-fab svg{width:20px;height:20px;flex:none}
+.save-fab.done{background:var(--brand)}
+@keyframes savepop{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.save-fab{animation:none}}
+body.chat-open .save-fab{bottom:22px}
+
 /* Bulle « Demande à Claude ! » */
 .fab{position:fixed;right:22px;bottom:22px;width:62px;height:62px;border-radius:50%;border:0;background:var(--brand);color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(31,78,121,.35);display:grid;place-items:center;z-index:50;transition:transform .15s}
 .fab:hover{transform:scale(1.06)}
@@ -653,6 +663,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 </aside>
 </div>
 
+<button class="save-fab app-ui" id="save-fab" type="button" title="Enregistrer les modifications faites à la main dans le CV et la lettre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span id="save-fab-label">Enregistrer mes retouches</span></button>
 <button class="fab app-ui" id="fab" type="button" aria-label="Demande à votre coach">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 2.5c-5.25 0-9.5 3.8-9.5 8.5 0 2.3 1 4.4 2.7 5.9L4.3 21l4.6-2.1c.97.27 2 .4 3.1.4 5.25 0 9.5-3.8 9.5-8.5S17.25 2.5 12 2.5z"/><circle cx="7.9" cy="11" r="1.35" fill="var(--accent)"/><circle cx="12" cy="11" r="1.35" fill="var(--accent)"/><circle cx="16.1" cy="11" r="1.35" fill="var(--accent)"/></svg>
   <span class="tip">Demande à <span data-brand>Jalon</span> !</span>
@@ -1710,13 +1721,23 @@ function validateEdits(silent){
 }
 function refreshValidate(){
   const h = currentHistId && history.find(x => x.id === currentHistId);
-  $("#validate").classList.toggle("show", !!(h && h.dirty));
+  const dirty = !!(h && h.dirty);
+  $("#validate").classList.toggle("show", dirty);
+  const f = $("#save-fab");
+  if(dirty){ f.classList.remove("done"); $("#save-fab-label").textContent = "Enregistrer mes retouches"; f.classList.add("show"); }
+  else if(!f.classList.contains("done")) f.classList.remove("show");
 }
 function markDirty(){
   const h = history.find(x => x.id === currentHistId);
   if(h && !h.dirty){ h.dirty = true; refreshValidate(); }
 }
 $("#btn-validate").addEventListener("click", () => validateEdits(false));
+$("#save-fab").addEventListener("click", () => {
+  const f = $("#save-fab");
+  f.classList.add("done"); $("#save-fab-label").textContent = "Retouches enregistrées";
+  validateEdits(false);
+  setTimeout(() => { if(f.classList.contains("done")){ f.classList.remove("show", "done"); } }, 1800);
+});
 
 function renderRetouchesInfo(){
   const p = prof(), n = (p.retouches || []).length, box = $("#retouches-info");
