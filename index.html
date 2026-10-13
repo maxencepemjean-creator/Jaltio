@@ -249,6 +249,37 @@ body[data-view="profile"] [data-v]:not([data-v~="profile"]){display:none!importa
   body.m #step-offre > h2{display:none}
   body.m .m-steps p{font-family:var(--display);font-size:24px;line-height:1.1;margin-top:12px}
 }
+/* ===== Mon profil : CV importé ===== */
+@media screen{
+  body[data-view="profile"] #preview > :not(#profil-view){display:none!important}
+  body:not([data-view="profile"]) #profil-view{display:none!important}
+}
+.profil-view{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.pc-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pc-choices .btn{min-height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+.pc-ok{display:flex;align-items:center;gap:10px;background:var(--ok-soft);color:var(--ok);border-radius:14px;padding:12px 14px;font-weight:700;margin:0}
+.pc-ok svg{flex:none}
+.pc-meta{margin:8px 0 12px}
+.pc-edit-box{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.pc-edit-box .btn{min-height:46px;border-radius:14px;justify-content:center}
+.pc-write textarea{width:100%;min-height:160px}
+.pc-write .row{margin-top:8px}
+.fv-card.pv-ok{background:var(--ok-soft);box-shadow:none}
+.pv-ok h3{color:var(--ok)}
+.pv-id{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:14px;margin-top:6px}
+.pv-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.pv-list li{display:flex;flex-direction:column;gap:2px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.pv-list li:last-child{border-bottom:0;padding-bottom:0}
+.pv-list span{color:var(--muted);font-size:13.5px}
+.profil-view .chips{display:flex;flex-direction:row;flex-wrap:wrap;gap:6px}
+.profil-view .chips span{display:inline-block;width:auto;background:var(--lilas);color:var(--brand);border-radius:999px;padding:5px 11px;font-size:13.5px;font-weight:600}
+.fv-card.pv-warn{background:var(--accent-soft);box-shadow:none}
+.pv-warn h3{color:#5A3A08}
+.pv-wait{display:flex;align-items:center;gap:12px}
+.spin{width:22px;height:22px;border-radius:50%;border:3px solid var(--lilas);border-top-color:var(--brand);animation:spin 1s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+
 /* ===== Suivi : « À faire » + jalons ===== */
 .apps-hello h2{font-family:var(--display);font-size:24px;color:var(--brand);margin:0}
 .apps-hello p{margin:2px 0 14px;color:var(--muted)}
@@ -698,16 +729,41 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <button class="btn primary" type="button" data-goto="profile">Remplir mon parcours</button>
   </div>
 
-  <div class="step" data-v="profile">
-    <h2><span class="num">1</span> Votre parcours</h2>
-    <div class="drop" id="drop" tabindex="0" role="button">
-      <b>Déposez votre ancien CV</b><br>ou cliquez pour le choisir : PDF, Word ou texte
+  <div class="step" data-v="profile" id="step-parcours">
+    <h2><span class="num">1</span> Votre CV</h2>
+    <div id="pc-empty">
+      <p class="hint" style="margin-top:0"><span data-brand>Jalon</span> part de votre CV actuel pour écrire tous les autres. Rien n'est inventé.</p>
+      <div class="drop" id="drop" tabindex="0" role="button" style="margin-top:10px">
+        <b>Importer mon CV</b><br>Déposez-le ici ou touchez pour le choisir : PDF ou Word
+      </div>
+      <p class="or">Pas de CV sous la main ?</p>
+      <div class="pc-choices">
+        <button class="btn" id="pc-write" type="button">Écrire mon parcours</button>
+        <button class="btn" id="pc-say" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5M8.5 21.5h7"/></svg>Le dire à voix haute</button>
+      </div>
     </div>
+    <div id="pc-done" hidden>
+      <p class="pc-ok"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Votre CV est bien enregistré</p>
+      <p class="hint pc-meta" id="pc-meta"></p>
+      <button class="btn primary" id="pc-edit" type="button" aria-expanded="false" style="width:100%;min-height:48px;border-radius:14px">Modifier mon CV</button>
+      <div class="pc-edit-box" id="pc-edit-box" hidden>
+        <button class="btn" id="pc-reimport" type="button">Importer un autre CV</button>
+        <button class="btn" id="pc-add" type="button">Ajouter ou corriger une information</button>
+        <button class="link danger" id="pc-reset" type="button">Tout effacer et recommencer</button>
+      </div>
+    </div>
+    <div class="pc-write" id="pc-write-box" hidden>
+      <label for="pc-input" id="pc-write-label">Racontez votre parcours</label>
+      <textarea id="pc-input" rows="7"></textarea>
+      <div class="row">
+        <button class="btn primary" id="pc-save" type="button">Enregistrer</button>
+        <button class="mic small" id="pc-mic" type="button" title="Parler au lieu d'écrire"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5M8.5 21.5h7"/></svg><span>Dicter</span></button>
+        <button class="btn" id="pc-cancel" type="button">Annuler</button>
+      </div>
+    </div>
+    <div class="status" id="pc-status"></div>
     <input type="file" id="file-any" accept=".pdf,.docx,.txt,.md,image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" multiple hidden>
-    <p class="or">ou</p>
-    <label for="profile-parcours">Écrivez votre parcours</label>
-    <textarea id="profile-parcours" rows="8" placeholder="Décrivez simplement :&#10;- vos coordonnées (téléphone, e-mail, ville, permis)&#10;- vos expériences avec les dates et ce que vous faisiez&#10;- vos diplômes et formations&#10;- vos compétences, langues, centres d'intérêt&#10;&#10;Plus c'est complet, meilleur sera le CV. Rien ne sera inventé."></textarea>
-    <p class="hint" id="profile-saved">Enregistré automatiquement sur cet appareil.</p>
+    <textarea id="profile-parcours" hidden aria-hidden="true" tabindex="-1"></textarea>
     <p class="hint" id="retouches-info" hidden><span data-brand>Jalon</span> s'inspire de <span id="retouches-n"></span> pour écrire comme vous. <button class="btn small" id="btn-forget" type="button">Oublier</button></p>
   </div>
 
@@ -793,19 +849,6 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <div class="status" id="status-backup"></div>
   </div>
 
-  <details class="step" data-v="profile">
-    <summary>Réglages</summary>
-    <label for="key">Code d'accès</label>
-    <input type="password" id="key" placeholder="code fourni par Maxence" autocomplete="off">
-    <label for="model">Qualité</label>
-    <select id="model">
-      <option value="claude-sonnet-5-5">Standard — rapide (recommandé)</option>
-      <option value="claude-opus-5-5">Maximale — plus lent, 2× plus cher</option>
-    </select>
-    <div class="row" style="margin-top:10px"><button class="btn small" id="btn-test-key">Tester le code</button></div>
-    <div class="status" id="status-key"></div>
-    <p class="hint" id="cost">Coût cumulé sur cet appareil : 0,00 $</p>
-  </details>
   <div class="panel-foot" data-v="create"><button class="btn apply-btn" id="btn-apply" type="button"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg> Préparer ma candidature</button></div>
 </aside>
 
@@ -836,6 +879,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     </div>
   </div>
   <div class="fiche-view app-ui" id="fiche-view"></div>
+  <div class="profil-view app-ui" id="profil-view" aria-live="polite"></div>
   <div class="page-holder" id="holder-cv" hidden><div class="page cv tpl-moderne" id="page-cv" contenteditable="true" spellcheck="true" lang="fr"></div></div>
   <div class="page-holder" id="holder-lettre" hidden><div class="page lettre" id="page-lettre" contenteditable="true" spellcheck="true" lang="fr"></div></div>
   <div id="recap"></div>
@@ -1043,6 +1087,7 @@ function renderProfiles(){
   $("#btn-del-profile").hidden = profiles.length < 2;
   renderAvatar();
   renderHistory();
+  if(typeof renderParcoursUI === "function" && $("#pc-write-box")){ $("#pc-write-box").hidden = true; renderParcoursUI(); }
   if(typeof renderRetouchesInfo === "function" && $("#retouches-info")) try{ renderRetouchesInfo(); }catch(e){}
 }
 const saveProfileFields = debounce(() => {
@@ -1137,6 +1182,7 @@ async function handleFiles(files){
     const name = f.name.toLowerCase();
     if(f.type.startsWith("image/")){ await setPhotoFromFile(f); continue; }
     drop.innerHTML = "<b>Lecture de « " + f.name.replace(/[<>&"]/g, "") + " »…</b>";
+    status("#pc-status", "info", "Lecture de « " + f.name + " »…");
     try{
       const buf = await f.arrayBuffer();
       let txt = "";
@@ -1152,23 +1198,19 @@ async function handleFiles(files){
       else if(name.endsWith(".txt") || name.endsWith(".md") || f.type === "text/plain"){ txt = new TextDecoder().decode(buf).trim(); }
       else throw new Error("Format non pris en charge : utilisez un PDF, un .docx ou un fichier texte.");
       if(txt.length < 40) throw new Error("Aucun texte trouvé dans ce fichier. Copiez-collez votre parcours à la main.");
-      const ta = $("#profile-parcours");
-      if(ta.value.trim() && !confirm("Remplacer le texte actuel par le contenu de « " + f.name + " » ?")) continue;
-      ta.value = txt; prof().parcours = txt; saveProfiles();
-      alert("CV importé. Relisez le texte et complétez ce qui manque (téléphone, permis…).");
+      const pp = prof();
+      if(str(pp.parcours).length >= 80 && !confirm("Remplacer votre CV enregistré par « " + f.name + " » ?")) continue;
+      setParcours(txt, "le CV « " + f.name + " »");
     }catch(e){
-      alert(e.message && e.message.length > 12 ? e.message : "Ce fichier n'a pas pu être lu. Copiez-collez votre parcours à la main.");
+      status("#pc-status", "err", e.message && e.message.length > 12 ? e.message : "Ce fichier n'a pas pu être lu. Essayez un autre fichier, ou écrivez votre parcours.");
     }finally{ drop.innerHTML = DROP_HTML; }
   }
 }
 
 /* ---------- Réglages & clé ---------- */
 function renderSettings(){
-  $("#key").value = settings.apiKey;
-  $("#model").value = settings.model;
   $("#tpl").value = settings.tpl;
   $("#step-key").hidden = !!settings.apiKey;
-  $("#cost").textContent = "Coût cumulé sur cet appareil : " + settings.cost.toFixed(2).replace(".", ",") + " $";
   renderSwatches();
 }
 function histNow(){ return currentHistId && history.find(x => x.id === currentHistId); }
@@ -1214,21 +1256,14 @@ const onCustom = () => {
 };
 $("#cp-dark").addEventListener("input", onCustom);
 $("#cp-accent").addEventListener("input", onCustom);
-$("#key").addEventListener("change", e => { settings.apiKey = e.target.value.trim(); saveSettings(); renderSettings(); });
-$("#model").addEventListener("change", e => { settings.model = e.target.value; saveSettings(); });
 $("#tpl").addEventListener("change", e => { settings.tpl = e.target.value; saveSettings(); applyLook(); });
 $("#btn-key-first").addEventListener("click", async () => {
   const k = $("#key-first").value.trim();
   if(!k){ status("#status-key-first", "err", "Saisissez le code d'accès."); return; }
   status("#status-key-first", "info", "Vérification…");
   const r = await testKey(k);
-  if(r.ok){ settings.apiKey = k; saveSettings(); renderSettings(); status("#status-key-first", "", ""); }
+  if(r.ok){ settings.apiKey = k; saveSettings(); renderSettings(); status("#status-key-first", "", ""); const pp = prof(); if(pp && str(pp.parcours).length >= 80 && !pp.resume && typeof analyzeParcours === "function") analyzeParcours(pp); }
   else status("#status-key-first", "err", r.msg);
-});
-$("#btn-test-key").addEventListener("click", async () => {
-  status("#status-key", "info", "Vérification…");
-  const r = await testKey(settings.apiKey);
-  status("#status-key", r.ok ? "ok" : "err", r.ok ? "La clé fonctionne." : r.msg);
 });
 
 /* ---------- Appel à l'API Claude ---------- */
@@ -1253,7 +1288,7 @@ async function callClaude(body, key){
   let data = null; try{ data = await res.json(); }catch(e){}
   if(!res.ok){
     const m = (data && data.error && data.error.message) || "";
-    if(res.status === 401) throw new Error("Code ou clé d'accès refusé. Vérifiez-la dans les Réglages ou demandez-en une nouvelle à Maxence.");
+    if(res.status === 401){ settings.apiKey = ""; saveSettings(); renderSettings(); throw new Error("Code d'accès refusé. Saisissez-le à nouveau dans l'encadré « Première utilisation », ou demandez-en un nouveau à Maxence."); }
     if(res.status === 403) throw new Error("Cette clé n'a pas l'autorisation. Prévenez Maxence.");
     if(res.status === 429) throw new Error("Trop de demandes d'un coup. Patientez une minute et réessayez.");
     if(res.status === 529 || res.status >= 500) throw new Error("Le service Claude est surchargé. Réessayez dans quelques minutes.");
@@ -1410,7 +1445,7 @@ $("#btn-generate").addEventListener("click", async () => {
   const url = $("#offre-url").value.trim();
   const offre = $("#offre").value.trim();
   const wantLettre = $("#opt-lettre").checked;
-  if(!settings.apiKey){ status("#status-gen", "err", "Enregistrez d'abord la clé d'accès (encadré « Première utilisation » ou Réglages)."); $("#step-key").hidden = false; return; }
+  if(!settings.apiKey){ status("#status-gen", "err", "Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation »."); $("#step-key").hidden = false; return; }
   if(parcours.length < 80){ status("#status-gen", "err", "Votre parcours est trop court. Déposez votre ancien CV ou décrivez vos expériences."); $("#profile-parcours").focus(); return; }
   if(url && !URL_RE.test(url)){ status("#status-gen", "err", "Le lien de l'annonce doit commencer par https://"); $("#offre-url").focus(); return; }
   if(!url && offre.length < 80){ status("#status-gen", "err", "Indiquez le lien de l'annonce ou collez son texte complet."); $("#offre-url").focus(); return; }
@@ -2488,7 +2523,7 @@ function setView(v){
   store.set("view", v);
   updateForWho();
   if(v === "apps"){ renderHistory(); renderFicheView(); updateBackupInfo(); }
-  if(v === "profile") updateBackupInfo();
+  if(v === "profile"){ updateBackupInfo(); renderParcoursUI(); }
   if(v === "create"){ refreshValidate(); requestAnimationFrame(() => { try{ scalePreview(); fitVisible(); }catch(e){} }); }
   const panel = document.querySelector(".panel"); if(panel) panel.scrollTop = 0;
   if(v === "create") setMStep(curHist() && !curHist().manual ? (document.body.dataset.mstep || "cv") : "offre");
@@ -2547,6 +2582,122 @@ $("#m-fix").addEventListener("click", () => {
   setTimeout(() => { fb.scrollIntoView({ behavior:"smooth", block:"start" }); $("#remarques").focus(); }, 60);
 });
 $("#m-new").addEventListener("click", () => { $("#offre").value = ""; $("#offre-url").value = ""; showEmpty(); setMStep("offre"); window.scrollTo({ top:0 }); });
+
+
+/* ===================== Mon profil : le CV de départ ===================== */
+let pcMode = "replace";
+function setParcours(txt, src){
+  const p = prof();
+  p.parcours = txt; p.parcoursAt = Date.now(); p.parcoursSrc = src || ""; delete p.resume; p.resumeErr = false;
+  $("#profile-parcours").value = txt; saveProfiles();
+  status("#pc-status", "", "");
+  renderParcoursUI(); updateForWho();
+  analyzeParcours(p);
+}
+function renderParcoursUI(){
+  const p = prof(); if(!p) return;
+  const has = str(p.parcours).length >= 80;
+  const writing = !$("#pc-write-box").hidden;
+  $("#pc-empty").hidden = has || writing;
+  $("#pc-done").hidden = !has || writing;
+  if(has){
+    const r = p.resume, nExp = r ? arr(r.experiences).length : 0;
+    $("#pc-meta").textContent = (p.parcoursAt ? "Mis à jour le " + fmtDay(p.parcoursAt) : "Enregistré sur cet appareil") + (p.parcoursSrc ? " à partir de " + p.parcoursSrc : "") + (nExp ? " · " + nExp + " expérience" + (nExp > 1 ? "s" : "") + " retenue" + (nExp > 1 ? "s" : "") : "") + ".";
+  }
+  renderProfilView();
+}
+function openWrite(mode){
+  pcMode = mode;
+  $("#pc-input").value = "";
+  $("#pc-write-label").textContent = mode === "append" ? "Qu'est-ce qu'il faut ajouter ou corriger ?" : "Racontez votre parcours";
+  $("#pc-input").placeholder = mode === "append" ? "Ex. : j'ai aussi le CACES 1 depuis 2022. Mon téléphone est le 06 12 34 56 78. J'étais caissière et pas vendeuse chez Super U."
+    : "Vos coordonnées (ville, téléphone, e-mail, permis), vos expériences avec les dates et ce que vous faisiez, vos diplômes, vos langues. Rien ne sera inventé.";
+  $("#pc-write-box").hidden = false; $("#pc-edit-box").hidden = true; $("#pc-edit").setAttribute("aria-expanded", "false");
+  renderParcoursUI(); $("#pc-input").focus();
+}
+function closeWrite(){ stopDictation(); $("#pc-write-box").hidden = true; renderParcoursUI(); }
+$("#pc-write").addEventListener("click", () => openWrite("replace"));
+$("#pc-say").addEventListener("click", () => { openWrite("replace"); $("#pc-mic").click(); });
+$("#pc-cancel").addEventListener("click", closeWrite);
+$("#pc-save").addEventListener("click", () => {
+  const t = $("#pc-input").value.trim(), p = prof();
+  if(pcMode === "append"){
+    if(t.length < 3){ $("#pc-input").focus(); return; }
+    stopDictation(); $("#pc-write-box").hidden = true;
+    setParcours(str(p.parcours).trim() + "\n\nPrécisions et corrections du candidat (elles priment sur ce qui précède) :\n" + t, p.parcoursSrc || "");
+  } else {
+    if(t.length < 80){ status("#pc-status", "err", "C'est un peu court : ajoutez vos expériences avec les dates, vos diplômes et vos coordonnées."); $("#pc-input").focus(); return; }
+    stopDictation(); $("#pc-write-box").hidden = true;
+    setParcours(t, "votre texte");
+  }
+});
+setupDictation($("#pc-mic"), $("#pc-input"), () => status("#pc-status", "err", DICT_HELP));
+$("#pc-edit").addEventListener("click", () => { const b = $("#pc-edit-box"); b.hidden = !b.hidden; $("#pc-edit").setAttribute("aria-expanded", b.hidden ? "false" : "true"); });
+$("#pc-reimport").addEventListener("click", () => $("#file-any").click());
+$("#pc-add").addEventListener("click", () => openWrite("append"));
+$("#pc-reset").addEventListener("click", () => {
+  if(!confirm("Effacer votre CV enregistré ? Vos candidatures déjà créées sont gardées.")) return;
+  const p = prof(); p.parcours = ""; delete p.resume; delete p.parcoursAt; delete p.parcoursSrc;
+  $("#profile-parcours").value = ""; saveProfiles(); $("#pc-edit-box").hidden = true; renderParcoursUI(); updateForWho();
+});
+
+/* Ce que Jalon a retenu du CV : un résumé fidèle, pour confirmer l'import */
+const RESUME_SYSTEM = "Tu lis le parcours d'un candidat (texte extrait de son CV, parfois en vrac) et tu le résumes fidèlement. N'invente rien, ne reformule pas les intitulés. " +
+  "Si le texte contient une section « Précisions et corrections du candidat », elle prime sur le reste. " +
+  "Réponds UNIQUEMENT avec un objet JSON valide : {\"nom\":\"\",\"titre\":\"métier principal en quelques mots\",\"ville\":\"\",\"telephone\":\"\",\"email\":\"\",\"permis\":\"\",\"experiences\":[{\"poste\":\"\",\"entreprise\":\"\",\"dates\":\"\"}],\"formations\":[{\"diplome\":\"\",\"etablissement\":\"\",\"dates\":\"\"}],\"competences\":[\"5 à 10 compétences courtes\"],\"langues\":[\"\"],\"manques\":[\"0 à 3 informations utiles absentes ou floues, formulées simplement, ex. : Aucun numéro de téléphone\"]}. Expériences de la plus récente à la plus ancienne. Chaîne ou liste vide si inconnu.";
+let analyzing = null;
+async function analyzeParcours(p){
+  if(!p || str(p.parcours).length < 80 || !settings.apiKey){ renderProfilView(); return; }
+  const id = p.id; analyzing = id; renderProfilView();
+  try{
+    const data = await callClaude({ model:"claude-sonnet-5-5", max_tokens:2500, system:RESUME_SYSTEM, messages:[{ role:"user", content:"<parcours>\n" + p.parcours + "\n</parcours>" }] }, settings.apiKey);
+    addCost(data.usage);
+    const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("");
+    const q = profiles.find(x => x.id === id); if(q){ q.resume = parseJSON(text); q.resumeErr = false;
+      if(!str(q.name) && str(q.resume.nom)){ q.name = str(q.resume.nom); if(q.id === currentProfileId){ $("#profile-name").value = q.name; renderAvatar(); } }
+      saveProfiles(); }
+  }catch(e){ const q = profiles.find(x => x.id === id); if(q){ q.resumeErr = true; saveProfiles(); } }
+  if(analyzing === id) analyzing = null;
+  renderParcoursUI();
+}
+function renderProfilView(){
+  const box = $("#profil-view"); if(!box) return;
+  box.innerHTML = "";
+  const p = prof(); if(!p) return;
+  if(str(p.parcours).length < 80){
+    const c = card("Votre CV apparaîtra ici");
+    c.appendChild(el("p", "", "Importez votre CV actuel, ou racontez votre parcours par écrit ou à voix haute. " + BRAND.name + " vous montrera ici ce qu'il a retenu, pour que vous puissiez vérifier que rien ne manque."));
+    box.appendChild(c); return;
+  }
+  const r = p.resume;
+  if(analyzing === p.id){
+    const c = card("", "pv-ok"); const w = el("div", "pv-wait"); w.appendChild(el("span", "spin")); const t = el("div");
+    t.appendChild(el("b", "", "CV bien reçu.")); t.appendChild(el("p", "hint", BRAND.name + " le lit pour vous montrer ce qu'il a retenu (10 à 20 secondes).")); w.appendChild(t); c.appendChild(w);
+    box.appendChild(c); return;
+  }
+  if(!r){
+    const c = card("Votre CV est enregistré", "pv-ok");
+    c.appendChild(el("p", "", !settings.apiKey ? "Votre CV est bien pris en compte. Saisissez votre code d'accès (encadré « Première utilisation ») pour voir ce que " + BRAND.name + " en a retenu."
+      : p.resumeErr ? "L'aperçu n'a pas pu être préparé, mais votre CV est bien pris en compte : vous pouvez créer vos CV adaptés." : "Votre CV est bien pris en compte."));
+    if(settings.apiKey) c.appendChild(btn("Afficher ce que " + BRAND.name + " a retenu", "small", () => analyzeParcours(p)));
+    box.appendChild(c); return;
+  }
+  const ok = card("Votre CV a bien été pris en compte", "pv-ok");
+  ok.appendChild(el("p", "", "Voici ce que " + BRAND.name + " a retenu. Si quelque chose manque ou est faux, utilisez « Modifier mon CV »."));
+  box.appendChild(ok);
+  const id = card("");
+  id.appendChild(el("h2", "", str(r.nom) || str(p.name) || "Vous")); id.querySelector("h2").style.cssText = "font-family:var(--display);color:var(--brand);font-size:26px;margin:0";
+  if(str(r.titre)) id.appendChild(el("p", "", str(r.titre))).style.margin = "4px 0 0";
+  const row = el("div", "pv-id"); [r.ville, r.telephone, r.email, r.permis].map(str).filter(Boolean).forEach(t => row.appendChild(el("span", "", t))); id.appendChild(row);
+  box.appendChild(id);
+  const list = (title, items, fmt) => { const xs = arr(items).filter(Boolean); if(!xs.length) return; const c = card(title); const ul = el("ul", "pv-list"); xs.forEach(x => { const li = el("li"); fmt(li, x); ul.appendChild(li); }); c.appendChild(ul); box.appendChild(c); };
+  list("Expériences (" + arr(r.experiences).length + ")", r.experiences, (li, x) => { li.appendChild(el("b", "", str(x.poste) || "Poste")); li.appendChild(el("span", "", [x.entreprise, x.dates].map(str).filter(Boolean).join(" · "))); });
+  list("Formations", r.formations, (li, x) => { li.appendChild(el("b", "", str(x.diplome))); li.appendChild(el("span", "", [x.etablissement, x.dates].map(str).filter(Boolean).join(" · "))); });
+  const chips = (title, items) => { const xs = arr(items).map(str).filter(Boolean); if(!xs.length) return; const c = card(title); const d = el("div", "chips"); xs.forEach(t => d.appendChild(el("span", "", t))); c.appendChild(d); box.appendChild(c); };
+  chips("Compétences", r.competences); chips("Langues", r.langues);
+  const m = arr(r.manques).map(str).filter(Boolean);
+  if(m.length){ const c = card("À compléter si possible", "pv-warn"); const ul = el("ul", "fv-list"); m.forEach(t => ul.appendChild(el("li", "", t))); c.appendChild(ul); c.appendChild(btn("Ajouter ces informations", "small", () => openWrite("append"))); box.appendChild(c); }
+}
 
 /* ===================== Fiche d'une candidature ===================== */
 const fmtDay = t => new Date(t).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
@@ -2700,7 +2851,7 @@ const PREP_SYSTEM = "Tu es un coach emploi français, chaleureux et franc. Tu pr
   "Réponds UNIQUEMENT avec un objet JSON valide : {\"atouts\": [3 à 4 atouts réels du candidat pour CE poste], \"points_a_preparer\": [2 à 4 points faibles ou questions gênantes probables, avec comment y répondre honnêtement], " +
   "\"questions\": [{\"question\": \"question probable du recruteur\", \"conseil\": \"comment y répondre en 1 à 2 phrases, avec un exemple tiré du CV\"} — 6 à 8 questions], \"a_demander\": [2 à 3 questions pertinentes à poser au recruteur]}.";
 async function prepareInterview(G, latest, b, st){
-  if(!settings.apiKey){ st.className = "status err"; st.textContent = "Enregistrez d'abord votre code d'accès (Mon profil › Réglages)."; return; }
+  if(!settings.apiKey){ st.className = "status err"; st.textContent = "Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation »."; return; }
   b.disabled = true; st.className = "status info"; st.textContent = BRAND.name + " prépare votre entretien, comptez 20 à 40 secondes.";
   try{
     const d = latest.data || {}, cvTxt = cvTextFromHtml(latest.cvHtml || "");
