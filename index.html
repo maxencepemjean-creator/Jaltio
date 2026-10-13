@@ -173,14 +173,14 @@ details summary{cursor:pointer;font-weight:600}
 .validate .btn{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:600;border-radius:999px}
 
 /* Bulle flottante « Enregistrer mes retouches » : toujours visible pendant qu'on retouche */
-.save-fab{position:fixed;right:22px;bottom:98px;z-index:51;display:none;align-items:center;gap:8px;border:0;border-radius:999px;padding:12px 18px 12px 14px;background:var(--ok);color:#fff;font:inherit;font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.22);animation:savepop .25s ease-out}
+.save-fab{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);white-space:nowrap;z-index:51;display:none;align-items:center;gap:8px;border:0;border-radius:999px;padding:12px 18px 12px 14px;background:var(--ok);color:#fff;font:inherit;font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.22);animation:savepop .25s ease-out}
 .save-fab.show{display:inline-flex}
 .save-fab:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
 .save-fab svg{width:20px;height:20px;flex:none}
 .save-fab.done{background:var(--brand)}
-@keyframes savepop{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+@keyframes savepop{from{opacity:0;margin-bottom:-10px}to{opacity:1;margin-bottom:0}}
 @media (prefers-reduced-motion:reduce){.save-fab{animation:none}}
-body.chat-open .save-fab{bottom:22px}
+@media (max-width:560px){.save-fab{bottom:96px}}
 
 /* Bulle « Demande à Claude ! » */
 .fab{position:fixed;right:22px;bottom:22px;width:62px;height:62px;border-radius:50%;border:0;background:var(--brand);color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(31,78,121,.35);display:grid;place-items:center;z-index:50;transition:transform .15s}
@@ -615,7 +615,6 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
   <div class="tabs app-ui" id="tabs" hidden>
     <button class="tab on" data-tab="cv">CV</button>
     <button class="tab" data-tab="lettre" id="tab-lettre">Lettre de motivation</button>
-    <span class="validate" id="validate">Retouches à valider <button class="btn small" id="btn-validate" type="button"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Valider mes retouches</button></span>
     <span class="versions" id="versions"><button class="btn small" id="v-prev" type="button" aria-label="Version précédente">‹</button><span id="v-label"></span><button class="btn small" id="v-next" type="button" aria-label="Version suivante">›</button></span>
     <span class="spacer"></span>
     <span id="score" style="font-size:14px;color:var(--muted)"></span>
@@ -1722,16 +1721,21 @@ function validateEdits(silent){
 function refreshValidate(){
   const h = currentHistId && history.find(x => x.id === currentHistId);
   const dirty = !!(h && h.dirty);
-  $("#validate").classList.toggle("show", dirty);
   const f = $("#save-fab");
-  if(dirty){ f.classList.remove("done"); $("#save-fab-label").textContent = "Enregistrer mes retouches"; f.classList.add("show"); }
+  if(dirty){ f.classList.remove("done"); $("#save-fab-label").textContent = "Enregistrer mes retouches"; f.classList.add("show"); placeSaveFab(); }
   else if(!f.classList.contains("done")) f.classList.remove("show");
 }
 function markDirty(){
   const h = history.find(x => x.id === currentHistId);
   if(h && !h.dirty){ h.dirty = true; refreshValidate(); }
 }
-$("#btn-validate").addEventListener("click", () => validateEdits(false));
+// Centre la bulle sous l'aperçu du CV / de la lettre (et non au milieu de l'écran)
+function placeSaveFab(){
+  const pv = $("#preview"), f = $("#save-fab"); if(!pv || !f) return;
+  const r = pv.getBoundingClientRect();
+  f.style.left = (r.width && r.width < window.innerWidth - 40) ? (r.left + r.width / 2) + "px" : "50%";
+}
+window.addEventListener("resize", placeSaveFab);
 $("#save-fab").addEventListener("click", () => {
   const f = $("#save-fab");
   f.classList.add("done"); $("#save-fab-label").textContent = "Retouches enregistrées";
