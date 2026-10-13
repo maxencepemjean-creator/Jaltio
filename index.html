@@ -203,6 +203,52 @@ body[data-view="profile"] [data-v]:not([data-v~="profile"]){display:none!importa
 .nudge{background:var(--accent-soft);border-color:#F4D38F}
 .nudge p{margin:0 0 10px}
 
+
+/* ===================== Téléphone : barre d'onglets en bas + création guidée ===================== */
+.tabbar{display:none}
+.m-steps,.m-cv-actions{display:none}
+@media (max-width:700px){
+  body.m{padding-bottom:calc(84px + env(safe-area-inset-bottom, 0px))}
+  body.m .views{display:none}
+  body.m .fab{display:none!important}
+  body.m .tabbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:70;background:#fff;border-top:1px solid var(--line);padding:6px 4px calc(10px + env(safe-area-inset-bottom, 0px))}
+  .tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font:600 12px 'Figtree',system-ui,sans-serif;color:var(--muted);min-height:52px;position:relative;cursor:pointer}
+  .tabbar button svg{width:24px;height:24px}
+  .tabbar button[aria-selected="true"]{color:var(--brand);font-weight:700}
+  .tabbar .badge{position:absolute;top:0;left:calc(50% + 6px);background:var(--danger);color:#fff;border-radius:999px;font-size:11px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 4px}
+  body.m .save-fab{bottom:calc(96px + env(safe-area-inset-bottom, 0px))}
+  body.m .chat{top:10px;left:8px;right:8px;bottom:calc(76px + env(safe-area-inset-bottom, 0px));height:auto;z-index:65}
+  body.m.chat-open{padding-bottom:calc(84px + env(safe-area-inset-bottom, 0px))}
+  body.m .edit-hint{display:none!important}
+  body.m .app{display:flex;flex-direction:column}
+  body.m .panel{order:1} body.m .preview{order:2}
+
+  /* Créer, étape par étape */
+  body.m[data-view="create"] .m-steps{display:block;margin:0 0 14px}
+  .m-steps .bar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .m-steps .bar span{height:6px;border-radius:3px;background:var(--lilas)}
+  .m-steps .bar span.done{background:var(--ok)} .m-steps .bar span.now{background:var(--accent)}
+  .m-steps .lbl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:6px;font-size:11.5px;color:var(--muted);text-align:center}
+  .m-steps .lbl .now{color:var(--brand);font-weight:700} .m-steps .lbl .done{color:var(--ok);font-weight:600}
+  .m-steps p{margin:10px 0 0;font-weight:700;color:var(--brand)}
+  body.m[data-view="create"][data-mstep="offre"] .preview{display:none}
+  body.m[data-view="create"][data-mstep="offre"] #feedback-box,
+  body.m[data-view="create"][data-mstep="offre"] #step-dl{display:none!important}
+  body.m[data-view="create"] #btn-generate{min-height:56px;font-size:17px;border-radius:16px}
+  body.m[data-view="create"][data-mstep="cv"] .preview{order:1}
+  body.m[data-view="create"][data-mstep="cv"] .panel{order:2}
+  body.m[data-view="create"][data-mstep="cv"] .panel > :not(.m-steps):not([data-mkeep]){display:none!important}
+  body.m[data-view="create"][data-mstep="cv"] #step-offre > :not(#feedback-box):not(#status-gen){display:none!important}
+  body.m[data-view="create"][data-mstep="cv"]:not([data-mfix]) #step-offre{display:none!important}
+  body.m[data-view="create"][data-mstep="cv"] #tabs .versions{display:none}
+  body.m[data-view="create"][data-mstep="cv"] .m-cv-actions{display:flex;flex-direction:column;gap:10px;margin:12px 0 4px}
+  .m-cv-actions .btn{min-height:56px;border-radius:16px;font-size:17px;font-weight:700}
+  .m-cv-actions .btn.alt{min-height:50px;font-size:15.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
+  .m-cv-actions .link{align-self:center;min-height:44px}
+  body.m .panel-foot{display:none!important}
+  body.m #step-offre > h2{display:none}
+  body.m .m-steps p{font-family:var(--display);font-size:24px;line-height:1.1;margin-top:12px}
+}
 /* ===== Suivi : « À faire » + jalons ===== */
 .apps-hello h2{font-family:var(--display);font-size:24px;color:var(--brand);margin:0}
 .apps-hello p{margin:2px 0 14px;color:var(--muted)}
@@ -645,6 +691,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     </div>
   </div>
 
+  <div class="m-steps" id="m-steps" aria-live="polite"></div>
   <p class="for-who" data-v="create">CV et lettre pour <b id="for-who-name"></b> · <button class="link" type="button" data-goto="profile">changer</button></p>
   <div class="step nudge" id="nudge-parcours" data-v="create" hidden>
     <p><b>Commencez par votre parcours.</b> Déposez votre ancien CV ou décrivez vos expériences : c'est la base de tous vos CV.</p>
@@ -664,7 +711,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <p class="hint" id="retouches-info" hidden><span data-brand>Jalon</span> s'inspire de <span id="retouches-n"></span> pour écrire comme vous. <button class="btn small" id="btn-forget" type="button">Oublier</button></p>
   </div>
 
-  <div class="step" data-v="create">
+  <div class="step" data-v="create" id="step-offre" data-mkeep>
     <h2><span class="num">1</span> L'offre d'emploi</h2>
     <label for="offre-url">Lien de l'annonce</label>
     <input type="text" id="offre-url" inputmode="url" placeholder="https://www.hellowork.com/fr-fr/emplois/…">
@@ -689,7 +736,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     </div>
   </div>
 
-  <div class="step" id="step-dl" data-v="create" hidden>
+  <div class="step" id="step-dl" data-v="create" data-mkeep hidden>
     <h2><span class="num">2</span> Apparence et téléchargement</h2>
     <div class="row look">
       <div><label for="tpl">Modèle</label>
@@ -772,6 +819,11 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <span id="score" style="font-size:14px;color:var(--muted)"></span>
   </div>
   <div class="alertes app-ui" id="alertes" hidden></div>
+  <div class="m-cv-actions app-ui" id="m-cv-actions">
+    <button class="btn primary" id="m-send" type="button">C'est parfait, je l'envoie</button>
+    <button class="btn alt" id="m-fix" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg>Je veux changer quelque chose</button>
+    <button class="link" id="m-new" type="button">Créer un CV pour une autre offre</button>
+  </div>
   <p class="edit-hint app-ui" id="edit-hint" hidden>Astuce : cliquez directement dans le CV pour corriger un mot. Vos modifications sont enregistrées.</p>
   <div class="empty app-ui" id="empty">
     <svg class="logo" width="56" height="56" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg>
@@ -816,6 +868,12 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 </aside>
 </div>
 
+<nav class="tabbar app-ui" id="tabbar" aria-label="Navigation principale">
+  <button type="button" data-tab="create" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Créer</button>
+  <button type="button" data-tab="apps" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Candidatures<span class="badge" id="tab-badge" hidden></span></button>
+  <button type="button" data-tab="coach" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Coach</button>
+  <button type="button" data-tab="profile" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Profil</button>
+</nav>
 <button class="save-fab app-ui" id="save-fab" type="button" title="Enregistrer les modifications faites à la main dans le CV et la lettre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span id="save-fab-label">Enregistrer mes retouches</span></button>
 <button class="fab app-ui" id="fab" type="button" aria-label="Demande à votre coach">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 2.5c-5.25 0-9.5 3.8-9.5 8.5 0 2.3 1 4.4 2.7 5.9L4.3 21l4.6-2.1c.97.27 2 .4 3.1.4 5.25 0 9.5-3.8 9.5-8.5S17.25 2.5 12 2.5z"/><circle cx="7.9" cy="11" r="1.35" fill="var(--accent)"/><circle cx="12" cy="11" r="1.35" fill="var(--accent)"/><circle cx="16.1" cy="11" r="1.35" fill="var(--accent)"/></svg>
@@ -1370,6 +1428,7 @@ $("#btn-generate").addEventListener("click", async () => {
     const out = await runClaude([{ role:"user", content:userMsg }], tools);
     out._userMsg = { parcours, wantLettre, url };
     storeResult(p, out);
+    setMStep("cv"); if(isM()) window.scrollTo({ top:0, behavior:"smooth" });
     $("#remarques").value = "";
     status("#status-gen", "ok", "C'est prêt ! Relisez le CV à droite. Corrigez directement dans le document, ou expliquez ce qui ne va pas ci-dessous.");
   }catch(e){
@@ -1690,6 +1749,7 @@ function purgeOld(){
   return before - history.length;
 }
 function openHist(h){
+  if(!h.manual && document.body.dataset) document.body.dataset.mstep = "cv";
   if(h.manual){ currentHistId = h.id; $("#holder-cv").hidden = true; $("#holder-lettre").hidden = true; renderHistory(); return; }
   if(!h.baseCvHtml){ h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; }
   currentHistId = h.id; renderAll(h.data, h); renderHistory();
@@ -1758,6 +1818,7 @@ function todoItems(groups){
 function renderBoard(groups){
   const todo = todoItems(groups);
   const badge = $("#nav-badge"); badge.textContent = todo.length; badge.hidden = !todo.length;
+  const tb = $("#tab-badge"); if(tb){ tb.textContent = todo.length; tb.hidden = !todo.length; }
   badge.title = todo.length ? todo.length + " chose(s) à faire" : "";
   const fn = firstName();
   $("#apps-hello-t").textContent = "Bonjour" + (fn ? " " + fn : "");
@@ -2094,6 +2155,7 @@ async function sendChat(text){
 
 function openChat(open){
   document.body.classList.toggle("chat-open", open);
+  if(typeof syncTabbar === "function") setTimeout(syncTabbar, 0);
   if(open){ renderChat(); setTimeout(() => $("#chat-input").focus(), 50); }
   scalePreview(); fitVisible();
 }
@@ -2429,6 +2491,8 @@ function setView(v){
   if(v === "profile") updateBackupInfo();
   if(v === "create"){ refreshValidate(); requestAnimationFrame(() => { try{ scalePreview(); fitVisible(); }catch(e){} }); }
   const panel = document.querySelector(".panel"); if(panel) panel.scrollTop = 0;
+  if(v === "create") setMStep(curHist() && !curHist().manual ? (document.body.dataset.mstep || "cv") : "offre");
+  if(typeof syncTabbar === "function") syncTabbar();
 }
 document.querySelectorAll(".view-tab").forEach(t => t.addEventListener("click", () => setView(t.dataset.view)));
 document.addEventListener("click", e => { const g = e.target.closest("[data-goto]"); if(g){ e.preventDefault(); setView(g.dataset.goto); } });
@@ -2439,6 +2503,50 @@ function updateForWho(){
 }
 $("#profile-name").addEventListener("input", updateForWho);
 $("#profile-parcours").addEventListener("input", updateForWho);
+
+
+/* ===================== Téléphone ===================== */
+const mql = window.matchMedia("(max-width:700px)");
+const isM = () => mql.matches;
+function setMStep(s){ document.body.dataset.mstep = s; if(s !== "cv") delete document.body.dataset.mfix; renderMSteps(); requestAnimationFrame(() => { try{ scalePreview(); fitVisible(); }catch(e){} }); }
+function renderMSteps(){
+  const box = $("#m-steps"); if(!box) return;
+  const hasParcours = str((prof() || {}).parcours).length >= 80;
+  const s = document.body.dataset.mstep || "offre";
+  const idx = !hasParcours ? 0 : s === "cv" ? 2 : 1;
+  const names = ["Parcours", "Offre", "CV", "Envoi"];
+  const titles = ["Commencez par votre parcours", "Quelle offre vous intéresse ?", "Votre CV est prêt", "Envoyez votre candidature"];
+  box.innerHTML = "";
+  const bar = el("div", "bar"), lbl = el("div", "lbl");
+  names.forEach((n, i) => { const c = i < idx ? "done" : i === idx ? "now" : ""; bar.appendChild(el("span", c)); lbl.appendChild(el("span", c, n)); });
+  box.appendChild(el("div", "hint", "Étape " + (idx + 1) + " sur 4")); box.appendChild(bar); box.appendChild(lbl);
+  box.appendChild(el("p", "", titles[idx]));
+}
+function applyMobile(){
+  document.body.classList.toggle("m", isM());
+  ["#page-cv", "#page-lettre"].forEach(s => { const n = $(s); if(n) n.setAttribute("contenteditable", isM() ? "false" : "true"); });
+  renderMSteps();
+  try{ scalePreview(); fitVisible(); }catch(e){}
+}
+(mql.addEventListener ? mql.addEventListener("change", applyMobile) : mql.addListener(applyMobile));
+document.querySelectorAll("#tabbar button").forEach(b => b.addEventListener("click", () => {
+  const t = b.dataset.tab;
+  if(t === "coach"){ openChat(!document.body.classList.contains("chat-open")); syncTabbar(); return; }
+  if(document.body.classList.contains("chat-open")) openChat(false);
+  setView(t); window.scrollTo({ top:0 });
+}));
+function syncTabbar(){
+  const chat = document.body.classList.contains("chat-open"), v = document.body.dataset.view;
+  document.querySelectorAll("#tabbar button").forEach(b => b.setAttribute("aria-selected", (chat ? b.dataset.tab === "coach" : b.dataset.tab === v) ? "true" : "false"));
+  const nb = $("#nav-badge"), tb = $("#tab-badge"); if(nb && tb){ tb.textContent = nb.textContent; tb.hidden = nb.hidden; }
+}
+$("#m-send").addEventListener("click", () => openApply());
+$("#m-fix").addEventListener("click", () => {
+  document.body.dataset.mfix = "1";
+  const fb = $("#feedback-box"); fb.hidden = false;
+  setTimeout(() => { fb.scrollIntoView({ behavior:"smooth", block:"start" }); $("#remarques").focus(); }, 60);
+});
+$("#m-new").addEventListener("click", () => { $("#offre").value = ""; $("#offre-url").value = ""; showEmpty(); setMStep("offre"); window.scrollTo({ top:0 }); });
 
 /* ===================== Fiche d'une candidature ===================== */
 const fmtDay = t => new Date(t).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
@@ -2685,6 +2793,7 @@ $("#file-restore").addEventListener("change", async e => {
   if(changed) saveHistory();
 })();
 purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); scalePreview();
+applyMobile();
 setView(str((prof() || {}).parcours).length < 80 ? "profile" : store.get("view", "create"));
 window.__cvx = { renderAll, showTab, cleanHex, linesDiff, purgeOld, setView, resultatsBlock, statusOf, groupsFor }; // utilisé pour les tests
 })();
