@@ -999,7 +999,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   </div>
 
   <div class="step" data-v="profile" id="step-backup">
-    <h2><span class="num"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span> Retrouver <span data-brand>Jalon</span> sur tous mes appareils</h2>
+    <h2><span class="num"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span><span>Retrouver <span data-brand>Jalon</span> sur tous mes appareils</span></h2>
 
     <div id="sync-off">
       <p class="hint" style="margin-top:0">Choisissez un identifiant (votre e-mail) et un mot de passe. Sur un autre appareil, entrez les mêmes : vous retrouvez votre parcours, vos CV, vos candidatures et votre suivi.</p>
@@ -1012,6 +1012,10 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
         <div id="sync-new" hidden>
           <label for="sync-pw2">Retapez le mot de passe</label>
           <input type="password" id="sync-pw2" name="password2" autocomplete="new-password">
+          <div id="sync-code-box" hidden>
+            <label for="sync-code">Code d'accès <span data-brand>Jalon</span></label>
+            <input type="text" id="sync-code" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Le code qu'on vous a donné">
+          </div>
           <label class="sync-check"><input type="checkbox" id="sync-ok"><span>J'ai compris : si j'oublie ce mot de passe, mes données en ligne sont perdues.</span></label>
         </div>
         <div class="row" style="margin-top:12px"><button class="btn primary" type="submit" id="sync-go">Activer la synchronisation</button></div>
@@ -3591,7 +3595,8 @@ const validPayload = p => !!p && p.app === "jalon" && !!p.data && typeof p.data 
 async function syncCall(path, body, withCode){
   if(!RELAIS) throw new Error("La synchronisation n'est pas disponible pour l'instant.");
   const headers = { "content-type":"application/json" };
-  if(withCode && settings.apiKey && !/^sk-ant-/.test(settings.apiKey)) headers["x-jalon-code"] = settings.apiKey;
+  const code = typeof withCode === "string" ? withCode : (withCode ? settings.apiKey : "");
+  if(code && !/^sk-ant-/.test(code)) headers["x-jalon-code"] = code.trim();
   let res;
   try{ res = await fetch(RELAIS.replace(/\/+$/, "") + "/sync/" + path, { method:"POST", headers, body:JSON.stringify(body) }); }
   catch(e){ const err = new Error("Pas de connexion."); err.offline = true; throw err; }
@@ -3801,17 +3806,22 @@ async function syncStart(){
     const meta = await syncCall("meta", { id });
     if(!meta.exists){
       if($("#sync-new").hidden){
-        $("#sync-new").hidden = false; $("#sync-pw2").focus();
+        $("#sync-new").hidden = false; $("#sync-code-box").hidden = !!settings.apiKey; $("#sync-pw2").focus();
         status("#sync-msg", "info", "Aucune synchronisation avec cet identifiant : on la crée. Retapez le mot de passe et cochez la case.");
         return;
       }
       if(pw !== $("#sync-pw2").value.normalize("NFKC")){ status("#sync-msg", "err", "Les deux mots de passe sont différents."); $("#sync-pw2").focus(); return; }
+      const codeIn = $("#sync-code").value.trim(), code = codeIn || settings.apiKey || "";
+      if(!code){ $("#sync-code-box").hidden = false; status("#sync-msg", "err", "Entrez votre code d'accès " + BRAND.name + " (celui qu'on vous a donné) pour créer la synchronisation."); $("#sync-code").focus(); return; }
       if(!$("#sync-ok").checked){ status("#sync-msg", "err", "Cochez la case pour confirmer que vous avez compris."); return; }
       status("#sync-msg", "info", "Création de votre espace chiffré…");
       const salt = crypto.getRandomValues(new Uint8Array(16)), k = await deriveKeys(pw, salt);
       const blob = await encryptPayload(syncSnapshot(), k.key);
       if(blob.ct.length > SYNC_MAX_CT){ status("#sync-msg", "err", "Vos données dépassent la taille autorisée. Supprimez d'anciennes candidatures ou la photo de profil."); return; }
-      const res = await syncCall("put", { id, auth:k.auth, salt:toB64(salt), iv:blob.iv, ct:blob.ct, baseVersion:0 }, true);
+      let res;
+      try{ res = await syncCall("put", { id, auth:k.auth, salt:toB64(salt), iv:blob.iv, ct:blob.ct, baseVersion:0 }, code); }
+      catch(e){ if(e.status === 403 || e.status === 401){ $("#sync-code-box").hidden = false; status("#sync-msg", "err", "Code d'accès refusé. Vérifiez-le (majuscules, tirets) ou demandez-en un nouveau."); $("#sync-code").focus(); return; } throw e; }
+      if(!settings.apiKey && codeIn){ settings.apiKey = codeIn; saveSettings(); }
       syncSt = { id, auth:k.auth, key:k.key, mail:maskMail(mail), version:res.version, dirty:false, dirtyAt:0, lastSyncAt:Date.now(), err:"" };
       syncSave(); syncResetForm(); setSyncUi();
       status("#sync-msg", "ok", "Synchronisation activée. Sur un autre appareil, entrez le même identifiant et le même mot de passe.");
@@ -3851,7 +3861,7 @@ async function syncStart(){
   }
 }
 const syncAvailableNow = () => !!(window.crypto && crypto.subtle && crypto.getRandomValues);
-function syncResetForm(){ ["#sync-pw", "#sync-pw2"].forEach(s => { $(s).value = ""; }); $("#sync-ok").checked = false; $("#sync-new").hidden = true; }
+function syncResetForm(){ ["#sync-pw", "#sync-pw2", "#sync-code"].forEach(s => { $(s).value = ""; }); $("#sync-ok").checked = false; $("#sync-new").hidden = true; }
 $("#sync-form").addEventListener("submit", e => { e.preventDefault(); syncStart(); });
 $("#sync-mail").addEventListener("input", () => { $("#sync-new").hidden = true; });
 $("#sync-now").addEventListener("click", () => { postponeReset(); syncNow("manual"); });
