@@ -171,6 +171,64 @@ details summary{cursor:pointer;font-weight:600}
   .page-holder:not([hidden]){position:absolute!important;top:0;left:0}
   .page-holder .page{height:297mm!important;break-after:avoid;page-break-after:avoid;break-inside:avoid}
 }
+/* ===== Navigation : Créer / Mes candidatures / Mon profil ===== */
+.views{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--lilas);border-radius:14px;padding:4px;margin:0 0 16px}
+.view-tab{border:0;background:none;border-radius:10px;padding:9px 6px;font-weight:600;font-size:14px;color:var(--brand);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;line-height:1.15;text-align:center}
+.view-tab[aria-selected="true"]{background:#fff;box-shadow:0 1px 4px rgba(58,35,64,.15)}
+.view-tab:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.view-tab .badge{background:var(--danger);color:#fff;border-radius:999px;font-size:11.5px;min-width:19px;height:19px;padding:0 5px;display:inline-grid;place-items:center}
+body[data-view="create"] [data-v]:not([data-v~="create"]),
+body[data-view="apps"] [data-v]:not([data-v~="apps"]),
+body[data-view="profile"] [data-v]:not([data-v~="profile"]){display:none!important}
+@media screen{
+  body[data-view="apps"] #preview > :not(#fiche-view){display:none!important}
+  body:not([data-view="apps"]) #fiche-view{display:none!important}
+  body[data-view="apps"] .save-fab{display:none!important}
+}
+.for-who{margin:-4px 0 14px;font-size:14px;color:var(--muted)}
+.for-who b{color:var(--ink)}
+.nudge{background:var(--accent-soft);border-color:#F4D38F}
+.nudge p{margin:0 0 10px}
+
+/* ===== Fiche d'une candidature ===== */
+.fiche-view{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.fv-card{background:#fff;border-radius:20px;padding:20px 22px;box-shadow:0 6px 28px rgba(58,35,64,.07)}
+.fv-card h3{font-family:var(--display);color:var(--brand);font-size:17px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.fv-head h2{font-family:var(--display);font-size:28px;line-height:1.1;letter-spacing:-.01em;color:var(--brand);margin:0 0 4px;text-wrap:balance}
+.fv-head .co{font-size:17px;color:var(--ink);margin:0 0 8px}
+.fv-meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13.5px;color:var(--muted);margin-bottom:14px}
+.pill{display:inline-flex;align-items:center;border-radius:999px;padding:3px 11px;font-size:12.5px;font-weight:700;background:var(--lilas);color:var(--brand)}
+.pill.todo{background:#F1ECEF;color:var(--muted)}
+.pill.relance{background:var(--accent-soft);color:#7A4A05}
+.pill.itw{background:var(--ok-soft);color:var(--ok)}
+.pill.closed{background:#F1ECEF;color:var(--muted)}
+.fv-actions{display:flex;flex-wrap:wrap;gap:8px}
+.fv-actions .btn{border-radius:12px}
+.fv-resume{margin:0;white-space:pre-line;line-height:1.55}
+.fv-src{font-size:12px;color:var(--muted);margin-top:8px}
+.fv-alertes{background:var(--accent-soft);box-shadow:none}
+.fv-alertes h3{color:#5A3A08}
+.fv-alertes ul,.fv-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.fv-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}
+.fv-grid label{margin-top:8px}
+.fv-grid input,.fv-grid select{width:100%}
+.fv-steps{list-style:none;margin:0 0 6px;padding:0;display:flex;flex-direction:column;gap:8px}
+.fv-steps li{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;font-size:14px}
+.fv-steps .dot{width:10px;height:10px;border-radius:50%;background:var(--line);flex:none}
+.fv-steps .done .dot{background:var(--ok)}
+.fv-steps .warn{color:var(--warn);font-weight:600}
+.fv-q{padding:10px 0}
+.fv-q + .fv-q{border-top:1px solid var(--line)}
+.fv-card h4{margin:12px 0 6px;font-size:14px}
+.fv-grid input[type=datetime-local]{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;color:var(--ink);min-height:44px}
+.fv-q b{display:block;margin-bottom:3px}
+.fv-q span{color:var(--muted);font-size:14px}
+.fv-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}
+.fv-cols h4{margin:0 0 6px;font-size:14px}
+.fv-empty{text-align:left}
+.fv-notes{width:100%;min-height:110px}
+@media (max-width:700px){ .fv-grid,.fv-cols{grid-template-columns:1fr} .fv-head h2{font-size:23px} .fv-card{padding:16px} }
+
 /* Retouches à valider */
 .validate{display:none;align-items:center;gap:8px;background:#fffaeb;border:1px solid #fedf89;color:#7a2e0e;border-radius:999px;padding:4px 6px 4px 12px;font-size:13.5px}
 .validate.show{display:inline-flex}
@@ -494,6 +552,11 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
 <aside class="panel app-ui">
   <div class="brand"><svg class="logo" width="40" height="40" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name" data-brand>Jalon</span></div>
   <p class="sub" data-brand-sig>Chaque étape, jusqu'au poste.</p>
+  <nav class="views" role="tablist" aria-label="Sections de Jalon">
+    <button class="view-tab" role="tab" type="button" data-view="create" aria-selected="true">Créer</button>
+    <button class="view-tab" role="tab" type="button" data-view="apps" aria-selected="false">Mes candidatures <span class="badge" id="nav-badge" hidden></span></button>
+    <button class="view-tab" role="tab" type="button" data-view="profile" aria-selected="false">Mon profil</button>
+  </nav>
 
   <div class="step" id="step-key" hidden>
     <h2><span class="num">!</span> Première utilisation</h2>
@@ -504,7 +567,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <div class="status" id="status-key-first"></div>
   </div>
 
-  <div class="who">
+  <div class="who" data-v="profile">
     <button class="avatar" id="btn-photo" type="button" title="Ajouter ou changer ma photo" aria-label="Ajouter ou changer ma photo">
       <img id="photo-thumb" alt="" hidden><span id="avatar-initials" aria-hidden="true"></span>
     </button>
@@ -521,7 +584,13 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     </div>
   </div>
 
-  <div class="step">
+  <p class="for-who" data-v="create">CV et lettre pour <b id="for-who-name"></b> · <button class="link" type="button" data-goto="profile">changer</button></p>
+  <div class="step nudge" id="nudge-parcours" data-v="create" hidden>
+    <p><b>Commencez par votre parcours.</b> Déposez votre ancien CV ou décrivez vos expériences : c'est la base de tous vos CV.</p>
+    <button class="btn primary" type="button" data-goto="profile">Remplir mon parcours</button>
+  </div>
+
+  <div class="step" data-v="profile">
     <h2><span class="num">1</span> Votre parcours</h2>
     <div class="drop" id="drop" tabindex="0" role="button">
       <b>Déposez votre ancien CV</b><br>ou cliquez pour le choisir : PDF, Word ou texte
@@ -534,8 +603,8 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <p class="hint" id="retouches-info" hidden><span data-brand>Jalon</span> s'inspire de <span id="retouches-n"></span> pour écrire comme vous. <button class="btn small" id="btn-forget" type="button">Oublier</button></p>
   </div>
 
-  <div class="step">
-    <h2><span class="num">2</span> L'offre d'emploi</h2>
+  <div class="step" data-v="create">
+    <h2><span class="num">1</span> L'offre d'emploi</h2>
     <label for="offre-url">Lien de l'annonce</label>
     <input type="text" id="offre-url" inputmode="url" placeholder="https://www.hellowork.com/fr-fr/emplois/…">
     <p class="hint">LinkedIn et Indeed bloquent souvent la lecture : collez alors le texte ci-dessous.</p>
@@ -559,8 +628,8 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     </div>
   </div>
 
-  <div class="step" id="step-dl" hidden>
-    <h2><span class="num">3</span> Apparence et téléchargement</h2>
+  <div class="step" id="step-dl" data-v="create" hidden>
+    <h2><span class="num">2</span> Apparence et téléchargement</h2>
     <div class="row look">
       <div><label for="tpl">Modèle</label>
         <select id="tpl">
@@ -583,7 +652,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <p class="hint">Pour le PDF, choisissez « Enregistrer au format PDF » dans la fenêtre d'impression.</p>
   </div>
 
-  <div class="step">
+  <div class="step" data-v="apps">
     <h2><span class="num"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span> Mes candidatures</h2>
     <div class="board" id="board" role="group" aria-label="Suivi des candidatures">
       <button type="button" class="tile" data-f="todo" aria-pressed="false"><span class="n" id="t-todo">0</span><span class="l">À envoyer</span></button>
@@ -594,10 +663,24 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <div class="filter-note" id="filter-note" hidden><span id="filter-label"></span><button type="button" class="btn small" id="filter-clear">Tout voir</button></div>
     <ul class="hist" id="hist"></ul>
     <p class="hint" id="hist-empty">Aucun CV généré pour l'instant.</p>
-    <p class="hint" id="hist-rule">Une ligne par candidature. Sans activité pendant 30 jours, elle est supprimée automatiquement. Cliquez sur l'épingle pour la garder.</p>
+    <p class="hint" id="hist-rule">Une ligne par candidature : cliquez dessus pour voir sa fiche. Les candidatures envoyées sont gardées. Les brouillons jamais envoyés sont supprimés après 30 jours sans activité, sauf si vous les épinglez.</p>
+    <p class="hint" id="backup-nudge" hidden></p>
   </div>
 
-  <details class="step">
+  <div class="step" data-v="profile" id="step-backup">
+    <h2><span class="num"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></span> Sauvegarde</h2>
+    <p class="hint" style="margin-top:0">Votre parcours, vos CV et le suivi de vos candidatures sont enregistrés sur cet appareil uniquement. Téléchargez une sauvegarde pour ne rien perdre, ou pour tout retrouver sur un autre appareil.</p>
+    <p class="hint warn-ios" id="ios-warn" hidden><b>iPhone et iPad :</b> Safari peut effacer les données d'un site après 7 jours sans visite. Faites une sauvegarde chaque semaine.</p>
+    <div class="row" style="margin-top:10px">
+      <button class="btn primary" id="btn-backup" type="button">Télécharger ma sauvegarde</button>
+      <button class="btn" id="btn-restore" type="button">Restaurer</button>
+    </div>
+    <input type="file" id="file-restore" accept=".json,application/json" hidden>
+    <p class="hint" id="backup-last"></p>
+    <div class="status" id="status-backup"></div>
+  </div>
+
+  <details class="step" data-v="profile">
     <summary>Réglages</summary>
     <label for="key">Code d'accès</label>
     <input type="password" id="key" placeholder="code fourni par Maxence" autocomplete="off">
@@ -610,7 +693,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     <div class="status" id="status-key"></div>
     <p class="hint" id="cost">Coût cumulé sur cet appareil : 0,00 $</p>
   </details>
-  <div class="panel-foot"><button class="btn apply-btn" id="btn-apply" type="button"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg> Préparer ma candidature</button></div>
+  <div class="panel-foot" data-v="create apps"><button class="btn apply-btn" id="btn-apply" type="button"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg> Préparer ma candidature</button></div>
 </aside>
 
 <!-- ================= APERÇU ================= -->
@@ -635,6 +718,7 @@ input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{ou
     </div>
   </div>
   <div class="page-holder" id="holder-cv" hidden><div class="page cv tpl-moderne" id="page-cv" contenteditable="true" spellcheck="true" lang="fr"></div></div>
+  <div class="fiche-view app-ui" id="fiche-view" aria-live="polite"></div>
   <div class="page-holder" id="holder-lettre" hidden><div class="page lettre" id="page-lettre" contenteditable="true" spellcheck="true" lang="fr"></div></div>
 </section>
 
@@ -1211,7 +1295,7 @@ $("#btn-generate").addEventListener("click", async () => {
   try{
     const offreBloc = offre.length >= 80 ? offre + (url ? "\n(Lien de l'annonce, inutile de le lire : " + url + ")" : "")
       : "L'annonce est à lire à cette adresse : " + url;
-    const userMsg = "<parcours_du_candidat>\n" + (p.name ? "Nom : " + p.name + "\n" : "") + parcours + "\n</parcours_du_candidat>\n\n<offre_d_emploi>\n" + offreBloc + "\n</offre_d_emploi>\n\n" + retouchesBlock(p) +
+    const userMsg = "<parcours_du_candidat>\n" + (p.name ? "Nom : " + p.name + "\n" : "") + parcours + "\n</parcours_du_candidat>\n\n<offre_d_emploi>\n" + offreBloc + "\n</offre_d_emploi>\n\n" + retouchesBlock(p) + resultatsBlock(p) +
       (wantLettre ? "Rédige le CV ET la lettre de motivation." : "Rédige uniquement le CV ; mets \"lettre\": null.");
     const tools = [];
     if(offre.length < 80) tools.push({ type:"web_fetch_20250910", name:"web_fetch", max_uses:3, max_content_tokens:20000 });
@@ -1503,6 +1587,11 @@ $("#page-lettre").addEventListener("input", onEdit);
 /* ---------- Historique : une ligne par candidature, versions dedans ---------- */
 const MAX_VERSIONS = 10, KEEP_DAYS = 30, DAY = 864e5;
 let pins = new Set(store.get("pins", []));
+/* Suivi par candidature (notes, entretien, résultat, préparation), indexé par groupe */
+let suivi = store.get("suivi", {});
+const saveSuivi = () => store.set("suivi", suivi);
+const suiviOf = g => suivi[g] || (suivi[g] = {});
+const RESULTS = { "":"En cours", sansreponse:"Sans réponse", refus:"Refus", offre:"Offre reçue", abandon:"Abandonnée" };
 const savePins = () => store.set("pins", [...pins]);
 const groupOf = h => h.groupId || h.id;
 const lastActivity = h => Math.max(h.date || 0, h.touched || 0);
@@ -1522,11 +1611,13 @@ function purgeOld(){
   const limit = Date.now() - KEEP_DAYS * DAY, gone = new Set();
   const lastByGroup = new Map();
   history.forEach(h => lastByGroup.set(groupOf(h), Math.max(lastByGroup.get(groupOf(h)) || 0, lastActivity(h))));
-  lastByGroup.forEach((last, g) => { if(last < limit && !pins.has(g)) gone.add(g); });
+  const sent = new Set(history.filter(h => h.applied).map(groupOf));
+  lastByGroup.forEach((last, g) => { if(last < limit && !pins.has(g) && !sent.has(g) && !(suivi[g] && suivi[g].result)) gone.add(g); });
   if(!gone.size) return 0;
   const before = history.length;
   history = history.filter(h => !gone.has(groupOf(h)));
   [...pins].forEach(g => { if(!lastByGroup.has(g)) pins.delete(g); });
+  gone.forEach(g => { delete suivi[g]; }); saveSuivi();
   savePins(); saveHistory();
   if(currentHistId && !history.find(x => x.id === currentHistId)) showEmpty();
   return before - history.length;
@@ -1556,6 +1647,9 @@ $("#v-next").addEventListener("click", () => stepVersion(1));
 /* Statut d'une candidature : à envoyer, envoyée, à relancer, entretien */
 const interviewOf = G => G.versions.reduce((a, v) => v.interview ? Math.max(a, v.interview) : a, 0);
 function statusOf(G){
+  const r = (suivi[G.id] || {}).result;
+  if(r === "offre") return "itw";
+  if(r) return "closed";
   if(interviewOf(G)) return "itw";
   const a = appliedOf(G);
   if(!a) return "todo";
@@ -1572,6 +1666,8 @@ function renderBoard(groups){
   const c = { todo:0, sent:0, relance:0, itw:0 };
   groups.forEach(G => { const st = statusOf(G); c[st === "todo" ? "todo" : "sent"]++; if(st === "relance") c.relance++; if(st === "itw") c.itw++; });
   Object.keys(c).forEach(k => { $("#t-" + k).textContent = c[k]; });
+  const badge = $("#nav-badge"); badge.textContent = c.relance; badge.hidden = !c.relance;
+  badge.title = c.relance ? c.relance + " candidature(s) à relancer" : "";
   document.querySelectorAll(".tile").forEach(t => t.setAttribute("aria-pressed", t.dataset.f === histFilter));
   $("#board").hidden = !groups.length;
   $("#filter-note").hidden = !histFilter;
@@ -1608,7 +1704,9 @@ function renderHistory(){
     if(pins.has(G.id)) meta.appendChild(document.createTextNode(" · gardée"));
     else if(left <= 7){ meta.appendChild(document.createTextNode(" · ")); meta.appendChild(el("span", "soon", left <= 1 ? "supprimée demain" : "supprimée dans " + left + " j")); }
     t.appendChild(meta);
-    t.addEventListener("click", () => { openHist(latest); window.scrollTo({ top:0, behavior:"smooth" }); });
+    const res = (suivi[G.id] || {}).result;
+    if(res){ meta.appendChild(document.createTextNode(" · ")); meta.appendChild(el("span", res === "offre" ? "itw" : "", RESULTS[res])); }
+    t.addEventListener("click", () => { openHist(latest); renderFicheView(); if(window.innerWidth < 900) $("#fiche-view").scrollIntoView({ behavior:"smooth", block:"start" }); });
     const pin = el("button", "pin"); pin.innerHTML = ICON.pin; pin.type = "button";
     pin.setAttribute("aria-pressed", pins.has(G.id)); pin.setAttribute("aria-label", pins.has(G.id) ? "Ne plus garder" : "Garder cette candidature"); pin.title = pins.has(G.id) ? "Ne plus garder (suppression après 30 jours sans activité)" : "Garder cette candidature (pas de suppression automatique)";
     pin.addEventListener("click", () => { pins.has(G.id) ? pins.delete(G.id) : pins.add(G.id); savePins(); renderHistory(); });
@@ -1616,6 +1714,7 @@ function renderHistory(){
     del.addEventListener("click", () => {
       if(!confirm("Supprimer cette candidature" + (G.versions.length > 1 ? " et ses " + G.versions.length + " versions" : "") + " ?")) return;
       history = history.filter(x => groupOf(x) !== G.id); pins.delete(G.id); savePins(); saveHistory();
+      delete suivi[G.id]; saveSuivi(); renderFicheView();
       if(cur && groupOf(cur) === G.id) showEmpty(); renderHistory();
     });
     li.appendChild(t); li.appendChild(pin); li.appendChild(del); ul.appendChild(li);
@@ -2131,6 +2230,242 @@ window.addEventListener("resize", () => { if(!$("#ap").hidden) apScale(); });
 $("#ap-pdf-cv").addEventListener("click", () => printPage("cv"));
 $("#ap-pdf-l").addEventListener("click", () => printPage("lettre"));
 
+
+/* ===================== Navigation : Créer / Mes candidatures / Mon profil ===================== */
+function setView(v){
+  if(!["create", "apps", "profile"].includes(v)) v = "create";
+  document.body.dataset.view = v;
+  document.querySelectorAll(".view-tab").forEach(t => t.setAttribute("aria-selected", t.dataset.view === v ? "true" : "false"));
+  store.set("view", v);
+  updateForWho();
+  if(v === "apps"){ renderHistory(); renderFicheView(); updateBackupInfo(); }
+  if(v === "profile") updateBackupInfo();
+  if(v === "create"){ refreshValidate(); requestAnimationFrame(() => { try{ scalePreview(); fitVisible(); }catch(e){} }); }
+  const panel = document.querySelector(".panel"); if(panel) panel.scrollTop = 0;
+}
+document.querySelectorAll(".view-tab").forEach(t => t.addEventListener("click", () => setView(t.dataset.view)));
+document.addEventListener("click", e => { const g = e.target.closest("[data-goto]"); if(g){ e.preventDefault(); setView(g.dataset.goto); } });
+function updateForWho(){
+  const p = prof() || {};
+  $("#for-who-name").textContent = str(p.name) || "vous";
+  $("#nudge-parcours").hidden = str(p.parcours).length >= 80;
+}
+$("#profile-name").addEventListener("input", updateForWho);
+$("#profile-parcours").addEventListener("input", updateForWho);
+
+/* ===================== Fiche d'une candidature ===================== */
+const fmtDay = t => new Date(t).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
+const STATUS_TXT = { todo:"À envoyer", sent:"Envoyée", relance:"À relancer", itw:"Entretien", closed:"Terminée" };
+function card(title, cls){ const c = el("section", "fv-card" + (cls ? " " + cls : "")); if(title) c.appendChild(el("h3", "", title)); return c; }
+function btn(label, cls, fn){ const b = el("button", "btn" + (cls ? " " + cls : ""), label); b.type = "button"; b.addEventListener("click", fn); return b; }
+function touchGroup(G){ const v = G.versions[G.versions.length - 1]; v.touched = Date.now(); saveHistory(); }
+
+function renderFicheView(){
+  const box = $("#fiche-view"); if(!box) return;
+  box.innerHTML = "";
+  const h = curHist();
+  const p = prof();
+  if(!h || !p || h.profileId !== p.id){
+    const c = card("", "fv-empty");
+    const any = p && groupsFor(p.id).length;
+    c.appendChild(el("h3", "", any ? "Choisissez une candidature" : "Aucune candidature pour l'instant"));
+    c.appendChild(el("p", "", any ? "Cliquez sur une candidature dans la liste pour retrouver son offre, ses alertes, la préparation de l'entretien et vos notes."
+      : "Créez votre premier CV adapté à une offre : il apparaîtra ici avec tout son suivi."));
+    if(!any) c.appendChild(btn("Créer un CV", "primary", () => setView("create")));
+    box.appendChild(c); return;
+  }
+  const G = groupsFor(h.profileId).find(g => g.id === groupOf(h));
+  if(!G){ box.appendChild(card("Candidature introuvable")); return; }
+  const latest = G.versions[G.versions.length - 1], d = latest.data || {}, S = suiviOf(G.id);
+  const st = statusOf(G), applied = appliedOf(G), relance = relanceOf(G), itw = interviewOf(G);
+  const url = (latest.apply && latest.apply.url) || (d._userMsg && d._userMsg.url) || "";
+
+  /* En-tête */
+  const head = card("", "fv-head");
+  head.appendChild(el("h2", "", G.versions[0].poste || latest.poste || "Poste"));
+  if(latest.entreprise) head.appendChild(el("p", "co", latest.entreprise));
+  const meta = el("div", "fv-meta");
+  meta.appendChild(el("span", "pill " + st, S.result ? RESULTS[S.result] : STATUS_TXT[st]));
+  meta.appendChild(el("span", "", "Créée le " + fmtDay(G.versions[0].date)));
+  if(G.versions.length > 1) meta.appendChild(el("span", "", G.versions.length + " versions"));
+  const sc = Number(d.score_adequation); if(isFinite(sc) && sc > 0) meta.appendChild(el("span", "", "Adéquation : " + Math.round(sc) + " %"));
+  head.appendChild(meta);
+  const act = el("div", "fv-actions");
+  act.appendChild(btn("Ouvrir le CV et la lettre", "primary", () => { openHist(latest); setView("create"); }));
+  act.appendChild(btn("Préparer ma candidature", "", () => { openHist(latest); openApply(); }));
+  if(URL_RE.test(url)){ const a = el("a", "btn", "Voir l'annonce ↗"); a.href = url; a.target = "_blank"; a.rel = "noopener"; act.appendChild(a); }
+  head.appendChild(act);
+  box.appendChild(head);
+
+  /* L'offre en bref */
+  if(str(d.offre_resume)){
+    const c = card("L'offre en bref");
+    c.appendChild(el("p", "fv-resume", str(d.offre_resume)));
+    c.appendChild(el("p", "fv-src", "Résumé rédigé par " + BRAND.name + " à partir de l'annonce, gardé même si l'annonce est retirée."));
+    box.appendChild(c);
+  }
+  /* Alertes */
+  const al = arr(d.alertes).map(str).filter(Boolean);
+  if(al.length){
+    const c = card("À savoir avant d'envoyer", "fv-alertes");
+    const ul = el("ul"); al.forEach(t => ul.appendChild(el("li", "", t))); c.appendChild(ul);
+    box.appendChild(c);
+  }
+
+  /* Suivi */
+  const sv = card("Suivi");
+  const steps = el("ul", "fv-steps");
+  const line = (done, text, extra) => { const li = el("li", done ? "done" : ""); li.appendChild(el("span", "dot")); li.appendChild(el("span", "", text)); if(extra) extra.forEach(x => li.appendChild(x)); steps.appendChild(li); };
+  line(true, "CV créé le " + fmtDay(G.versions[0].date));
+  const setFlag = (k, v) => { latest[k] = v; latest.touched = Date.now(); saveHistory(); renderHistory(); renderFicheView(); };
+  if(applied) line(true, "Envoyée le " + fmtDay(applied), [btn("Annuler", "small danger", () => { G.versions.forEach(v => { delete v.applied; delete v.relance; delete v.interview; }); saveHistory(); renderHistory(); renderFicheView(); })]);
+  else line(false, "Pas encore envoyée", [btn("J'ai postulé", "small primary", () => setFlag("applied", Date.now()))]);
+  if(applied && !itw && !S.result){
+    if(relance) line(true, "Relance faite le " + fmtDay(relance));
+    else {
+      const late = Date.now() - applied >= 7 * DAY;
+      const li = [btn("J'ai relancé", "small", () => setFlag("relance", Date.now()))];
+      line(false, late ? "Une semaine sans réponse : c'est le moment de relancer." : "Relance conseillée à partir du " + fmtDay(applied + 7 * DAY), li);
+      if(late) steps.lastChild.children[1].className = "warn";
+    }
+  }
+  if(applied) line(!!itw, itw ? "Entretien obtenu" : "Entretien", itw ? [] : [btn("J'ai obtenu un entretien", "small", () => setFlag("interview", Date.now()))]);
+  sv.appendChild(steps);
+
+  const grid = el("div", "fv-grid");
+  const field = (id, label, input) => { const w = el("div"); const l = el("label", "", label); l.htmlFor = id; input.id = id; w.appendChild(l); w.appendChild(input); grid.appendChild(w); return input; };
+  const itwIn = document.createElement("input"); itwIn.type = "datetime-local"; itwIn.value = S.itwAt || "";
+  field("fv-itw", "Date et heure de l'entretien", itwIn).addEventListener("change", e => {
+    S.itwAt = e.target.value; saveSuivi(); if(e.target.value && !itw){ latest.interview = Date.now(); } touchGroup(G); renderHistory(); renderFicheView();
+  });
+  const ctIn = document.createElement("input"); ctIn.type = "text"; ctIn.value = S.contact || ""; ctIn.placeholder = "Nom, téléphone ou e-mail du recruteur";
+  field("fv-contact", "Contact du recruteur", ctIn).addEventListener("input", debounce(e => { S.contact = e.target.value; saveSuivi(); }, 400));
+  const rs = document.createElement("select");
+  Object.keys(RESULTS).forEach(k => { const o = el("option", "", RESULTS[k]); o.value = k; if((S.result || "") === k) o.selected = true; rs.appendChild(o); });
+  field("fv-result", "Résultat", rs).addEventListener("change", e => { S.result = e.target.value; saveSuivi(); touchGroup(G); renderHistory(); renderFicheView(); });
+  sv.appendChild(grid);
+  sv.appendChild(el("p", "hint", "Le résultat aide " + BRAND.name + " à voir ce qui marche pour vous dans vos prochains CV."));
+  box.appendChild(sv);
+
+  /* Préparer l'entretien */
+  const pr = card("Préparer l'entretien");
+  const prep = S.prep;
+  if(prep){
+    const cols = el("div", "fv-cols");
+    const col = (title, items) => { const w = el("div"); w.appendChild(el("h4", "", title)); const ul = el("ul", "fv-list"); arr(items).map(str).filter(Boolean).forEach(t => ul.appendChild(el("li", "", t))); w.appendChild(ul); return w; };
+    cols.appendChild(col("Vos atouts pour ce poste", prep.atouts));
+    cols.appendChild(col("Points à préparer", prep.points_a_preparer));
+    pr.appendChild(cols);
+    const qs = arr(prep.questions);
+    if(qs.length){
+      pr.appendChild(el("h4", "", "Questions probables"));
+      qs.forEach(q => { const w = el("div", "fv-q"); w.appendChild(el("b", "", str(q.question))); w.appendChild(el("span", "", str(q.conseil))); pr.appendChild(w); });
+    }
+    if(arr(prep.a_demander).length){ pr.appendChild(el("h4", "", "Questions à poser au recruteur")); const ul = el("ul", "fv-list"); arr(prep.a_demander).forEach(t => ul.appendChild(el("li", "", str(t)))); pr.appendChild(ul); }
+    pr.appendChild(el("p", "hint", "Préparé le " + fmtDay(S.prepAt || Date.now()) + ". " + BRAND.name + " est une IA : adaptez avec vos propres mots."));
+  } else {
+    pr.appendChild(el("p", "", "Les questions qu'on risque de vous poser pour ce poste, vos atouts, et les points faibles à préparer, à partir de votre CV et de l'offre."));
+  }
+  const pst = el("div", "status"); pst.id = "status-prep";
+  const pb = btn(prep ? "Refaire la préparation" : "Préparer mon entretien", prep ? "small" : "primary", () => prepareInterview(G, latest, pb, pst));
+  const prow = el("div", "row"); prow.style.marginTop = "10px"; prow.appendChild(pb); pr.appendChild(prow); pr.appendChild(pst);
+  box.appendChild(pr);
+
+  /* Notes */
+  const nt = card("Mes notes");
+  const ta = document.createElement("textarea"); ta.className = "fv-notes"; ta.id = "fv-notes"; ta.value = S.notes || "";
+  ta.placeholder = "Ce qu'on vous a dit au téléphone, le nom de la personne, ce que vous voulez dire en entretien…";
+  ta.setAttribute("aria-label", "Mes notes sur cette candidature");
+  ta.addEventListener("input", debounce(() => { S.notes = ta.value; saveSuivi(); touchGroup(G); }, 500));
+  nt.appendChild(ta);
+  box.appendChild(nt);
+}
+
+const PREP_SYSTEM = "Tu es un coach emploi français, chaleureux et franc. Tu prépares un candidat à un entretien d'embauche à partir de son CV et de l'offre. " +
+  "Vouvoie le candidat. Phrases simples, concrètes, sans jargon. N'invente aucun fait sur le candidat : appuie-toi uniquement sur le CV fourni. " +
+  "Réponds UNIQUEMENT avec un objet JSON valide : {\"atouts\": [3 à 4 atouts réels du candidat pour CE poste], \"points_a_preparer\": [2 à 4 points faibles ou questions gênantes probables, avec comment y répondre honnêtement], " +
+  "\"questions\": [{\"question\": \"question probable du recruteur\", \"conseil\": \"comment y répondre en 1 à 2 phrases, avec un exemple tiré du CV\"} — 6 à 8 questions], \"a_demander\": [2 à 3 questions pertinentes à poser au recruteur]}.";
+async function prepareInterview(G, latest, b, st){
+  if(!settings.apiKey){ st.className = "status err"; st.textContent = "Enregistrez d'abord votre code d'accès (Mon profil › Réglages)."; return; }
+  b.disabled = true; st.className = "status info"; st.textContent = BRAND.name + " prépare votre entretien, comptez 20 à 40 secondes.";
+  try{
+    const d = latest.data || {}, cvTxt = cvTextFromHtml(latest.cvHtml || "");
+    const S = suiviOf(G.id);
+    const msg = "<offre>\n" + (str(d.offre_resume) || (latest.poste + " — " + latest.entreprise)) + "\n</offre>\n\n<cv_du_candidat>\n" + cvTxt + "\n</cv_du_candidat>\n\n" +
+      (arr(d.alertes).length ? "<alertes_deja_identifiees>\n- " + arr(d.alertes).map(str).join("\n- ") + "\n</alertes_deja_identifiees>\n\n" : "") +
+      (S.notes ? "<notes_du_candidat>\n" + S.notes + "\n</notes_du_candidat>\n\n" : "") + "Prépare l'entretien pour ce poste.";
+    const data = await callClaude({ model:settings.model, max_tokens:3000, system:PREP_SYSTEM, messages:[{ role:"user", content:msg }] }, settings.apiKey);
+    addCost(data.usage);
+    const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("");
+    let out; try{ out = parseJSON(text); }catch(e){ throw new Error("La réponse n'a pas pu être lue. Cliquez à nouveau."); }
+    S.prep = out; S.prepAt = Date.now(); saveSuivi(); touchGroup(G);
+    renderFicheView();
+  }catch(e){ st.className = "status err"; st.textContent = e.message; b.disabled = false; }
+}
+
+/* ===================== Résultats passés : un indice pour les prochains CV ===================== */
+function resultatsBlock(p){
+  const lines = [];
+  groupsFor(p.id).forEach(G => {
+    const v = G.versions[G.versions.length - 1], S = suivi[G.id] || {}, a = appliedOf(G);
+    if(!a) return;
+    let issue = "";
+    if(S.result) issue = RESULTS[S.result];
+    else if(interviewOf(G)) issue = "entretien obtenu";
+    else if(Date.now() - a > 14 * DAY) issue = "pas de réponse après " + Math.floor((Date.now() - a) / DAY) + " jours";
+    if(issue) lines.push("- " + (v.poste || "Poste") + (v.entreprise ? " (" + v.entreprise + ")" : "") + " : " + issue);
+  });
+  if(!lines.length) return "";
+  return "<resultats_des_candidatures_precedentes>\n" + lines.slice(0, 10).join("\n") + "\n</resultats_des_candidatures_precedentes>\n" +
+    "Ces résultats sont un simple indice : une réponse dépend de nombreux facteurs extérieurs au CV. Ne change jamais les faits du parcours. " +
+    "Si tu t'en sers pour choisir ce que tu mets en avant, ajoute une alerte courte qui le dit.\n\n";
+}
+
+/* ===================== Sauvegarde et restauration ===================== */
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+function updateBackupInfo(){
+  const last = store.get("lastBackup", 0);
+  $("#ios-warn").hidden = !isIOS;
+  $("#backup-last").textContent = last ? "Dernière sauvegarde : " + fmtDay(last) + "." : "Aucune sauvegarde pour l'instant.";
+  const n = $("#backup-nudge");
+  const old = !last || Date.now() - last > 7 * DAY;
+  n.hidden = !(history.length && old && isIOS);
+  if(!n.hidden){ n.innerHTML = ""; n.appendChild(document.createTextNode("Pensez à sauvegarder vos candidatures : ")); const l = el("button", "link", "Mon profil › Sauvegarde"); l.type = "button"; l.dataset.goto = "profile"; n.appendChild(l); }
+}
+$("#btn-backup").addEventListener("click", () => {
+  const data = {};
+  for(let i = 0; i < localStorage.length; i++){
+    const k = localStorage.key(i);
+    if(!k || k.indexOf("cvx_") !== 0) continue;
+    data[k] = localStorage.getItem(k);
+  }
+  // Le code d'accès n'est jamais mis dans la sauvegarde
+  try{ const s = JSON.parse(data.cvx_settings || "{}"); delete s.apiKey; data.cvx_settings = JSON.stringify(s); }catch(e){}
+  delete data.cvx_lastBackup;
+  const file = { app:"jalon", version:1, date:new Date().toISOString(), data };
+  const blob = new Blob([JSON.stringify(file)], { type:"application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "Jalon sauvegarde " + new Date().toISOString().slice(0, 10) + ".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  store.set("lastBackup", Date.now()); updateBackupInfo();
+  status("#status-backup", "ok", "Sauvegarde téléchargée. Gardez ce fichier : il contient votre parcours et vos CV.");
+});
+$("#btn-restore").addEventListener("click", () => $("#file-restore").click());
+$("#file-restore").addEventListener("change", async e => {
+  const f = e.target.files && e.target.files[0]; e.target.value = "";
+  if(!f) return;
+  let file;
+  try{ file = JSON.parse(await f.text()); }catch(err){ status("#status-backup", "err", "Ce fichier n'est pas une sauvegarde " + BRAND.name + "."); return; }
+  if(!file || file.app !== "jalon" || !file.data || typeof file.data !== "object"){ status("#status-backup", "err", "Ce fichier n'est pas une sauvegarde " + BRAND.name + "."); return; }
+  if(!confirm("Restaurer la sauvegarde du " + fmtDay(Date.parse(file.date) || Date.now()) + " ? Les données actuelles de cet appareil seront remplacées.")) return;
+  const key = settings.apiKey;
+  Object.keys(file.data).forEach(k => { if(k.indexOf("cvx_") === 0 && typeof file.data[k] === "string") try{ localStorage.setItem(k, file.data[k]); }catch(err){} });
+  try{ const s = JSON.parse(localStorage.getItem("cvx_settings") || "{}"); s.apiKey = key; localStorage.setItem("cvx_settings", JSON.stringify(s)); }catch(err){}
+  location.reload();
+});
+
 /* ---------- Démarrage ---------- */
 /* Migration : les anciennes versions d'une même candidature sont regroupées (même profil, même poste, même entreprise) */
 (function migrateGroups(){
@@ -2144,7 +2479,8 @@ $("#ap-pdf-l").addEventListener("click", () => printPage("lettre"));
   if(changed) saveHistory();
 })();
 purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); scalePreview();
-window.__cvx = { renderAll, showTab, cleanHex, linesDiff, purgeOld }; // utilisé pour les tests
+setView(str((prof() || {}).parcours).length < 80 ? "profile" : store.get("view", "create"));
+window.__cvx = { renderAll, showTab, cleanHex, linesDiff, purgeOld, setView, resultatsBlock, statusOf, groupsFor }; // utilisé pour les tests
 })();
 </script>
 </body>
