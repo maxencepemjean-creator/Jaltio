@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="only light">
 <title>Elanos — votre coach emploi IA</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 72 72%27%3E%3Crect width=%2772%27 height=%2772%27 rx=%2718%27 fill=%27%233A2340%27/%3E%3Cpath d=%27M19 38l11 11 23-26%27 fill=%27none%27 stroke=%27white%27 stroke-width=%277%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3Ccircle cx=%2753%27 cy=%2722%27 r=%274.5%27 fill=%27none%27 stroke=%27%23F2A93B%27 stroke-width=%274%27/%3E%3C/svg%3E">
 <meta name="robots" content="noindex, nofollow">
@@ -19,6 +20,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 }
 *{box-sizing:border-box}
 html,body{margin:0}
+html{color-scheme:only light}
 body{font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
 button,input,select,textarea{font:inherit}
 .app{display:grid;grid-template-columns:420px 1fr;min-height:100vh}
@@ -473,6 +475,9 @@ body.m .save-fab{border-radius:999px}
 .tour-hole{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(17,24,39,.62);outline:3px solid #F2A93B;outline-offset:3px;transition:all .28s ease;pointer-events:none}
 .tour-hole.none{left:50%!important;top:45%!important;width:0!important;height:0!important;outline:0}
 .tour-tip{position:fixed;width:min(400px,calc(100vw - 24px));background:#fff;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);padding:18px 20px 16px;transition:top .28s ease,left .28s ease}
+.tour-tip.sheet{max-height:60vh;overflow:auto;padding:14px 16px 12px;border-radius:18px}
+.tour-tip.sheet h2{font-size:18px}
+.tour-tip.sheet #tour-text{font-size:15px}
 .tour-step{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:4px}
 .tour-tip h2{font-family:var(--display);color:var(--brand);font-size:20px;line-height:1.2;margin:0 0 8px}
 #tour-text{font-size:15.5px;line-height:1.5}
@@ -1175,7 +1180,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
         <button class="btn" id="sync-now" type="button">Synchroniser maintenant</button>
         <button class="btn" id="sync-out" type="button">Se déconnecter de cet appareil</button>
       </div>
-      <p class="hint" style="margin-top:8px">Se déconnecter garde vos données sur cet appareil et en ligne. Le code d'accès à <span data-brand>Elanos</span> n'est jamais synchronisé : il reste propre à chaque appareil.</p>
+      <p class="hint" style="margin-top:8px">Se déconnecter garde vos données sur cet appareil et en ligne. Le code d'accès est enregistré avec vos données chiffrées : sur un nouvel appareil, il est retrouvé automatiquement.</p>
       <button class="link danger sync-link" id="sync-del" type="button">Supprimer mes données en ligne</button>
     </div>
 
@@ -4437,7 +4442,7 @@ async function decryptPayload(blob, keyB64){
   }
   return JSON.parse(td.decode(raw));
 }
-const validPayload = p => !!p && p.app === "jalon" && !!p.data && typeof p.data === "object" && Object.keys(p.data).every(k => SYNC_KEYS.includes(k) && typeof p.data[k] === "string");
+const validPayload = p => !!p && p.app === "jalon" && !!p.data && typeof p.data === "object" && Object.keys(p.data).every(k => (SYNC_KEYS.includes(k) || k === "accessCode") && typeof p.data[k] === "string");
 
 async function syncCall(path, body, withCode){
   if(!RELAIS) throw new Error(_t("La synchronisation n'est pas disponible pour l'instant."));
@@ -4549,6 +4554,7 @@ function syncSnapshot(){
   const data = {};
   SYNC_KEYS.forEach(k => { const v = localStorage.getItem("cvx_" + k); if(v !== null) data[k] = v; });
   try{ const s = JSON.parse(data.settings || "{}"); delete s.apiKey; data.settings = JSON.stringify(s); }catch(e){}
+  if(settings.apiKey) data.accessCode = settings.apiKey;     // chiffré avec le reste : un nouvel appareil le retrouve sans le ressaisir
   return { app:"jalon", v:1, t:Date.now(), data };
 }
 const hasLocalData = () => history.length > 0 || profiles.some(p => str(p.parcours) || str(p.name) || p.resume);
@@ -4558,7 +4564,8 @@ function syncWrite(payload){       // écrit des données reçues ou fusionnées
   syncApplying = true;
   try{
     SYNC_KEYS.forEach(k => { const v = payload.data[k]; if(typeof v === "string") localStorage.setItem("cvx_" + k, v); else localStorage.removeItem("cvx_" + k); });
-    try{ const s = JSON.parse(localStorage.getItem("cvx_settings") || "{}"); if(keep) s.apiKey = keep; else delete s.apiKey; localStorage.setItem("cvx_settings", JSON.stringify(s)); }catch(e){}
+    const code = keep || (typeof payload.data.accessCode === "string" ? payload.data.accessCode : "");
+    try{ const s = JSON.parse(localStorage.getItem("cvx_settings") || "{}"); if(code) s.apiKey = code; else delete s.apiKey; localStorage.setItem("cvx_settings", JSON.stringify(s)); }catch(e){}
   }catch(e){
     SYNC_KEYS.forEach(k => { try{ if(prev[k] === null) localStorage.removeItem("cvx_" + k); else localStorage.setItem("cvx_" + k, prev[k]); }catch(err){} });
     syncApplying = false;
@@ -4598,6 +4605,8 @@ function syncMerge(local, remote){
   put("profiles", PR);
   put("currentProfile", curOk(cur) ? cur : curOk(curR) ? curR : (PR[0] && PR[0].id) || null);
   put("history", H); put("pins", pins); put("suivi", S);
+  const ac = (typeof local.data.accessCode === "string" && local.data.accessCode) || (typeof remote.data.accessCode === "string" && remote.data.accessCode) || "";
+  if(ac) out.data.accessCode = ac;
   const goal = P(local, "goal", undefined); put("goal", goal !== undefined ? goal : P(remote, "goal", undefined));
   if(local.data.settings) out.data.settings = local.data.settings; else if(remote.data.settings) out.data.settings = remote.data.settings;
   return out;
@@ -4611,7 +4620,12 @@ function syncDirty(){
 }
 async function syncPush(base){
   const at = syncSt.dirtyAt || 0;
-  const blob = await encryptPayload(syncSnapshot(), syncSt.key);
+  const snap = syncSnapshot();
+  if(!snap.data.accessCode){           // pas de code ici : on reprend celui de la version en ligne, pour ne jamais l'effacer
+    try{ const { payload } = await syncPull(); const c = payload && payload.data && payload.data.accessCode;
+      if(typeof c === "string" && c){ snap.data.accessCode = c; if(!settings.apiKey){ settings.apiKey = c; saveSettings(); renderSettings(); } } }catch(e){}
+  }
+  const blob = await encryptPayload(snap, syncSt.key);
   if(blob.ct.length > SYNC_MAX_CT){ const e = new Error(_t("Vos données dépassent la taille autorisée pour la synchronisation. Supprimez d'anciennes candidatures ou la photo de profil.")); e.fatal = true; throw e; }
   const res = await syncCall("put", { id:syncSt.id, auth:syncSt.auth, iv:blob.iv, ct:blob.ct, baseVersion:base });
   syncSt.version = res.version; syncSt.lastSyncAt = Date.now(); syncSt.err = "";
@@ -4859,14 +4873,37 @@ function showTourStep(i, dir){
   $("#tour-next").textContent = st.last ? _t("Commencer") : i === 0 ? _t("C'est parti") : _t("Suivant");
   $("#tour-skip").hidden = !!st.last;
   const t = tourTarget(st);
-  if(t) t.scrollIntoView({ block:"nearest" });
+  if(t){
+    if(tourSheet()){ t.scrollIntoView({ block:"start" }); const r = t.getBoundingClientRect(); if(r.top < 60) window.scrollBy(0, r.top - 60); }   // téléphone : la zone en haut, la bulle en bas
+    else t.scrollIntoView({ block:"nearest" });
+  }
   requestAnimationFrame(placeTour);
   $("#tour-next").focus({ preventScroll:true });
 }
+const tourSheet = () => window.innerWidth < 640;
 function placeTour(){
   if($("#tour").hidden) return;
   const st = tourList[tourI], t = tourTarget(st), hole = $("#tour-hole"), tip = $("#tour-tip");
-  const W = window.innerWidth, H = window.innerHeight, tw = tip.offsetWidth, th = tip.offsetHeight, pad = 8;
+  const vv = window.visualViewport;
+  const W = window.innerWidth, H = vv ? Math.round(vv.height) : window.innerHeight, pad = 8;
+  // Téléphone : bulle pleine largeur, posée en bas de l'écran ; la zone expliquée reste visible au-dessus
+  tip.classList.toggle("sheet", tourSheet());
+  if(tourSheet()){
+    tip.style.left = "10px"; tip.style.width = (W - 20) + "px";
+    const th = tip.offsetHeight, r = t ? t.getBoundingClientRect() : null;
+    const atTop = !!r && r.top > H / 2;                    // zone en bas de l'écran (barre d'onglets) : la bulle passe en haut
+    const ty = atTop ? 10 : Math.max(10, H - th - 10);
+    tip.style.top = ty + "px";
+    if(!t){ hole.classList.add("none"); return; }
+    hole.classList.remove("none");
+    let top = Math.max(4, r.top - pad), bottom = Math.min(H - 4, r.bottom + pad);
+    const left = Math.max(4, r.left - pad), right = Math.min(W - 4, r.right + pad);
+    if(atTop) top = Math.min(Math.max(top, ty + th + 10), bottom - 24); else bottom = Math.max(top + 24, Math.min(bottom, ty - 10));
+    Object.assign(hole.style, { top: top + "px", left: left + "px", width: (right - left) + "px", height: (bottom - top) + "px" });
+    return;
+  }
+  tip.style.width = "";
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
   if(!t){
     hole.classList.add("none");
     tip.style.left = Math.max(12, (W - tw) / 2) + "px"; tip.style.top = Math.max(12, (H - th) / 2) + "px"; return;
@@ -4890,6 +4927,8 @@ $("#tour-prev").addEventListener("click", () => showTourStep(tourI - 1, -1));
 $("#tour-skip").addEventListener("click", endTour);
 $("#btn-tour").addEventListener("click", startTour);
 window.addEventListener("resize", () => requestAnimationFrame(placeTour));
+if(window.visualViewport) window.visualViewport.addEventListener("resize", () => requestAnimationFrame(placeTour));
+window.addEventListener("scroll", () => { if(!$("#tour").hidden) requestAnimationFrame(placeTour); }, { passive:true });
 document.addEventListener("keydown", e => {
   if($("#tour").hidden) return;
   if(e.key === "Escape") endTour();
@@ -4903,6 +4942,17 @@ function syncLangUi(){
 }
 $("#ui-lang").addEventListener("change", e => { store.set("uiLang", e.target.value); location.reload(); });
 $("#doc-lang-default").addEventListener("change", e => { const p = prof(); if(!p) return; p.docLang = e.target.value; saveProfiles(); $("#doc-lang").value = p.docLang; });
+/* Code d'accès et synchronisation : ce téléphone n'a pas le code mais un autre appareil l'a envoyé ? On le récupère. */
+setTimeout(async () => {
+  if(!syncSt) return;
+  try{
+    if(!settings.apiKey){
+      const { payload } = await syncPull();
+      const c = payload && payload.data && payload.data.accessCode;
+      if(typeof c === "string" && c){ settings.apiKey = c; saveSettings(); renderSettings(); }
+    } else if(!store.get("codeInSync", false)){ store.set("codeInSync", true); syncDirty(); }
+  }catch(e){}
+}, 1500);
 const firstVisit = !store.get("tourSeen", false) && !history.length && !profiles.some(p => str(p.parcours).length >= 80);
 
 purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); setSyncUi(); scalePreview(); syncLangUi();
