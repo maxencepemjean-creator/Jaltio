@@ -3699,7 +3699,7 @@ function syncSnapshot(){
   return { app:"jalon", v:1, t:Date.now(), data };
 }
 const hasLocalData = () => history.length > 0 || profiles.some(p => str(p.parcours) || str(p.name) || p.resume);
-function syncApply(payload, version){
+function syncWrite(payload){       // écrit des données reçues ou fusionnées sur l'appareil (le code d'accès local est conservé)
   const keep = settings.apiKey, prev = {};
   SYNC_KEYS.forEach(k => { prev[k] = localStorage.getItem("cvx_" + k); });
   syncApplying = true;
@@ -3711,8 +3711,43 @@ function syncApply(payload, version){
     syncApplying = false;
     throw new Error("Pas assez de place sur cet appareil pour recevoir vos données. Supprimez d'anciennes candidatures et réessayez.");
   }
+}
+function syncApply(payload, version){
+  syncWrite(payload);
   syncSt.version = version; syncSt.dirty = false; syncSt.dirtyAt = 0; syncSt.lastSyncAt = Date.now(); syncSt.err = ""; syncSave();
   location.reload();
+}
+/* Fusion : on additionne les deux côtés, élément par élément (identifiant unique).
+   Même élément des deux côtés : la version la plus récente pour une candidature, celle de cet appareil sinon. */
+function syncMerge(local, remote){
+  const P = (o, k, d) => { try{ const v = o.data[k]; return v == null ? d : JSON.parse(v); }catch(e){ return d; } };
+  const out = { app:"jalon", v:1, t:Date.now(), data:{} };
+  const put = (k, v) => { if(v !== undefined) out.data[k] = JSON.stringify(v); };
+  // Candidatures (toutes les versions)
+  const hist = new Map();
+  P(remote, "history", []).forEach(h => h && h.id && hist.set(h.id, h));
+  P(local, "history", []).forEach(h => { if(!h || !h.id) return; const o = hist.get(h.id); if(!o || lastActivity(h) >= lastActivity(o)) hist.set(h.id, h); });
+  const H = [...hist.values()].sort((a, b) => (b.date || 0) - (a.date || 0));
+  // Profils : union ; on écarte les fiches vides sans candidature (créées automatiquement au premier lancement)
+  const pr = new Map(), filled = p => !!(str(p.name).trim() || str(p.parcours).trim() || p.resume || p.photo);
+  P(remote, "profiles", []).forEach(p => p && p.id && pr.set(p.id, p));
+  P(local, "profiles", []).forEach(p => { if(!p || !p.id) return; const o = pr.get(p.id); if(!o || filled(p) || !filled(o)) pr.set(p.id, p); });
+  const used = new Set(H.map(h => h.profileId));
+  let PR = [...pr.values()];
+  const keepP = PR.filter(p => filled(p) || used.has(p.id));
+  if(keepP.length) PR = keepP; else PR = PR.slice(0, 1);
+  // Suivi : par candidature, les champs de cet appareil priment
+  const rs = P(remote, "suivi", {}), ls = P(local, "suivi", {}), S = Object.assign({}, rs);
+  Object.keys(ls).forEach(g => { S[g] = Object.assign({}, rs[g] || {}, ls[g]); });
+  const pins = [...new Set([].concat(P(remote, "pins", []), P(local, "pins", [])))];
+  const cur = P(local, "currentProfile", null), curR = P(remote, "currentProfile", null);
+  const curOk = id => PR.some(p => p.id === id);
+  put("profiles", PR);
+  put("currentProfile", curOk(cur) ? cur : curOk(curR) ? curR : (PR[0] && PR[0].id) || null);
+  put("history", H); put("pins", pins); put("suivi", S);
+  const goal = P(local, "goal", undefined); put("goal", goal !== undefined ? goal : P(remote, "goal", undefined));
+  if(local.data.settings) out.data.settings = local.data.settings; else if(remote.data.settings) out.data.settings = remote.data.settings;
+  return out;
 }
 
 /* ----- Envoi, réception ----- */
@@ -3852,14 +3887,24 @@ async function syncStart(){
     status("#sync-msg", "", "");
     openSyncDlg({
       title:"Des données existent déjà ici et en ligne",
-      text:"Cet appareil contient déjà des données, et des données ont été envoyées en ligne le " + fmtWhen(g.updated) + ". Lesquelles garder ? L'autre version sera remplacée.",
+      text:"Cet appareil contient déjà des données, et des données ont été envoyées en ligne le " + fmtWhen(g.updated) + ". Le plus simple : tout regrouper. Vous retrouverez les candidatures et les profils des deux côtés. Si une même personne a été créée sur deux appareils, elle apparaîtra deux fois : supprimez simplement le doublon.",
       buttons:[
-        { label:"Garder celles de cet appareil", fn: async () => {
+        { label:"Fusionner les deux (recommandé)", cls:"primary", fn: async () => {
+            let merged;
+            try{ merged = syncMerge(syncSnapshot(), payload); syncWrite(merged); }
+            catch(e){ syncApplying = false; status("#sync-msg", "err", e.message || "Fusion impossible."); return; }
+            syncSt = st; syncSt.dirty = true; syncSt.dirtyAt = Date.now(); syncSave();
+            status("#sync-msg", "info", "Fusion en cours…");
+            try{ syncBusy = true; await syncPush(g.version); }
+            catch(e){ syncFail(e); }      // les données fusionnées restent sur l'appareil ; l'envoi sera retenté
+            finally{ syncBusy = false; }
+            location.reload(); } },
+        { label:"Garder seulement cet appareil", fn: async () => {
             syncSt = st; syncSt.dirty = true; syncSt.dirtyAt = Date.now(); syncSave();
             try{ syncBusy = true; setSyncUi(); await syncPush(g.version); status("#sync-msg", "ok", "Synchronisation activée : les données de cet appareil sont en ligne."); }
             catch(e){ syncFail(e); status("#sync-msg", "err", syncSt ? (syncSt.err || e.message) : e.message); }
             finally{ syncBusy = false; setSyncUi(); } } },
-        { label:"Garder celles qui sont en ligne", fn: () => { syncSt = st; syncSave(); try{ syncApply(payload, g.version); }catch(e){ syncSt = null; syncSave(); status("#sync-msg", "err", e.message); } } },
+        { label:"Garder seulement la version en ligne", fn: () => { syncSt = st; syncSave(); try{ syncApply(payload, g.version); }catch(e){ syncSt = null; syncSave(); status("#sync-msg", "err", e.message); } } },
         { label:"Annuler", cls:"alt", cancel:true, fn: () => { status("#sync-msg", "info", "Rien n'a été changé."); } }
       ],
       link:{ label:"Télécharger d'abord une copie de cet appareil", fn: exportData }
