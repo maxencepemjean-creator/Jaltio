@@ -426,6 +426,17 @@ body[data-view="profile"] [data-v]:not([data-v~="profile"]){display:none!importa
 @media (prefers-reduced-motion:reduce){.save-fab{animation:none}}
 @media (max-width:560px){.save-fab{bottom:96px}}
 
+/* Retour en arrière : liste des versions gardées à chaque « Enregistrer mes retouches » */
+.undo-box{max-width:520px;text-align:left}
+.undo-box h2{text-align:center}
+.undo-box .undo-intro{font-size:15px;margin:0 0 14px}
+.undo-list{display:flex;flex-direction:column;gap:10px;margin:0 0 16px;max-height:50vh;overflow:auto}
+.undo-item{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.undo-item b{font-size:15px}
+.undo-item .undo-diff{font-size:13.5px;color:var(--muted);line-height:1.4;margin:0}
+.undo-item .btn{align-self:flex-start;min-height:40px;min-width:0}
+.undo-box>.btn{display:block;margin:0 auto}
+
 /* Fenêtre d'aide « Comment modifier mon CV ? » (affichée une fois, puis via le lien près du CV) */
 .overlay.hlp{z-index:110;padding:16px}
 .hlp-box{background:#fff;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:100%;max-width:440px;max-height:100%;overflow:auto;padding:22px 22px 20px;text-align:center}
@@ -1073,6 +1084,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   </div>
   <p class="edit-hint app-ui" id="edit-hint" hidden>Astuce : cliquez directement dans le CV pour corriger un mot. Vos modifications sont enregistrées.</p>
   <button class="link hlp-link app-ui" id="help-link" type="button" hidden>Comment modifier mon CV ?</button>
+  <button class="link hlp-link app-ui" id="undo-link" type="button" hidden>Revenir à une version précédente</button>
   <div class="empty app-ui" id="empty">
     <svg class="logo" width="56" height="56" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg>
     <h2>Jamais seul face à une candidature.</h2>
@@ -1147,6 +1159,15 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
     <div class="hlp-demo" id="help-demo" aria-hidden="true"></div>
     <p id="help-desc"></p>
     <button class="btn primary" id="help-ok" type="button">J'ai compris</button>
+  </div>
+</div>
+
+<div class="overlay hlp app-ui" id="undo-dlg" hidden>
+  <div class="hlp-box undo-box" role="dialog" aria-modal="true" aria-labelledby="undo-title">
+    <h2 id="undo-title">Revenir à une version précédente</h2>
+    <p class="undo-intro">Chaque fois que vous cliquez sur « Enregistrer mes retouches », la version d'avant est gardée ici. Choisissez celle que vous voulez retrouver : votre version actuelle sera elle aussi conservée.</p>
+    <div class="undo-list" id="undo-list"></div>
+    <button class="btn" id="undo-close" type="button">Fermer</button>
   </div>
 </div>
 
@@ -1928,14 +1949,14 @@ function renderAll(out, html){
   $("#btn-pdf-lettre").hidden = !hasL; $("#btn-copy-lettre").hidden = !hasL;
   $("#empty").hidden = true; $("#tabs").hidden = false; $("#step-dl").hidden = false; $("#edit-hint").hidden = false; $("#help-link").hidden = false; $("#feedback-box").hidden = false;
   $("#btn-regen").textContent = regenLabel();
-  renderSettings(); applyLook(); showTab("cv"); refreshValidate(); refreshVersions();
+  renderSettings(); applyLook(); showTab("cv"); refreshValidate(); refreshVersions(); refreshUndo();
   moReplay($("#holder-cv"));   // CV régénéré ou rouvert : il « se pose » sans jamais être masqué
   if(document.body.classList.contains("chat-open")) renderChat();
 }
 
 function showEmpty(){
   currentHistId = null;
-  $("#empty").hidden = false; $("#tabs").hidden = true; $("#step-dl").hidden = true; $("#alertes").hidden = true; $("#edit-hint").hidden = true; $("#help-link").hidden = true; $("#feedback-box").hidden = true;
+  $("#empty").hidden = false; $("#tabs").hidden = true; $("#step-dl").hidden = true; $("#alertes").hidden = true; $("#edit-hint").hidden = true; $("#help-link").hidden = true; $("#undo-link").hidden = true; $("#feedback-box").hidden = true;
   renderSettings(); refreshValidate();
   $("#holder-cv").hidden = true; $("#holder-lettre").hidden = true;
   if(document.body.classList.contains("chat-open")) renderChat();
@@ -2309,11 +2330,89 @@ function pendingChanges(h){
   if(h.baseLettreHtml && h.data.lettre) linesDiff(lettreLines(h.baseLettreHtml), lettreLines(h.lettreHtml)).forEach(d => ch.push(Object.assign({ doc:"Lettre" }, d)));
   return ch;
 }
+/* ---------- Retour en arrière : versions gardées à chaque enregistrement des retouches ---------- */
+const MAX_SNAPS = 5, PHOTO_TOKEN = "@@PHOTO@@";
+const snapStrip = html => String(html || "").replace(/src="data:image[^"]*"/g, 'src="' + PHOTO_TOKEN + '"');   // la photo n'est pas dupliquée
+function takeSnap(h, cv, lettre){
+  if(!cv) return;
+  const snaps = h.snaps || (h.snaps = []);
+  const c = snapStrip(cv), l = snapStrip(lettre);
+  const last = snaps[snaps.length - 1];
+  if(last && last.cv === c && last.lettre === l) return;
+  snaps.push({ t:Date.now(), cv:c, lettre:l });
+  while(snaps.length > MAX_SNAPS) snaps.shift();
+}
+function snapHtml(html){
+  const ph = ($("#page-cv .photo") && $("#page-cv .photo").getAttribute("src")) || prof().photo || "";
+  if(!ph || ph.indexOf(PHOTO_TOKEN) !== -1) return String(html || "").replace(new RegExp("<img[^>]*" + PHOTO_TOKEN + "[^>]*>", "g"), "");
+  return String(html || "").split(PHOTO_TOKEN).join(ph);
+}
+function refreshUndo(){
+  const h = currentHistId && history.find(x => x.id === currentHistId);
+  $("#undo-link").hidden = !(h && !h.manual && h.snaps && h.snaps.length);
+}
+function snapDiffText(h, sn){
+  const back = [], gone = [];
+  try{
+    const add = d => { if(d.avant) back.push(d.avant); if(d.apres) gone.push(d.apres); };
+    linesDiff(cvTextFromHtml(snapHtml(sn.cv)).split("\n"), cvTextFromHtml(h.cvHtml).split("\n")).forEach(add);
+    if(sn.lettre && h.lettreHtml) linesDiff(lettreLines(snapHtml(sn.lettre)), lettreLines(h.lettreHtml)).forEach(add);
+  }catch(e){}
+  const cutShort = x => x.length > 120 ? x.slice(0, 120) + "…" : x;
+  const quote = arr => "« " + arr.slice(0, 2).map(cutShort).join(" » ; « ") + " »" + (arr.length > 2 ? " (et " + (arr.length - 2) + " autre" + (arr.length > 3 ? "s" : "") + ")" : "");
+  const out = [];
+  if(back.length) out.push("Vous retrouveriez : " + quote(back));
+  if(gone.length) out.push("Vous perdriez : " + quote(gone));
+  return out.length ? out.join(". ") : "Même texte que maintenant (seule la mise en forme change).";
+}
+function fmtSnapWhen(t){
+  const d = new Date(t);
+  return d.toLocaleDateString("fr-FR", { day:"numeric", month:"long" }) + " à " + d.toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" });
+}
+function openUndo(){
+  const h = history.find(x => x.id === currentHistId); if(!h || !h.snaps || !h.snaps.length) return;
+  saveCurrentEdits();
+  const list = $("#undo-list"); list.textContent = "";
+  h.snaps.slice().reverse().forEach(sn => {
+    const item = el("div", "undo-item");
+    item.appendChild(el("b", "", "Version d'avant le " + fmtSnapWhen(sn.t)));
+    item.appendChild(el("p", "undo-diff", snapDiffText(h, sn)));
+    const b = el("button", "btn primary", "Retrouver cette version"); b.type = "button";
+    b.addEventListener("click", () => restoreSnap(sn));
+    item.appendChild(b);
+    list.appendChild(item);
+  });
+  $("#undo-dlg").hidden = false; document.body.classList.add("modal-open");
+  list.querySelector("button").focus({ preventScroll:true });
+}
+function closeUndo(){
+  if($("#undo-dlg").hidden) return;
+  $("#undo-dlg").hidden = true; document.body.classList.remove("modal-open");
+}
+function restoreSnap(sn){
+  const h = history.find(x => x.id === currentHistId); if(!h) return;
+  saveCurrentEdits();
+  takeSnap(h, h.cvHtml, h.lettreHtml);                 // la version actuelle devient elle-même récupérable
+  const k = h.snaps.indexOf(sn); if(k >= 0) h.snaps.splice(k, 1);
+  const cv = snapHtml(sn.cv), lettre = snapHtml(sn.lettre);
+  h.cvHtml = cv; if(lettre) h.lettreHtml = lettre;
+  $("#page-cv").innerHTML = h.cvHtml; if(h.lettreHtml) $("#page-lettre").innerHTML = h.lettreHtml;
+  const l = lettreFromHtml(h.lettreHtml); if(l) h.data.lettre = Object.assign({}, h.data.lettre, l);
+  h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; h.dirty = false; h.touched = Date.now();
+  saveHistory(); refreshValidate(); refreshUndo(); fitVisible(); closeUndo();
+  status("#status-gen", "ok", "Version du " + fmtSnapWhen(sn.t) + " retrouvée. Votre version précédente reste disponible dans « Revenir à une version précédente ».");
+}
+$("#undo-link").addEventListener("click", openUndo);
+$("#undo-close").addEventListener("click", closeUndo);
+$("#undo-dlg").addEventListener("click", ev => { if(ev.target === $("#undo-dlg")) closeUndo(); });
+document.addEventListener("keydown", ev => { if(ev.key === "Escape") closeUndo(); });
+
 /* Valide les retouches : elles deviennent la version de référence et Claude les mémorise */
 function validateEdits(silent){
   const h = history.find(x => x.id === currentHistId); if(!h) return 0;
   saveCurrentEdits();
   if(!h.dirty) return 0;
+  takeSnap(h, h.baseCvHtml, h.baseLettreHtml);   // la version d'avant reste récupérable
   const changes = pendingChanges(h);
   const p = profiles.find(x => x.id === h.profileId);
   if(p && changes.length){
@@ -2322,7 +2421,7 @@ function validateEdits(silent){
   }
   const l = lettreFromHtml(h.lettreHtml); if(l) h.data.lettre = Object.assign({}, h.data.lettre, l);
   h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; h.dirty = false;
-  saveHistory(); refreshValidate();
+  saveHistory(); refreshValidate(); refreshUndo();
   if(!silent) status("#status-gen", "ok", changes.length
     ? "Retouches validées (" + changes.length + "). " + BRAND.name + " repartira de cette version et s'en inspirera pour les prochaines."
     : "Version validée.");
