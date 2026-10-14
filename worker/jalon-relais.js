@@ -1,4 +1,4 @@
-// Relais Jalon (Cloudflare Worker)
+// Relais Elanos (Cloudflare Worker)
 //
 // 1) Relais Claude : garde la clé Anthropic côté serveur ; le navigateur n'envoie qu'un code d'accès testeur.
 // 2) Synchronisation entre appareils (routes /sync/*) : le serveur ne reçoit qu'un bloc CHIFFRÉ dans le
@@ -7,14 +7,14 @@
 //
 // À créer dans Cloudflare :
 //   Secrets (Settings > Variables and Secrets, type « Secret ») :
-//     ANTHROPIC_KEY  = la clé sk-ant-... dédiée à Jalon
+//     ANTHROPIC_KEY  = la clé sk-ant-... dédiée à Elanos
 //     CODES          = codes testeurs séparés par des virgules, ex. « maman-7k2, julien-p9x »
 //   Base D1 liée au Worker (Settings > Bindings > Add > D1 database), nom de variable : DB
 //   Tables : voir worker/schema.sql (à coller dans l'onglet Console de la base D1)
 //   Déclencheur planifié (Settings > Triggers > Cron) : « 0 3 * * 0 » (nettoyage hebdomadaire)
 
 const ORIGINES = ["https://maxencepemjean-creator.github.io"];
-const MODELES = ["claude-sonnet-5-5", "claude-opus-5-5"];
+const MODELES = ["claude-sonnet-5-5"];
 const MAX_TOKENS = 16000;
 
 const MAX_BODY = 1900000;              // octets : requête de synchro complète (D1 limite une ligne à 2 Mo)
@@ -24,6 +24,8 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
   compte:   [30, 60],                  // toutes routes /sync, par identifiant
   echecs:   [8, 900],                  // mots de passe faux, par identifiant
   creation: [5, 3600],                 // créations de compte, par adresse (hachée)
+  code_h:   [40, 3600],                // appels Claude par code d'accès et par heure
+  code_j:   [150, 86400],              // appels Claude par code d'accès et par jour
 };
 
 const RE_ID = /^[0-9a-f]{64}$/;
@@ -170,10 +172,32 @@ async function relais(request, env, origin) {
   const code = (request.headers.get("x-jalon-code") || "").trim();
   if (!code || !codes.includes(code)) return erreur(401, "Code d'accès refusé.", origin);
 
-  let body;
-  try { body = await request.json(); } catch (e) { return erreur(400, "Requête illisible.", origin); }
-  if (!MODELES.includes(body.model)) return erreur(400, "Modèle non autorisé.", origin);
-  body.max_tokens = Math.min(Number(body.max_tokens) || 1024, MAX_TOKENS);
+  if (Number(request.headers.get("content-length") || 0) > MAX_BODY) return erreur(413, "Données trop volumineuses.", origin);
+
+  // Quota par code d'accès (le code est haché : il n'est jamais écrit dans la base)
+  if (env.DB) {
+    const h = await sha256hex("code|" + code);
+    const ok_h = await sous_limite(env, "ch:" + h, LIMITES.code_h);
+    const ok_j = await sous_limite(env, "cj:" + h, LIMITES.code_j);
+    if (!ok_h || !ok_j) return erreur(429, "Quota atteint pour ce code d'accès. Réessayez plus tard.", origin);
+  }
+
+  let recu;
+  try { recu = await request.json(); } catch (e) { return erreur(400, "Requête illisible.", origin); }
+  if (!recu || !MODELES.includes(recu.model)) return erreur(400, "Modèle non autorisé.", origin);
+  if (!Array.isArray(recu.messages)) return erreur(400, "Requête invalide.", origin);
+
+  // On ne transmet que les champs attendus ; seuls les outils de lecture d'annonce et de recherche web sont autorisés.
+  const body = { model: recu.model, messages: recu.messages, max_tokens: Math.min(Number(recu.max_tokens) || 1024, MAX_TOKENS) };
+  if (typeof recu.system === "string" || Array.isArray(recu.system)) body.system = recu.system;
+  if (Array.isArray(recu.tools)) {
+    const tools = [];
+    const fetchTool = recu.tools.find(t => t && t.type === "web_fetch_20250910" && t.name === "web_fetch");
+    const searchTool = recu.tools.find(t => t && t.type === "web_search_20250305" && t.name === "web_search");
+    if (fetchTool) tools.push({ type: "web_fetch_20250910", name: "web_fetch", max_uses: Math.min(Number(fetchTool.max_uses) || 3, 3), max_content_tokens: Math.min(Number(fetchTool.max_content_tokens) || 20000, 20000) });
+    if (searchTool) tools.push({ type: "web_search_20250305", name: "web_search", max_uses: Math.min(Number(searchTool.max_uses) || 2, 2) });
+    if (tools.length) body.tools = tools;
+  }
 
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
