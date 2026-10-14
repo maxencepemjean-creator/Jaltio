@@ -5,7 +5,13 @@
 Site qui adapte un CV et une lettre de motivation à chaque offre d'emploi, conseille comme un coach et suit les candidatures jusqu'à l'entretien. Il fonctionne avec Claude (Anthropic).
 
 Le nom de la marque se change à un seul endroit : la constante `BRAND` au début du script de `index.html`.
-Pensé pour un usage familial : 2 ou 3 personnes, avec la clé API de Maxence.
+
+## Architecture
+
+- **Site** : un seul fichier `index.html` (+ `fonts.css` et `fonts/`, polices hébergées sur le site, aucune requête vers Google), publié sur GitHub Pages.
+- **Relais** (`worker/jalon-relais.js`) : Cloudflare Worker. Il garde la clé API Anthropic côté serveur ; le navigateur n'envoie qu'un code d'accès. Le contenu du CV et de l'offre transite donc par Cloudflare puis Anthropic (États-Unis).
+- **Synchronisation optionnelle** (routes `/sync/*`, base Cloudflare D1, schéma dans `worker/schema.sql`) : le navigateur chiffre les données (AES-GCM, clé dérivée du mot de passe) avant envoi. Le serveur ne stocke qu'un hash de l'e-mail, un hash du jeton d'authentification et le bloc chiffré. Purge automatique après 400 jours sans connexion.
+- **Par défaut** : parcours, historique et réglages restent dans le navigateur (`localStorage`). Export et import de fichier disponibles.
 
 ## Ce que fait le site
 
@@ -15,30 +21,25 @@ Pensé pour un usage familial : 2 ou 3 personnes, avec la clé API de Maxence.
 4. **Corrections** : on corrige un mot directement dans le document, ou on écrit ce qui ne plaît pas et Claude refait une version.
 5. **Téléchargement** : bouton « Télécharger le CV (PDF) », puis « Enregistrer au format PDF ».
 
-Tout reste dans le navigateur de la personne : parcours, historique et clé. Aucun serveur, aucune base de données.
+## Mise en ligne
 
-## Mise en ligne sur GitHub Pages (une seule fois, 5 minutes)
+1. Dépôt GitHub public, **Settings → Pages**, source `main`, dossier `/ (root)`.
+2. Déposer `index.html`, `fonts.css` et le dossier `fonts/` (sans eux, le site s'affiche avec les polices du système).
+3. Adresse : `https://<pseudo>.github.io/cv-express/`.
 
-1. Sur github.com, cliquer sur **New repository**. Nom : `cv-express`, visibilité **Public** (obligatoire pour GitHub Pages gratuit). Créer.
-2. Dans le dépôt : **Add file → Upload files**, déposer `index.html` et `README.md`, puis **Commit changes**.
-3. **Settings → Pages**. Dans « Source », choisir **Deploy from a branch**, branche `main`, dossier `/ (root)`, puis **Save**.
-4. Une minute plus tard, le site est en ligne à l'adresse `https://<votre-pseudo>.github.io/cv-express/`.
+## Le relais Cloudflare
 
-Le code est public, mais il ne contient **aucune clé**. Sans clé, le site ne peut rien générer.
+Voir l'en-tête de `worker/jalon-relais.js` : secrets `ANTHROPIC_KEY` (clé dédiée à Elanos) et `CODES` (un code d'accès par testeur, séparés par des virgules), base D1 liée sous le nom `DB`, déclencheur planifié `0 3 * * 0`.
 
-## La clé API (à faire par Maxence)
-
-1. Sur **platform.claude.com**, aller dans **API keys** et créer **une clé par personne** (ex. « CV – Femme », « CV – Beau-père »). Chacune peut ainsi être révoquée séparément.
-2. **Plafonner les dépenses**. L'API fonctionne avec des crédits prépayés : acheter un petit montant (10 $ par exemple) et **désactiver la recharge automatique**. On ne peut alors jamais dépenser plus que le crédit acheté. Un plafond mensuel peut aussi se régler dans la console.
-3. Sur l'ordinateur ou le téléphone de chaque personne, ouvrir le site et coller la clé dans l'encadré « Première utilisation ». Elle reste enregistrée sur cet appareil uniquement.
-
-**Coût indicatif** : 5 à 10 centimes par CV et lettre avec la qualité « Standard » (Claude Sonnet 5.5), un peu plus avec « Maximale ». Le coût cumulé est visible dans **Réglages**.
+- **Révoquer un testeur** : retirer son code de `CODES`.
+- **Plafonner la dépense** : fixer une limite mensuelle dans la console Anthropic et ne pas activer la recharge automatique.
+- **Aucune clé API n'est acceptée dans le navigateur.** Une clé `sk-ant-…` saisie à la place du code est refusée.
 
 ## Limites connues
 
-- **LinkedIn et Indeed** bloquent souvent la lecture automatique de leurs annonces. Dans ce cas, le site le signale et il suffit de coller le texte de l'annonce.
-- **PDF scannés** : s'ils ne contiennent pas de texte, Claude les lit (cela coûte quelques centimes de plus).
-- **Anciens fichiers Word (.doc)** : non lus. Il faut les réenregistrer en .docx ou en PDF.
-- **Couleur de l'entreprise** : trouvée par recherche web. Si elle est fausse ou trop claire, choisir une autre pastille. Les couleurs trop pâles sont assombries automatiquement pour rester lisibles.
-- **Changer d'appareil** : l'historique et le parcours ne suivent pas (ils sont stockés dans le navigateur).
-- **Sécurité de la clé** : quelqu'un qui utilise le même navigateur peut la récupérer. C'est acceptable entre membres de la famille. En cas de doute, révoquer la clé dans la console et en créer une nouvelle.
+- **LinkedIn et Indeed** bloquent souvent la lecture automatique de leurs annonces. Il suffit alors de coller le texte de l'annonce.
+- **PDF scannés** : s'ils ne contiennent pas de texte, Claude les lit (quelques centimes de plus).
+- **Anciens fichiers Word (.doc)** : non lus. Les réenregistrer en .docx ou en PDF.
+- **Couleur de l'entreprise** : trouvée par recherche web. Si elle est fausse ou trop claire, choisir une autre pastille.
+- **Bibliothèques externes** : la lecture des PDF et Word charge `pdf.js` et `mammoth` depuis `cdnjs.cloudflare.com` (à citer dans la politique de confidentialité, ou à héberger soi-même).
+- **Mot de passe de synchronisation perdu** : les données en ligne sont irrécupérables.
