@@ -419,32 +419,55 @@ body[data-view="profile"] [data-v]:not([data-v~="profile"]){display:none!importa
 /* Barre flottante : outils de mise en forme (fond blanc) collés à « Enregistrer mes retouches » (fond vert) */
 .edit-bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:51;display:none;align-items:stretch;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.22);animation:savepop .25s ease-out;max-width:calc(100vw - 24px)}
 .edit-bar.show{display:flex}
-.eb-tools{display:flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--line);border-right:0;border-radius:999px 0 0 999px;padding:6px 10px 6px 14px}
-.eb-tools select{flex:none;width:118px;border:1px solid var(--line);border-radius:8px;padding:5px 6px;font:inherit;font-size:14px;max-width:150px;background:#fff;color:var(--ink);min-height:34px}
-.eb-btn{flex:none;border:0;background:transparent;color:var(--ink);font:inherit;font-size:15px;font-weight:600;min-width:34px;height:34px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
+.eb-tools{display:flex;align-items:center;gap:3px;background:#fff;border:1px solid var(--line);border-right:0;border-radius:999px 0 0 999px;padding:6px 8px 6px 12px}
+.eb-dd{position:relative;flex:none}
+.eb-field{flex:none;display:inline-flex;align-items:center;justify-content:space-between;gap:6px;height:34px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font:inherit;font-size:14px;padding:0 8px;cursor:pointer}
+.eb-field:hover{border-color:var(--brand)}
+.eb-font-btn{width:150px}
+.eb-font-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.eb-size-btn{width:58px}
+.eb-btn{flex:none;border:1px solid transparent;background:transparent;color:var(--ink);font:inherit;font-size:15px;font-weight:600;width:34px;height:34px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
 .eb-btn:hover{background:#f3f0f5}
-.eb-btn:focus-visible,.eb-sw:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.eb-tog[aria-pressed="true"]{background:#E9DDEE;border-color:var(--brand);color:var(--brand)}
+.eb-btn:focus-visible,.eb-field:focus-visible,.eb-sw:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.eb-a{font-weight:700;line-height:1}.eb-a.sm{font-size:12px}.eb-a.lg{font-size:17px}.eb-pm{font-size:12px;margin-left:1px}
+.eb-color-btn{flex-direction:column;gap:2px}
+.eb-cbar{display:block;width:20px;height:4px;border-radius:2px;background:#1f2937;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
 .eb-sep{width:1px;align-self:stretch;background:var(--line);margin:2px 4px}
-.eb-colors{display:inline-flex;gap:4px}
-.eb-sw{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #c9c2cd;cursor:pointer;padding:0}
-.eb-custom{flex:none;display:inline-flex;width:26px;height:26px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 1px #c9c2cd;cursor:pointer;margin-left:2px;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)}
+.eb-pop{position:absolute;bottom:calc(100% + 10px);left:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:6px;z-index:5}
+.eb-pop[hidden]{display:none}
+.eb-font-pop{width:230px;max-height:340px;overflow:auto}
+.eb-size-pop{width:76px;max-height:300px;overflow:auto}
+.eb-pop .eb-opt{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;border:0;background:none;border-radius:8px;padding:7px 10px;font-size:15.5px;color:var(--ink);cursor:pointer}
+.eb-pop .eb-opt:hover{background:#f3f0f5}
+.eb-pop .eb-opt.on{background:#E9DDEE;color:var(--brand);font-weight:700}
+.eb-pop .eb-grp{font-size:12px;color:var(--muted);padding:6px 10px 2px;font-family:inherit}
+.eb-color-pop{left:50%;transform:translateX(-50%);width:200px;padding:10px}
+.eb-colors{display:grid;grid-template-columns:repeat(4,34px);gap:8px;justify-content:center}
+.eb-sw{width:34px;height:34px;border-radius:8px;border:2px solid #fff;box-shadow:0 0 0 1px #c9c2cd;cursor:pointer;padding:0}
+.eb-sw.on{box-shadow:0 0 0 2px var(--brand)}
+.eb-custom-row{display:flex;align-items:center;gap:10px;margin:10px 4px 0;font-size:14px;cursor:pointer;color:var(--ink)}
+.eb-custom{flex:none;display:inline-flex;width:34px;height:34px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px #c9c2cd;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)}
 .eb-custom input{opacity:0;width:100%;height:100%;cursor:pointer;border:0;padding:0}
-.save-fab{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;border:0;border-radius:0 999px 999px 0;padding:12px 18px 12px 14px;background:var(--ok);color:#fff;font:inherit;font-weight:600;font-size:15px;cursor:pointer}
+.save-fab{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;border:0;border-radius:0 999px 999px 0;padding:10px 18px 10px 14px;background:var(--ok);color:#fff;font:inherit;font-weight:600;font-size:15px;cursor:pointer}
 .edit-bar.solo .save-fab{border-radius:999px}
 .eb-tools[hidden]{display:none}
 .save-fab:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
 .save-fab svg{width:20px;height:20px;flex:none}
 .save-fab.done{background:var(--brand)}
-.save-fab.idle{opacity:.55;cursor:default}
+.save-fab.idle{background:#9fbfaa;cursor:default}
 .eb-tip{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:52;background:var(--ink);color:#fff;border-radius:10px;padding:8px 12px;font-size:14px;margin:0;box-shadow:0 6px 18px rgba(0,0,0,.2)}
 @keyframes savepop{from{opacity:0;margin-bottom:-10px}to{opacity:1;margin-bottom:0}}
 @media (prefers-reduced-motion:reduce){.edit-bar{animation:none}}
 @media (max-width:560px){.edit-bar{bottom:96px}}
+@media (max-width:1100px){.save-fab .sf-long{display:none}}
 @media (max-width:900px){.eb-tools{flex-wrap:wrap;border-radius:18px 0 0 18px}.save-fab{border-radius:0 18px 18px 0}}
 body.m .eb-tools{display:none}
 body.m .save-fab{border-radius:999px}
 
 /* Mes CV récents (onglet Créer) */
+.company-miss{margin:8px 0 4px}
+.company-miss .hint{margin:0 0 6px}
 .recent summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:16px;color:var(--brand);list-style:none;display:flex;align-items:center;gap:6px;min-height:32px}
 .recent summary::-webkit-details-marker{display:none}
 .recent summary::before{content:"▶";display:inline-block;transition:transform .15s;font-size:10px;line-height:1;color:var(--brand)}
@@ -457,16 +480,27 @@ body.m .save-fab{border-radius:999px}
 .recent-list b{font-size:14.5px}
 .recent-list span{font-size:13px;color:var(--muted)}
 
-/* Retour en arrière : liste des versions gardées à chaque « Enregistrer mes retouches » */
-.undo-box{max-width:520px;text-align:left}
-.undo-box h2{text-align:center}
-.undo-box .undo-intro{font-size:15px;margin:0 0 14px}
-.undo-list{display:flex;flex-direction:column;gap:10px;margin:0 0 16px;max-height:50vh;overflow:auto}
-.undo-item{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
-.undo-item b{font-size:15px}
-.undo-item .undo-diff{font-size:13.5px;color:var(--muted);line-height:1.4;margin:0}
-.undo-item .btn{align-self:flex-start;min-height:40px;min-width:0}
-.undo-box>.btn{display:block;margin:0 auto}
+/* Grande fenêtre « Versions précédentes » : liste à gauche, aperçu du CV ou de la lettre à droite */
+.ver-body{flex:1;min-height:0;display:grid;grid-template-columns:340px minmax(0,1fr)}
+.ver-list-col{padding:16px 18px;border-right:1px solid var(--line);overflow:auto;background:#FBF4EC}
+.ver-intro{margin:0 0 12px}
+.ver-list{display:flex;flex-direction:column;gap:8px}
+.ver-item{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:3px;color:var(--ink)}
+.ver-item:hover{border-color:var(--brand)}
+.ver-item[aria-selected="true"]{border-color:var(--brand);box-shadow:0 0 0 2px #E9DDEE}
+.ver-item b{font-size:15px}
+.ver-item span{font-size:13px;color:var(--muted)}
+.ver-item.sub{margin-left:18px;width:calc(100% - 18px);background:#fffdf9}
+.ver-item .tag{display:inline-block;align-self:flex-start;font-size:11.5px;font-weight:700;color:#fff;background:var(--ok);border-radius:999px;padding:1px 8px;margin-top:2px}
+.ver-view-col{display:flex;flex-direction:column;min-width:0;min-height:0;padding:14px 22px}
+.ver-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ver-bar .tabs{margin:0}
+.ver-bar .spacer{flex:1}
+.ver-diff{margin:8px 0 10px;min-height:1.2em}
+.ver-holder{flex:1;min-height:0;overflow:auto;display:flex;justify-content:center;padding:4px 0 20px}
+.ver-page-box{--s:.6;flex:none;width:calc(794px * var(--s));height:calc(1123px * var(--s));overflow:hidden;border-radius:4px;box-shadow:0 2px 12px rgba(0,0,0,.14);background:#fff}
+.ver-page-box .page{transform:scale(var(--s));transform-origin:top left;box-shadow:none}
+@media (max-width:800px){.ver-body{grid-template-columns:1fr;grid-template-rows:auto 1fr}.ver-list-col{max-height:34vh;border-right:0;border-bottom:1px solid var(--line)}}
 
 /* Fenêtre d'aide « Comment modifier mon CV ? » (affichée une fois, puis via le lien près du CV) */
 .overlay.hlp{z-index:110;padding:16px}
@@ -1014,6 +1048,11 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
     </div>
     <label>Couleurs</label>
     <div class="swatches" id="swatches"></div>
+    <div class="company-miss" id="company-miss" hidden>
+      <p class="hint" id="company-miss-txt"></p>
+      <button class="btn small" id="btn-company-color" type="button"></button>
+    </div>
+    <div class="status" id="status-color"></div>
     <div class="custom-pal" id="custom-pal" hidden>
       <label><input type="color" id="cp-dark" value="#0C1B33"> Bandeau</label>
       <label><input type="color" id="cp-accent" value="#2A62D4"> Titres</label>
@@ -1174,24 +1213,27 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 </nav>
 <div class="edit-bar app-ui" id="edit-bar" role="toolbar" aria-label="Mise en forme du texte">
   <div class="eb-tools" id="eb-tools">
-    <label class="sr-only" for="eb-font">Police</label>
-    <select id="eb-font" title="Police du texte sélectionné">
-      <option value="">Police</option>
-      <option value="Lato, Carlito, Arial, sans-serif">Lato</option>
-      <option value="Inter, Arial, sans-serif">Inter</option>
-      <option value="Figtree, Arial, sans-serif">Figtree</option>
-      <option value="Lora, Georgia, serif">Lora (avec empattements)</option>
-      <option value="Arial, Helvetica, sans-serif">Arial</option>
-    </select>
+    <div class="eb-dd">
+      <button type="button" class="eb-field eb-font-btn" id="eb-font-btn" title="Police" aria-haspopup="true" aria-expanded="false"><span id="eb-font-name">Lato</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="eb-pop eb-font-pop" id="eb-font-pop" hidden></div>
+    </div>
     <span class="eb-sep" aria-hidden="true"></span>
-    <button type="button" class="eb-btn" data-fmt="size" data-val="0.9" title="Texte plus petit" aria-label="Texte plus petit"><span style="font-size:12px">A</span>−</button>
-    <button type="button" class="eb-btn" data-fmt="size" data-val="1.1" title="Texte plus grand" aria-label="Texte plus grand"><span style="font-size:17px">A</span>+</button>
+    <button type="button" class="eb-btn" data-fmt="size" data-val="0.9" title="Texte plus petit" aria-label="Texte plus petit"><span class="eb-a sm">A</span><span class="eb-pm">−</span></button>
+    <div class="eb-dd">
+      <button type="button" class="eb-field eb-size-btn" id="eb-size-btn" title="Taille du texte (points)" aria-haspopup="true" aria-expanded="false"><span id="eb-size-val">10</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="eb-pop eb-size-pop" id="eb-size-pop" hidden></div>
+    </div>
+    <button type="button" class="eb-btn" data-fmt="size" data-val="1.1" title="Texte plus grand" aria-label="Texte plus grand"><span class="eb-a lg">A</span><span class="eb-pm">+</span></button>
     <span class="eb-sep" aria-hidden="true"></span>
-    <button type="button" class="eb-btn" data-fmt="bold" title="Gras" aria-label="Gras"><b>G</b></button>
-    <button type="button" class="eb-btn" data-fmt="italic" title="Italique" aria-label="Italique"><i style="font-family:Georgia,serif">I</i></button>
-    <span class="eb-sep" aria-hidden="true"></span>
-    <span class="eb-colors" id="eb-colors"></span>
-    <label class="eb-custom" title="Autre couleur"><input type="color" id="eb-color" value="#1f2937" aria-label="Autre couleur"></label>
+    <button type="button" class="eb-btn eb-tog" id="eb-bold" data-fmt="bold" title="Gras" aria-label="Gras" aria-pressed="false"><b>G</b></button>
+    <button type="button" class="eb-btn eb-tog" id="eb-italic" data-fmt="italic" title="Italique" aria-label="Italique" aria-pressed="false"><i style="font-family:Georgia,serif;font-weight:700">I</i></button>
+    <div class="eb-dd">
+      <button type="button" class="eb-btn eb-color-btn" id="eb-color-btn" title="Couleur du texte" aria-label="Couleur du texte" aria-haspopup="true" aria-expanded="false"><span class="eb-a">A</span><span class="eb-cbar" id="eb-cbar"></span></button>
+      <div class="eb-pop eb-color-pop" id="eb-color-pop" hidden>
+        <div class="eb-colors" id="eb-colors"></div>
+        <label class="eb-custom-row"><span class="eb-custom"><input type="color" id="eb-color" value="#1f2937"></span>Autre couleur…</label>
+      </div>
+    </div>
     <span class="eb-sep" aria-hidden="true"></span>
     <button type="button" class="eb-btn eb-clear" data-fmt="clear" title="Remettre la mise en forme d'origine" aria-label="Effacer la mise en forme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
   </div>
@@ -1224,12 +1266,30 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   </div>
 </div>
 
-<div class="overlay hlp app-ui" id="undo-dlg" hidden>
-  <div class="hlp-box undo-box" role="dialog" aria-modal="true" aria-labelledby="undo-title">
-    <h2 id="undo-title">Revenir à une version précédente</h2>
-    <p class="undo-intro">Chaque fois que vous cliquez sur « Enregistrer mes retouches », la version d'avant est gardée ici. Choisissez celle que vous voulez retrouver : votre version actuelle sera elle aussi conservée.</p>
-    <div class="undo-list" id="undo-list"></div>
-    <button class="btn" id="undo-close" type="button">Fermer</button>
+<div class="overlay app-ui" id="ver-ov" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="ver-title">
+    <header class="dlg-head">
+      <div><h2 id="ver-title">Versions précédentes</h2><p class="hint" id="ver-sub"></p></div>
+      <button class="btn small" id="ver-close" type="button"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg> Fermer</button>
+    </header>
+    <div class="ver-body">
+      <section class="ver-list-col">
+        <p class="hint ver-intro">Chaque correction par <span data-brand>Elanos</span> crée une nouvelle version. Chaque fois que vous cliquez sur « Enregistrer mes retouches », la version d'avant est aussi gardée. Cliquez sur une version pour la voir.</p>
+        <div class="ver-list" id="ver-list" role="listbox" aria-label="Versions"></div>
+      </section>
+      <section class="ver-view-col">
+        <div class="ver-bar">
+          <div class="tabs ver-tabs" role="tablist">
+            <button class="tab on" type="button" data-vtab="cv">CV</button>
+            <button class="tab" type="button" data-vtab="lettre" id="ver-tab-l">Lettre de motivation</button>
+          </div>
+          <span class="spacer"></span>
+          <button class="btn primary" id="ver-use" type="button">Retrouver cette version</button>
+        </div>
+        <p class="hint ver-diff" id="ver-diff"></p>
+        <div class="ver-holder" id="ver-holder"></div>
+      </section>
+    </div>
   </div>
 </div>
 
@@ -1591,6 +1651,37 @@ function renderSwatches(){
   });
   m.textContent = "Ma palette";
   if(src !== "custom") $("#custom-pal").hidden = true;
+  const miss = $("#company-miss"), ent = h && !h.companyColor && str(h.entreprise);
+  miss.hidden = !ent;
+  if(ent){ $("#company-miss-txt").textContent = "Les couleurs de " + ent + " n'ont pas été trouvées automatiquement."; $("#btn-company-color").textContent = "Chercher les couleurs de " + ent; }
+}
+/* Recherche des couleurs de l'entreprise à la demande (quand la recherche automatique n'a rien donné) */
+async function findCompanyColor(){
+  const h = histNow(); if(!h || !str(h.entreprise)) return;
+  const btn = $("#btn-company-color"); btn.disabled = true; const old = btn.textContent; btn.textContent = "Recherche en cours…";
+  status("#status-color", "", "");
+  try{
+    const body = { model:settings.model, max_tokens:1500,
+      tools:[{ type:"web_search_20250305", name:"web_search", max_uses:2 }],
+      messages:[{ role:"user", content:"Trouve les couleurs du logo ou de la charte graphique de l'entreprise « " + str(h.entreprise) + " » (offre d'emploi : " + str(h.poste) + (h.data && h.data.cv && h.data.cv.contact && h.data.cv.contact.ville ? ", région " + str(h.data.cv.contact.ville) : "") + "). Réponds UNIQUEMENT par une ligne de 1 à 3 codes hexadécimaux #RRGGBB séparés par des espaces, la couleur principale en premier. Si tu ne trouves rien de fiable, réponds RIEN." }] };
+    let data;
+    for(let i = 0; i < 3; i++){
+      data = await callClaude(body, settings.apiKey); addCost(data.usage);
+      if(data.stop_reason !== "pause_turn") break;
+      body.messages = body.messages.concat([{ role:"assistant", content:data.content }]);
+    }
+    const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join(" ");
+    const found = (text.match(/#[0-9a-f]{6}\b/gi) || []);
+    const usable = found.map(cleanHex).find(Boolean);
+    if(usable){
+      h.companyColor = usable; settings.useCompany = true; saveSettings();
+      setLook({ src:"company", pal: palFromColor(usable) });
+      status("#status-color", "ok", "Couleurs de " + h.entreprise + " appliquées.");
+    } else {
+      status("#status-color", "err", found.length ? "Les couleurs de " + h.entreprise + " sont trop claires pour un CV (blanc, jaune ou gris clair). Choisissez une palette ci-dessus." : "Aucune couleur fiable trouvée pour " + h.entreprise + ". Choisissez une palette ci-dessus ou créez la vôtre.");
+    }
+  }catch(e){ status("#status-color", "err", e.message || "La recherche a échoué. Réessayez."); }
+  finally{ btn.disabled = false; btn.textContent = old; renderSwatches(); }
 }
 function setLook(look){
   const h = histNow(); if(!h) return;
@@ -1681,7 +1772,7 @@ LETTRE DE MOTIVATION (uniquement si demandée)
 
 OUTILS
 - Si l'annonce est donnée sous forme de lien, lis-la avec l'outil web_fetch. Si la page est inaccessible, demande une connexion, ou ne contient pas d'annonce d'emploi, N'INVENTE PAS l'annonce : réponds seulement {"offre_lue": false, "raison": "explication courte"}.
-- Si l'outil web_search est disponible et que l'entreprise est nommée, fais UNE recherche pour trouver la couleur principale de son logo ou de sa charte graphique. Renvoie-la en hexadécimal dans "couleur_entreprise". En cas de doute, chaîne vide. Ne cite jamais ces recherches dans le CV.
+- Si l'outil web_search est disponible et que l'entreprise est nommée, fais UNE recherche pour trouver les couleurs de son logo ou de sa charte graphique. Renvoie en hexadécimal dans "couleur_entreprise" la couleur de marque la plus foncée et la plus saturée, lisible avec du texte blanc dessus (si le logo est jaune, blanc ou très clair, prends sa deuxième couleur). Si l'annonce vient d'une agence d'intérim ou d'un cabinet, cherche l'entreprise qui recrute vraiment si elle est nommée, sinon l'agence. En cas de doute, chaîne vide. Ne cite jamais ces recherches dans le CV.
 - Après avoir utilisé les outils, ta réponse finale est uniquement le JSON.
 
 FORMAT DE RÉPONSE
@@ -2076,11 +2167,11 @@ function fitVisible(){
 }
 function showTab(t){
   activeTab = t;
-  document.querySelectorAll(".tab").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  document.querySelectorAll("#tabs .tab").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
   $("#holder-cv").hidden = t !== "cv"; $("#holder-lettre").hidden = t !== "lettre";
   scalePreview(); fitVisible();
 }
-document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+document.querySelectorAll("#tabs .tab").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
 
 function scalePreview(){
   const w = $("#preview").clientWidth - 40;
@@ -2092,7 +2183,9 @@ window.addEventListener("resize", scalePreview);
 /* Enregistrement des corrections manuelles */
 function saveCurrentEdits(){
   const h = history.find(x => x.id === currentHistId); if(!h || h.manual) return;
-  h.cvHtml = $("#page-cv").innerHTML; h.lettreHtml = $("#page-lettre").innerHTML; h.touched = Date.now(); saveHistory();
+  const cv = $("#page-cv").innerHTML, lt = $("#page-lettre").innerHTML;
+  if(cv === h.cvHtml && lt === h.lettreHtml) return;          // rien n'a changé : on ne marque pas le CV comme retouché
+  h.cvHtml = cv; h.lettreHtml = lt; h.touched = Date.now(); saveHistory();
 }
 const onEditSave = debounce(() => { saveCurrentEdits(); fitVisible(); }, 700);
 const onEdit = () => { markDirty(); onEditSave(); };
@@ -2435,7 +2528,8 @@ function snapHtml(html){
 }
 function refreshUndo(){
   const h = currentHistId && history.find(x => x.id === currentHistId);
-  $("#undo-link").hidden = !(h && !h.manual && h.snaps && h.snaps.length);
+  const has = h && !h.manual && groupVersions(h).some(v => !v.manual && (v !== h || (v.snaps && v.snaps.length)));
+  $("#undo-link").hidden = !has;
 }
 function snapDiffText(h, sn){
   const back = [], gone = [];
@@ -2455,43 +2549,110 @@ function fmtSnapWhen(t){
   const d = new Date(t);
   return d.toLocaleDateString("fr-FR", { day:"numeric", month:"long" }) + " à " + d.toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" });
 }
-function openUndo(){
-  const h = history.find(x => x.id === currentHistId); if(!h || !h.snaps || !h.snaps.length) return;
-  saveCurrentEdits();
-  const list = $("#undo-list"); list.textContent = "";
-  h.snaps.slice().reverse().forEach(sn => {
-    const item = el("div", "undo-item");
-    item.appendChild(el("b", "", "Version d'avant le " + fmtSnapWhen(sn.t)));
-    item.appendChild(el("p", "undo-diff", snapDiffText(h, sn)));
-    const b = el("button", "btn primary", "Retrouver cette version"); b.type = "button";
-    b.addEventListener("click", () => restoreSnap(sn));
-    item.appendChild(b);
-    list.appendChild(item);
-  });
-  $("#undo-dlg").hidden = false; document.body.classList.add("modal-open");
-  list.querySelector("button").focus({ preventScroll:true });
-}
-function closeUndo(){
-  if($("#undo-dlg").hidden) return;
-  $("#undo-dlg").hidden = true; document.body.classList.remove("modal-open");
-}
 function restoreSnap(sn){
   const h = history.find(x => x.id === currentHistId); if(!h) return;
   saveCurrentEdits();
   takeSnap(h, h.cvHtml, h.lettreHtml);                 // la version actuelle devient elle-même récupérable
-  const k = h.snaps.indexOf(sn); if(k >= 0) h.snaps.splice(k, 1);
+  const k = (h.snaps || []).indexOf(sn); if(k >= 0) h.snaps.splice(k, 1);
   const cv = snapHtml(sn.cv), lettre = snapHtml(sn.lettre);
   h.cvHtml = cv; if(lettre) h.lettreHtml = lettre;
   $("#page-cv").innerHTML = h.cvHtml; if(h.lettreHtml) $("#page-lettre").innerHTML = h.lettreHtml;
   const l = lettreFromHtml(h.lettreHtml); if(l) h.data.lettre = Object.assign({}, h.data.lettre, l);
   h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; h.dirty = false; h.touched = Date.now();
-  saveHistory(); refreshValidate(); refreshUndo(); fitVisible(); closeUndo();
+  saveHistory(); refreshValidate(); refreshUndo(); fitVisible();
   status("#status-gen", "ok", "Version du " + fmtSnapWhen(sn.t) + " retrouvée. Votre version précédente reste disponible dans « Revenir à une version précédente ».");
 }
-$("#undo-link").addEventListener("click", openUndo);
-$("#undo-close").addEventListener("click", closeUndo);
-$("#undo-dlg").addEventListener("click", ev => { if(ev.target === $("#undo-dlg")) closeUndo(); });
-document.addEventListener("keydown", ev => { if(ev.key === "Escape") closeUndo(); });
+
+/* ---------- Grande fenêtre des versions ---------- */
+let verItems = [], verSel = null, verTab = "cv";
+function groupVersions(h){
+  const G = groupsFor(h.profileId).find(g => g.id === groupOf(h));
+  return G ? G.versions.slice() : [h];
+}
+function buildVerItems(){
+  const cur = histNow(); if(!cur) return [];
+  const vs = groupVersions(cur).filter(v => !v.manual), items = [];
+  vs.map((v, k) => [v, k]).reverse().forEach(([v, k]) => {      // version la plus récente en haut, ses anciennes retouches juste dessous
+    const n = k + 1, sub = [];
+    sub.push((n === 1 ? "Créée le " : "Corrigée par " + BRAND.name + " le ") + fmtSnapWhen(v.date));
+    if(v.touched && v.touched - v.date > 60e3) sub.push("dernière retouche le " + fmtSnapWhen(v.touched));
+    items.push({ v, n, title:"Version " + n + (vs.length > 1 && n === vs.length ? " (la plus récente)" : ""), sub:sub.join(" · "), current: v === cur });
+    (v.snaps || []).slice().reverse().forEach(sn => items.push({ v, n, sn, title:"Version " + n + " avant mes retouches", sub:"Retouches enregistrées le " + fmtSnapWhen(sn.t) }));
+  });
+  return items;
+}
+function openVersions(){
+  const cur = histNow(); if(!cur) return;
+  saveCurrentEdits();
+  verItems = buildVerItems(); if(!verItems.length) return;
+  $("#ver-sub").textContent = (cur.poste || "") + (cur.entreprise ? " · " + cur.entreprise : "");
+  const list = $("#ver-list"); list.textContent = "";
+  verItems.forEach(it => {
+    const b = el("button", "ver-item" + (it.sn ? " sub" : "")); b.type = "button"; b.setAttribute("role", "option");
+    b.appendChild(el("b", "", it.title)); b.appendChild(el("span", "", it.sub));
+    if(it.current) b.appendChild(el("span", "tag", "Affichée en ce moment"));
+    b.addEventListener("click", () => selectVer(it));
+    it.btn = b; list.appendChild(b);
+  });
+  $("#ver-ov").hidden = false; document.body.classList.add("modal-open");
+  const first = verItems.find(it => !it.current) || verItems[0];
+  selectVer(first);
+  first.btn.focus({ preventScroll:true });
+}
+function closeVersions(){
+  if($("#ver-ov").hidden) return;
+  $("#ver-ov").hidden = true; document.body.classList.remove("modal-open");
+  $("#ver-holder").textContent = "";
+}
+function verHtml(it, which){
+  if(it.sn) return snapHtml(which === "cv" ? it.sn.cv : it.sn.lettre);
+  return which === "cv" ? it.v.cvHtml : it.v.lettreHtml;
+}
+function selectVer(it){
+  verSel = it;
+  verItems.forEach(x => x.btn.setAttribute("aria-selected", x === it ? "true" : "false"));
+  const hasL = !!verHtml(it, "lettre");
+  $("#ver-tab-l").hidden = !hasL; if(!hasL) verTab = "cv";
+  document.querySelectorAll("[data-vtab]").forEach(b => b.classList.toggle("on", b.dataset.vtab === verTab));
+  const use = $("#ver-use");
+  use.disabled = !!it.current;
+  use.textContent = it.current ? "C'est la version affichée" : it.sn ? "Retrouver cette version" : "Ouvrir cette version";
+  // Ce qui change par rapport à la version affichée
+  const cur = histNow();
+  let diff = "";
+  if(!it.current && cur){
+    diff = snapDiffText(cur, { cv: it.sn ? it.sn.cv : snapStrip(it.v.cvHtml), lettre: it.sn ? it.sn.lettre : snapStrip(it.v.lettreHtml) });
+    diff = "Par rapport à la version affichée : " + diff.charAt(0).toLowerCase() + diff.slice(1);
+  }
+  $("#ver-diff").textContent = diff;
+  renderVerPage();
+}
+function renderVerPage(){
+  const box = $("#ver-holder"); box.textContent = "";
+  if(!verSel) return;
+  const live = verTab === "cv" ? $("#page-cv") : $("#page-lettre");
+  const wrap = el("div", "ver-page-box"), pg = el("div");
+  pg.className = live.className; const st = live.getAttribute("style"); if(st) pg.setAttribute("style", st);
+  pg.innerHTML = verHtml(verSel, verTab) || "";
+  wrap.appendChild(pg); box.appendChild(wrap);
+  const s = Math.min(1, Math.max(.3, Math.min((box.clientWidth - 8) / 794, (box.clientHeight - 24) / 1123)));   // la page entière est visible
+  wrap.style.setProperty("--s", s.toFixed(3));
+  if(verTab === "cv") fitCV(pg); else fitPage(pg, 11, 9.5);
+}
+$("#ver-use").addEventListener("click", () => {
+  const it = verSel; if(!it || it.current) return;
+  saveCurrentEdits();
+  if(histNow() !== it.v) openHist(it.v);
+  if(it.sn) restoreSnap(it.sn);
+  else status("#status-gen", "ok", "Version " + it.n + " ouverte.");
+  closeVersions(); refreshUndo();
+});
+document.querySelectorAll("[data-vtab]").forEach(b => b.addEventListener("click", () => { verTab = b.dataset.vtab; document.querySelectorAll("[data-vtab]").forEach(x => x.classList.toggle("on", x === b)); renderVerPage(); }));
+$("#undo-link").addEventListener("click", openVersions);
+$("#ver-close").addEventListener("click", closeVersions);
+$("#ver-ov").addEventListener("click", ev => { if(ev.target === $("#ver-ov")) closeVersions(); });
+document.addEventListener("keydown", ev => { if(ev.key === "Escape") closeVersions(); });
+window.addEventListener("resize", () => { if(!$("#ver-ov").hidden) renderVerPage(); });
 
 /* Valide les retouches : elles deviennent la version de référence et Claude les mémorise */
 function validateEdits(silent){
@@ -2522,7 +2683,7 @@ function refreshValidate(){
   const tools = ebActive && docShown && !isM();
   if(f.classList.contains("done")){ bar.classList.add("show"); return; }
   f.classList.toggle("idle", !dirty);
-  $("#save-fab-label").textContent = dirty ? "Enregistrer mes retouches" : "Aucune retouche à enregistrer";
+  $("#save-fab-label").textContent = dirty ? "Enregistrer mes retouches" : "Rien à enregistrer";
   $("#eb-tools").hidden = !tools; bar.classList.toggle("solo", !tools);
   bar.classList.toggle("show", dirty || tools);
   if(bar.classList.contains("show")) placeSaveFab();
@@ -2555,7 +2716,7 @@ document.addEventListener("selectionchange", () => {
   const r = sel.getRangeAt(0), pg = pageOf(r.commonAncestorContainer);
   if(pg && pg.isContentEditable){ ebRange = r.cloneRange(); ebPage = pg; }
 });
-EDIT_PAGES.forEach(sel => $(sel).addEventListener("focusin", () => { if(!ebActive){ ebActive = true; refreshValidate(); } }));
+EDIT_PAGES.forEach(sel => $(sel).addEventListener("focusin", () => { if(!ebActive){ ebActive = true; refreshValidate(); } requestAnimationFrame(ebSync); }));
 document.addEventListener("pointerdown", e => {
   if(!ebActive) return;
   if(e.target.closest("#edit-bar, #eb-tip, " + EDIT_PAGES.join(","))) return;
@@ -2581,7 +2742,7 @@ function ebBlock(node){
 const pxOf = n => parseFloat(getComputedStyle(n).fontSize) || 12;
 function ebSize(target, factor){            // taille relative au parent : le CV peut toujours se réajuster sur une page
   const parent = target.parentElement; if(!parent) return;
-  const em = Math.min(2.4, Math.max(0.55, pxOf(target) * factor / pxOf(parent)));
+  const em = Math.min(3.5, Math.max(0.5, pxOf(target) * factor / pxOf(parent)));
   target.style.fontSize = Math.abs(em - 1) < 0.02 ? "" : em.toFixed(3) + "em";
 }
 function ebClear(n){ ["fontSize", "fontFamily", "color", "fontWeight", "fontStyle"].forEach(k => { n.style[k] = ""; }); if(n.getAttribute("style") === "") n.removeAttribute("style"); }
@@ -2608,7 +2769,7 @@ function ebApply(kind, val){
       ebPage.querySelectorAll('font[size="7"], span[style*="xxx-large"], span[style*="-webkit-xxx-large"]').forEach(n => {
         n.removeAttribute("size");
         const parent = n.parentElement;
-        const em = Math.min(2.4, Math.max(0.55, target / pxOf(parent)));
+        const em = Math.min(3.5, Math.max(0.5, target / pxOf(parent)));
         n.style.fontSize = em.toFixed(3) + "em";
       });
     }
@@ -2624,22 +2785,76 @@ function ebApply(kind, val){
   const s2 = getSelection(); if(s2.rangeCount) ebRange = s2.getRangeAt(0).cloneRange();
   markDirty(); onEditSave();
 }
+const EB_FONTS = [
+  ["Sans empattements", [["Lato", "Lato, Carlito, Arial, sans-serif"], ["Inter", "Inter, Arial, sans-serif"], ["Roboto", "Roboto, Arial, sans-serif"], ["Open Sans", "'Open Sans', Arial, sans-serif"],
+    ["Source Sans 3", "'Source Sans 3', Arial, sans-serif"], ["Nunito", "Nunito, Arial, sans-serif"], ["Montserrat", "Montserrat, Arial, sans-serif"], ["Poppins", "Poppins, Arial, sans-serif"],
+    ["Raleway", "Raleway, Arial, sans-serif"], ["Figtree", "Figtree, Arial, sans-serif"], ["Arial", "Arial, Helvetica, sans-serif"], ["Verdana", "Verdana, Geneva, sans-serif"]]],
+  ["Avec empattements", [["Lora", "Lora, Georgia, serif"], ["Merriweather", "Merriweather, Georgia, serif"], ["PT Serif", "'PT Serif', Georgia, serif"],
+    ["Playfair Display", "'Playfair Display', Georgia, serif"], ["Georgia", "Georgia, serif"], ["Times New Roman", "'Times New Roman', Times, serif"]]]
+];
+const EB_SIZES = [7, 8, 9, 10, 10.5, 11, 12, 13, 14, 16, 18, 20, 24, 28];
+const fmtPt = v => String(v).replace(".", ",");
+const firstFamily = ff => String(ff || "").split(",")[0].trim().replace(/^["']|["']$/g, "");
+const rgbHex = c => { const m = String(c).match(/\d+/g); return m && m.length >= 3 ? "#" + m.slice(0, 3).map(x => (+x).toString(16).padStart(2, "0")).join("") : "#1f2937"; };
+let ebState = { font:"Lato", pt:10, px:13.3, color:"#1f2937" };
+function ebCurrentEl(){
+  if(!ebRange || !ebPage || !ebPage.contains(ebRange.startContainer)) return null;
+  let n = ebRange.startContainer;
+  if(n.nodeType === 1 && n.childNodes[ebRange.startOffset] && !ebRange.collapsed) n = n.childNodes[ebRange.startOffset];
+  if(n.nodeType === 3 && !ebRange.collapsed && ebRange.startOffset >= n.length && n.nextSibling) n = n.nextSibling;
+  return n.nodeType === 1 ? n : n.parentElement;
+}
+/* Affiche dans la barre la police, la taille, le gras, l'italique et la couleur de l'endroit où l'on se trouve (comme Word) */
+function ebSync(){
+  const e = ebCurrentEl(); if(!e) return;
+  const cs = getComputedStyle(e);
+  ebState.font = firstFamily(cs.fontFamily);
+  ebState.px = parseFloat(cs.fontSize); ebState.pt = Math.round(ebState.px * 0.75 * 2) / 2;
+  ebState.color = rgbHex(cs.color);
+  $("#eb-font-name").textContent = ebState.font; $("#eb-font-name").style.fontFamily = cs.fontFamily;
+  $("#eb-size-val").textContent = fmtPt(ebState.pt);
+  $("#eb-bold").setAttribute("aria-pressed", parseInt(cs.fontWeight, 10) >= 600 ? "true" : "false");
+  $("#eb-italic").setAttribute("aria-pressed", cs.fontStyle === "italic" ? "true" : "false");
+  $("#eb-cbar").style.background = ebState.color;
+}
+document.addEventListener("selectionchange", () => { if(ebActive) requestAnimationFrame(ebSync); });
+function ebClosePops(except){ ["#eb-font-pop", "#eb-size-pop", "#eb-color-pop"].forEach(id => { if(id !== except){ $(id).hidden = true; } }); ["#eb-font-btn", "#eb-size-btn", "#eb-color-btn"].forEach(id => $(id).setAttribute("aria-expanded", $(id.replace("-btn", "-pop")).hidden ? "false" : "true")); }
+function ebTogglePop(id){ const p = $(id); const open = p.hidden; ebClosePops(id); p.hidden = !open; if(open){ ebFillPop(id); const on = p.querySelector(".on"); if(on) on.scrollIntoView({ block:"nearest" }); } ebClosePops(id); }
+function ebFillPop(id){
+  const p = $(id); if(id === "#eb-color-pop"){ renderEbColors(); return; }
+  p.textContent = "";
+  if(id === "#eb-font-pop"){
+    EB_FONTS.forEach(([grp, list]) => {
+      p.appendChild(el("div", "eb-grp", grp));
+      list.forEach(([name, stack]) => { const b = el("button", "eb-opt" + (name === ebState.font ? " on" : ""), name); b.type = "button"; b.style.fontFamily = stack; b.dataset.fmt = "font"; b.dataset.val = stack; p.appendChild(b); });
+    });
+  } else {
+    EB_SIZES.forEach(v => { const b = el("button", "eb-opt" + (v === ebState.pt ? " on" : ""), fmtPt(v)); b.type = "button"; b.dataset.fmt = "pt"; b.dataset.val = v; p.appendChild(b); });
+  }
+}
 function renderEbColors(){
   const pal = currentPal(), box = $("#eb-colors"); box.textContent = "";
-  [["#1f2937", "Noir"], ["#6b7280", "Gris"], [pal.dark, "Couleur foncée du CV"], [pal.accent, "Couleur des titres du CV"], ["#1d4ed8", "Bleu"], ["#b91c1c", "Rouge"]]
+  [["#1f2937", "Noir"], ["#6b7280", "Gris"], [pal.dark, "Couleur foncée du CV"], [pal.accent, "Couleur des titres du CV"], ["#ffffff", "Blanc"], ["#1d4ed8", "Bleu"], ["#15803d", "Vert"], ["#b91c1c", "Rouge"]]
     .filter((c, i, a) => c[0] && a.findIndex(x => x[0].toLowerCase() === c[0].toLowerCase()) === i)
     .forEach(([c, name]) => {
-      const b = el("button", "eb-sw"); b.type = "button"; b.style.background = c; b.title = name; b.setAttribute("aria-label", "Couleur : " + name);
+      const b = el("button", "eb-sw" + (c.toLowerCase() === ebState.color ? " on" : "")); b.type = "button"; b.style.background = c; b.title = name; b.setAttribute("aria-label", "Couleur : " + name);
       b.dataset.fmt = "color"; b.dataset.val = c; box.appendChild(b);
     });
 }
 $("#edit-bar").addEventListener("mousedown", e => { if(e.target.closest("button")) e.preventDefault(); });   // garde la sélection dans le CV
 $("#edit-bar").addEventListener("click", e => {
+  if(e.target.closest("#eb-font-btn")){ ebTogglePop("#eb-font-pop"); return; }
+  if(e.target.closest("#eb-size-btn")){ ebTogglePop("#eb-size-pop"); return; }
+  if(e.target.closest("#eb-color-btn")){ ebTogglePop("#eb-color-pop"); return; }
   const b = e.target.closest("[data-fmt]"); if(!b) return;
-  ebApply(b.dataset.fmt, b.dataset.val ? (b.dataset.fmt === "size" ? parseFloat(b.dataset.val) : b.dataset.val) : undefined);
+  const k = b.dataset.fmt, v = b.dataset.val;
+  ebClosePops();
+  if(k === "pt") ebApply("size", (parseFloat(v) / 0.75) / Math.max(ebState.px, 1));   // taille choisie dans la liste : rapport à la taille exacte actuelle
+  else ebApply(k, k === "size" ? parseFloat(v) : v);
+  ebSync();
 });
-$("#eb-font").addEventListener("change", e => { const v = e.target.value; e.target.value = ""; if(v) ebApply("font", v); });
-$("#eb-color").addEventListener("change", e => ebApply("color", e.target.value));
+document.addEventListener("pointerdown", e => { if(!e.target.closest(".eb-dd")) ebClosePops(); });
+$("#eb-color").addEventListener("change", e => { ebClosePops(); ebApply("color", e.target.value); ebSync(); });
 
 function renderRetouchesInfo(){
   const p = prof(), n = (p.retouches || []).length, box = $("#retouches-info");
@@ -3188,6 +3403,7 @@ function maybeShowHelp(){
 }
 $("#help-ok").addEventListener("click", closeHelp);
 $("#help-link").addEventListener("click", openHelp);
+$("#btn-company-color").addEventListener("click", findCompanyColor);
 $("#help").addEventListener("mousedown", e => { if(e.target === $("#help")) closeHelp(); });
 document.addEventListener("keydown", e => {
   if($("#help").hidden) return;
