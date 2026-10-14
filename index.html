@@ -1738,7 +1738,6 @@ $("#btn-generate").addEventListener("click", async () => {
     storeResult(p, out);
     setMStep("cv"); if(isM()) window.scrollTo({ top:0, behavior:"smooth" });
     maybeShowHelp();
-    maybeArnaud();
     $("#remarques").value = "";
     status("#status-gen", "ok", "C'est prêt ! Relisez le CV à droite. Corrigez directement dans le document, ou expliquez ce qui ne va pas ci-dessous.");
   }catch(e){
@@ -2894,28 +2893,6 @@ function closeHelp(){
     const fix = $("#m-fix");
     if(fix && fix.offsetParent){ fix.classList.add("m-fix-pulse"); setTimeout(() => fix.classList.remove("m-fix-pulse"), 4500); }
   } else if(back && back.focus && document.contains(back)){ try{ back.focus({ preventScroll:true }); }catch(e){} }
-}
-/* Blague pour Arnaud : visible seulement avec ?arnaud dans l'adresse (les testeurs ne la voient pas) */
-const ARNAUD = /[?&]arnaud\b/i.test(location.search);
-function maybeArnaud(){
-  if(!ARNAUD) return;
-  const go = () => {
-    if(!$("#help").hidden || !$("#sync-dlg").hidden){ setTimeout(go, 600); return; }
-    const ask = () => openSyncDlg({
-      title:"Bah alors Arnaud ? 👀",
-      text:"« ChatGPT le fait déjà », c'est ça ? Vas-y, montre-moi : un CV conforme ATS, aux couleurs de l'entreprise, la lettre de motivation assortie, le suivi des candidatures, les relances, la préparation d'entretien et la synchro chiffrée entre appareils. Le tout en 30 secondes, sans écrire un prompt. Je t'attends… Toujours rien ? Bon. Tu la fermes maintenant, hein ? Avec toute l'affection de Maxence ❤️",
-      buttons:[
-        { label:"Oui, je la ferme 🤐", cls:"primary", fn: () => {} },
-        { label:"Non, ChatGPT reste le meilleur", cls:"alt", fn: () => setTimeout(() => openSyncDlg({
-            title:"Mauvaise réponse ❌",
-            text:"Arnaud, on va reprendre calmement. ChatGPT t'écrit un CV si tu lui expliques tout pendant 20 minutes. Jalon lit l'offre, lit ton parcours, et te sort le CV, la lettre et le suivi pendant que tu cherches encore quoi lui demander. Réessaie.",
-            buttons:[{ label:"D'accord, je réessaie", cls:"primary", fn: () => setTimeout(ask, 250) }]
-          }), 250) }
-      ]
-    });
-    ask();
-  };
-  setTimeout(go, 1500);
 }
 function maybeShowHelp(){
   if(store.get("helpSeen", false)) return;
