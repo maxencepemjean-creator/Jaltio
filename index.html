@@ -8,6 +8,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preload" href="fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="fonts.css">
+<script id="i18n-boot">(function(){try{var l=JSON.parse(localStorage.getItem("cvx_uiLang")||'""');if(/^(en|es|ru)$/.test(l)){document.documentElement.lang=l;document.write('<script src="lang/'+l+'.js"><\/script>');}}catch(e){}})();</script>
 <style>
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 :root{
@@ -490,6 +491,9 @@ body.m .save-fab{border-radius:999px}
 .msg-btns{display:flex;flex-direction:column;gap:10px;align-items:center}
 .msg-btns .btn{min-height:48px;min-width:240px;font-size:16px}
 .company-miss{margin:8px 0 4px}
+.doc-lang-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 12px}
+.doc-lang-row label{margin:0}
+.doc-lang-row select{width:auto;min-width:140px}
 .company-miss .hint{margin:0 0 6px}
 .recent summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:16px;color:var(--brand);list-style:none;display:flex;align-items:center;gap:6px;min-height:32px}
 .recent summary::-webkit-details-marker{display:none}
@@ -1034,6 +1038,15 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
     <p class="hint" id="retouches-info" hidden><span data-brand>Elanos</span> s'inspire de <span id="retouches-n"></span> pour écrire comme vous. <button class="btn small" id="btn-forget" type="button">Oublier</button></p>
   </div>
 
+  <div class="step" data-v="profile" id="step-lang">
+    <h2><span class="num"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg></span> Langues</h2>
+    <label for="ui-lang">Langue du site</label>
+    <select id="ui-lang" data-noi18n><option value="fr">Français</option><option value="en">English</option><option value="es">Español</option><option value="ru">Русский</option></select>
+    <label for="doc-lang-default">Langue de mes CV et lettres</label>
+    <select id="doc-lang-default" data-noi18n><option value="fr">Français</option><option value="en">English</option><option value="es">Español</option><option value="ru">Русский</option></select>
+    <p class="hint">Les deux sont indépendantes : par exemple, le site en russe et les CV en français pour postuler en France. La langue du CV peut aussi se changer pour chaque offre.</p>
+  </div>
+
   <div class="step" data-v="create" id="step-offre" data-mkeep>
     <h2><span class="num">1</span> L'offre d'emploi</h2>
     <label for="offre-url">Lien de l'annonce</label>
@@ -1043,6 +1056,8 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
     <label for="offre">Texte de l'annonce</label>
     <textarea id="offre" rows="5" placeholder="Copiez tout le texte de l'annonce (intitulé, missions, profil recherché…) et collez-le ici."></textarea>
     <label class="check"><input type="checkbox" id="opt-lettre" checked> Rédiger aussi la lettre de motivation</label>
+    <div class="doc-lang-row"><label for="doc-lang">Langue du CV et de la lettre</label>
+    <select id="doc-lang" data-noi18n><option value="fr">Français</option><option value="en">English</option><option value="es">Español</option><option value="ru">Русский</option></select></div>
     <button class="btn primary big gen-btn" id="btn-generate">Créer mon CV adapté</button>
     <div class="status" id="status-gen"></div>
     <div id="feedback-box" hidden>
@@ -1395,12 +1410,87 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 <script>
 (function(){
 "use strict";
+/* ---------- Langues : interface (fichier lang/xx.js) et documents (CV, lettre, messages au recruteur) ---------- */
+const UI_LANG = (() => { try{ const l = JSON.parse(localStorage.getItem("cvx_uiLang") || '""'); return window.I18N && /^(en|es|ru)$/.test(l) ? l : "fr"; }catch(e){ return "fr"; } })();
+const I18 = UI_LANG !== "fr" ? window.I18N : null;
+function _t(s){
+  if(!I18 || typeof s !== "string") return s;
+  const k = s.replace(/\s+/g, " ").trim(), v = I18[k];
+  if(v === undefined || !k) return s;
+  return s.match(/^\s*/)[0] + v + s.match(/\s*$/)[0];
+}
+const LOCALES = { fr:"fr-FR", en:"en-GB", es:"es-ES", ru:"ru-RU" };
+const LOCALE = LOCALES[UI_LANG];
+const t_at = () => ({ fr:" à ", en:" at ", es:" a las ", ru:" в " })[UI_LANG];
+const LANG_NAMES = { fr:"Français", en:"English", es:"Español", ru:"Русский" };
+const LANG_FR = { fr:"français", en:"anglais", es:"espagnol", ru:"russe" };
+/* Textes du CV, de la lettre et des messages au recruteur : suivent la langue du document, pas celle de l'interface */
+const DOCT = {
+  fr:{ contact:"Contact", certs:"Habilitations", skills:"Compétences", langs:"Langues", interests:"Centres d'intérêt", profile:"Profil", exp:"Expérience professionnelle", edu:"Formation",
+    hr:"Service des ressources humaines", objet:"Objet : ", defObj:"Candidature", hello:"Madame, Monsieur,",
+    place:(v, d) => v ? "À " + v + ", le " + d : "Le " + d,
+    subj:(p, ref, n) => "Candidature – " + p + (ref ? " (réf. " + ref + ")" : "") + " – " + n,
+    body:p => "Je vous adresse ma candidature au poste de " + p + ".",
+    end:"Vous trouverez ci-joint mon CV et ma lettre de motivation.\n\nJe reste à votre disposition pour un entretien.\n\nCordialement,",
+    relSubj:"Suivi de ma candidature – ",
+    rel:(d, p) => "Le " + d + ", je vous ai adressé ma candidature au poste de " + p + ". Je me permets de revenir vers vous pour savoir si elle a retenu votre attention.\n\nCe poste m'intéresse toujours vivement et je reste à votre disposition pour un entretien.\n\nCordialement," },
+  en:{ contact:"Contact", certs:"Certifications", skills:"Skills", langs:"Languages", interests:"Interests", profile:"Profile", exp:"Work experience", edu:"Education",
+    hr:"Human Resources Department", objet:"Subject: ", defObj:"Application", hello:"Dear Sir or Madam,",
+    place:(v, d) => (v ? v + ", " : "") + d,
+    subj:(p, ref, n) => "Application – " + p + (ref ? " (ref. " + ref + ")" : "") + " – " + n,
+    body:p => "Please find enclosed my application for the position of " + p + ".",
+    end:"My CV and cover letter are attached.\n\nI would welcome the opportunity to discuss my application with you at an interview.\n\nKind regards,",
+    relSubj:"Follow-up on my application – ",
+    rel:(d, p) => "On " + d + ", I sent you my application for the position of " + p + ". I am writing to ask whether you have had the opportunity to consider it.\n\nI remain very interested in this position and would be glad to meet you for an interview.\n\nKind regards," },
+  es:{ contact:"Contacto", certs:"Certificaciones", skills:"Competencias", langs:"Idiomas", interests:"Aficiones", profile:"Perfil", exp:"Experiencia profesional", edu:"Formación",
+    hr:"Departamento de Recursos Humanos", objet:"Asunto: ", defObj:"Candidatura", hello:"Estimados señores:",
+    place:(v, d) => (v ? v + ", " : "") + d,
+    subj:(p, ref, n) => "Candidatura – " + p + (ref ? " (ref. " + ref + ")" : "") + " – " + n,
+    body:p => "Les envío mi candidatura para el puesto de " + p + ".",
+    end:"Adjunto mi CV y mi carta de presentación.\n\nQuedo a su disposición para una entrevista.\n\nAtentamente,",
+    relSubj:"Seguimiento de mi candidatura – ",
+    rel:(d, p) => "El " + d + " les envié mi candidatura para el puesto de " + p + ". Me permito escribirles para saber si han podido estudiarla.\n\nEste puesto me sigue interesando mucho y quedo a su disposición para una entrevista.\n\nAtentamente," },
+  ru:{ contact:"Контакты", certs:"Допуски и сертификаты", skills:"Навыки", langs:"Языки", interests:"Интересы", profile:"Профиль", exp:"Опыт работы", edu:"Образование",
+    hr:"Отдел кадров", objet:"Тема: ", defObj:"Отклик на вакансию", hello:"Здравствуйте!",
+    place:(v, d) => (v ? v + ", " : "") + d,
+    subj:(p, ref, n) => "Отклик на вакансию «" + p + "»" + (ref ? " (номер " + ref + ")" : "") + " – " + n,
+    body:p => "Направляю вам свой отклик на вакансию «" + p + "».",
+    end:"Резюме и сопроводительное письмо прилагаю.\n\nБуду рада(рад) встретиться с вами на собеседовании.\n\nС уважением,",
+    relSubj:"Мой отклик на вакансию – ",
+    rel:(d, p) => d + " я направила(направил) вам отклик на вакансию «" + p + "». Позвольте уточнить, удалось ли вам его рассмотреть.\n\nЭта вакансия по-прежнему мне очень интересна, и я готова(готов) прийти на собеседование.\n\nС уважением," }
+};
+let DOC_LANG = "fr";
+const D = () => DOCT[DOC_LANG] || DOCT.fr;
+const docDate = (ts, lang, opts) => new Date(ts).toLocaleDateString(LOCALES[lang] || "fr-FR", opts || { day:"numeric", month:"long", year:"numeric" });
+/* Consignes de langue ajoutées aux demandes envoyées à Claude */
+function langBlock(doc){
+  doc = doc || "fr";
+  if(doc === "fr" && UI_LANG === "fr") return "";
+  return "LANGUES (prioritaire) : rédige tout le contenu de \"cv\", de \"lettre\", \"poste_vise\" et \"message_court\" en " + LANG_FR[doc] +
+    (doc !== "fr" ? ", avec les usages et la typographie des CV dans cette langue (les règles sur le français s'appliquent à cette langue)" : "") +
+    ". Rédige \"alertes\" et \"offre_resume\" en " + LANG_FR[UI_LANG] + " : c'est la langue que lit le candidat.\n\n";
+}
+const uiLangLine = () => UI_LANG === "fr" ? "" : "\nRéponds en " + LANG_FR[UI_LANG] + " : c'est la langue que lit le candidat. Les citations et reformulations destinées au CV ou à la lettre restent dans la langue de ces documents.";
+/* Traduit les textes écrits directement dans la page (hors CV et lettre) */
+function i18nStatic(){
+  if(!I18) return;
+  const skip = "#page-cv, #page-lettre, script, style, svg, [data-noi18n]";
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), nodes = [];
+  while(w.nextNode()) nodes.push(w.currentNode);
+  nodes.forEach(n => { const p = n.parentElement; if(!p || p.closest(skip) || !n.nodeValue.trim()) return; const tr = _t(n.nodeValue); if(tr !== n.nodeValue) n.nodeValue = tr; });
+  document.querySelectorAll("[placeholder],[title],[aria-label]").forEach(e => {
+    if(e.closest("#page-cv, #page-lettre")) return;
+    ["placeholder", "title", "aria-label"].forEach(a => { const v = e.getAttribute(a); if(v){ const tr = _t(v); if(tr !== v) e.setAttribute(a, tr); } });
+  });
+  document.title = _t(document.title);
+}
+i18nStatic();
 
 /* ===== Nom et signature de la marque : à changer ICI uniquement ===== */
-const BRAND = { name: "Elanos", signature: "Chaque étape, jusqu'au poste." };
+const BRAND = { name: "Elanos", signature: _t("Chaque étape, jusqu'au poste.") };
 document.querySelectorAll("[data-brand]").forEach(n => { n.textContent = BRAND.name; });
 document.querySelectorAll("[data-brand-sig]").forEach(n => { n.textContent = BRAND.signature; });
-document.title = BRAND.name + " — votre coach emploi IA";
+document.title = BRAND.name + _t(" — votre coach emploi IA");
 document.querySelectorAll("svg.logo").forEach(n => n.setAttribute("aria-label", "Logo " + BRAND.name));
 const ICON = {
   pin: '<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 3h6l-1 6 4 4H6l4-4z"/></svg>',
@@ -1416,7 +1506,7 @@ const store = {
   set(k, v){
     let changed = false;
     try{ const s = JSON.stringify(v), prev = localStorage.getItem("cvx_"+k); localStorage.setItem("cvx_"+k, s); changed = prev !== s; }
-    catch(e){ alert("Impossible d'enregistrer (mémoire du navigateur pleine ou navigation privée). Supprimez d'anciens CV de l'historique."); return false; }
+    catch(e){ alert(_t("Impossible d'enregistrer (mémoire du navigateur pleine ou navigation privée). Supprimez d'anciens CV de l'historique.")); return false; }
     if(changed && syncSt && SYNC_KEYS.includes(k)) syncDirty();
     return true;
   }
@@ -1466,16 +1556,16 @@ document.addEventListener("click", e => {
 const COLORS = ["#1f4e79","#0f766e","#7a2e5a","#374151","#9a3412","#3f3f8f"];
 /* Palettes de CV : bandeau sombre + couleur des titres (la teinte de la colonne en découle) */
 const PALETTES = [
-  { id:"marine", nom:"Marine", dark:"#0C1B33", accent:"#2A62D4" },
-  { id:"foret", nom:"Forêt", dark:"#0F2A1F", accent:"#23794A" },
-  { id:"prune", nom:"Prune", dark:"#2A1330", accent:"#8E3A84" },
-  { id:"brique", nom:"Brique", dark:"#2B140E", accent:"#B4472A" },
-  { id:"lagon", nom:"Lagon", dark:"#06262B", accent:"#0B7A86" },
-  { id:"bordeaux", nom:"Bordeaux", dark:"#290C15", accent:"#A12A44" },
-  { id:"ardoise", nom:"Ardoise", dark:"#1C232C", accent:"#46637F" },
-  { id:"ambre", nom:"Ambre", dark:"#2A1F0C", accent:"#9A6A0A" },
-  { id:"indigo", nom:"Indigo", dark:"#16163A", accent:"#5050C8" },
-  { id:"olive", nom:"Olive", dark:"#1D2213", accent:"#5F7222" }
+  { id:"marine", nom:_t("Marine"), dark:"#0C1B33", accent:"#2A62D4" },
+  { id:"foret", nom:_t("Forêt"), dark:"#0F2A1F", accent:"#23794A" },
+  { id:"prune", nom:_t("Prune"), dark:"#2A1330", accent:"#8E3A84" },
+  { id:"brique", nom:_t("Brique"), dark:"#2B140E", accent:"#B4472A" },
+  { id:"lagon", nom:_t("Lagon"), dark:"#06262B", accent:"#0B7A86" },
+  { id:"bordeaux", nom:_t("Bordeaux"), dark:"#290C15", accent:"#A12A44" },
+  { id:"ardoise", nom:_t("Ardoise"), dark:"#1C232C", accent:"#46637F" },
+  { id:"ambre", nom:_t("Ambre"), dark:"#2A1F0C", accent:"#9A6A0A" },
+  { id:"indigo", nom:_t("Indigo"), dark:"#16163A", accent:"#5050C8" },
+  { id:"olive", nom:_t("Olive"), dark:"#1D2213", accent:"#5F7222" }
 ];
 const hx = c => { c = String(c).replace("#", ""); return [0, 2, 4].map(i => parseInt(c.slice(i, i + 2), 16) || 0); };
 const toHex = a => "#" + a.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
@@ -1536,9 +1626,10 @@ function renderAvatar(){
   else ini.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
 }
 function renderProfiles(){
+  if(typeof syncLangUi === "function" && $("#ui-lang")) try{ syncLangUi(); }catch(e){}
   const sel = $("#profile-select"); sel.innerHTML = "";
-  const ph = el("option", "", "Changer de personne"); ph.value = ""; ph.disabled = true; sel.appendChild(ph);
-  profiles.filter(p => p.id !== currentProfileId).forEach(p => { const o = el("option", "", p.name || "Profil sans nom"); o.value = p.id; sel.appendChild(o); });
+  const ph = el("option", "", _t("Changer de personne")); ph.value = ""; ph.disabled = true; sel.appendChild(ph);
+  profiles.filter(p => p.id !== currentProfileId).forEach(p => { const o = el("option", "", p.name || _t("Profil sans nom")); o.value = p.id; sel.appendChild(o); });
   sel.selectedIndex = 0;
   $("#who-switch").hidden = profiles.length < 2;
   const p = prof();
@@ -1567,7 +1658,7 @@ $("#btn-new-profile").addEventListener("click", () => {
 });
 $("#btn-del-profile").addEventListener("click", () => {
   const p = prof();
-  if(!confirm("Supprimer le profil « " + (p.name || "sans nom") + " » et ses CV ?")) return;
+  if(!confirm(_t("Supprimer le profil « ") + (p.name || _t("sans nom")) + _t(" » et ses CV ?"))) return;
   profiles = profiles.filter(x => x.id !== p.id);
   history = history.filter(h => h.profileId !== p.id); saveHistory();
   currentProfileId = profiles[0].id; saveProfiles(); renderProfiles(); showEmpty();
@@ -1654,16 +1745,16 @@ function askBox({ title, html, buttons }){
   });
 }
 const escHtml = t => String(t).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]);
-const FORMATS_HTML = "<ul><li><b>PDF</b> (.pdf), même scanné</li><li><b>Word</b> (.docx)</li><li><b>Photo ou capture d'écran du CV</b> (.jpg, .jpeg, .png, .webp)</li><li><b>Texte</b> (.txt)</li></ul>";
+const FORMATS_HTML = _t("<ul><li><b>PDF</b> (.pdf), même scanné</li><li><b>Word</b> (.docx)</li><li><b>Photo ou capture d'écran du CV</b> (.jpg, .jpeg, .png, .webp)</li><li><b>Texte</b> (.txt)</li></ul>");
 const IMG_RE = /\.(jpe?g|png|webp)$/i, OK_RE = /\.(pdf|docx|txt|md|jpe?g|png|webp)$/i;
 function badFormatHtml(names){
   const n = names.map(x => x.toLowerCase());
   let tip = "";
-  if(n.some(x => x.endsWith(".doc"))) tip += "<p><b>Ancien fichier Word (.doc) :</b> ouvrez-le dans Word, puis « Fichier › Enregistrer sous » et choisissez « Document Word (.docx) » ou « PDF ».</p>";
-  if(n.some(x => /\.(heic|heif)$/.test(x))) tip += "<p><b>Photo d'iPhone (.heic) :</b> faites plutôt une capture d'écran de la photo, ou envoyez-vous la photo par e-mail : elle arrivera en .jpg.</p>";
-  if(n.some(x => /\.(odt|pages|rtf)$/.test(x))) tip += "<p><b>Autre traitement de texte :</b> enregistrez le fichier en PDF (« Exporter en PDF »).</p>";
-  return "<p>" + (names.length > 1 ? "Ces fichiers ne peuvent pas être lus : " : "Ce fichier ne peut pas être lu : ") + names.map(x => "« " + escHtml(x) + " »").join(", ") + ".</p>" +
-    "<p>Formats acceptés :</p>" + FORMATS_HTML + tip;
+  if(n.some(x => x.endsWith(".doc"))) tip += _t("<p><b>Ancien fichier Word (.doc) :</b> ouvrez-le dans Word, puis « Fichier › Enregistrer sous » et choisissez « Document Word (.docx) » ou « PDF ».</p>");
+  if(n.some(x => /\.(heic|heif)$/.test(x))) tip += _t("<p><b>Photo d'iPhone (.heic) :</b> faites plutôt une capture d'écran de la photo, ou envoyez-vous la photo par e-mail : elle arrivera en .jpg.</p>");
+  if(n.some(x => /\.(odt|pages|rtf)$/.test(x))) tip += _t("<p><b>Autre traitement de texte :</b> enregistrez le fichier en PDF (« Exporter en PDF »).</p>");
+  return "<p>" + (names.length > 1 ? _t("Ces fichiers ne peuvent pas être lus : ") : _t("Ce fichier ne peut pas être lu : ")) + names.map(x => "« " + escHtml(x) + " »").join(", ") + ".</p>" +
+    _t("<p>Formats acceptés :</p>") + FORMATS_HTML + tip;
 }
 /* Photo ou capture d'écran d'un CV : réduite puis lue par Claude (plusieurs pages possibles) */
 function imageToJpeg(f, max){
@@ -1675,19 +1766,19 @@ function imageToJpeg(f, max){
       const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", 0.85).split(",")[1]);
     };
-    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("L'image « " + f.name + " » n'a pas pu être ouverte. Essayez une capture d'écran en .png ou .jpg.")); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error(_t("L'image « ") + f.name + _t(" » n'a pas pu être ouverte. Essayez une capture d'écran en .png ou .jpg."))); };
     img.src = url;
   });
 }
 async function imagesViaClaude(files){
-  if(!settings.apiKey) throw new Error("Enregistrez d'abord votre code d'accès pour que la photo du CV puisse être lue.");
+  if(!settings.apiKey) throw new Error(_t("Enregistrez d'abord votre code d'accès pour que la photo du CV puisse être lue."));
   const content = [];
   for(const f of files.slice(0, 5)) content.push({ type:"image", source:{ type:"base64", media_type:"image/jpeg", data: await imageToJpeg(f, 1600) } });
   content.push({ type:"text", text:"Ces images sont " + (files.length > 1 ? "les pages d'un même CV, dans l'ordre" : "la photo ou la capture d'écran d'un CV") + ". Retranscris fidèlement son contenu en texte brut, section par section (coordonnées, expériences avec dates, formations, compétences, langues, centres d'intérêt). N'ajoute rien, ne commente pas. Si les images ne contiennent pas de CV ou sont illisibles, réponds uniquement : ILLISIBLE." });
   const data = await callClaude({ model:settings.model, max_tokens:4000, messages:[{ role:"user", content }] }, settings.apiKey);
   addCost(data.usage);
   const t = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim();
-  if(/^ILLISIBLE\b/i.test(t)) throw new Error("Aucun CV lisible sur cette image. Prenez la photo bien à plat, avec une bonne lumière, ou faites une capture d'écran.");
+  if(/^ILLISIBLE\b/i.test(t)) throw new Error(_t("Aucun CV lisible sur cette image. Prenez la photo bien à plat, avec une bonne lumière, ou faites une capture d'écran."));
   return t;
 }
 
@@ -1695,26 +1786,26 @@ async function handleFiles(files){
   // 1) Formats non compatibles : une fenêtre explique lesquels sont acceptés
   const bad = files.filter(f => !OK_RE.test(f.name) && !(f.type === "text/plain"));
   if(bad.length){
-    await askBox({ title:"Format non compatible", html: badFormatHtml(bad.map(f => f.name)), buttons:[{ label:"J'ai compris", cls:"primary", value:true }] });
+    await askBox({ title:_t("Format non compatible"), html: badFormatHtml(bad.map(f => f.name)), buttons:[{ label:_t("J'ai compris"), cls:"primary", value:true }] });
     files = files.filter(f => !bad.includes(f));
   }
   // 2) Images : photo du CV ou photo de profil ?
   const imgs = files.filter(f => IMG_RE.test(f.name));
   files = files.filter(f => !imgs.includes(f));
   if(imgs.length){
-    const kind = await askBox({ title: imgs.length > 1 ? "Ces images sont…" : "Cette image est…",
+    const kind = await askBox({ title: imgs.length > 1 ? _t("Ces images sont…") : _t("Cette image est…"),
       html:"<p>" + imgs.map(f => "« " + escHtml(f.name) + " »").join(", ") + "</p>",
-      buttons:[{ label: imgs.length > 1 ? "Les pages de mon CV" : "Une photo de mon CV", cls:"primary", value:"cv" }, { label:"Ma photo pour le CV", value:"photo" }, { label:"Annuler", cls:"alt", value:null }] });
+      buttons:[{ label: imgs.length > 1 ? _t("Les pages de mon CV") : _t("Une photo de mon CV"), cls:"primary", value:"cv" }, { label:_t("Ma photo pour le CV"), value:"photo" }, { label:_t("Annuler"), cls:"alt", value:null }] });
     if(kind === "photo") await setPhotoFromFile(imgs[0]);
     else if(kind === "cv"){
-      drop.innerHTML = "<b>Lecture de la photo du CV… (10 à 30 s)</b>";
-      status("#pc-status", "info", "Lecture de la photo du CV…");
+      drop.innerHTML = _t("<b>Lecture de la photo du CV… (10 à 30 s)</b>");
+      status("#pc-status", "info", _t("Lecture de la photo du CV…"));
       try{
         const txt = await imagesViaClaude(imgs);
-        if(txt.length < 40) throw new Error("Aucun texte trouvé sur cette image. Prenez la photo bien à plat, avec une bonne lumière.");
+        if(txt.length < 40) throw new Error(_t("Aucun texte trouvé sur cette image. Prenez la photo bien à plat, avec une bonne lumière."));
         const pp = prof();
-        if(!(str(pp.parcours).length >= 80 && !confirm("Remplacer votre CV enregistré par « " + imgs[0].name + " » ?"))) setParcours(txt, "la photo du CV « " + imgs[0].name + " »");
-      }catch(e){ status("#pc-status", "err", e.message || "Cette image n'a pas pu être lue."); }
+        if(!(str(pp.parcours).length >= 80 && !confirm(_t("Remplacer votre CV enregistré par « ") + imgs[0].name + " » ?"))) setParcours(txt, _t("la photo du CV « ") + imgs[0].name + " »");
+      }catch(e){ status("#pc-status", "err", e.message || _t("Cette image n'a pas pu être lue.")); }
       finally{ drop.innerHTML = DROP_HTML; }
     }
   }
@@ -1723,28 +1814,28 @@ async function handleFiles(files){
 async function handleDocFiles(files){
   for(const f of files){
     const name = f.name.toLowerCase();
-    drop.innerHTML = "<b>Lecture de « " + f.name.replace(/[<>&"]/g, "") + " »…</b>";
-    status("#pc-status", "info", "Lecture de « " + f.name + " »…");
+    drop.innerHTML = _t("<b>Lecture de « ") + f.name.replace(/[<>&"]/g, "") + " »…</b>";
+    status("#pc-status", "info", _t("Lecture de « ") + f.name + " »…");
     try{
       const buf = await f.arrayBuffer();
       let txt = "";
       if(name.endsWith(".pdf")){
         txt = await pdfToText(buf.slice(0));
         if(txt.length < 80){
-          drop.innerHTML = "<b>PDF scanné : lecture en cours… (10 à 30 s)</b>";
+          drop.innerHTML = _t("<b>PDF scanné : lecture en cours… (10 à 30 s)</b>");
           try{ txt = await pdfViaClaude(buf); }
-          catch(e){ throw new Error(e.message === "nokey" ? "Ce PDF est une image scannée. Enregistrez d'abord la clé d'accès pour qu'il puisse être lu." : e.message); }
+          catch(e){ throw new Error(e.message === "nokey" ? _t("Ce PDF est une image scannée. Enregistrez d'abord la clé d'accès pour qu'il puisse être lu.") : e.message); }
         }
       } else if(name.endsWith(".docx")){ txt = await docxToText(buf); }
-      else if(name.endsWith(".doc")){ throw new Error("Les anciens fichiers Word (.doc) ne sont pas lisibles. Ouvrez-le dans Word et enregistrez-le en .docx ou en PDF."); }
+      else if(name.endsWith(".doc")){ throw new Error(_t("Les anciens fichiers Word (.doc) ne sont pas lisibles. Ouvrez-le dans Word et enregistrez-le en .docx ou en PDF.")); }
       else if(name.endsWith(".txt") || name.endsWith(".md") || f.type === "text/plain"){ txt = new TextDecoder().decode(buf).trim(); }
-      else throw new Error("Format non pris en charge : utilisez un PDF, un .docx ou un fichier texte.");
-      if(txt.length < 40) throw new Error("Aucun texte trouvé dans ce fichier. Copiez-collez votre parcours à la main.");
+      else throw new Error(_t("Format non pris en charge : utilisez un PDF, un .docx ou un fichier texte."));
+      if(txt.length < 40) throw new Error(_t("Aucun texte trouvé dans ce fichier. Copiez-collez votre parcours à la main."));
       const pp = prof();
-      if(str(pp.parcours).length >= 80 && !confirm("Remplacer votre CV enregistré par « " + f.name + " » ?")) continue;
-      setParcours(txt, "le CV « " + f.name + " »");
+      if(str(pp.parcours).length >= 80 && !confirm(_t("Remplacer votre CV enregistré par « ") + f.name + " » ?")) continue;
+      setParcours(txt, _t("le CV « ") + f.name + " »");
     }catch(e){
-      status("#pc-status", "err", e.message && e.message.length > 12 ? e.message : "Ce fichier n'a pas pu être lu. Essayez un autre fichier, ou écrivez votre parcours.");
+      status("#pc-status", "err", e.message && e.message.length > 12 ? e.message : _t("Ce fichier n'a pas pu être lu. Essayez un autre fichier, ou écrivez votre parcours."));
     }finally{ drop.innerHTML = DROP_HTML; }
   }
 }
@@ -1762,29 +1853,29 @@ function renderSwatches(){
   const mk = (cls, label, on, fn) => { const b = el("button", "swatch " + cls + (on ? " on" : "")); b.type = "button"; b.title = label; b.setAttribute("aria-label", label); b.setAttribute("aria-pressed", on ? "true" : "false"); b.addEventListener("click", fn); sw.appendChild(b); return b; };
   if(h && h.companyColor){
     const pal = palFromColor(h.companyColor);
-    const b = mk("company", "Couleurs de " + (h.entreprise || "l'entreprise"), src === "company", () => setLook({ src:"company", pal }));
-    b.textContent = "Couleurs " + (h.entreprise || "de l'entreprise"); b.style.background = pal.accent;
+    const b = mk("company", _t("Couleurs de ") + (h.entreprise || _t("l'entreprise")), src === "company", () => setLook({ src:"company", pal }));
+    b.textContent = _t("Couleurs ") + (h.entreprise || _t("de l'entreprise")); b.style.background = pal.accent;
   }
   PALETTES.forEach(p => {
-    const b = mk("pal", "Palette " + p.nom, src === "preset:" + p.id, () => setLook(presetLook(p)));
+    const b = mk("pal", _t("Palette ") + p.nom, src === "preset:" + p.id, () => setLook(presetLook(p)));
     const L = makePal(p.dark, p.accent); b.style.background = "linear-gradient(135deg," + L.dark + " 50%," + L.accent + " 50%)";
   });
-  const d = mk("dice", "Palette au hasard", false, () => setLook(randomLook(new Set([src]))));
+  const d = mk("dice", _t("Palette au hasard"), false, () => setLook(randomLook(new Set([src]))));
   d.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>';
-  const m = mk("mine", "Créer ma palette", src === "custom", () => {
+  const m = mk("mine", _t("Créer ma palette"), src === "custom", () => {
     const box = $("#custom-pal"); box.hidden = !box.hidden;
     if(!box.hidden){ const pal = currentPal(); $("#cp-dark").value = pal.dark; $("#cp-accent").value = pal.accent; }
   });
-  m.textContent = "Ma palette";
+  m.textContent = _t("Ma palette");
   if(src !== "custom") $("#custom-pal").hidden = true;
   const miss = $("#company-miss"), ent = h && !h.companyColor && str(h.entreprise);
   miss.hidden = !ent;
-  if(ent){ $("#company-miss-txt").textContent = "Les couleurs de " + ent + " n'ont pas été trouvées automatiquement."; $("#btn-company-color").textContent = "Chercher les couleurs de " + ent; }
+  if(ent){ $("#company-miss-txt").textContent = _t("Les couleurs de ") + ent + _t(" n'ont pas été trouvées automatiquement."); $("#btn-company-color").textContent = _t("Chercher les couleurs de ") + ent; }
 }
 /* Recherche des couleurs de l'entreprise à la demande (quand la recherche automatique n'a rien donné) */
 async function findCompanyColor(){
   const h = histNow(); if(!h || !str(h.entreprise)) return;
-  const btn = $("#btn-company-color"); btn.disabled = true; const old = btn.textContent; btn.textContent = "Recherche en cours…";
+  const btn = $("#btn-company-color"); btn.disabled = true; const old = btn.textContent; btn.textContent = _t("Recherche en cours…");
   status("#status-color", "", "");
   try{
     const body = { model:settings.model, max_tokens:1500,
@@ -1802,11 +1893,11 @@ async function findCompanyColor(){
     if(usable){
       h.companyColor = usable; settings.useCompany = true; saveSettings();
       setLook({ src:"company", pal: palFromColor(usable) });
-      status("#status-color", "ok", "Couleurs de " + h.entreprise + " appliquées.");
+      status("#status-color", "ok", _t("Couleurs de ") + h.entreprise + _t(" appliquées."));
     } else {
-      status("#status-color", "err", found.length ? "Les couleurs de " + h.entreprise + " sont trop claires pour un CV (blanc, jaune ou gris clair). Choisissez une palette ci-dessus." : "Aucune couleur fiable trouvée pour " + h.entreprise + ". Choisissez une palette ci-dessus ou créez la vôtre.");
+      status("#status-color", "err", found.length ? _t("Les couleurs de ") + h.entreprise + _t(" sont trop claires pour un CV (blanc, jaune ou gris clair). Choisissez une palette ci-dessus.") : _t("Aucune couleur fiable trouvée pour ") + h.entreprise + ". Choisissez une palette ci-dessus ou créez la vôtre.");
     }
-  }catch(e){ status("#status-color", "err", e.message || "La recherche a échoué. Réessayez."); }
+  }catch(e){ status("#status-color", "err", e.message || _t("La recherche a échoué. Réessayez.")); }
   finally{ btn.disabled = false; btn.textContent = old; renderSwatches(); }
 }
 function setLook(look){
@@ -1832,8 +1923,8 @@ $("#cp-accent").addEventListener("input", onCustom);
 $("#tpl").addEventListener("change", e => { settings.tpl = e.target.value; saveSettings(); applyLook(); });
 $("#btn-key-first").addEventListener("click", async () => {
   const k = $("#key-first").value.trim();
-  if(!k){ status("#status-key-first", "err", "Saisissez le code d'accès."); return; }
-  status("#status-key-first", "info", "Vérification…");
+  if(!k){ status("#status-key-first", "err", _t("Saisissez le code d'accès.")); return; }
+  status("#status-key-first", "info", _t("Vérification…"));
   const r = await testKey(k);
   if(r.ok){ settings.apiKey = k; saveSettings(); renderSettings(); status("#status-key-first", "", ""); const pp = prof(); if(pp && str(pp.parcours).length >= 80 && !pp.resume && typeof analyzeParcours === "function") analyzeParcours(pp); }
   else status("#status-key-first", "err", r.msg);
@@ -1845,28 +1936,28 @@ $("#btn-key-first").addEventListener("click", async () => {
 const RELAIS = "https://jalon-relais.jalon-emploi.workers.dev/";
 async function callClaude(body, key){
   let res;
-  if(/^sk-ant-/.test(key || "")){ settings.apiKey = ""; saveSettings(); throw new Error("Saisissez votre code d'accès, pas une clé API."); }
+  if(/^sk-ant-/.test(key || "")){ settings.apiKey = ""; saveSettings(); throw new Error(_t("Saisissez votre code d'accès, pas une clé API.")); }
   try{
     res = await fetch(RELAIS, {
       method:"POST",
       headers: { "content-type":"application/json", "x-jalon-code": key },
       body: JSON.stringify(body)
     });
-  }catch(e){ throw new Error("Pas de connexion à Internet, ou service injoignable. Réessayez."); }
+  }catch(e){ throw new Error(_t("Pas de connexion à Internet, ou service injoignable. Réessayez.")); }
   let data = null; try{ data = await res.json(); }catch(e){}
   if(!res.ok){
     const m = (data && data.error && data.error.message) || "";
-    if(res.status === 401){ settings.apiKey = ""; saveSettings(); renderSettings(); throw new Error("Code d'accès refusé. Saisissez-le à nouveau dans l'encadré « Première utilisation », ou demandez-en un nouveau à Maxence."); }
-    if(res.status === 403) throw new Error("Cette clé n'a pas l'autorisation. Prévenez Maxence.");
-    if(res.status === 429) throw new Error("Trop de demandes d'un coup. Patientez une minute et réessayez.");
-    if(res.status === 529 || res.status >= 500) throw new Error("Le service Claude est surchargé. Réessayez dans quelques minutes.");
-    if(/credit|balance|billing/i.test(m)) throw new Error("Le crédit est épuisé. Prévenez Maxence pour qu'il recharge le compte.");
-    throw new Error("Erreur " + res.status + (m ? " : " + m : ""));
+    if(res.status === 401){ settings.apiKey = ""; saveSettings(); renderSettings(); throw new Error(_t("Code d'accès refusé. Saisissez-le à nouveau dans l'encadré « Première utilisation », ou demandez-en un nouveau à Maxence.")); }
+    if(res.status === 403) throw new Error(_t("Cette clé n'a pas l'autorisation. Prévenez Maxence."));
+    if(res.status === 429) throw new Error(_t("Trop de demandes d'un coup. Patientez une minute et réessayez."));
+    if(res.status === 529 || res.status >= 500) throw new Error(_t("Le service Claude est surchargé. Réessayez dans quelques minutes."));
+    if(/credit|balance|billing/i.test(m)) throw new Error(_t("Le crédit est épuisé. Prévenez Maxence pour qu'il recharge le compte."));
+    throw new Error(_t("Erreur ") + res.status + (m ? " : " + m : ""));
   }
   return data;
 }
 async function testKey(k){
-  if(!k) return { ok:false, msg:"Aucune clé saisie." };
+  if(!k) return { ok:false, msg:_t("Aucune clé saisie.") };
   try{ await callClaude({ model:settings.model, max_tokens:16, messages:[{ role:"user", content:"Réponds OK." }] }, k); return { ok:true }; }
   catch(e){ return { ok:false, msg:e.message }; }
 }
@@ -1956,13 +2047,13 @@ async function runClaude(messages, tools){
     if(data.stop_reason !== "pause_turn") break;
     body.messages = body.messages.concat([{ role:"assistant", content:data.content }]);
   }
-  if(data.stop_reason === "max_tokens") throw new Error("La réponse a été coupée. Raccourcissez le parcours ou l'offre et réessayez.");
+  if(data.stop_reason === "max_tokens") throw new Error(_t("La réponse a été coupée. Raccourcissez le parcours ou l'offre et réessayez."));
   const blocks = data.content || [];
   let last = -1; blocks.forEach((b, i) => { if(/_tool_result$/.test(b.type)) last = i; });
   const text = blocks.slice(last + 1).filter(b => b.type === "text").map(b => b.text).join("");
-  let out; try{ out = parseJSON(text); }catch(e){ throw new Error("La réponse n'a pas pu être lue. Cliquez à nouveau sur le bouton."); }
-  if(out.offre_lue === false) throw new Error("Impossible de lire l'annonce à partir du lien" + (out.raison ? " (" + str(out.raison) + ")" : "") + ". Copiez-collez le texte de l'annonce dans le cadre prévu.");
-  if(!out.cv) throw new Error("La réponse est incomplète. Réessayez.");
+  let out; try{ out = parseJSON(text); }catch(e){ throw new Error(_t("La réponse n'a pas pu être lue. Cliquez à nouveau sur le bouton.")); }
+  if(out.offre_lue === false) throw new Error(_t("Impossible de lire l'annonce à partir du lien") + (out.raison ? " (" + str(out.raison) + ")" : "") + ". Copiez-collez le texte de l'annonce dans le cadre prévu.");
+  if(!out.cv) throw new Error(_t("La réponse est incomplète. Réessayez."));
   return out;
 }
 function cleanHex(c){
@@ -1977,7 +2068,7 @@ function cleanHex(c){
 }
 function storeResult(p, out, keep){
   if(!out.cv.nom && p.name) out.cv.nom = p.name;
-  const h = { id:uid(), profileId:p.id, date:Date.now(), poste:str(out.poste_vise) || "Poste", entreprise:str(out.entreprise), companyColor:cleanHex(out.couleur_entreprise), data:out, cvHtml:"", lettreHtml:"" };
+  const h = { id:uid(), profileId:p.id, date:Date.now(), poste:str(out.poste_vise) || _t("Poste"), entreprise:str(out.entreprise), companyColor:cleanHex(out.couleur_entreprise), data:out, cvHtml:"", lettreHtml:"" };
   h.groupId = (keep && keep.groupId) || h.id;
   if(keep && keep.look) h.look = keep.look;
   else if(h.companyColor) h.look = { src:"company", pal: palFromColor(h.companyColor) };
@@ -1995,14 +2086,14 @@ function storeResult(p, out, keep){
 }
 function busy(on, label){
   ["#btn-generate", "#btn-regen"].forEach(id => { $(id).disabled = on; });
-  $("#btn-generate").textContent = on && label === "gen" ? BRAND.name + " rédige…" : "Créer mon CV adapté";
-  $("#btn-regen").textContent = on && label === "regen" ? "Correction en cours…" : regenLabel();
+  $("#btn-generate").textContent = on && label === "gen" ? BRAND.name + _t(" rédige…") : _t("Créer mon CV adapté");
+  $("#btn-regen").textContent = on && label === "regen" ? _t("Correction en cours…") : regenLabel();
 }
 const cible = () => (document.querySelector('input[name="cible"]:checked') || {}).value || "both";
 function regenLabel(){
   const h = currentHistId && history.find(x => x.id === currentHistId);
   const hasL = !!(h && h.data && h.data.lettre);
-  return { cv:"Corriger le CV", lettre: hasL ? "Corriger la lettre" : "Rédiger la lettre", both: hasL ? "Corriger le CV et la lettre" : "Corriger le CV et rédiger la lettre" }[cible()];
+  return { cv:_t("Corriger le CV"), lettre: hasL ? _t("Corriger la lettre") : _t("Rédiger la lettre"), both: hasL ? _t("Corriger le CV et la lettre") : _t("Corriger le CV et rédiger la lettre") }[cible()];
 }
 document.querySelectorAll('input[name="cible"]').forEach(r => r.addEventListener("change", () => { $("#btn-regen").textContent = regenLabel(); }));
 const URL_RE = /^https?:\/\/\S+$/i;
@@ -2013,13 +2104,13 @@ $("#btn-generate").addEventListener("click", async () => {
   const url = $("#offre-url").value.trim();
   const offre = $("#offre").value.trim();
   const wantLettre = $("#opt-lettre").checked;
-  if(!settings.apiKey){ status("#status-gen", "err", "Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation »."); $("#step-key").hidden = false; return; }
-  if(parcours.length < 80){ status("#status-gen", "err", "Votre parcours est trop court. Déposez votre ancien CV ou décrivez vos expériences."); $("#profile-parcours").focus(); return; }
-  if(url && !URL_RE.test(url)){ status("#status-gen", "err", "Le lien de l'annonce doit commencer par https://"); $("#offre-url").focus(); return; }
-  if(!url && offre.length < 80){ status("#status-gen", "err", "Indiquez le lien de l'annonce ou collez son texte complet."); $("#offre-url").focus(); return; }
+  if(!settings.apiKey){ status("#status-gen", "err", _t("Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation ».")); $("#step-key").hidden = false; return; }
+  if(parcours.length < 80){ status("#status-gen", "err", _t("Votre parcours est trop court. Déposez votre ancien CV ou décrivez vos expériences.")); $("#profile-parcours").focus(); return; }
+  if(url && !URL_RE.test(url)){ status("#status-gen", "err", _t("Le lien de l'annonce doit commencer par https://")); $("#offre-url").focus(); return; }
+  if(!url && offre.length < 80){ status("#status-gen", "err", _t("Indiquez le lien de l'annonce ou collez son texte complet.")); $("#offre-url").focus(); return; }
 
   busy(true, "gen");
-  status("#status-gen", "info", (url && offre.length < 80 ? "Lecture de l'annonce puis rédaction" : "Rédaction en cours") + ", comptez 30 à 90 secondes. Ne fermez pas la page.");
+  status("#status-gen", "info", (url && offre.length < 80 ? _t("Lecture de l'annonce puis rédaction") : _t("Rédaction en cours")) + _t(", comptez 30 à 90 secondes. Ne fermez pas la page."));
   try{
     const offreBloc = offre.length >= 80 ? offre + (url ? "\n(Lien de l'annonce, inutile de le lire : " + url + ")" : "")
       : "L'annonce est à lire à cette adresse : " + url;
@@ -2028,13 +2119,15 @@ $("#btn-generate").addEventListener("click", async () => {
     const tools = [];
     if(offre.length < 80) tools.push({ type:"web_fetch_20250910", name:"web_fetch", max_uses:3, max_content_tokens:20000 });
     tools.push({ type:"web_search_20250305", name:"web_search", max_uses:2 });
-    const out = await runClaude([{ role:"user", content:userMsg }], tools);
+    const docLang = $("#doc-lang").value || "fr";
+    const out = await runClaude([{ role:"user", content: langBlock(docLang) + userMsg }], tools);
+    out._lang = docLang;
     out._userMsg = { parcours, wantLettre, url };
     storeResult(p, out);
     setMStep("cv"); if(isM()) window.scrollTo({ top:0, behavior:"smooth" });
     maybeShowHelp();
     $("#remarques").value = "";
-    status("#status-gen", "ok", "C'est prêt ! Relisez le CV à droite. Corrigez directement dans le document, ou expliquez ce qui ne va pas ci-dessous.");
+    status("#status-gen", "ok", _t("C'est prêt ! Relisez le CV à droite. Corrigez directement dans le document, ou expliquez ce qui ne va pas ci-dessous."));
   }catch(e){
     status("#status-gen", "err", e.message);
   }
@@ -2067,13 +2160,13 @@ function restoreLettreFrame(oldHtml){
 /* Boucle de corrections : la personne dit ce qui ne lui plaît pas, Claude refait */
 $("#btn-regen").addEventListener("click", async () => {
   const rq = $("#remarques").value.trim();
-  if(rq.length < 4){ status("#status-gen", "err", "Expliquez ce que vous voulez changer."); $("#remarques").focus(); return; }
+  if(rq.length < 4){ status("#status-gen", "err", _t("Expliquez ce que vous voulez changer.")); $("#remarques").focus(); return; }
   stopDictation();
   if(await doRegen(cible(), rq)) $("#remarques").value = "";
 });
 async function doRegen(target, rq){
   const h = history.find(x => x.id === currentHistId);
-  if(!h){ status("#status-gen", "err", "Générez d'abord un CV."); return false; }
+  if(!h){ status("#status-gen", "err", _t("Générez d'abord un CV.")); return false; }
   validateEdits(true); // les retouches à la main deviennent la base de travail, et Claude les mémorise
   const p = profiles.find(x => x.id === h.profileId) || prof();
   const prev = Object.assign({}, h.data); delete prev._userMsg;
@@ -2100,7 +2193,8 @@ async function doRegen(target, rq){
       retouchesBlock(p) + "<remarques_du_candidat>\n" + rq +
       "\n</remarques_du_candidat>\n\n" + consigne + " Garde ce qui n'est pas concerné par les remarques et renvoie le JSON complet mis à jour. Les règles absolues restent valables : n'invente rien. Conserve \"couleur_entreprise\", \"offre_resume\" et \"candidature\" tels quels. Mets \"message_court\" à jour s'il ne correspond plus à la lettre." +
       (wantLettre ? "" : " Mets \"lettre\": null.");
-    const out = await runClaude([{ role:"user", content:userMsg }], []);
+    const out = await runClaude([{ role:"user", content: langBlock(h.data._lang) + userMsg }], []);
+    out._lang = h.data._lang || "fr";
     if(!str(out.couleur_entreprise)) out.couleur_entreprise = h.companyColor;
     if(!str(out.offre_resume)) out.offre_resume = h.data.offre_resume;
     if(!out.candidature || !str(out.candidature.email)) out.candidature = h.data.candidature || out.candidature;
@@ -2114,7 +2208,7 @@ async function doRegen(target, rq){
     storeResult(p, out, keep);
     const nh = curHist(); if(nh){ if(h.apply) nh.apply = h.apply; if(h.fiche) nh.fiche = h.fiche; saveHistory(); }
     if(target === "lettre") showTab("lettre");
-    status("#status-gen", "ok", "Nouvelle version prête. L'ancienne reste dans l'historique.");
+    status("#status-gen", "ok", _t("Nouvelle version prête. L'ancienne reste dans l'historique."));
     busy(false); return true;
   }catch(e){
     status("#status-gen", "err", e.message);
@@ -2148,17 +2242,17 @@ function renderCV(out){
   if(prof().photo){ const im = el("img", "photo"); im.src = prof().photo; im.alt = ""; side.appendChild(im); }
   const contacts = [c.adresse, c.ville, c.telephone, c.email, c.linkedin, c.permis].map(plain).filter(Boolean)
     .filter((x, i, a) => a.indexOf(x) === i);
-  if(contacts.length){ const s = section("Contact", "contact-blk"); const ul = el("ul", "list side-contact"); contacts.forEach(x => ul.appendChild(el("li", "", x))); s.appendChild(ul); side.appendChild(s); }
-  [["Habilitations", cv.certifications], ["Compétences", cv.competences], ["Langues", cv.langues], ["Centres d'intérêt", cv.interets]].forEach(([t, l]) => {
+  if(contacts.length){ const s = section(D().contact, "contact-blk"); const ul = el("ul", "list side-contact"); contacts.forEach(x => ul.appendChild(el("li", "", x))); s.appendChild(ul); side.appendChild(s); }
+  [[D().certs, cv.certifications], [D().skills, cv.competences], [D().langs, cv.langues], [D().interests, cv.interets]].forEach(([t, l]) => {
     const items = arr(l); if(!items.length) return;
     const s = section(t); const ul = el("ul", "list"); items.forEach(x => ul.appendChild(rich("li", "", x))); s.appendChild(ul); side.appendChild(s);
   });
 
   const main = el("main", "cv-main");
-  if(str(cv.accroche)){ const s = section("Profil", "profil"); s.appendChild(rich("p", "accroche", cv.accroche)); main.appendChild(s); }
+  if(str(cv.accroche)){ const s = section(D().profile, "profil"); s.appendChild(rich("p", "accroche", cv.accroche)); main.appendChild(s); }
   const exps = arr(cv.experiences);
   if(exps.length || str(cv.autres_experiences)){
-    const s = section("Expérience professionnelle");
+    const s = section(D().exp);
     exps.forEach(x => {
       const org = [plain(x.entreprise), plain(x.lieu)].filter(Boolean).join(" — ");
       const d = el("div", "exp" + (org ? " has-org" : "")), top = el("div", "exp-top");
@@ -2173,7 +2267,7 @@ function renderCV(out){
   }
   const forms = arr(cv.formations);
   if(forms.length){
-    const s = section("Formation");
+    const s = section(D().edu);
     forms.forEach(x => {
       const org = [plain(x.detail), plain(x.etablissement)].filter(Boolean).join(" — ");
       const d = el("div", "form" + (org ? " has-org" : "")), top = el("div", "exp-top");
@@ -2194,14 +2288,14 @@ function renderLettre(out){
   [c.ville, c.telephone, c.email].map(str).filter(Boolean).forEach(x => exp.appendChild(el("div", "", x)));
   page.appendChild(exp);
   const dest = el("div", "dest");
-  dest.appendChild(el("div", "", str(out.entreprise) ? str(out.entreprise) : "Service des ressources humaines"));
-  if(str(out.entreprise)) dest.appendChild(el("div", "", "Service des ressources humaines"));
+  dest.appendChild(el("div", "", str(out.entreprise) ? str(out.entreprise) : D().hr));
+  if(str(out.entreprise)) dest.appendChild(el("div", "", D().hr));
   if(str(out.entreprise_adresse)) dest.appendChild(el("div", "", str(out.entreprise_adresse)));
   page.appendChild(dest);
-  const today = new Date().toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
-  page.appendChild(el("div", "lieu", (str(c.ville) ? "À " + str(c.ville).split(/[,(]/)[0].trim() + ", le " : "Le ") + today));
-  page.appendChild(el("div", "objet", "Objet : " + (str(L.objet).replace(/^objet\s*:\s*/i, "") || "Candidature")));
-  page.appendChild(el("p", "", "Madame, Monsieur,"));
+  const today = docDate(Date.now(), DOC_LANG);
+  page.appendChild(el("div", "lieu", D().place(str(c.ville) ? str(c.ville).split(/[,(]/)[0].trim() : "", today)));
+  page.appendChild(el("div", "objet", D().objet + (str(L.objet).replace(/^(objet|subject|asunto|тема)\s*:\s*/i, "") || D().defObj)));
+  page.appendChild(el("p", "", D().hello));
   arr(L.paragraphes).forEach(t => page.appendChild(el("p", "", str(t))));
   page.appendChild(el("div", "sign", str(cv.nom)));
   return true;
@@ -2211,14 +2305,16 @@ function renderAlertes(out){
   const a = $("#alertes"); a.innerHTML = "";
   const items = arr(out.alertes);
   if(items.length){
-    a.appendChild(el("b", "", "À savoir avant d'envoyer :"));
+    a.appendChild(el("b", "", _t("À savoir avant d'envoyer :")));
     const ul = el("ul"); items.forEach(t => ul.appendChild(el("li", "", str(t)))); a.appendChild(ul); a.hidden = false;
   } else a.hidden = true;
   const sc = Number(out.score_adequation);
-  $("#score").textContent = isFinite(sc) && sc > 0 ? "Adéquation avec l'offre : " + Math.round(sc) + " %" : "";
+  $("#score").textContent = isFinite(sc) && sc > 0 ? _t("Adéquation avec l'offre : ") + Math.round(sc) + " %" : "";
 }
 
 function renderAll(out, html){
+  DOC_LANG = (out && out._lang) || "fr";
+  ["#page-cv", "#page-lettre"].forEach(sel => $(sel).setAttribute("lang", DOC_LANG));
   renderAlertes(out);
   if(html && html.cvHtml){ $("#page-cv").innerHTML = html.cvHtml; } else renderCV(out);
   let hasL;
@@ -2285,8 +2381,8 @@ let activeTab = "cv";
 function fitVisible(){
   if(activeTab === "cv" && !$("#holder-cv").hidden){
     const ok = fitCV($("#page-cv"));
-    $("#edit-hint").textContent = ok ? "Astuce : cliquez directement dans le CV pour corriger un mot. Vos modifications sont enregistrées."
-      : "Attention : le CV dépasse une page. Supprimez une ou deux puces (cliquez dans le texte) ou régénérez.";
+    $("#edit-hint").textContent = ok ? _t("Astuce : cliquez directement dans le CV pour corriger un mot. Vos modifications sont enregistrées.")
+      : _t("Attention : le CV dépasse une page. Supprimez une ou deux puces (cliquez dans le texte) ou régénérez.");
     $("#edit-hint").style.color = ok ? "" : "var(--danger)";
   }
   if(activeTab === "lettre" && !$("#holder-lettre").hidden) fitPage($("#page-lettre"), 11, 9.5);
@@ -2325,7 +2421,7 @@ let pins = new Set(store.get("pins", []));
 let suivi = store.get("suivi", {});
 const saveSuivi = () => store.set("suivi", suivi);
 const suiviOf = g => suivi[g] || (suivi[g] = {});
-const RESULTS = { "":"En cours", sansreponse:"Sans réponse", refus:"Refus", offre:"Offre reçue", abandon:"Abandonnée" };
+const RESULTS = { "":_t("En cours"), sansreponse:_t("Sans réponse"), refus:_t("Refus"), offre:_t("Offre reçue"), abandon:_t("Abandonnée") };
 const savePins = () => store.set("pins", [...pins]);
 const groupOf = h => h.groupId || h.id;
 const lastActivity = h => Math.max(h.date || 0, h.touched || 0);
@@ -2368,7 +2464,7 @@ function refreshVersions(){
   const G = groupsFor(h.profileId).find(g => g.id === groupOf(h));
   const n = G ? G.versions.length : 1, i = G ? G.versions.indexOf(h) : 0;
   box.classList.toggle("show", n > 1);
-  $("#v-label").textContent = "Version " + (i + 1) + " sur " + n;
+  $("#v-label").textContent = _t("Version ") + (i + 1) + _t(" sur ") + n;
   $("#v-prev").disabled = i <= 0; $("#v-next").disabled = i >= n - 1;
 }
 function stepVersion(d){
@@ -2392,7 +2488,7 @@ function statusOf(G){
   return (!relanceOf(G) && Date.now() - a >= 7 * DAY) ? "relance" : "sent";
 }
 let histFilter = null;
-const FILTER_LABEL = { todo:"À envoyer", sent:"Envoyées", relance:"À relancer", itw:"Entretiens" };
+const FILTER_LABEL = { todo:_t("À envoyer"), sent:_t("Envoyées"), relance:_t("À relancer"), itw:_t("Entretiens") };
 function inFilter(G){
   if(!histFilter) return true;
   const st = statusOf(G);
@@ -2401,14 +2497,16 @@ function inFilter(G){
 const firstName = () => (str((prof() || {}).name).split(/\s+/)[0] || "");
 const GOAL_KEY = "goal";
 function weekStart(){ const d = new Date(); const day = (d.getDay() + 6) % 7; d.setHours(0, 0, 0, 0); return d.getTime() - day * DAY; }
-function fmtRel(t){ const d = Math.floor((Date.now() - t) / DAY); return d <= 0 ? "aujourd'hui" : d === 1 ? "hier" : "il y a " + d + " jours"; }
+function fmtRel(t){ const d = Math.floor((Date.now() - t) / DAY);
+  if(UI_LANG !== "fr" && window.Intl && Intl.RelativeTimeFormat) return d <= 0 ? _t("aujourd'hui") : new Intl.RelativeTimeFormat(LOCALE, { numeric:"auto" }).format(-d, "day");
+  return d <= 0 ? _t("aujourd'hui") : d === 1 ? _t("hier") : _t("il y a ") + d + " jours"; }
 function fmtItw(v){ if(!v) return ""; const d = new Date(v); if(isNaN(d)) return ""; const t0 = new Date(); t0.setHours(0, 0, 0, 0); const dd = Math.round((new Date(d).setHours(0, 0, 0, 0) - t0) / DAY);
-  const day = dd === 0 ? "Aujourd'hui" : dd === 1 ? "Demain" : d.toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long" });
-  return day.charAt(0).toUpperCase() + day.slice(1) + ", " + d.toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" }).replace(":", " h "); }
+  const day = dd === 0 ? _t("Aujourd'hui") : dd === 1 ? _t("Demain") : d.toLocaleDateString(LOCALE, { weekday:"long", day:"numeric", month:"long" });
+  return day.charAt(0).toUpperCase() + day.slice(1) + ", " + d.toLocaleTimeString(LOCALE, { hour:"2-digit", minute:"2-digit" }).replace(":", UI_LANG === "fr" ? " h " : ":"); }
 /* Les 5 jalons d'une candidature */
 function jalons(G){
   const S = suivi[G.id] || {}, applied = appliedOf(G), rel = relanceOf(G), itw = interviewOf(G) || (S.itwAt ? 1 : 0);
-  const st = [["Créé", true], ["Envoyé", !!applied], ["Relancé", !!rel || (!!itw && !!applied)], ["Entretien", !!itw], ["Résultat", !!S.result]];
+  const st = [[_t("Créé"), true], [_t("Envoyé"), !!applied], [_t("Relancé"), !!rel || (!!itw && !!applied)], [_t("Entretien"), !!itw], [_t("Résultat"), !!S.result]];
   let now = st.findIndex(x => !x[1]);
   if(now >= 0 && st.slice(now + 1).some(x => x[1])) now = -1;   // étape sautée (ex. refus sans entretien) : rien à surligner
   return st.map((x, i) => ({ label:x[0], cls:x[1] ? "done" : (i === now ? "now" : "") }));
@@ -2417,9 +2515,9 @@ function todoItems(groups){
   const out = [];
   groups.forEach(G => {
     const v = G.versions[G.versions.length - 1], S = suivi[G.id] || {}, st = statusOf(G), who = v.entreprise || v.poste;
-    if(S.itwAt && !S.result){ const t = new Date(S.itwAt).getTime(); if(t > Date.now() - 3 * 3600e3 && t < Date.now() + 3 * DAY) out.push({ rank:0, G, title:"Entretien " + who, sub:fmtItw(S.itwAt) + (S.contact ? " · " + S.contact : ""), label:"Préparer", hot:false, act:() => openGroup(G, "suivi") }); }
-    if(st === "relance") out.push({ rank:1, G, title:"Relancer " + who, sub:(v.poste || "") + " · envoyée " + fmtRel(appliedOf(G)), label:"Relancer", hot:true, act:() => v.manual ? openGroup(G, "suivi") : (openGroup(G, "cv"), openApply()) });
-    if(st === "todo" && !v.manual) out.push({ rank:2, G, title:"Envoyer le CV " + who, sub:(v.poste || "") + " · CV prêt" + (Date.now() - G.versions[0].date >= DAY ? " depuis " + Math.floor((Date.now() - G.versions[0].date) / DAY) + " j" : ""), label:"Envoyer", hot:false, act:() => { openGroup(G, "cv"); openApply(); } });
+    if(S.itwAt && !S.result){ const t = new Date(S.itwAt).getTime(); if(t > Date.now() - 3 * 3600e3 && t < Date.now() + 3 * DAY) out.push({ rank:0, G, title:_t("Entretien ") + who, sub:fmtItw(S.itwAt) + (S.contact ? " · " + S.contact : ""), label:_t("Préparer"), hot:false, act:() => openGroup(G, "suivi") }); }
+    if(st === "relance") out.push({ rank:1, G, title:_t("Relancer ") + who, sub:(v.poste || "") + _t(" · envoyée ") + fmtRel(appliedOf(G)), label:_t("Relancer"), hot:true, act:() => v.manual ? openGroup(G, "suivi") : (openGroup(G, "cv"), openApply()) });
+    if(st === "todo" && !v.manual) out.push({ rank:2, G, title:_t("Envoyer le CV ") + who, sub:(v.poste || "") + _t(" · CV prêt") + (Date.now() - G.versions[0].date >= DAY ? " depuis " + Math.floor((Date.now() - G.versions[0].date) / DAY) + " j" : ""), label:_t("Envoyer"), hot:false, act:() => { openGroup(G, "cv"); openApply(); } });
   });
   return out.sort((a, b) => a.rank - b.rank);
 }
@@ -2427,13 +2525,13 @@ function renderBoard(groups){
   const todo = todoItems(groups);
   const badge = $("#nav-badge"); badge.textContent = todo.length; badge.hidden = !todo.length;
   const tb = $("#tab-badge"); if(tb){ tb.textContent = todo.length; tb.hidden = !todo.length; }
-  badge.title = todo.length ? todo.length + " chose(s) à faire" : "";
+  badge.title = todo.length ? todo.length + _t(" chose(s) à faire") : "";
   const fn = firstName();
-  $("#apps-hello-t").textContent = "Bonjour" + (fn ? " " + fn : "");
-  $("#apps-hello-s").textContent = !groups.length ? "Créez un CV ou ajoutez une candidature pour démarrer votre suivi." : todo.length ? (todo.length === 1 ? "1 chose à faire aujourd'hui." : todo.length + " choses à faire aujourd'hui.") : "Rien d'urgent aujourd'hui.";
+  $("#apps-hello-t").textContent = _t("Bonjour") + (fn ? " " + fn : "");
+  $("#apps-hello-s").textContent = !groups.length ? _t("Créez un CV ou ajoutez une candidature pour démarrer votre suivi.") : todo.length ? (todo.length === 1 ? _t("1 chose à faire aujourd'hui.") : todo.length + _t(" choses à faire aujourd'hui.")) : _t("Rien d'urgent aujourd'hui.");
   const box = $("#todo-box"); box.innerHTML = ""; box.hidden = !groups.length;
-  box.appendChild(el("b", "", "À faire aujourd'hui"));
-  if(!todo.length){ box.appendChild(el("p", "todo-none", "Tout est à jour. Une nouvelle offre vous intéresse ? Créez un CV adapté dans l'onglet « Créer ».")); }
+  box.appendChild(el("b", "", _t("À faire aujourd'hui")));
+  if(!todo.length){ box.appendChild(el("p", "todo-none", _t("Tout est à jour. Une nouvelle offre vous intéresse ? Créez un CV adapté dans l'onglet « Créer »."))); }
   todo.slice(0, 5).forEach(t => {
     const it = el("div", "todo-item"), tx = el("div", "tx");
     tx.appendChild(el("b", "", t.title)); tx.appendChild(el("span", "", t.sub)); it.appendChild(tx);
@@ -2450,12 +2548,12 @@ function renderBoard(groups){
   const ring = el("div", "ring"); ring.style.background = "conic-gradient(var(--accent) 0 " + pct + "%, var(--lilas) " + pct + "% 100%)";
   ring.appendChild(el("span", "", thisWeek + "/" + goal)); ring.setAttribute("aria-hidden", "true"); g.appendChild(ring);
   const gt = el("div", "gt");
-  const gl = el("b"); gl.appendChild(document.createTextNode("Objectif de la semaine : "));
-  const sel = document.createElement("select"); sel.setAttribute("aria-label", "Nombre de candidatures visé par semaine");
+  const gl = el("b"); gl.appendChild(document.createTextNode(_t("Objectif de la semaine : ")));
+  const sel = document.createElement("select"); sel.setAttribute("aria-label", _t("Nombre de candidatures visé par semaine"));
   [3, 5, 7, 10, 15].forEach(n => { const o = el("option", "", String(n)); o.value = n; if(n === goal) o.selected = true; sel.appendChild(o); });
   sel.addEventListener("change", () => { store.set(GOAL_KEY, Number(sel.value)); renderHistory(); });
   gl.appendChild(sel); gt.appendChild(gl);
-  gt.appendChild(el("span", "", (thisWeek >= goal ? "Objectif atteint, bravo ! " : "Encore " + (goal - thisWeek) + " cette semaine. ") + answers + " réponse" + (answers > 1 ? "s" : "") + " sur " + sent + " envoyée" + (sent > 1 ? "s" : "") + "."));
+  gt.appendChild(el("span", "", (thisWeek >= goal ? _t("Objectif atteint, bravo ! ") : _t("Encore ") + (goal - thisWeek) + _t(" cette semaine. ")) + answers + _t(" réponse") + (answers > 1 ? "s" : "") + _t(" sur ") + sent + _t(" envoyée") + (sent > 1 ? "s" : "") + "."));
   g.appendChild(gt);
   $("#btn-recap").hidden = !sent;
 }
@@ -2467,7 +2565,7 @@ function openGroup(G, sub){
   if(window.innerWidth < 900) $("#fiche-view").scrollIntoView({ behavior:"smooth", block:"start" });
 }
 /* Mes CV récents, dans l'onglet Créer : on retrouve un ancien CV sans passer par « Mes candidatures » */
-const fmtShort = t => { const d = new Date(t); return d.toLocaleDateString("fr-FR", { day:"numeric", month:"short" }) + " à " + d.toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" }); };
+const fmtShort = t => { const d = new Date(t); return d.toLocaleDateString(LOCALE, { day:"numeric", month:"short" }) + t_at() + d.toLocaleTimeString(LOCALE, { hour:"2-digit", minute:"2-digit" }); };
 function renderRecent(){
   const box = $("#recent-box"), ul = $("#recent-list"); ul.textContent = "";
   const all = groupsFor(currentProfileId).filter(G => !G.versions[G.versions.length - 1].manual), cur = curHist();
@@ -2477,9 +2575,9 @@ function renderRecent(){
     const latest = G.versions[G.versions.length - 1], first = G.versions[0];
     const b = el("button"); b.type = "button";
     if(cur && groupOf(cur) === G.id) b.classList.add("on");
-    b.appendChild(el("b", "", (first.poste || "Poste") + (latest.entreprise ? " · " + latest.entreprise : "")));
+    b.appendChild(el("b", "", (first.poste || _t("Poste")) + (latest.entreprise ? " · " + latest.entreprise : "")));
     const n = G.versions.length;
-    b.appendChild(el("span", "", "Créé le " + fmtShort(first.date) + (G.last - first.date > 60e3 ? " · modifié le " + fmtShort(G.last) : "") + (n > 1 ? " · " + n + " versions" : "")));
+    b.appendChild(el("span", "", _t("Créé le ") + fmtShort(first.date) + (G.last - first.date > 60e3 ? _t(" · modifié le ") + fmtShort(G.last) : "") + (n > 1 ? " · " + n + " versions" : "")));
     b.addEventListener("click", () => { saveCurrentEdits(); openHist(latest); if(isM()) $("#preview").scrollIntoView({ behavior:"smooth", block:"start" }); });
     const li = el("li"); li.appendChild(b); ul.appendChild(li);
   });
@@ -2500,16 +2598,16 @@ function renderHistory(){
     const li = el("li"); li.tabIndex = 0; li.setAttribute("role", "button");
     if(cur && groupOf(cur) === G.id) li.classList.add("on");
     const top = el("div", "card-top"), ti = el("div", "ti");
-    ti.appendChild(el("b", "", first.poste || "Poste"));
-    ti.appendChild(el("span", "", (latest.entreprise || "") + (latest.manual ? (latest.entreprise ? " · " : "") + "ajoutée à la main" : "")));
+    ti.appendChild(el("b", "", first.poste || _t("Poste")));
+    ti.appendChild(el("span", "", (latest.entreprise || "") + (latest.manual ? (latest.entreprise ? " · " : "") + _t("ajoutée à la main") : "")));
     top.appendChild(ti);
-    top.appendChild(el("span", "pill " + st, S.result ? RESULTS[S.result] : { todo:"À envoyer", sent:"Envoyée", relance:"À relancer", itw:"Entretien", closed:"Terminée" }[st]));
+    top.appendChild(el("span", "pill " + st, S.result ? RESULTS[S.result] : { todo:_t("À envoyer"), sent:_t("Envoyée"), relance:_t("À relancer"), itw:_t("Entretien"), closed:_t("Terminée") }[st]));
     li.appendChild(top);
-    const fr = el("div", "frise"); fr.setAttribute("aria-label", "Étapes : " + jalons(G).filter(x => x.cls === "done").map(x => x.label).join(", "));
+    const fr = el("div", "frise"); fr.setAttribute("aria-label", _t("Étapes : ") + jalons(G).filter(x => x.cls === "done").map(x => x.label).join(", "));
     jalons(G).forEach(j => { const s = el("div", "st " + j.cls); s.appendChild(el("i")); s.appendChild(document.createTextNode(j.label)); fr.appendChild(s); });
     li.appendChild(fr);
     if(S.itwAt && !S.result){
-      const c = el("button", "btn small card-cal", "Ajouter l'entretien au calendrier"); c.type = "button";
+      const c = el("button", "btn small card-cal", _t("Ajouter l'entretien au calendrier")); c.type = "button";
       c.addEventListener("click", e => { e.stopPropagation(); downloadIcs(G); });
       li.appendChild(c);
     }
@@ -2545,17 +2643,17 @@ function downloadIcs(G, kind){
   let start, end, title, desc;
   if(kind === "relance"){
     start = appliedOf(G) + 7 * DAY; const d = new Date(start); d.setHours(9, 0, 0, 0); start = d.getTime(); end = start + 30 * 60e3;
-    title = "Relancer " + (v.entreprise || v.poste); desc = "Candidature : " + v.poste + (v.entreprise ? " chez " + v.entreprise : "") + ". Relance préparée dans " + BRAND.name + ".";
+    title = _t("Relancer ") + (v.entreprise || v.poste); desc = _t("Candidature : ") + v.poste + (v.entreprise ? " chez " + v.entreprise : "") + ". Relance préparée dans " + BRAND.name + ".";
   } else {
     if(!S.itwAt) return; start = new Date(S.itwAt).getTime(); end = start + 3600e3;
-    title = "Entretien " + v.poste + (v.entreprise ? " – " + v.entreprise : ""); desc = (S.contact ? "Contact : " + S.contact + "\n" : "") + "Préparation dans " + BRAND.name + ".";
+    title = _t("Entretien ") + v.poste + (v.entreprise ? " – " + v.entreprise : ""); desc = (S.contact ? _t("Contact : ") + S.contact + "\n" : "") + _t("Préparation dans ") + BRAND.name + ".";
   }
   const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Elanos//FR", "CALSCALE:GREGORIAN", "BEGIN:VEVENT",
     "UID:" + G.id + "-" + (kind || "itw") + "@jalon", "DTSTAMP:" + icsDate(Date.now()), "DTSTART:" + icsDate(start), "DTEND:" + icsDate(end),
     "SUMMARY:" + icsEsc(title), "DESCRIPTION:" + icsEsc(desc), "BEGIN:VALARM", "TRIGGER:-PT2H", "ACTION:DISPLAY", "DESCRIPTION:" + icsEsc(title), "END:VALARM", "END:VEVENT", "END:VCALENDAR"];
   const blob = new Blob([lines.join("\r\n")], { type:"text/calendar;charset=utf-8" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-  a.download = (kind === "relance" ? "Relance " : "Entretien ") + (v.entreprise || v.poste).replace(/[\\/:*?"<>|]+/g, "") + ".ics";
+  a.download = (kind === "relance" ? _t("Relance ") : _t("Entretien ")) + (v.entreprise || v.poste).replace(/[\\/:*?"<>|]+/g, "") + ".ics";
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
 
@@ -2590,13 +2688,13 @@ $("#btn-recap").addEventListener("click", () => {
 
 /* ---------- Export PDF & copie ---------- */
 function printPage(which){
-  if(!currentHistId){ alert("Générez d'abord un CV."); return; }
-  if(which === "lettre" && $("#tab-lettre").hidden){ alert("Aucune lettre pour ce CV."); return; }
+  if(!currentHistId){ alert(_t("Générez d'abord un CV.")); return; }
+  if(which === "lettre" && $("#tab-lettre").hidden){ alert(_t("Aucune lettre pour ce CV.")); return; }
   showTab(which);
   const h = history.find(x => x.id === currentHistId);
   const nom = (h && h.data && h.data.cv && str(h.data.cv.nom)) || "CV";
   const old = document.title;
-  document.title = (which === "cv" ? "CV " : "Lettre ") + nom + (h && h.entreprise ? " - " + h.entreprise : "");
+  document.title = (which === "cv" ? "CV " : _t("Lettre ")) + nom + (h && h.entreprise ? " - " + h.entreprise : "");
   document.body.dataset.print = which;
   setTimeout(() => { window.print(); document.title = old; }, 50);
 }
@@ -2608,8 +2706,8 @@ $("#btn-copy-lettre").addEventListener("click", async () => {
   const p = $("#page-lettre"); const parts = [];
   p.querySelectorAll(".objet, p, .sign").forEach(n => parts.push(n.innerText.trim()));
   const txt = parts.join("\n\n");
-  try{ await navigator.clipboard.writeText(txt); alert("Texte de la lettre copié. Vous pouvez le coller dans un e-mail ou un formulaire."); }
-  catch(e){ prompt("Copiez le texte ci-dessous :", txt); }
+  try{ await navigator.clipboard.writeText(txt); alert(_t("Texte de la lettre copié. Vous pouvez le coller dans un e-mail ou un formulaire.")); }
+  catch(e){ prompt(_t("Copiez le texte ci-dessous :"), txt); }
 });
 
 /* ---------- Retouches à la main : validation et apprentissage ---------- */
@@ -2632,7 +2730,7 @@ const cut = s => s.length > 400 ? s.slice(0, 400) + "…" : s;
 function pendingChanges(h){
   const ch = [];
   if(h.baseCvHtml) linesDiff(cvTextFromHtml(h.baseCvHtml).split("\n"), cvTextFromHtml(h.cvHtml).split("\n")).forEach(d => ch.push(Object.assign({ doc:"CV" }, d)));
-  if(h.baseLettreHtml && h.data.lettre) linesDiff(lettreLines(h.baseLettreHtml), lettreLines(h.lettreHtml)).forEach(d => ch.push(Object.assign({ doc:"Lettre" }, d)));
+  if(h.baseLettreHtml && h.data.lettre) linesDiff(lettreLines(h.baseLettreHtml), lettreLines(h.lettreHtml)).forEach(d => ch.push(Object.assign({ doc:_t("Lettre") }, d)));
   return ch;
 }
 /* ---------- Retour en arrière : versions gardées à chaque enregistrement des retouches ---------- */
@@ -2667,13 +2765,13 @@ function snapDiffText(h, sn){
   const cutShort = x => x.length > 120 ? x.slice(0, 120) + "…" : x;
   const quote = arr => "« " + arr.slice(0, 2).map(cutShort).join(" » ; « ") + " »" + (arr.length > 2 ? " (et " + (arr.length - 2) + " autre" + (arr.length > 3 ? "s" : "") + ")" : "");
   const out = [];
-  if(back.length) out.push("Vous retrouveriez : " + quote(back));
-  if(gone.length) out.push("Vous perdriez : " + quote(gone));
-  return out.length ? out.join(". ") : "Même texte que maintenant (seule la mise en forme change).";
+  if(back.length) out.push(_t("Vous retrouveriez : ") + quote(back));
+  if(gone.length) out.push(_t("Vous perdriez : ") + quote(gone));
+  return out.length ? out.join(". ") : _t("Même texte que maintenant (seule la mise en forme change).");
 }
 function fmtSnapWhen(t){
   const d = new Date(t);
-  return d.toLocaleDateString("fr-FR", { day:"numeric", month:"long" }) + " à " + d.toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" });
+  return d.toLocaleDateString(LOCALE, { day:"numeric", month:"long" }) + t_at() + d.toLocaleTimeString(LOCALE, { hour:"2-digit", minute:"2-digit" });
 }
 function restoreSnap(sn){
   const h = history.find(x => x.id === currentHistId); if(!h) return;
@@ -2686,7 +2784,7 @@ function restoreSnap(sn){
   const l = lettreFromHtml(h.lettreHtml); if(l) h.data.lettre = Object.assign({}, h.data.lettre, l);
   h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; h.dirty = false; h.touched = Date.now();
   saveHistory(); refreshValidate(); refreshUndo(); fitVisible();
-  status("#status-gen", "ok", "Version du " + fmtSnapWhen(sn.t) + " retrouvée. Votre version précédente reste disponible dans « Revenir à une version précédente ».");
+  status("#status-gen", "ok", _t("Version du ") + fmtSnapWhen(sn.t) + _t(" retrouvée. Votre version précédente reste disponible dans « Revenir à une version précédente »."));
 }
 
 /* ---------- Grande fenêtre des versions ---------- */
@@ -2700,10 +2798,10 @@ function buildVerItems(){
   const vs = groupVersions(cur).filter(v => !v.manual), items = [];
   vs.map((v, k) => [v, k]).reverse().forEach(([v, k]) => {      // version la plus récente en haut, ses anciennes retouches juste dessous
     const n = k + 1, sub = [];
-    sub.push((n === 1 ? "Créée le " : "Corrigée par " + BRAND.name + " le ") + fmtSnapWhen(v.date));
-    if(v.touched && v.touched - v.date > 60e3) sub.push("dernière retouche le " + fmtSnapWhen(v.touched));
-    items.push({ v, n, title:"Version " + n + (vs.length > 1 && n === vs.length ? " (la plus récente)" : ""), sub:sub.join(" · "), current: v === cur });
-    (v.snaps || []).slice().reverse().forEach(sn => items.push({ v, n, sn, title:"Version " + n + " avant mes retouches", sub:"Retouches enregistrées le " + fmtSnapWhen(sn.t) }));
+    sub.push((n === 1 ? _t("Créée le ") : _t("Corrigée par ") + BRAND.name + " le ") + fmtSnapWhen(v.date));
+    if(v.touched && v.touched - v.date > 60e3) sub.push(_t("dernière retouche le ") + fmtSnapWhen(v.touched));
+    items.push({ v, n, title:_t("Version ") + n + (vs.length > 1 && n === vs.length ? " (la plus récente)" : ""), sub:sub.join(" · "), current: v === cur });
+    (v.snaps || []).slice().reverse().forEach(sn => items.push({ v, n, sn, title:_t("Version ") + n + _t(" avant mes retouches"), sub:_t("Retouches enregistrées le ") + fmtSnapWhen(sn.t) }));
   });
   return items;
 }
@@ -2716,7 +2814,7 @@ function openVersions(){
   verItems.forEach(it => {
     const b = el("button", "ver-item" + (it.sn ? " sub" : "")); b.type = "button"; b.setAttribute("role", "option");
     b.appendChild(el("b", "", it.title)); b.appendChild(el("span", "", it.sub));
-    if(it.current) b.appendChild(el("span", "tag", "Affichée en ce moment"));
+    if(it.current) b.appendChild(el("span", "tag", _t("Affichée en ce moment")));
     b.addEventListener("click", () => selectVer(it));
     it.btn = b; list.appendChild(b);
   });
@@ -2742,13 +2840,13 @@ function selectVer(it){
   document.querySelectorAll("[data-vtab]").forEach(b => b.classList.toggle("on", b.dataset.vtab === verTab));
   const use = $("#ver-use");
   use.disabled = !!it.current;
-  use.textContent = it.current ? "C'est la version affichée" : it.sn ? "Retrouver cette version" : "Ouvrir cette version";
+  use.textContent = it.current ? _t("C'est la version affichée") : it.sn ? _t("Retrouver cette version") : _t("Ouvrir cette version");
   // Ce qui change par rapport à la version affichée
   const cur = histNow();
   let diff = "";
   if(!it.current && cur){
     diff = snapDiffText(cur, { cv: it.sn ? it.sn.cv : snapStrip(it.v.cvHtml), lettre: it.sn ? it.sn.lettre : snapStrip(it.v.lettreHtml) });
-    diff = "Par rapport à la version affichée : " + diff.charAt(0).toLowerCase() + diff.slice(1);
+    diff = _t("Par rapport à la version affichée : ") + diff.charAt(0).toLowerCase() + diff.slice(1);
   }
   $("#ver-diff").textContent = diff;
   renderVerPage();
@@ -2770,7 +2868,7 @@ $("#ver-use").addEventListener("click", () => {
   saveCurrentEdits();
   if(histNow() !== it.v) openHist(it.v);
   if(it.sn) restoreSnap(it.sn);
-  else status("#status-gen", "ok", "Version " + it.n + " ouverte.");
+  else status("#status-gen", "ok", _t("Version ") + it.n + _t(" ouverte."));
   closeVersions(); refreshUndo();
 });
 document.querySelectorAll("[data-vtab]").forEach(b => b.addEventListener("click", () => { verTab = b.dataset.vtab; document.querySelectorAll("[data-vtab]").forEach(x => x.classList.toggle("on", x === b)); renderVerPage(); }));
@@ -2796,8 +2894,8 @@ function validateEdits(silent){
   h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; h.dirty = false;
   saveHistory(); refreshValidate(); refreshUndo();
   if(!silent) status("#status-gen", "ok", changes.length
-    ? "Retouches validées (" + changes.length + "). " + BRAND.name + " repartira de cette version et s'en inspirera pour les prochaines."
-    : "Version validée.");
+    ? _t("Retouches validées (") + changes.length + "). " + BRAND.name + _t(" repartira de cette version et s'en inspirera pour les prochaines.")
+    : _t("Version validée."));
   return changes.length;
 }
 let ebActive = false;   // barre affichée parce qu'on vient de cliquer dans le CV ou la lettre
@@ -2809,7 +2907,7 @@ function refreshValidate(){
   const tools = ebActive && docShown && !isM();
   if(f.classList.contains("done")){ bar.classList.add("show"); return; }
   f.classList.toggle("idle", !dirty);
-  $("#save-fab-label").textContent = dirty ? "Enregistrer mes retouches" : "Rien à enregistrer";
+  $("#save-fab-label").textContent = dirty ? _t("Enregistrer mes retouches") : _t("Rien à enregistrer");
   $("#eb-tools").hidden = !tools; bar.classList.toggle("solo", !tools);
   bar.classList.toggle("show", dirty || tools);
   if(bar.classList.contains("show")) placeSaveFab();
@@ -2828,7 +2926,7 @@ window.addEventListener("resize", placeSaveFab);
 $("#save-fab").addEventListener("click", () => {
   const f = $("#save-fab"), h = history.find(x => x.id === currentHistId);
   if(!h || !h.dirty) return;
-  f.classList.remove("idle"); f.classList.add("done"); $("#save-fab-label").textContent = "Retouches enregistrées";
+  f.classList.remove("idle"); f.classList.add("done"); $("#save-fab-label").textContent = _t("Retouches enregistrées");
   validateEdits(false);
   setTimeout(() => { if(f.classList.contains("done")){ f.classList.remove("done"); refreshValidate(); } }, 1800);
 });
@@ -2873,12 +2971,12 @@ function ebSize(target, factor){            // taille relative au parent : le CV
 }
 function ebClear(n){ ["fontSize", "fontFamily", "color", "fontWeight", "fontStyle"].forEach(k => { n.style[k] = ""; }); if(n.getAttribute("style") === "") n.removeAttribute("style"); }
 function ebApply(kind, val){
-  if(!ebRestore()){ ebTip("Cliquez d'abord dans le texte à modifier (ou sélectionnez-le)."); return; }
+  if(!ebRestore()){ ebTip(_t("Cliquez d'abord dans le texte à modifier (ou sélectionnez-le).")); return; }
   const sel = getSelection(), r = sel.getRangeAt(0);
   if(r.collapsed){
     // Aucun texte sélectionné : on modifie toute la ligne où se trouve le curseur
     const b = ebBlock(r.startContainer);
-    if(!b){ ebTip("Sélectionnez le texte à modifier."); return; }
+    if(!b){ ebTip(_t("Sélectionnez le texte à modifier.")); return; }
     const cs = getComputedStyle(b);
     if(kind === "size") ebSize(b, val);
     else if(kind === "font") b.style.fontFamily = val;
@@ -2960,10 +3058,10 @@ function ebFillPop(id){
 }
 function renderEbColors(){
   const pal = currentPal(), box = $("#eb-colors"); box.textContent = "";
-  [["#1f2937", "Noir"], ["#6b7280", "Gris"], [pal.dark, "Couleur foncée du CV"], [pal.accent, "Couleur des titres du CV"], ["#ffffff", "Blanc"], ["#1d4ed8", "Bleu"], ["#15803d", "Vert"], ["#b91c1c", "Rouge"]]
+  [["#1f2937", _t("Noir")], ["#6b7280", _t("Gris")], [pal.dark, _t("Couleur foncée du CV")], [pal.accent, _t("Couleur des titres du CV")], ["#ffffff", _t("Blanc")], ["#1d4ed8", _t("Bleu")], ["#15803d", _t("Vert")], ["#b91c1c", _t("Rouge")]]
     .filter((c, i, a) => c[0] && a.findIndex(x => x[0].toLowerCase() === c[0].toLowerCase()) === i)
     .forEach(([c, name]) => {
-      const b = el("button", "eb-sw" + (c.toLowerCase() === ebState.color ? " on" : "")); b.type = "button"; b.style.background = c; b.title = name; b.setAttribute("aria-label", "Couleur : " + name);
+      const b = el("button", "eb-sw" + (c.toLowerCase() === ebState.color ? " on" : "")); b.type = "button"; b.style.background = c; b.title = name; b.setAttribute("aria-label", _t("Couleur : ") + name);
       b.dataset.fmt = "color"; b.dataset.val = c; box.appendChild(b);
     });
 }
@@ -2985,10 +3083,10 @@ $("#eb-color").addEventListener("change", e => { ebClosePops(); ebApply("color",
 function renderRetouchesInfo(){
   const p = prof(), n = (p.retouches || []).length, box = $("#retouches-info");
   box.hidden = !n;
-  if(n) $("#retouches-n").textContent = n === 1 ? "1 de vos retouches" : n + " de vos retouches";
+  if(n) $("#retouches-n").textContent = n === 1 ? _t("1 de vos retouches") : n + _t(" de vos retouches");
 }
 $("#btn-forget").addEventListener("click", () => {
-  if(!confirm(BRAND.name + " oubliera vos retouches passées pour ce profil. Continuer ?")) return;
+  if(!confirm(BRAND.name + _t(" oubliera vos retouches passées pour ce profil. Continuer ?"))) return;
   prof().retouches = []; saveProfiles(); renderRetouchesInfo();
 });
 function retouchesBlock(p){
@@ -3029,12 +3127,12 @@ function mdLite(text){
   return box;
 }
 
-const SUGGESTIONS = ["Est-ce que ma photo fait professionnel ?", "Ma lettre montre-t-elle assez ma motivation ?", "Qu'est-ce qu'un recruteur risque de me reprocher ?", "Quelles questions risque-t-on de me poser en entretien ?"];
+const SUGGESTIONS = [_t("Est-ce que ma photo fait professionnel ?"), _t("Ma lettre montre-t-elle assez ma motivation ?"), _t("Qu'est-ce qu'un recruteur risque de me reprocher ?"), _t("Quelles questions risque-t-on de me poser en entretien ?")];
 function renderChat(){
   const box = $("#chat-msgs"); box.innerHTML = "";
   const list = chatList(), h = currentHistId && history.find(x => x.id === currentHistId);
   if(!list.length){
-    const intro = el("div", "msg ai"); intro.appendChild(mdLite(h ? "Bonjour ! Posez-moi n'importe quelle question sur votre CV, votre lettre ou votre candidature. Je vois les documents tels qu'ils sont à l'écran." : "Bonjour ! Créez d'abord un CV pour que je puisse le relire. En attendant, je peux répondre à vos questions sur votre parcours."));
+    const intro = el("div", "msg ai"); intro.appendChild(mdLite(h ? _t("Bonjour ! Posez-moi n'importe quelle question sur votre CV, votre lettre ou votre candidature. Je vois les documents tels qu'ils sont à l'écran.") : _t("Bonjour ! Créez d'abord un CV pour que je puisse le relire. En attendant, je peux répondre à vos questions sur votre parcours.")));
     box.appendChild(intro);
     if(h){ const chips = el("div", "chips"); SUGGESTIONS.forEach(s => { const c = el("button", "chip", s); c.type = "button"; c.addEventListener("click", () => sendChat(s)); chips.appendChild(c); }); box.appendChild(chips); }
   }
@@ -3066,17 +3164,17 @@ function chatContext(){
 let chatBusy = false;
 async function sendChat(text){
   text = str(text); if(!text || chatBusy) return;
-  if(!settings.apiKey){ $("#step-key").hidden = false; alert("Enregistrez d'abord la clé d'accès (encadré « Première utilisation »)."); return; }
+  if(!settings.apiKey){ $("#step-key").hidden = false; alert(_t("Enregistrez d'abord la clé d'accès (encadré « Première utilisation »).")); return; }
   const list = chatList(); list.push({ role:"user", text }); saveChat(); renderChat();
   stopDictation(); $("#chat-input").value = ""; growChat(); chatBusy = true; $("#chat-send").disabled = true;
-  const wait = el("div", "msg wait", BRAND.name + " réfléchit…"); $("#chat-msgs").appendChild(wait); $("#chat-msgs").scrollTop = 1e9;
+  const wait = el("div", "msg wait", BRAND.name + _t(" réfléchit…")); $("#chat-msgs").appendChild(wait); $("#chat-msgs").scrollTop = 1e9;
   try{
     const turns = list.filter(m => m.role === "user" || m.role === "assistant").slice(-16);
     while(turns.length && turns[0].role !== "user") turns.shift();
     const messages = turns.map((m, i) => ({ role:m.role, content: i === 0 ? chatContext().concat([{ type:"text", text:m.text }]) : m.text }));
-    const data = await callClaude({ model:settings.model, max_tokens:3000, system:CHAT_SYSTEM, messages }, settings.apiKey);
+    const data = await callClaude({ model:settings.model, max_tokens:3000, system:CHAT_SYSTEM + uiLangLine(), messages }, settings.apiKey);
     addCost(data.usage);
-    const answer = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim() || "Je n'ai pas de réponse, reformulez votre question.";
+    const answer = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim() || _t("Je n'ai pas de réponse, reformulez votre question.");
     list.push({ role:"assistant", text:answer }); saveChat();
   }catch(e){
     list.pop(); saveChat(); renderChat();
@@ -3099,7 +3197,7 @@ $("#chat-close").addEventListener("click", () => { stopDictation(); openChat(fal
 $("#chat-form").addEventListener("submit", e => { e.preventDefault(); sendChat($("#chat-input").value); });
 $("#chat-input").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendChat($("#chat-input").value); } });
 $("#chat-clear").addEventListener("click", () => {
-  if(!chatList().length || !confirm("Effacer cette discussion ?")) return;
+  if(!chatList().length || !confirm(_t("Effacer cette discussion ?"))) return;
   chatList().length = 0; saveChat(); renderChat();
 });
 document.querySelectorAll("[data-apply]").forEach(b => b.addEventListener("click", async () => {
@@ -3108,11 +3206,11 @@ document.querySelectorAll("[data-apply]").forEach(b => b.addEventListener("click
     .map(m => (m.role === "user" ? "Candidat : " : "Coach : ") + m.text).join("\n\n");
   const rq = "Le candidat vient d'échanger avec toi au sujet de ses documents. Applique les améliorations convenues dans cette discussion (et uniquement celles qui concernent le document à corriger) :\n\n" + transcript;
   document.querySelectorAll("[data-apply]").forEach(x => x.disabled = true);
-  list.push({ role:"note", text:"Application en cours…" }); renderChat();
+  list.push({ role:"note", text:_t("Application en cours…") }); renderChat();
   const ok = await doRegen(target, rq);
   list.pop();
-  if(ok) list.push({ role:"note", text:"✓ Appliqué " + { cv:"au CV", lettre:"à la lettre", both:"au CV et à la lettre" }[target] + ". L'ancienne version reste dans l'historique." });
-  else list.push({ role:"note", text:"L'application n'a pas abouti : voir le message à gauche." });
+  if(ok) list.push({ role:"note", text:_t("✓ Appliqué ") + { cv:_t("au CV"), lettre:_t("à la lettre"), both:_t("au CV et à la lettre") }[target] + ". L'ancienne version reste dans l'historique." });
+  else list.push({ role:"note", text:_t("L'application n'a pas abouti : voir le message à gauche.") });
   saveChat(); renderChat();
   document.querySelectorAll("[data-apply]").forEach(x => x.disabled = false);
 }));
@@ -3137,7 +3235,7 @@ function setupDictation(btn, field, onUnsupported){
     stopDictation();
     if(!SR){ onUnsupported(); return; }
     const rec = new SR();
-    rec.lang = "fr-FR"; rec.interimResults = true; rec.continuous = true;
+    rec.lang = LOCALE; rec.interimResults = true; rec.continuous = true;
     const base = field.value.replace(/\s+$/, "");
     let finals = "";
     rec.onresult = e => {
@@ -3153,9 +3251,9 @@ function setupDictation(btn, field, onUnsupported){
     };
     rec.onerror = e => {
       if(e.error === "not-allowed" || e.error === "service-not-allowed")
-        alert("Le micro est bloqué. Cliquez sur le cadenas à gauche de l'adresse du site, autorisez le micro, puis réessayez.");
-      else if(e.error === "audio-capture") alert("Aucun micro n'a été trouvé sur cet appareil.");
-      else if(e.error === "network") alert("La dictée a besoin d'Internet. Vérifiez la connexion et réessayez.");
+        alert(_t("Le micro est bloqué. Cliquez sur le cadenas à gauche de l'adresse du site, autorisez le micro, puis réessayez."));
+      else if(e.error === "audio-capture") alert(_t("Aucun micro n'a été trouvé sur cet appareil."));
+      else if(e.error === "network") alert(_t("La dictée a besoin d'Internet. Vérifiez la connexion et réessayez."));
     };
     rec.onend = () => { btn.classList.remove("on"); btn.setAttribute("aria-pressed", "false"); if(activeDictation && activeDictation.rec === rec) activeDictation = null; field.dispatchEvent(new Event("input", { bubbles:true })); };
     try{ rec.start(); }catch(e){ return; }
@@ -3165,13 +3263,13 @@ function setupDictation(btn, field, onUnsupported){
     field.focus();
   });
 }
-const DICT_HELP = "La dictée n'est pas disponible dans ce navigateur. Utilisez Chrome, Edge ou Safari, ou la dictée intégrée à votre ordinateur : touches Windows + H sur un PC, ou touche micro (ou Fn deux fois) sur un Mac.";
+const DICT_HELP = _t("La dictée n'est pas disponible dans ce navigateur. Utilisez Chrome, Edge ou Safari, ou la dictée intégrée à votre ordinateur : touches Windows + H sur un PC, ou touche micro (ou Fn deux fois) sur un Mac.");
 setupDictation($("#chat-mic"), $("#chat-input"), () => { $("#chat-msgs").appendChild(el("div", "msg err", DICT_HELP)); $("#chat-msgs").scrollTop = 1e9; });
 setupDictation($("#regen-mic"), $("#remarques"), () => alert(DICT_HELP));
 
 /* ---------- Préparer ma candidature ---------- */
 const curHist = () => currentHistId && history.find(x => x.id === currentHistId);
-const fmtDate = t => new Date(t).toLocaleDateString("fr-FR", { day:"numeric", month:"long" });
+const fmtDate = t => new Date(t).toLocaleDateString(LOCALE, { day:"numeric", month:"long" });
 const appliedOf = G => G.versions.reduce((a, v) => v.applied ? Math.max(a, v.applied) : a, 0);
 const relanceOf = G => G.versions.reduce((a, v) => v.relance ? Math.max(a, v.relance) : a, 0);
 let apOwnFiles = [];
@@ -3197,8 +3295,8 @@ function ficheFields(){
   };
   const mine = p.fiche || {}, here = (h && h.fiche) || {};
   const F = [
-    ["prenom", "Prénom", 1], ["nom", "Nom", 1], ["email", "E-mail", 1], ["tel", "Téléphone", 1], ["ville", "Ville", 1], ["linkedin", "Profil LinkedIn", 1],
-    ["poste", "Poste visé", 0], ["dernier", "Dernier poste occupé", 0], ["diplome", "Diplôme principal", 0], ["message", "Message au recruteur", 0]
+    ["prenom", _t("Prénom"), 1], ["nom", _t("Nom"), 1], ["email", "E-mail", 1], ["tel", _t("Téléphone"), 1], ["ville", _t("Ville"), 1], ["linkedin", _t("Profil LinkedIn"), 1],
+    ["poste", _t("Poste visé"), 0], ["dernier", _t("Dernier poste occupé"), 0], ["diplome", _t("Diplôme principal"), 0], ["message", _t("Message au recruteur"), 0]
   ];
   return F.map(([k, label, personal]) => ({ k, label, personal, value: (personal ? mine[k] : here[k]) ?? auto[k] ?? "" }));
 }
@@ -3209,7 +3307,7 @@ function saveFicheValue(k, personal, v){
 async function copyText(text, btn){
   try{ await navigator.clipboard.writeText(text); }
   catch(e){ const t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select(); try{ document.execCommand("copy"); }catch(_){} t.remove(); }
-  if(btn){ const old = btn.textContent; btn.textContent = "Copié ✓"; btn.classList.add("done"); setTimeout(() => { btn.textContent = old; btn.classList.remove("done"); }, 1500); }
+  if(btn){ const old = btn.textContent; btn.textContent = _t("Copié ✓"); btn.classList.add("done"); setTimeout(() => { btn.textContent = old; btn.classList.remove("done"); }, 1500); }
 }
 function renderFiche(){
   const box = $("#ap-fiche"); box.innerHTML = "";
@@ -3219,38 +3317,38 @@ function renderFiche(){
     const line = el("div", "row");
     const inp = el(f.k === "message" ? "textarea" : "input"); inp.id = id; if(f.k !== "message") inp.type = "text";
     inp.value = f.value;
-    if(f.k === "message") inp.placeholder = "Quelques lignes pour la case « message » des sites. Cliquez sur « Rédiger » pour que " + BRAND.name + " l'écrive à partir de votre lettre.";
+    if(f.k === "message") inp.placeholder = _t("Quelques lignes pour la case « message » des sites. Cliquez sur « Rédiger » pour que ") + BRAND.name + _t(" l'écrive à partir de votre lettre.");
     inp.addEventListener("input", debounce(() => saveFicheValue(f.k, f.personal, inp.value), 400));
     line.appendChild(inp);
-    const cp = el("button", "btn small copy", "Copier"); cp.type = "button";
+    const cp = el("button", "btn small copy", _t("Copier")); cp.type = "button";
     cp.addEventListener("click", () => copyText(inp.value, cp));
     line.appendChild(cp); row.appendChild(line);
     if(f.k === "message"){
-      const gen = el("button", "btn small", inp.value ? "Réécrire avec " + BRAND.name : "Rédiger avec " + BRAND.name); gen.type = "button"; gen.style.marginTop = "6px";
+      const gen = el("button", "btn small", inp.value ? _t("Réécrire avec ") + BRAND.name : _t("Rédiger avec ") + BRAND.name); gen.type = "button"; gen.style.marginTop = "6px";
       gen.addEventListener("click", () => draftMessage(inp, gen)); row.appendChild(gen);
     }
     box.appendChild(row);
   });
-  const all = el("button", "btn small", "Tout copier (pour un e-mail ou une note)"); all.type = "button"; all.style.alignSelf = "flex-start";
+  const all = el("button", "btn small", _t("Tout copier (pour un e-mail ou une note)")); all.type = "button"; all.style.alignSelf = "flex-start";
   all.addEventListener("click", () => copyText(ficheFields().filter(f => f.value).map(f => f.label + " : " + f.value).join("\n"), all));
   box.appendChild(all);
 }
 async function draftMessage(inp, btn){
   const h = curHist();
-  if(!settings.apiKey){ alert("Enregistrez d'abord la clé d'accès."); return; }
-  if(!h){ alert("Créez d'abord un CV et une lettre pour cette candidature."); return; }
+  if(!settings.apiKey){ alert(_t("Enregistrez d'abord la clé d'accès.")); return; }
+  if(!h){ alert(_t("Créez d'abord un CV et une lettre pour cette candidature.")); return; }
   saveCurrentEdits();
   const l = lettreFromHtml(h.lettreHtml), cvTxt = cvTextFromHtml(h.cvHtml);
-  btn.disabled = true; const old = btn.textContent; btn.textContent = BRAND.name + " écrit…";
+  btn.disabled = true; const old = btn.textContent; btn.textContent = BRAND.name + _t(" écrit…");
   try{
     const data = await callClaude({ model:settings.model, max_tokens:2000,
-      system:"Tu rédiges des messages de candidature courts, en français, pour la case « message au recruteur » des sites d'emploi.",
+      system:"Tu rédiges des messages de candidature courts, en " + LANG_FR[(h && h.data && h.data._lang) || "fr"] + ", pour la case « message au recruteur » des sites d'emploi.",
       messages:[{ role:"user", content:"Poste visé : " + h.poste + (h.entreprise ? " chez " + h.entreprise : "") + "\n\n" +
         (l ? "<lettre>\n" + l.paragraphes.join("\n\n") + "\n</lettre>\n\n" : "") + "<cv>\n" + cvTxt + "\n</cv>\n\n" + retouchesBlock(prof()) +
         "Rédige un message de 400 à 600 caractères, à la première personne, professionnel et sincère, qui donne envie d'ouvrir le CV. Pas de « Madame, Monsieur », pas de signature, pas d'objet. N'invente rien. Réponds uniquement par le message." }] }, settings.apiKey);
     addCost(data.usage);
     const msg = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim();
-    if(msg){ inp.value = msg; saveFicheValue("message", 0, msg); btn.textContent = "Réécrire avec " + BRAND.name; btn.disabled = false; return; }
+    if(msg){ inp.value = msg; saveFicheValue("message", 0, msg); btn.textContent = _t("Réécrire avec ") + BRAND.name; btn.disabled = false; return; }
   }catch(e){ alert(e.message); }
   btn.disabled = false; btn.textContent = old;
 }
@@ -3270,7 +3368,7 @@ function apScale(){
 document.querySelectorAll(".ap-zoom").forEach(b => b.addEventListener("click", () => {
   const pages = $("#ap-pages"), z = b.dataset.zoom, on = pages.dataset.zoom === z;
   if(on) delete pages.dataset.zoom; else pages.dataset.zoom = z;
-  document.querySelectorAll(".ap-zoom").forEach(x => { x.textContent = pages.dataset.zoom === x.dataset.zoom ? "Côte à côte" : "Agrandir"; });
+  document.querySelectorAll(".ap-zoom").forEach(x => { x.textContent = pages.dataset.zoom === x.dataset.zoom ? _t("Côte à côte") : _t("Agrandir"); });
   apScale();
 }));
 function renderApDocs(){
@@ -3291,9 +3389,9 @@ function renderOwnFiles(){
   const ul = $("#ap-file-list"); ul.innerHTML = "";
   apOwnFiles.forEach((f, i) => {
     const li = el("li"); li.appendChild(el("span", "", f.name));
-    const open = el("button", "btn small", "Ouvrir"); open.type = "button";
+    const open = el("button", "btn small", _t("Ouvrir")); open.type = "button";
     open.addEventListener("click", () => window.open(f.url, "_blank", "noopener"));
-    const del = el("button", "btn small danger"); del.innerHTML = ICON.x; del.setAttribute("aria-label", "Retirer ce fichier"); del.type = "button"; del.title = "Retirer";
+    const del = el("button", "btn small danger"); del.innerHTML = ICON.x; del.setAttribute("aria-label", _t("Retirer ce fichier")); del.type = "button"; del.title = _t("Retirer");
     del.addEventListener("click", () => { URL.revokeObjectURL(f.url); apOwnFiles.splice(i, 1); renderOwnFiles(); });
     if(/\.pdf$/i.test(f.name)) li.appendChild(open);
     li.appendChild(del); ul.appendChild(li);
@@ -3318,7 +3416,7 @@ $("#ap-url").addEventListener("input", debounce(e => apSave("url", e.target.valu
 $("#ap-email").addEventListener("input", debounce(e => apSave("email", e.target.value.trim()), 400));
 $("#ap-open").addEventListener("click", () => {
   const u = $("#ap-url").value.trim();
-  if(!URL_RE.test(u)){ alert("Collez d'abord le lien de l'annonce (il commence par https://)."); $("#ap-url").focus(); return; }
+  if(!URL_RE.test(u)){ alert(_t("Collez d'abord le lien de l'annonce (il commence par https://).")); $("#ap-url").focus(); return; }
   window.open(u, "_blank", "noopener");
 });
 const openMail = u => (window.__cvxOpenMail || (x => { window.location.href = x; }))(u);
@@ -3326,49 +3424,50 @@ function mailto(to, subject, body){ return "mailto:" + encodeURIComponent(to).re
 const nomComplet = () => { const f = ficheFields(); const g = k => (f.find(x => x.k === k) || {}).value || ""; return [g("prenom"), g("nom")].filter(Boolean).join(" "); };
 $("#ap-mail").addEventListener("click", () => {
   const to = $("#ap-email").value.trim(), h = curHist();
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)){ alert("Indiquez l'adresse e-mail donnée dans l'annonce."); $("#ap-email").focus(); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)){ alert(_t("Indiquez l'adresse e-mail donnée dans l'annonce.")); $("#ap-email").focus(); return; }
   const f = ficheFields(), g = k => (f.find(x => x.k === k) || {}).value || "";
   const ref = h && h.data.candidature && str(h.data.candidature.reference);
-  const subject = "Candidature – " + (g("poste") || "poste") + (ref ? " (réf. " + ref + ")" : "") + " – " + nomComplet();
-  const body = "Madame, Monsieur,\n\n" + (g("message") || "Je vous adresse ma candidature au poste de " + (g("poste") || "…") + ".") +
-    "\n\nVous trouverez ci-joint mon CV et ma lettre de motivation.\n\nJe reste à votre disposition pour un entretien.\n\nCordialement,\n" + nomComplet() + (g("tel") ? "\n" + g("tel") : "");
+  const L = DOCT[(h && h.data._lang) || "fr"] || DOCT.fr;
+  const subject = L.subj(g("poste") || "…", ref, nomComplet());
+  const body = L.hello + "\n\n" + (g("message") || L.body(g("poste") || "…")) + "\n\n" + L.end + "\n" + nomComplet() + (g("tel") ? "\n" + g("tel") : "");
   openMail(mailto(to, subject, body));
 });
 function renderApplied(){
   const box = $("#ap-applied"); box.innerHTML = "";
   const h = curHist();
-  if(!h){ box.appendChild(el("p", "hint", "Le suivi « J'ai postulé » est disponible pour les candidatures créées ici.")); return; }
+  if(!h){ box.appendChild(el("p", "hint", _t("Le suivi « J'ai postulé » est disponible pour les candidatures créées ici."))); return; }
   const G = groupsFor(h.profileId).find(g => g.id === groupOf(h));
   const applied = appliedOf(G), relance = relanceOf(G);
   if(!applied){
-    const b = el("button", "btn big", "J'ai postulé"); b.type = "button";
+    const b = el("button", "btn big", _t("J'ai postulé")); b.type = "button";
     b.addEventListener("click", () => { h.applied = Date.now(); h.touched = Date.now(); saveHistory(); renderApplied(); renderHistory(); });
     box.appendChild(b);
-    box.appendChild(el("p", "hint", "Cliquez une fois la candidature envoyée : l'historique l'affichera et vous rappellera de relancer au bout d'une semaine."));
+    box.appendChild(el("p", "hint", _t("Cliquez une fois la candidature envoyée : l'historique l'affichera et vous rappellera de relancer au bout d'une semaine.")));
     return;
   }
-  box.appendChild(el("p", "ok", "✓ Postulé le " + fmtDate(applied)));
+  box.appendChild(el("p", "ok", _t("✓ Postulé le ") + fmtDate(applied)));
   const days = Math.floor((Date.now() - applied) / DAY), itw = interviewOf(G);
   if(itw){
-    box.appendChild(el("p", "ok", "✓ Entretien obtenu le " + fmtDate(itw) + ". Bravo !"));
-    box.appendChild(el("p", "hint", "Préparez-le avec " + BRAND.name + " : ouvrez la discussion et demandez les questions qu'on risque de vous poser."));
+    box.appendChild(el("p", "ok", _t("✓ Entretien obtenu le ") + fmtDate(itw) + ". Bravo !"));
+    box.appendChild(el("p", "hint", _t("Préparez-le avec ") + BRAND.name + _t(" : ouvrez la discussion et demandez les questions qu'on risque de vous poser.")));
   }
-  else if(relance) box.appendChild(el("p", "hint", "Relance faite le " + fmtDate(relance) + "."));
-  else if(days >= 7) box.appendChild(el("p", "warn", "Une semaine est passée sans réponse ? C'est le moment de relancer."));
-  else box.appendChild(el("p", "hint", "Sans réponse, relancez à partir du " + fmtDate(applied + 7 * DAY) + "."));
+  else if(relance) box.appendChild(el("p", "hint", _t("Relance faite le ") + fmtDate(relance) + "."));
+  else if(days >= 7) box.appendChild(el("p", "warn", _t("Une semaine est passée sans réponse ? C'est le moment de relancer.")));
+  else box.appendChild(el("p", "hint", _t("Sans réponse, relancez à partir du ") + fmtDate(applied + 7 * DAY) + "."));
   const f = ficheFields(), g = k => (f.find(x => x.k === k) || {}).value || "";
-  const relanceTxt = "Madame, Monsieur,\n\nLe " + fmtDate(applied) + ", je vous ai adressé ma candidature au poste de " + (g("poste") || "…") + ". Je me permets de revenir vers vous pour savoir si elle a retenu votre attention.\n\nCe poste m'intéresse toujours vivement et je reste à votre disposition pour un entretien.\n\nCordialement,\n" + nomComplet() + (g("tel") ? "\n" + g("tel") : "");
+  const RL = (h.data && h.data._lang) || "fr", L = DOCT[RL] || DOCT.fr;
+  const relanceTxt = L.hello + "\n\n" + L.rel(docDate(applied, RL, { day:"numeric", month:"long" }), g("poste") || "…") + "\n" + nomComplet() + (g("tel") ? "\n" + g("tel") : "");
   const row = el("div", "row"); row.style.marginTop = "8px";
-  const prep = el("button", "btn small", "Préparer la relance"); prep.type = "button";
+  const prep = el("button", "btn small", _t("Préparer la relance")); prep.type = "button";
   prep.addEventListener("click", () => {
     const to = $("#ap-email").value.trim();
-    if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) openMail(mailto(to, "Suivi de ma candidature – " + (g("poste") || "") + " – " + nomComplet(), relanceTxt));
-    else { copyText(relanceTxt, prep); alert("Texte de relance copié. Collez-le dans la messagerie du site, ou dans un e-mail au recruteur."); }
+    if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) openMail(mailto(to, L.relSubj + (g("poste") || "") + " – " + nomComplet(), relanceTxt));
+    else { copyText(relanceTxt, prep); alert(_t("Texte de relance copié. Collez-le dans la messagerie du site, ou dans un e-mail au recruteur.")); }
   });
   if(!itw) row.appendChild(prep);
-  if(!itw){ const ib = el("button", "btn small itw-btn", "J'ai obtenu un entretien"); ib.type = "button"; ib.addEventListener("click", () => { h.interview = Date.now(); h.touched = Date.now(); saveHistory(); renderApplied(); renderHistory(); }); row.appendChild(ib); }
-  if(!relance && !itw){ const done = el("button", "btn small", "J'ai relancé"); done.type = "button"; done.addEventListener("click", () => { h.relance = Date.now(); h.touched = Date.now(); saveHistory(); renderApplied(); renderHistory(); }); row.appendChild(done); }
-  const undo = el("button", "btn small danger", "Annuler"); undo.type = "button"; undo.title = "Ce n'était pas encore envoyé";
+  if(!itw){ const ib = el("button", "btn small itw-btn", _t("J'ai obtenu un entretien")); ib.type = "button"; ib.addEventListener("click", () => { h.interview = Date.now(); h.touched = Date.now(); saveHistory(); renderApplied(); renderHistory(); }); row.appendChild(ib); }
+  if(!relance && !itw){ const done = el("button", "btn small", _t("J'ai relancé")); done.type = "button"; done.addEventListener("click", () => { h.relance = Date.now(); h.touched = Date.now(); saveHistory(); renderApplied(); renderHistory(); }); row.appendChild(done); }
+  const undo = el("button", "btn small danger", _t("Annuler")); undo.type = "button"; undo.title = _t("Ce n'était pas encore envoyé");
   undo.addEventListener("click", () => { G.versions.forEach(v => { delete v.applied; delete v.relance; delete v.interview; }); saveHistory(); renderApplied(); renderHistory(); });
   row.appendChild(undo);
   box.appendChild(row);
@@ -3377,13 +3476,13 @@ function renderApplied(){
 function openApply(){
   stopDictation();
   const h = curHist();
-  $("#ap-sub").textContent = h ? h.poste + (h.entreprise ? " — " + h.entreprise : "") : "Aucune candidature ouverte : vous pouvez utiliser vos propres fichiers.";
+  $("#ap-sub").textContent = h ? h.poste + (h.entreprise ? " — " + h.entreprise : "") : _t("Aucune candidature ouverte : vous pouvez utiliser vos propres fichiers.");
   // Par défaut : les documents créés ici s'il y en a, sinon ses propres fichiers
   document.querySelector('input[name="ap-src"][value="' + (h ? "gen" : "own") + '"]').checked = true;
   const ap = (h && h.apply) || {}, d = h ? h.data : {};
   $("#ap-url").value = ap.url ?? ((d._userMsg && d._userMsg.url) || "");
   $("#ap-email").value = ap.email ?? ((d.candidature && str(d.candidature.email)) || "");
-  delete $("#ap-pages").dataset.zoom; document.querySelectorAll(".ap-zoom").forEach(x => { x.textContent = "Agrandir"; });
+  delete $("#ap-pages").dataset.zoom; document.querySelectorAll(".ap-zoom").forEach(x => { x.textContent = _t("Agrandir"); });
   $("#ap").hidden = false; document.body.classList.add("modal-open");
   renderApDocs(); renderFiche(); renderApplied();
   $("#ap-close").focus();
@@ -3452,12 +3551,12 @@ function renderMSteps(){
   const hasParcours = str((prof() || {}).parcours).length >= 80;
   const s = document.body.dataset.mstep || "offre";
   const idx = !hasParcours ? 0 : s === "cv" ? 2 : 1;
-  const names = ["Parcours", "Offre", "CV", "Envoi"];
-  const titles = ["Commencez par votre parcours", "Quelle offre vous intéresse ?", "Votre CV est prêt", "Envoyez votre candidature"];
+  const names = [_t("Parcours"), _t("Offre"), "CV", _t("Envoi")];
+  const titles = [_t("Commencez par votre parcours"), _t("Quelle offre vous intéresse ?"), _t("Votre CV est prêt"), _t("Envoyez votre candidature")];
   box.innerHTML = "";
   const bar = el("div", "bar"), lbl = el("div", "lbl");
   names.forEach((n, i) => { const c = i < idx ? "done" : i === idx ? "now" : ""; bar.appendChild(el("span", c)); lbl.appendChild(el("span", c, n)); });
-  box.appendChild(el("div", "hint", "Étape " + (idx + 1) + " sur 4")); box.appendChild(bar); box.appendChild(lbl);
+  box.appendChild(el("div", "hint", _t("Étape ") + (idx + 1) + _t(" sur 4"))); box.appendChild(bar); box.appendChild(lbl);
   box.appendChild(el("p", "", titles[idx]));
 }
 function applyMobile(){
@@ -3494,11 +3593,11 @@ let helpReturnFocus = null;
 function fillHelp(){
   const m = isM();
   $("#help-demo").innerHTML = m
-    ? '<span class="hd-fix"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg>Je veux changer quelque chose</span>'
+    ? '<span class="hd-fix"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg>' + _t("Je veux changer quelque chose") + '</span>'
     : '<div class="hd-page"><div class="hd-bar"></div><div class="hd-line w80"></div><div class="hd-line hd-edit w60"><span class="hd-caret"></span></div><div class="hd-line w90"></div><div class="hd-line w70"></div><div class="hd-cursor">' + HELP_CURSOR + '<span class="hd-ring"></span></div></div>';
   $("#help-desc").textContent = m
-    ? "Quelque chose ne vous plaît pas ? Touchez « Je veux changer quelque chose » et dites-le, à l'écrit ou à la voix."
-    : "Vous pouvez modifier votre CV directement : cliquez sur n'importe quel texte et écrivez. Pensez ensuite à « Enregistrer mes retouches ».";
+    ? _t("Quelque chose ne vous plaît pas ? Touchez « Je veux changer quelque chose » et dites-le, à l'écrit ou à la voix.")
+    : _t("Vous pouvez modifier votre CV directement : cliquez sur n'importe quel texte et écrivez. Pensez ensuite à « Enregistrer mes retouches ».");
 }
 function helpFocusables(){ return [...$("#help").querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")].filter(n => !n.disabled && !n.hidden); }
 function openHelp(){
@@ -3588,16 +3687,16 @@ function renderParcoursUI(){
   $("#pc-done").hidden = !has || writing;
   if(has){
     const r = p.resume, nExp = r ? arr(r.experiences).length : 0;
-    $("#pc-meta").textContent = (p.parcoursAt ? "Mis à jour le " + fmtDay(p.parcoursAt) : "Enregistré sur cet appareil") + (p.parcoursSrc ? " à partir de " + p.parcoursSrc : "") + (nExp ? " · " + nExp + " expérience" + (nExp > 1 ? "s" : "") : "") + ".";
+    $("#pc-meta").textContent = (p.parcoursAt ? _t("Mis à jour le ") + fmtDay(p.parcoursAt) : _t("Enregistré sur cet appareil")) + (p.parcoursSrc ? _t(" à partir de ") + p.parcoursSrc : "") + (nExp ? " · " + nExp + _t(" expérience") + (nExp > 1 ? "s" : "") : "") + ".";
   }
   renderProfilView();
 }
 function openWrite(mode){
   pcMode = mode;
   $("#pc-input").value = "";
-  $("#pc-write-label").textContent = mode === "append" ? "Qu'est-ce qu'il faut ajouter ou corriger ?" : "Racontez votre parcours";
-  $("#pc-input").placeholder = mode === "append" ? "Ex. : j'ai aussi le CACES 1 depuis 2022. Chez Super U j'étais caissière, pas vendeuse. Ajoute la natation dans mes loisirs."
-    : "Vos coordonnées (ville, téléphone, e-mail, permis), vos expériences avec les dates et ce que vous faisiez, vos diplômes, vos langues. Rien ne sera inventé.";
+  $("#pc-write-label").textContent = mode === "append" ? _t("Qu'est-ce qu'il faut ajouter ou corriger ?") : _t("Racontez votre parcours");
+  $("#pc-input").placeholder = mode === "append" ? _t("Ex. : j'ai aussi le CACES 1 depuis 2022. Chez Super U j'étais caissière, pas vendeuse. Ajoute la natation dans mes loisirs.")
+    : _t("Vos coordonnées (ville, téléphone, e-mail, permis), vos expériences avec les dates et ce que vous faisiez, vos diplômes, vos langues. Rien ne sera inventé.");
   $("#pc-write-box").hidden = false;
   renderParcoursUI(); $("#pc-input").focus();
   if(isM()) setTimeout(() => $("#pc-write-box").scrollIntoView({ behavior:"smooth", block:"center" }), 60);
@@ -3614,9 +3713,9 @@ $("#pc-save").addEventListener("click", () => {
     if(p.resume) updateResumeWithNote(p, t);
     else setParcours(str(p.parcours).trim() + "\n\nPrécisions et corrections du candidat (elles priment sur ce qui précède) :\n" + t, p.parcoursSrc || "");
   } else {
-    if(t.length < 80){ status("#pc-status", "err", "C'est un peu court : ajoutez vos expériences avec les dates, vos diplômes et vos coordonnées."); $("#pc-input").focus(); return; }
+    if(t.length < 80){ status("#pc-status", "err", _t("C'est un peu court : ajoutez vos expériences avec les dates, vos diplômes et vos coordonnées.")); $("#pc-input").focus(); return; }
     stopDictation(); $("#pc-write-box").hidden = true;
-    setParcours(t, "votre texte");
+    setParcours(t, _t("votre texte"));
   }
 });
 setupDictation($("#pc-mic"), $("#pc-input"), () => status("#pc-status", "err", DICT_HELP));
@@ -3662,8 +3761,8 @@ async function updateResumeWithNote(p, note){
   try{
     const r = await askResume(RESUME_UPDATE_SYSTEM, "<fiche_actuelle>\n" + JSON.stringify(p.resume) + "\n</fiche_actuelle>\n\n<demande_du_candidat>\n" + note + "\n</demande_du_candidat>");
     const q = profiles.find(x => x.id === id); if(q && r && typeof r === "object"){ q.resume = r; syncParcours(q); }
-    status("#pc-status", "ok", "C'est ajouté à votre fiche.");
-  }catch(e){ status("#pc-status", "err", "La modification n'a pas pu être faite : " + e.message); }
+    status("#pc-status", "ok", _t("C'est ajouté à votre fiche."));
+  }catch(e){ status("#pc-status", "err", _t("La modification n'a pas pu être faite : ") + e.message); }
   if(analyzing === id) analyzing = null;
   renderParcoursUI();
 }
@@ -3706,13 +3805,13 @@ function chipSearch(k, list, onAdd){
   const wrap = el("div", "pv-search");
   const inp = document.createElement("input"); inp.type = "search"; inp.autocomplete = "off"; inp.enterKeyHint = "done";
   const lid = "sg-" + k; inp.setAttribute("role", "combobox"); inp.setAttribute("aria-autocomplete", "list"); inp.setAttribute("aria-expanded", "false"); inp.setAttribute("aria-controls", lid);
-  inp.setAttribute("aria-label", (k === "langues" ? "Chercher une langue" : "Chercher et ajouter : " + LISTS[k]));
-  inp.placeholder = { competences:"Tapez pour chercher : vente, Excel, caisse…", langues:"Chercher une langue : anglais…", certifications:"Chercher : permis, CACES, SST…", interets:"Chercher : course à pied, cuisine…" }[k];
+  inp.setAttribute("aria-label", (k === "langues" ? _t("Chercher une langue") : _t("Chercher et ajouter : ") + _t(LISTS[k])));
+  inp.placeholder = { competences:_t("Tapez pour chercher : vente, Excel, caisse…"), langues:_t("Chercher une langue : anglais…"), certifications:_t("Chercher : permis, CACES, SST…"), interets:_t("Chercher : course à pied, cuisine…") }[k];
   const ul = el("ul", "pv-sugg"); ul.id = lid; ul.setAttribute("role", "listbox"); ul.hidden = true;
   wrap.appendChild(inp); wrap.appendChild(ul); form.appendChild(wrap);
   let lvl = null;
-  if(k === "langues"){ lvl = document.createElement("select"); lvl.setAttribute("aria-label", "Niveau"); NIVEAUX.forEach(n => { const o = document.createElement("option"); o.value = n; o.textContent = n; lvl.appendChild(o); }); lvl.value = "Intermédiaire (B1)"; form.appendChild(lvl); }
-  const b = el("button", "btn", "Ajouter"); b.type = "submit"; form.appendChild(b);
+  if(k === "langues"){ lvl = document.createElement("select"); lvl.setAttribute("aria-label", _t("Niveau")); NIVEAUX.forEach(n => { const o = document.createElement("option"); o.value = n; o.textContent = n; lvl.appendChild(o); }); lvl.value = "Intermédiaire (B1)"; form.appendChild(lvl); }
+  const b = el("button", "btn", _t("Ajouter")); b.type = "submit"; form.appendChild(b);
   const warn = el("p", "pv-warn-txt"); warn.hidden = true;
   let opts = [], act = -1;
   /* La liste s'ouvre vers le haut s'il n'y a pas la place en dessous (sinon elle rallonge la page) */
@@ -3729,9 +3828,9 @@ function chipSearch(k, list, onAdd){
   };
   const commit = v => {
     v = capFirst(v);
-    if(!hasWord(v)){ warn.textContent = "Écrivez un mot complet."; warn.hidden = false; return; }
-    if(k === "langues"){ v = v.replace(/\s*[—-].*$/, ""); v = v + " — " + (lvl.value === "Langue maternelle" ? "langue maternelle" : lvl.value.charAt(0).toLowerCase() + lvl.value.slice(1)); }
-    if(already(list, v)){ warn.textContent = "« " + v + " » est déjà dans votre fiche."; warn.hidden = false; return; }
+    if(!hasWord(v)){ warn.textContent = _t("Écrivez un mot complet."); warn.hidden = false; return; }
+    if(k === "langues"){ v = v.replace(/\s*[—-].*$/, ""); v = v + " — " + (lvl.value === "Langue maternelle" ? _t("langue maternelle") : lvl.value.charAt(0).toLowerCase() + lvl.value.slice(1)); }
+    if(already(list, v)){ warn.textContent = "« " + v + _t(" » est déjà dans votre fiche."); warn.hidden = false; return; }
     onAdd(v);
   };
   const show = () => {
@@ -3742,8 +3841,8 @@ function chipSearch(k, list, onAdd){
     ul.innerHTML = "";
     if(!opts.length){ close(); return; }
     opts.forEach((o, i) => { const li = el("li", o.free ? "free" : ""); li.id = lid + "-" + i; li.setAttribute("role", "option");
-      li.textContent = o.free ? "Ajouter « " + capFirst(o.v) + " » tel quel" : o.v;
-      if(o.free && opts.length === 1) li.appendChild(el("small", "", "Pas dans la liste : vérifiez l'orthographe."));
+      li.textContent = o.free ? _t("Ajouter « ") + capFirst(o.v) + _t(" » tel quel") : o.v;
+      if(o.free && opts.length === 1) li.appendChild(el("small", "", _t("Pas dans la liste : vérifiez l'orthographe.")));
       li.addEventListener("mousedown", e => e.preventDefault()); li.addEventListener("click", () => choose(o.v)); ul.appendChild(li); });
     act = opts[0].free ? -1 : 0; ul.hidden = false; inp.setAttribute("aria-expanded", "true"); placeList(); paint();
   };
@@ -3777,12 +3876,12 @@ async function suggestSkills(p){
 let pvEdit = null;   // "id", "exp-3", "exp-new", "form-1", "form-new"
 function manques(r){
   const m = [];
-  if(!str(r.telephone)) m.push("Aucun numéro de téléphone");
-  if(!str(r.email)) m.push("Aucune adresse e-mail");
-  if(!str(r.ville)) m.push("Pas de ville");
+  if(!str(r.telephone)) m.push(_t("Aucun numéro de téléphone"));
+  if(!str(r.email)) m.push(_t("Aucune adresse e-mail"));
+  if(!str(r.ville)) m.push(_t("Pas de ville"));
   const sansDate = arr(r.experiences).filter(x => !str(x.dates)).length;
-  if(sansDate) m.push(sansDate === 1 ? "Une expérience sans dates" : sansDate + " expériences sans dates");
-  if(!arr(r.competences).length) m.push("Aucune compétence");
+  if(sansDate) m.push(sansDate === 1 ? _t("Une expérience sans dates") : sansDate + _t(" expériences sans dates"));
+  if(!arr(r.competences).length) m.push(_t("Aucune compétence"));
   return m;
 }
 function field(form, label, value, opts){
@@ -3797,10 +3896,10 @@ function editBtn(label, fn){ const b = el("button", "pv-edit"); b.type = "button
 function saveResume(p){ syncParcours(p); pvEdit = null; renderParcoursUI(); }
 function formRow(onSave, onDelete, extra){
   const row = el("div", "row");
-  row.appendChild(btn("Enregistrer", "primary", onSave));
-  row.appendChild(btn("Annuler", "", () => { pvEdit = null; renderProfilView(); }));
+  row.appendChild(btn(_t("Enregistrer"), "primary", onSave));
+  row.appendChild(btn(_t("Annuler"), "", () => { pvEdit = null; renderProfilView(); }));
   (extra || []).forEach(x => row.appendChild(x));
-  if(onDelete) row.appendChild(btn("Supprimer", "small danger", onDelete));
+  if(onDelete) row.appendChild(btn(_t("Supprimer"), "small danger", onDelete));
   return row;
 }
 function renderProfilView(){
@@ -3808,44 +3907,44 @@ function renderProfilView(){
   box.innerHTML = "";
   const p = prof(); if(!p) return;
   if(str(p.parcours).length < 80){
-    const c = card("Votre CV apparaîtra ici");
-    c.appendChild(el("p", "", "Importez votre CV actuel, ou racontez votre parcours par écrit ou à voix haute. " + BRAND.name + " le range ici en fiche, que vous pourrez vérifier et compléter."));
+    const c = card(_t("Votre CV apparaîtra ici"));
+    c.appendChild(el("p", "", _t("Importez votre CV actuel, ou racontez votre parcours par écrit ou à voix haute. ") + BRAND.name + _t(" le range ici en fiche, que vous pourrez vérifier et compléter.")));
     box.appendChild(c); return;
   }
   const r = p.resume;
   if(analyzing === p.id){
     const c = card("", "pv-ok"); const w = el("div", "pv-wait"); w.appendChild(el("span", "spin")); const t = el("div");
-    t.appendChild(el("b", "", r ? "Mise à jour de votre fiche…" : "CV bien reçu.")); t.appendChild(el("p", "hint", r ? "Quelques secondes." : BRAND.name + " le lit et le range en fiche (10 à 20 secondes).")); w.appendChild(t); c.appendChild(w);
+    t.appendChild(el("b", "", r ? _t("Mise à jour de votre fiche…") : _t("CV bien reçu."))); t.appendChild(el("p", "hint", r ? _t("Quelques secondes.") : BRAND.name + _t(" le lit et le range en fiche (10 à 20 secondes)."))); w.appendChild(t); c.appendChild(w);
     box.appendChild(c); if(!r) return;
   }
   if(!r){
-    const c = card("Votre CV est enregistré", "pv-ok");
-    c.appendChild(el("p", "", !settings.apiKey ? "Votre CV est bien pris en compte. Saisissez votre code d'accès (encadré « Première utilisation ») pour le voir rangé en fiche."
-      : p.resumeErr ? "La fiche n'a pas pu être préparée, mais votre CV est bien pris en compte : vous pouvez créer vos CV adaptés." : "Votre CV est bien pris en compte."));
-    if(settings.apiKey) c.appendChild(btn("Ranger mon CV en fiche", "small", () => analyzeParcours(p)));
+    const c = card(_t("Votre CV est enregistré"), "pv-ok");
+    c.appendChild(el("p", "", !settings.apiKey ? _t("Votre CV est bien pris en compte. Saisissez votre code d'accès (encadré « Première utilisation ») pour le voir rangé en fiche.")
+      : p.resumeErr ? _t("La fiche n'a pas pu être préparée, mais votre CV est bien pris en compte : vous pouvez créer vos CV adaptés.") : _t("Votre CV est bien pris en compte.")));
+    if(settings.apiKey) c.appendChild(btn(_t("Ranger mon CV en fiche"), "small", () => analyzeParcours(p)));
     box.appendChild(c); return;
   }
   if(analyzing !== p.id){
-    const ok = card("Votre CV a bien été pris en compte", "pv-ok");
-    ok.appendChild(el("p", "", "Vérifiez chaque bloc : le bouton « Modifier » corrige une information, les boutons « + Ajouter » complètent votre fiche. Tout est enregistré et servira à vos prochains CV."));
+    const ok = card(_t("Votre CV a bien été pris en compte"), "pv-ok");
+    ok.appendChild(el("p", "", _t("Vérifiez chaque bloc : le bouton « Modifier » corrige une information, les boutons « + Ajouter » complètent votre fiche. Tout est enregistré et servira à vos prochains CV.")));
     const m = manques(r);
-    if(m.length){ const ul = el("ul", "pv-miss"); m.forEach(t => ul.appendChild(el("li", "", t))); ok.appendChild(el("b", "", "À compléter si possible :")); ok.appendChild(ul); }
+    if(m.length){ const ul = el("ul", "pv-miss"); m.forEach(t => ul.appendChild(el("li", "", t))); ok.appendChild(el("b", "", _t("À compléter si possible :"))); ok.appendChild(ul); }
     box.appendChild(ok);
   }
 
   /* Identité */
   const idc = card("");
   if(pvEdit === "id"){
-    const hd = el("div", "pv-head"); hd.appendChild(el("h3", "", "Mes informations")); idc.appendChild(hd);
+    const hd = el("div", "pv-head"); hd.appendChild(el("h3", "", _t("Mes informations"))); idc.appendChild(hd);
     const f = el("div", "pv-form");
-    const i = { nom:field(f, "Prénom et nom", r.nom), titre:field(f, "Métier recherché", r.titre), ville:field(f, "Ville", r.ville), telephone:field(f, "Téléphone", r.telephone, { type:"tel" }),
-      email:field(f, "E-mail", r.email, { type:"email" }), permis:field(f, "Permis", r.permis, { ph:"Ex. : Permis B, véhiculé" }) };
+    const i = { nom:field(f, _t("Prénom et nom"), r.nom), titre:field(f, _t("Métier recherché"), r.titre), ville:field(f, _t("Ville"), r.ville), telephone:field(f, _t("Téléphone"), r.telephone, { type:"tel" }),
+      email:field(f, "E-mail", r.email, { type:"email" }), permis:field(f, "Permis", r.permis, { ph:_t("Ex. : Permis B, véhiculé") }) };
     f.appendChild(formRow(() => { Object.keys(i).forEach(k => { r[k] = i[k].value.trim(); }); saveResume(p); }));
     idc.appendChild(f); setTimeout(() => i.nom.focus(), 0);
   } else {
     const hd = el("div", "pv-head");
-    const t = el("h2", "", str(r.nom) || str(p.name) || "Vous"); t.style.cssText = "font-family:var(--display);color:var(--brand);font-size:26px;margin:0";
-    hd.appendChild(t); hd.appendChild(editBtn("Modifier", () => { pvEdit = "id"; renderProfilView(); })); idc.appendChild(hd);
+    const t = el("h2", "", str(r.nom) || str(p.name) || _t("Vous")); t.style.cssText = "font-family:var(--display);color:var(--brand);font-size:26px;margin:0";
+    hd.appendChild(t); hd.appendChild(editBtn(_t("Modifier"), () => { pvEdit = "id"; renderProfilView(); })); idc.appendChild(hd);
     if(str(r.titre)) idc.appendChild(el("p", "", str(r.titre))).style.margin = "0";
     const row = el("div", "pv-id"); [r.ville, r.telephone, r.email, r.permis].map(str).filter(Boolean).forEach(x => row.appendChild(el("span", "", x))); idc.appendChild(row);
   }
@@ -3859,78 +3958,78 @@ function renderProfilView(){
     items.forEach((x, i) => {
       const li = el("li");
       if(pvEdit === key + "-" + i) li.appendChild(formFn(x, i));
-      else { const t = el("div", "pv-t"); view(t, x); li.appendChild(t); li.appendChild(editBtn("Modifier", () => { pvEdit = key + "-" + i; renderProfilView(); })); }
+      else { const t = el("div", "pv-t"); view(t, x); li.appendChild(t); li.appendChild(editBtn(_t("Modifier"), () => { pvEdit = key + "-" + i; renderProfilView(); })); }
       ul.appendChild(li);
     });
     if(!items.length && pvEdit !== key + "-new") c.appendChild(el("p", "hint", empty));
     c.appendChild(ul);
-    if(pvEdit !== key + "-new"){ const a = el("button", "pv-add", "+ Ajouter " + (key === "exp" ? "une expérience" : "une formation")); a.type = "button"; a.addEventListener("click", () => { pvEdit = key + "-new"; renderProfilView(); }); c.appendChild(a); }
+    if(pvEdit !== key + "-new"){ const a = el("button", "pv-add", _t("+ Ajouter ") + (key === "exp" ? _t("une expérience") : _t("une formation"))); a.type = "button"; a.addEventListener("click", () => { pvEdit = key + "-new"; renderProfilView(); }); c.appendChild(a); }
     box.appendChild(c);
   };
   if(!Array.isArray(r.experiences)) r.experiences = [];
   if(!Array.isArray(r.formations)) r.formations = [];
   const moveBtns = (list, i) => {
     const out = [];
-    if(i > 0) out.push(btn("Monter", "small", () => { [list[i - 1], list[i]] = [list[i], list[i - 1]]; saveResume(p); }));
-    if(i >= 0 && i < list.length - 1) out.push(btn("Descendre", "small", () => { [list[i + 1], list[i]] = [list[i], list[i + 1]]; saveResume(p); }));
+    if(i > 0) out.push(btn(_t("Monter"), "small", () => { [list[i - 1], list[i]] = [list[i], list[i - 1]]; saveResume(p); }));
+    if(i >= 0 && i < list.length - 1) out.push(btn(_t("Descendre"), "small", () => { [list[i + 1], list[i]] = [list[i], list[i + 1]]; saveResume(p); }));
     return out;
   };
-  listCard("exp", "Expériences", r.experiences,
-    (t, x) => { t.appendChild(el("b", "", str(x.poste) || "Poste")); t.appendChild(el("span", "", [x.entreprise, x.lieu, x.dates].map(str).filter(Boolean).join(" · "))); const n = arr(x.missions).length; if(n) t.appendChild(el("span", "", n + " mission" + (n > 1 ? "s" : "") + " décrite" + (n > 1 ? "s" : ""))); },
+  listCard("exp", _t("Expériences"), r.experiences,
+    (t, x) => { t.appendChild(el("b", "", str(x.poste) || _t("Poste"))); t.appendChild(el("span", "", [x.entreprise, x.lieu, x.dates].map(str).filter(Boolean).join(" · "))); const n = arr(x.missions).length; if(n) t.appendChild(el("span", "", n + " mission" + (n > 1 ? "s" : "") + _t(" décrite") + (n > 1 ? "s" : ""))); },
     (x, i) => {
       const f = el("div", "pv-form"); x = x || {};
-      const a = { poste:field(f, "Poste", x.poste), entreprise:field(f, "Entreprise", x.entreprise, { ph:"Ex. : Super U" }), lieu:field(f, "Ville", x.lieu), dates:field(f, "Dates", x.dates, { ph:"Ex. : 2020 – 2025, ou Depuis 2024" }) };
-      const mi = field(f, "Ce que vous faisiez (une ligne par tâche ou résultat)", arr(x.missions).join("\n"), { area:true, full:true, ph:"Mise en rayon des produits frais\nRéception d'environ 2 palettes par jour" });
+      const a = { poste:field(f, _t("Poste"), x.poste), entreprise:field(f, _t("Entreprise"), x.entreprise, { ph:_t("Ex. : Super U") }), lieu:field(f, _t("Ville"), x.lieu), dates:field(f, _t("Dates"), x.dates, { ph:_t("Ex. : 2020 – 2025, ou Depuis 2024") }) };
+      const mi = field(f, _t("Ce que vous faisiez (une ligne par tâche ou résultat)"), arr(x.missions).join("\n"), { area:true, full:true, ph:_t("Mise en rayon des produits frais\nRéception d'environ 2 palettes par jour") });
       f.appendChild(formRow(() => {
         const o = { poste:a.poste.value.trim(), entreprise:a.entreprise.value.trim(), lieu:a.lieu.value.trim(), dates:a.dates.value.trim(), missions:mi.value.split("\n").map(s => s.trim()).filter(Boolean) };
         if(!o.poste){ a.poste.focus(); return; }
         if(i < 0) r.experiences.unshift(o); else r.experiences[i] = o; saveResume(p);
-      }, i < 0 ? null : () => { if(confirm("Supprimer cette expérience ?")){ r.experiences.splice(i, 1); saveResume(p); } }, i < 0 ? [] : moveBtns(r.experiences, i)));
+      }, i < 0 ? null : () => { if(confirm(_t("Supprimer cette expérience ?"))){ r.experiences.splice(i, 1); saveResume(p); } }, i < 0 ? [] : moveBtns(r.experiences, i)));
       setTimeout(() => a.poste.focus(), 0); return f;
-    }, "Aucune expérience pour l'instant.");
-  listCard("form", "Formations", r.formations,
-    (t, x) => { t.appendChild(el("b", "", str(x.diplome) || "Diplôme")); t.appendChild(el("span", "", [x.etablissement, x.dates].map(str).filter(Boolean).join(" · "))); },
+    }, _t("Aucune expérience pour l'instant."));
+  listCard("form", _t("Formations"), r.formations,
+    (t, x) => { t.appendChild(el("b", "", str(x.diplome) || _t("Diplôme"))); t.appendChild(el("span", "", [x.etablissement, x.dates].map(str).filter(Boolean).join(" · "))); },
     (x, i) => {
       const f = el("div", "pv-form"); x = x || {};
-      const a = { diplome:field(f, "Diplôme ou formation", x.diplome, { full:true, ph:"Ex. : CAP Employé de vente" }), etablissement:field(f, "Établissement", x.etablissement), dates:field(f, "Année", x.dates) };
+      const a = { diplome:field(f, _t("Diplôme ou formation"), x.diplome, { full:true, ph:_t("Ex. : CAP Employé de vente") }), etablissement:field(f, _t("Établissement"), x.etablissement), dates:field(f, _t("Année"), x.dates) };
       f.appendChild(formRow(() => {
         const o = { diplome:a.diplome.value.trim(), etablissement:a.etablissement.value.trim(), dates:a.dates.value.trim() };
         if(!o.diplome){ a.diplome.focus(); return; }
         if(i < 0) r.formations.unshift(o); else r.formations[i] = o; saveResume(p);
-      }, i < 0 ? null : () => { if(confirm("Supprimer cette formation ?")){ r.formations.splice(i, 1); saveResume(p); } }, i < 0 ? [] : moveBtns(r.formations, i)));
+      }, i < 0 ? null : () => { if(confirm(_t("Supprimer cette formation ?"))){ r.formations.splice(i, 1); saveResume(p); } }, i < 0 ? [] : moveBtns(r.formations, i)));
       setTimeout(() => a.diplome.focus(), 0); return f;
-    }, "Aucune formation pour l'instant.");
+    }, _t("Aucune formation pour l'instant."));
 
   /* Compétences, langues, certifications, centres d'intérêt : pastilles + recherche */
-  const HELP = { competences:"Tapez quelques lettres et choisissez dans la liste. Préférez des savoir-faire précis (« Encaissement », « Excel avancé ») aux mots vagues.",
-    langues:"Choisissez la langue, puis votre niveau.", certifications:"Permis, CACES, habilitations, secourisme, titres et cartes professionnelles.",
-    interets:"Soyez précis : « Course à pied (semi-marathon) » parle plus qu'« Sport »." };
+  const HELP = { competences:_t("Tapez quelques lettres et choisissez dans la liste. Préférez des savoir-faire précis (« Encaissement », « Excel avancé ») aux mots vagues."),
+    langues:_t("Choisissez la langue, puis votre niveau."), certifications:_t("Permis, CACES, habilitations, secourisme, titres et cartes professionnelles."),
+    interets:_t("Soyez précis : « Course à pied (semi-marathon) » parle plus qu'« Sport ».") };
   Object.keys(LISTS).forEach(k => {
     if(!Array.isArray(r[k])) r[k] = [];
-    const c = card(LISTS[k]);
+    const c = card(_t(LISTS[k]));
     c.appendChild(el("p", "hint", HELP[k]));
     const d = el("div", "chips");
     r[k].forEach((t, i) => {
       const s = el("span", moNewChip === k && i === r[k].length - 1 ? "mo-pop" : "", str(t));
-      const x = el("button", "x", "×"); x.type = "button"; x.setAttribute("aria-label", "Retirer « " + str(t) + " »");
+      const x = el("button", "x", "×"); x.type = "button"; x.setAttribute("aria-label", _t("Retirer « ") + str(t) + " »");
       x.addEventListener("click", () => { r[k].splice(i, 1); syncParcours(p); renderProfilView(); });
       s.appendChild(x); d.appendChild(s);
     });
-    if(!r[k].length) d.appendChild(el("p", "hint", "Rien pour l'instant."));
+    if(!r[k].length) d.appendChild(el("p", "hint", _t("Rien pour l'instant.")));
     c.appendChild(d);
     c.appendChild(chipSearch(k, r[k], v => { moNewChip = k; r[k].push(v); syncParcours(p); renderProfilView();
       const again = $("#profil-view").querySelector('.chip-add[data-k="' + k + '"] input'); if(again) again.focus(); }));
     if(k === "competences"){
       const ideas = el("div", "pv-ideas");
       const left = arr(p.sugg).filter(x => !already(r.competences, x));
-      if(suggLoading === p.id){ const w = el("div", "pv-wait"); w.appendChild(el("span", "spin")); w.appendChild(el("span", "", "Elanos relit vos expériences…")); ideas.appendChild(w); }
+      if(suggLoading === p.id){ const w = el("div", "pv-wait"); w.appendChild(el("span", "spin")); w.appendChild(el("span", "", _t("Elanos relit vos expériences…"))); ideas.appendChild(w); }
       else if(left.length){
-        ideas.appendChild(el("b", "", "Suggestions d'après votre parcours (touchez pour ajouter) :"));
+        ideas.appendChild(el("b", "", _t("Suggestions d'après votre parcours (touchez pour ajouter) :")));
         const sc = el("div", "chips");
         left.forEach(x => { const bb = el("button", "", "+ " + x); bb.type = "button"; bb.addEventListener("click", () => { moNewChip = "competences"; r.competences.push(x); syncParcours(p); renderProfilView(); }); sc.appendChild(bb); });
         ideas.appendChild(sc);
       } else if(settings.apiKey){
-        ideas.appendChild(btn(p.sugg ? "Proposer d'autres compétences" : "Proposer des compétences d'après mon parcours", "small", () => suggestSkills(p)));
+        ideas.appendChild(btn(p.sugg ? _t("Proposer d'autres compétences") : _t("Proposer des compétences d'après mon parcours"), "small", () => suggestSkills(p)));
       }
       if(ideas.childNodes.length) c.appendChild(ideas);
     }
@@ -3940,8 +4039,8 @@ function renderProfilView(){
 }
 
 /* ===================== Fiche d'une candidature ===================== */
-const fmtDay = t => new Date(t).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
-const STATUS_TXT = { todo:"À envoyer", sent:"Envoyée", relance:"À relancer", itw:"Entretien", closed:"Terminée" };
+const fmtDay = t => new Date(t).toLocaleDateString(LOCALE, { day:"numeric", month:"long", year:"numeric" });
+const STATUS_TXT = { todo:_t("À envoyer"), sent:_t("Envoyée"), relance:_t("À relancer"), itw:_t("Entretien"), closed:_t("Terminée") };
 function card(title, cls){ const c = el("section", "fv-card" + (cls ? " " + cls : "")); if(title) c.appendChild(el("h3", "", title)); return c; }
 function btn(label, cls, fn){ const b = el("button", "btn" + (cls ? " " + cls : ""), label); b.type = "button"; b.addEventListener("click", fn); return b; }
 function touchGroup(G){ const v = G.versions[G.versions.length - 1]; v.touched = Date.now(); saveHistory(); }
@@ -3954,40 +4053,40 @@ function renderFicheView(){
   if(!h || !p || h.profileId !== p.id){
     const c = card("", "fv-empty");
     const any = p && groupsFor(p.id).length;
-    c.appendChild(el("h3", "", any ? "Choisissez une candidature" : "Aucune candidature pour l'instant"));
-    c.appendChild(el("p", "", any ? "Cliquez sur une candidature dans la liste pour retrouver son offre, ses alertes, la préparation de l'entretien et vos notes."
-      : "Créez votre premier CV adapté à une offre : il apparaîtra ici avec tout son suivi."));
-    if(!any) c.appendChild(btn("Créer un CV", "primary", () => setView("create")));
+    c.appendChild(el("h3", "", any ? _t("Choisissez une candidature") : _t("Aucune candidature pour l'instant")));
+    c.appendChild(el("p", "", any ? _t("Cliquez sur une candidature dans la liste pour retrouver son offre, ses alertes, la préparation de l'entretien et vos notes.")
+      : _t("Créez votre premier CV adapté à une offre : il apparaîtra ici avec tout son suivi.")));
+    if(!any) c.appendChild(btn(_t("Créer un CV"), "primary", () => setView("create")));
     box.appendChild(c); return;
   }
   const G = groupsFor(h.profileId).find(g => g.id === groupOf(h));
-  if(!G){ box.appendChild(card("Candidature introuvable")); return; }
+  if(!G){ box.appendChild(card(_t("Candidature introuvable"))); return; }
   const latest = G.versions[G.versions.length - 1], d = latest.data || {}, S = suiviOf(G.id);
   const st = statusOf(G), applied = appliedOf(G), relance = relanceOf(G), itw = interviewOf(G);
   const url = (latest.apply && latest.apply.url) || (d._userMsg && d._userMsg.url) || "";
 
   /* En-tête */
   const head = card("", "fv-head");
-  head.appendChild(el("h2", "", G.versions[0].poste || latest.poste || "Poste"));
+  head.appendChild(el("h2", "", G.versions[0].poste || latest.poste || _t("Poste")));
   if(latest.entreprise) head.appendChild(el("p", "co", latest.entreprise));
   const meta = el("div", "fv-meta");
   meta.appendChild(el("span", "pill " + st, S.result ? RESULTS[S.result] : STATUS_TXT[st]));
-  meta.appendChild(el("span", "", "Créée le " + fmtDay(G.versions[0].date)));
+  meta.appendChild(el("span", "", _t("Créée le ") + fmtDay(G.versions[0].date)));
   if(G.versions.length > 1) meta.appendChild(el("span", "", G.versions.length + " versions"));
-  const sc = Number(d.score_adequation); if(isFinite(sc) && sc > 0) meta.appendChild(el("span", "", "Adéquation : " + Math.round(sc) + " %"));
+  const sc = Number(d.score_adequation); if(isFinite(sc) && sc > 0) meta.appendChild(el("span", "", _t("Adéquation : ") + Math.round(sc) + " %"));
   head.appendChild(meta);
   const act = el("div", "fv-actions");
   if(latest.manual){
-    act.appendChild(btn("Créer un CV pour cette offre", "primary", () => { setView("create"); if(url) $("#offre-url").value = url; $("#offre").focus(); }));
+    act.appendChild(btn(_t("Créer un CV pour cette offre"), "primary", () => { setView("create"); if(url) $("#offre-url").value = url; $("#offre").focus(); }));
   } else {
-    act.appendChild(btn("Préparer ma candidature", "primary", () => { openHist(latest); openApply(); }));
+    act.appendChild(btn(_t("Préparer ma candidature"), "primary", () => { openHist(latest); openApply(); }));
   }
-  act.appendChild(btn("Demander à " + BRAND.name, "", () => openChat(true)));
-  if(URL_RE.test(url)){ const a = el("a", "btn", "Voir l'annonce ↗"); a.href = url; a.target = "_blank"; a.rel = "noopener"; act.appendChild(a); }
+  act.appendChild(btn(_t("Demander à ") + BRAND.name, "", () => openChat(true)));
+  if(URL_RE.test(url)){ const a = el("a", "btn", _t("Voir l'annonce ↗")); a.href = url; a.target = "_blank"; a.rel = "noopener"; act.appendChild(a); }
   head.appendChild(act);
   const sub = latest.manual ? "suivi" : (document.body.dataset.sub || "cv");
-  const seg = el("div", "fv-seg"); seg.setAttribute("role", "tablist"); seg.setAttribute("aria-label", "Contenu de la candidature");
-  const tabs = latest.manual ? [["suivi", "Suivi et entretien"]] : [["cv", "CV"]].concat(latest.lettreHtml ? [["lettre", "Lettre"]] : []).concat([["suivi", "Suivi et entretien"]]);
+  const seg = el("div", "fv-seg"); seg.setAttribute("role", "tablist"); seg.setAttribute("aria-label", _t("Contenu de la candidature"));
+  const tabs = latest.manual ? [["suivi", _t("Suivi et entretien")]] : [["cv", "CV"]].concat(latest.lettreHtml ? [["lettre", _t("Lettre")]] : []).concat([["suivi", _t("Suivi et entretien")]]);
   tabs.forEach(([k, label]) => { const b = el("button", "", label); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", k === sub ? "true" : "false"); b.addEventListener("click", () => { setSub(k); renderFicheView(); }); seg.appendChild(b); });
   head.appendChild(seg);
   box.appendChild(head);
@@ -3995,91 +4094,91 @@ function renderFicheView(){
 
   /* L'offre en bref */
   if(str(d.offre_resume)){
-    const c = card("L'offre en bref");
+    const c = card(_t("L'offre en bref"));
     c.appendChild(el("p", "fv-resume", str(d.offre_resume)));
-    c.appendChild(el("p", "fv-src", "Résumé rédigé par " + BRAND.name + " à partir de l'annonce, gardé même si l'annonce est retirée."));
+    c.appendChild(el("p", "fv-src", _t("Résumé rédigé par ") + BRAND.name + _t(" à partir de l'annonce, gardé même si l'annonce est retirée.")));
     box.appendChild(c);
   }
   /* Alertes */
   const al = arr(d.alertes).map(str).filter(Boolean);
   if(al.length){
-    const c = card("À savoir avant d'envoyer", "fv-alertes");
+    const c = card(_t("À savoir avant d'envoyer"), "fv-alertes");
     const ul = el("ul"); al.forEach(t => ul.appendChild(el("li", "", t))); c.appendChild(ul);
     box.appendChild(c);
   }
 
   /* Suivi */
-  const sv = card("Suivi");
+  const sv = card(_t("Suivi"));
   const steps = el("ul", "fv-steps");
   const line = (done, text, extra) => { const li = el("li", done ? "done" : ""); li.appendChild(el("span", "dot")); li.appendChild(el("span", "", text)); if(extra) extra.forEach(x => li.appendChild(x)); steps.appendChild(li); };
-  line(true, "CV créé le " + fmtDay(G.versions[0].date));
+  line(true, _t("CV créé le ") + fmtDay(G.versions[0].date));
   const setFlag = (k, v) => { latest[k] = v; latest.touched = Date.now(); saveHistory(); renderHistory(); renderFicheView(); };
-  if(applied) line(true, "Envoyée le " + fmtDay(applied), [btn("Annuler", "small danger", () => { G.versions.forEach(v => { delete v.applied; delete v.relance; delete v.interview; }); saveHistory(); renderHistory(); renderFicheView(); })]);
-  else line(false, "Pas encore envoyée", [btn("J'ai postulé", "small primary", () => setFlag("applied", Date.now()))]);
+  if(applied) line(true, _t("Envoyée le ") + fmtDay(applied), [btn(_t("Annuler"), "small danger", () => { G.versions.forEach(v => { delete v.applied; delete v.relance; delete v.interview; }); saveHistory(); renderHistory(); renderFicheView(); })]);
+  else line(false, _t("Pas encore envoyée"), [btn(_t("J'ai postulé"), "small primary", () => setFlag("applied", Date.now()))]);
   if(applied && !itw && !S.result){
-    if(relance) line(true, "Relance faite le " + fmtDay(relance));
+    if(relance) line(true, _t("Relance faite le ") + fmtDay(relance));
     else {
       const late = Date.now() - applied >= 7 * DAY;
-      const li = [btn("J'ai relancé", "small", () => setFlag("relance", Date.now()))];
-      line(false, late ? "Une semaine sans réponse : c'est le moment de relancer." : "Relance conseillée à partir du " + fmtDay(applied + 7 * DAY), li);
+      const li = [btn(_t("J'ai relancé"), "small", () => setFlag("relance", Date.now()))];
+      line(false, late ? _t("Une semaine sans réponse : c'est le moment de relancer.") : _t("Relance conseillée à partir du ") + fmtDay(applied + 7 * DAY), li);
       if(late) steps.lastChild.children[1].className = "warn";
     }
   }
-  if(applied) line(!!itw, itw ? "Entretien obtenu" : "Entretien", itw ? [] : [btn("J'ai obtenu un entretien", "small", () => setFlag("interview", Date.now()))]);
+  if(applied) line(!!itw, itw ? _t("Entretien obtenu") : _t("Entretien"), itw ? [] : [btn(_t("J'ai obtenu un entretien"), "small", () => setFlag("interview", Date.now()))]);
   sv.appendChild(steps);
 
   const grid = el("div", "fv-grid");
   const field = (id, label, input) => { const w = el("div"); const l = el("label", "", label); l.htmlFor = id; input.id = id; w.appendChild(l); w.appendChild(input); grid.appendChild(w); return input; };
-  if(applied && !relance && !itw && !S.result){ const rb = btn("Me rappeler de relancer", "small", () => downloadIcs(G, "relance")); const rr = el("div", "row"); rr.appendChild(rb); sv.appendChild(rr); }
+  if(applied && !relance && !itw && !S.result){ const rb = btn(_t("Me rappeler de relancer"), "small", () => downloadIcs(G, "relance")); const rr = el("div", "row"); rr.appendChild(rb); sv.appendChild(rr); }
   const itwIn = document.createElement("input"); itwIn.type = "datetime-local"; itwIn.value = S.itwAt || "";
-  field("fv-itw", "Date et heure de l'entretien", itwIn).addEventListener("change", e => {
+  field("fv-itw", _t("Date et heure de l'entretien"), itwIn).addEventListener("change", e => {
     S.itwAt = e.target.value; saveSuivi(); if(e.target.value && !itw){ latest.interview = Date.now(); } touchGroup(G); renderHistory(); renderFicheView();
   });
-  const ctIn = document.createElement("input"); ctIn.type = "text"; ctIn.value = S.contact || ""; ctIn.placeholder = "Nom, téléphone ou e-mail du recruteur";
-  field("fv-contact", "Contact du recruteur", ctIn).addEventListener("input", debounce(e => { S.contact = e.target.value; saveSuivi(); }, 400));
+  const ctIn = document.createElement("input"); ctIn.type = "text"; ctIn.value = S.contact || ""; ctIn.placeholder = _t("Nom, téléphone ou e-mail du recruteur");
+  field("fv-contact", _t("Contact du recruteur"), ctIn).addEventListener("input", debounce(e => { S.contact = e.target.value; saveSuivi(); }, 400));
   const rs = document.createElement("select");
   Object.keys(RESULTS).forEach(k => { const o = el("option", "", RESULTS[k]); o.value = k; if((S.result || "") === k) o.selected = true; rs.appendChild(o); });
-  field("fv-result", "Résultat", rs).addEventListener("change", e => { S.result = e.target.value; saveSuivi(); touchGroup(G); renderHistory(); renderFicheView(); });
+  field("fv-result", _t("Résultat"), rs).addEventListener("change", e => { S.result = e.target.value; saveSuivi(); touchGroup(G); renderHistory(); renderFicheView(); });
   sv.appendChild(grid);
-  if(S.itwAt){ const cr = el("div", "row"); cr.style.marginTop = "10px"; cr.appendChild(btn("Ajouter l'entretien au calendrier", "small", () => downloadIcs(G))); sv.appendChild(cr); }
-  sv.appendChild(el("p", "hint", "Le résultat aide " + BRAND.name + " à voir ce qui marche pour vous dans vos prochains CV."));
+  if(S.itwAt){ const cr = el("div", "row"); cr.style.marginTop = "10px"; cr.appendChild(btn(_t("Ajouter l'entretien au calendrier"), "small", () => downloadIcs(G))); sv.appendChild(cr); }
+  sv.appendChild(el("p", "hint", _t("Le résultat aide ") + BRAND.name + _t(" à voir ce qui marche pour vous dans vos prochains CV.")));
   box.appendChild(sv);
 
   /* Préparer l'entretien */
-  const pr = card("Préparer l'entretien");
+  const pr = card(_t("Préparer l'entretien"));
   const prep = S.prep;
   if(prep){
     const cols = el("div", "fv-cols");
     const col = (title, items) => { const w = el("div"); w.appendChild(el("h4", "", title)); const ul = el("ul", "fv-list"); arr(items).map(str).filter(Boolean).forEach(t => ul.appendChild(el("li", "", t))); w.appendChild(ul); return w; };
-    cols.appendChild(col("Vos atouts pour ce poste", prep.atouts));
-    cols.appendChild(col("Points à préparer", prep.points_a_preparer));
+    cols.appendChild(col(_t("Vos atouts pour ce poste"), prep.atouts));
+    cols.appendChild(col(_t("Points à préparer"), prep.points_a_preparer));
     pr.appendChild(cols);
     const qs = arr(prep.questions);
     if(qs.length){
-      pr.appendChild(el("h4", "", "Questions probables"));
+      pr.appendChild(el("h4", "", _t("Questions probables")));
       qs.forEach(q => { const w = el("div", "fv-q"); w.appendChild(el("b", "", str(q.question))); w.appendChild(el("span", "", str(q.conseil))); pr.appendChild(w); });
     }
-    if(arr(prep.a_demander).length){ pr.appendChild(el("h4", "", "Questions à poser au recruteur")); const ul = el("ul", "fv-list"); arr(prep.a_demander).forEach(t => ul.appendChild(el("li", "", str(t)))); pr.appendChild(ul); }
-    pr.appendChild(el("p", "hint", "Préparé le " + fmtDay(S.prepAt || Date.now()) + ". " + BRAND.name + " est une IA : adaptez avec vos propres mots."));
+    if(arr(prep.a_demander).length){ pr.appendChild(el("h4", "", _t("Questions à poser au recruteur"))); const ul = el("ul", "fv-list"); arr(prep.a_demander).forEach(t => ul.appendChild(el("li", "", str(t)))); pr.appendChild(ul); }
+    pr.appendChild(el("p", "hint", _t("Préparé le ") + fmtDay(S.prepAt || Date.now()) + ". " + BRAND.name + _t(" est une IA : adaptez avec vos propres mots.")));
   } else {
-    pr.appendChild(el("p", "", "Les questions qu'on risque de vous poser pour ce poste, vos atouts, et les points faibles à préparer, à partir de votre CV et de l'offre."));
+    pr.appendChild(el("p", "", _t("Les questions qu'on risque de vous poser pour ce poste, vos atouts, et les points faibles à préparer, à partir de votre CV et de l'offre.")));
   }
   const pst = el("div", "status"); pst.id = "status-prep";
-  const pb = btn(prep ? "Refaire la préparation" : "Préparer mon entretien", prep ? "small" : "primary", () => prepareInterview(G, latest, pb, pst));
+  const pb = btn(prep ? _t("Refaire la préparation") : _t("Préparer mon entretien"), prep ? "small" : "primary", () => prepareInterview(G, latest, pb, pst));
   const prow = el("div", "row"); prow.style.marginTop = "10px"; prow.appendChild(pb); pr.appendChild(prow); pr.appendChild(pst);
   box.appendChild(pr);
 
   /* Notes */
-  const nt = card("Mes notes");
+  const nt = card(_t("Mes notes"));
   const ta = document.createElement("textarea"); ta.className = "fv-notes"; ta.id = "fv-notes"; ta.value = S.notes || "";
-  ta.placeholder = "Ce qu'on vous a dit au téléphone, le nom de la personne, ce que vous voulez dire en entretien…";
-  ta.setAttribute("aria-label", "Mes notes sur cette candidature");
+  ta.placeholder = _t("Ce qu'on vous a dit au téléphone, le nom de la personne, ce que vous voulez dire en entretien…");
+  ta.setAttribute("aria-label", _t("Mes notes sur cette candidature"));
   ta.addEventListener("input", debounce(() => { S.notes = ta.value; saveSuivi(); touchGroup(G); }, 500));
   nt.appendChild(ta);
   box.appendChild(nt);
   const delRow = el("div", "row");
-  delRow.appendChild(btn("Supprimer cette candidature", "small danger", () => {
-    if(!confirm("Supprimer cette candidature" + (G.versions.length > 1 ? " et ses " + G.versions.length + " versions" : "") + " ? Son suivi et ses notes seront perdus.")) return;
+  delRow.appendChild(btn(_t("Supprimer cette candidature"), "small danger", () => {
+    if(!confirm(_t("Supprimer cette candidature") + (G.versions.length > 1 ? _t(" et ses ") + G.versions.length + " versions" : "") + _t(" ? Son suivi et ses notes seront perdus."))) return;
     history = history.filter(x => groupOf(x) !== G.id); pins.delete(G.id); savePins(); saveHistory();
     delete suivi[G.id]; saveSuivi(); showEmpty(); renderHistory(); renderFicheView();
   }));
@@ -4091,18 +4190,18 @@ const PREP_SYSTEM = "Tu es un coach emploi français, chaleureux et franc. Tu pr
   "Réponds UNIQUEMENT avec un objet JSON valide : {\"atouts\": [3 à 4 atouts réels du candidat pour CE poste], \"points_a_preparer\": [2 à 4 points faibles ou questions gênantes probables, avec comment y répondre honnêtement], " +
   "\"questions\": [{\"question\": \"question probable du recruteur\", \"conseil\": \"comment y répondre en 1 à 2 phrases, avec un exemple tiré du CV\"} — 6 à 8 questions], \"a_demander\": [2 à 3 questions pertinentes à poser au recruteur]}.";
 async function prepareInterview(G, latest, b, st){
-  if(!settings.apiKey){ st.className = "status err"; st.textContent = "Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation »."; return; }
-  b.disabled = true; st.className = "status info"; st.textContent = BRAND.name + " prépare votre entretien, comptez 20 à 40 secondes.";
+  if(!settings.apiKey){ st.className = "status err"; st.textContent = _t("Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation »."); return; }
+  b.disabled = true; st.className = "status info"; st.textContent = BRAND.name + _t(" prépare votre entretien, comptez 20 à 40 secondes.");
   try{
     const d = latest.data || {}, cvTxt = cvTextFromHtml(latest.cvHtml || "");
     const S = suiviOf(G.id);
     const msg = "<offre>\n" + (str(d.offre_resume) || (latest.poste + " — " + latest.entreprise)) + "\n</offre>\n\n<cv_du_candidat>\n" + cvTxt + "\n</cv_du_candidat>\n\n" +
       (arr(d.alertes).length ? "<alertes_deja_identifiees>\n- " + arr(d.alertes).map(str).join("\n- ") + "\n</alertes_deja_identifiees>\n\n" : "") +
       (S.notes ? "<notes_du_candidat>\n" + S.notes + "\n</notes_du_candidat>\n\n" : "") + "Prépare l'entretien pour ce poste.";
-    const data = await callClaude({ model:settings.model, max_tokens:3000, system:PREP_SYSTEM, messages:[{ role:"user", content:msg }] }, settings.apiKey);
+    const data = await callClaude({ model:settings.model, max_tokens:3000, system:PREP_SYSTEM + uiLangLine(), messages:[{ role:"user", content:msg }] }, settings.apiKey);
     addCost(data.usage);
     const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("");
-    let out; try{ out = parseJSON(text); }catch(e){ throw new Error("La réponse n'a pas pu être lue. Cliquez à nouveau."); }
+    let out; try{ out = parseJSON(text); }catch(e){ throw new Error(_t("La réponse n'a pas pu être lue. Cliquez à nouveau.")); }
     S.prep = out; S.prepAt = Date.now(); saveSuivi(); touchGroup(G);
     renderFicheView();
   }catch(e){ st.className = "status err"; st.textContent = e.message; b.disabled = false; }
@@ -4131,11 +4230,11 @@ const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platfor
 function updateBackupInfo(){
   const last = store.get("lastBackup", 0);
   $("#ios-warn").hidden = !isIOS || !!syncSt;
-  $("#backup-last").textContent = last ? " Dernier export : " + fmtDay(last) + "." : "";
+  $("#backup-last").textContent = last ? _t(" Dernier export : ") + fmtDay(last) + "." : "";
   const n = $("#backup-nudge");
   const old = !last || Date.now() - last > 7 * DAY;
   n.hidden = !(history.length && old && isIOS && !syncSt);
-  if(!n.hidden){ n.innerHTML = ""; n.appendChild(document.createTextNode("Pour ne pas perdre vos candidatures, activez la synchronisation : ")); const l = el("button", "link", "Mon profil › Retrouver " + BRAND.name + " sur tous mes appareils"); l.type = "button"; l.dataset.goto = "profile"; n.appendChild(l); }
+  if(!n.hidden){ n.innerHTML = ""; n.appendChild(document.createTextNode(_t("Pour ne pas perdre vos candidatures, activez la synchronisation : "))); const l = el("button", "link", _t("Mon profil › Retrouver ") + BRAND.name + _t(" sur tous mes appareils")); l.type = "button"; l.dataset.goto = "profile"; n.appendChild(l); }
 }
 function exportData(){
   const data = {};
@@ -4155,7 +4254,7 @@ function exportData(){
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   store.set("lastBackup", Date.now()); updateBackupInfo();
-  status("#status-backup", "ok", "Fichier téléchargé. Gardez-le : il contient votre parcours et vos CV, en clair.");
+  status("#status-backup", "ok", _t("Fichier téléchargé. Gardez-le : il contient votre parcours et vos CV, en clair."));
 }
 $("#btn-backup").addEventListener("click", exportData);
 $("#btn-restore").addEventListener("click", () => $("#file-restore").click());
@@ -4163,9 +4262,9 @@ $("#file-restore").addEventListener("change", async e => {
   const f = e.target.files && e.target.files[0]; e.target.value = "";
   if(!f) return;
   let file;
-  try{ file = JSON.parse(await f.text()); }catch(err){ status("#status-backup", "err", "Ce fichier n'est pas un export " + BRAND.name + "."); return; }
-  if(!file || file.app !== "jalon" || !file.data || typeof file.data !== "object"){ status("#status-backup", "err", "Ce fichier n'est pas un export " + BRAND.name + "."); return; }
-  if(!confirm("Importer le fichier du " + fmtDay(Date.parse(file.date) || Date.now()) + " ? Les données actuelles de cet appareil seront remplacées.")) return;
+  try{ file = JSON.parse(await f.text()); }catch(err){ status("#status-backup", "err", _t("Ce fichier n'est pas un export ") + BRAND.name + "."); return; }
+  if(!file || file.app !== "jalon" || !file.data || typeof file.data !== "object"){ status("#status-backup", "err", _t("Ce fichier n'est pas un export ") + BRAND.name + "."); return; }
+  if(!confirm(_t("Importer le fichier du ") + fmtDay(Date.parse(file.date) || Date.now()) + _t(" ? Les données actuelles de cet appareil seront remplacées."))) return;
   const key = settings.apiKey;
   syncApplying = true;
   Object.keys(file.data).forEach(k => { if(k.indexOf("cvx_") === 0 && k !== "cvx_sync" && typeof file.data[k] === "string") try{ localStorage.setItem(k, file.data[k]); }catch(err){} });
@@ -4210,7 +4309,7 @@ async function decryptPayload(blob, keyB64){
   const plain = new Uint8Array(await crypto.subtle.decrypt({ name:"AES-GCM", iv:fromB64(blob.iv), additionalData:te.encode("jalon-sync-v1") }, key, fromB64(blob.ct)));
   let raw = plain.subarray(1);
   if(plain[0] === 1){
-    if(typeof DecompressionStream !== "function") throw new Error("Votre navigateur est trop ancien pour lire ces données. Mettez-le à jour.");
+    if(typeof DecompressionStream !== "function") throw new Error(_t("Votre navigateur est trop ancien pour lire ces données. Mettez-le à jour."));
     raw = await gzip(raw, false);
   }
   return JSON.parse(td.decode(raw));
@@ -4218,16 +4317,16 @@ async function decryptPayload(blob, keyB64){
 const validPayload = p => !!p && p.app === "jalon" && !!p.data && typeof p.data === "object" && Object.keys(p.data).every(k => SYNC_KEYS.includes(k) && typeof p.data[k] === "string");
 
 async function syncCall(path, body, withCode){
-  if(!RELAIS) throw new Error("La synchronisation n'est pas disponible pour l'instant.");
+  if(!RELAIS) throw new Error(_t("La synchronisation n'est pas disponible pour l'instant."));
   const headers = { "content-type":"application/json" };
   const code = typeof withCode === "string" ? withCode : (withCode ? settings.apiKey : "");
   if(code && !/^sk-ant-/.test(code)) headers["x-jalon-code"] = code.trim();
   let res;
   try{ res = await fetch(RELAIS.replace(/\/+$/, "") + "/sync/" + path, { method:"POST", headers, body:JSON.stringify(body) }); }
-  catch(e){ const err = new Error("Pas de connexion."); err.offline = true; throw err; }
+  catch(e){ const err = new Error(_t("Pas de connexion.")); err.offline = true; throw err; }
   let data = null; try{ data = await res.json(); }catch(e){}
   if(!res.ok){
-    const err = new Error((data && data.error && data.error.message) || ("Erreur " + res.status));
+    const err = new Error((data && data.error && data.error.message) || (_t("Erreur ") + res.status));
     err.status = res.status; err.data = data || {}; throw err;
   }
   return data;
@@ -4238,12 +4337,18 @@ function syncSave(){ try{ if(syncSt) localStorage.setItem("cvx_sync", JSON.strin
 function maskMail(m){ const [u, d] = m.split("@"); return (u.slice(0, 1) + "•••") + "@" + d; }
 function ago(t){
   const s = Math.max(0, (Date.now() - t) / 1000);
-  if(s < 45) return "à l'instant";
-  if(s < 3600) return "il y a " + Math.max(1, Math.round(s / 60)) + " min";
-  if(s < 86400) return "il y a " + Math.round(s / 3600) + " h";
+  if(s < 45) return _t("à l'instant");
+  if(UI_LANG !== "fr" && window.Intl && Intl.RelativeTimeFormat){
+    const rtf = new Intl.RelativeTimeFormat(LOCALE, { numeric:"auto" });
+    if(s < 3600) return rtf.format(-Math.max(1, Math.round(s / 60)), "minute");
+    if(s < 86400) return rtf.format(-Math.round(s / 3600), "hour");
+    return fmtDay(t);
+  }
+  if(s < 3600) return _t("il y a ") + Math.max(1, Math.round(s / 60)) + " min";
+  if(s < 86400) return _t("il y a ") + Math.round(s / 3600) + " h";
   return "le " + fmtDay(t);
 }
-const fmtWhen = t => new Date(t).toLocaleString("fr-FR", { day:"numeric", month:"long", hour:"2-digit", minute:"2-digit" });
+const fmtWhen = t => new Date(t).toLocaleString(LOCALE, { day:"numeric", month:"long", hour:"2-digit", minute:"2-digit" });
 let syncBusy = false, syncPending = false, syncRetry = 0, syncPostponed = 0, syncDlgOpen = false, syncTouched = false, syncLastTry = 0;
 let syncLastInput = 0;
 document.addEventListener("input", () => { syncTouched = true; syncLastInput = Date.now(); }, true);
@@ -4257,13 +4362,13 @@ function syncIdle(){
 }
 function syncState(){      // { txt (ligne complète), short (pastille), cls }
   if(!syncSt) return null;
-  if(syncBusy) return { txt:"Synchronisation en cours…", short:"Synchronisation…", cls:"wait" };
-  if(syncSt.err === "conflict") return { txt:"En attente de votre choix : deux versions existent", short:"À vérifier", cls:"wait" };
-  if(syncSt.err === "offline") return { txt: syncSt.dirty ? "Hors ligne, synchro en attente" : "Hors ligne", short: syncSt.dirty ? "Hors ligne, synchro en attente" : "Hors ligne", cls:"wait" };
-  if(syncSt.err === "auth") return { txt:"Mot de passe refusé : déconnectez cet appareil puis reconnectez-vous", short:"Reconnexion nécessaire", cls:"err" };
-  if(syncSt.err) return { txt: syncSt.err, short:"Synchro en pause", cls:"err" };
-  if(syncSt.dirty) return { txt:"Modifications en attente d'envoi…", short:"Envoi en attente", cls:"wait" };
-  return { txt:"Synchronisé " + ago(syncSt.lastSyncAt || Date.now()), short:"Synchronisé", cls:"" };
+  if(syncBusy) return { txt:_t("Synchronisation en cours…"), short:"Synchronisation…", cls:"wait" };
+  if(syncSt.err === "conflict") return { txt:_t("En attente de votre choix : deux versions existent"), short:_t("À vérifier"), cls:"wait" };
+  if(syncSt.err === "offline") return { txt: syncSt.dirty ? _t("Hors ligne, synchro en attente") : _t("Hors ligne"), short: syncSt.dirty ? _t("Hors ligne, synchro en attente") : _t("Hors ligne"), cls:"wait" };
+  if(syncSt.err === "auth") return { txt:_t("Mot de passe refusé : déconnectez cet appareil puis reconnectez-vous"), short:_t("Reconnexion nécessaire"), cls:"err" };
+  if(syncSt.err) return { txt: syncSt.err, short:_t("Synchro en pause"), cls:"err" };
+  if(syncSt.dirty) return { txt:_t("Modifications en attente d'envoi…"), short:_t("Envoi en attente"), cls:"wait" };
+  return { txt:_t("Synchronisé ") + ago(syncSt.lastSyncAt || Date.now()), short:_t("Synchronisé"), cls:"" };
 }
 function setSyncUi(){
   const on = !!syncSt;
@@ -4273,7 +4378,7 @@ function setSyncUi(){
     const s = syncState();
     $("#sync-line").textContent = s.txt;
     $("#sync-dot").className = "sync-dot " + s.cls;
-    $("#sync-who").textContent = "Connecté avec " + syncSt.mail + ". Vos données sont chiffrées avant l'envoi.";
+    $("#sync-who").textContent = _t("Connecté avec ") + syncSt.mail + ". Vos données sont chiffrées avant l'envoi.";
     $("#sync-pill-txt").textContent = s.short; pill.title = s.txt;
     pill.querySelector(".sync-dot").className = "sync-dot " + s.cls;
   }
@@ -4334,7 +4439,7 @@ function syncWrite(payload){       // écrit des données reçues ou fusionnées
   }catch(e){
     SYNC_KEYS.forEach(k => { try{ if(prev[k] === null) localStorage.removeItem("cvx_" + k); else localStorage.setItem("cvx_" + k, prev[k]); }catch(err){} });
     syncApplying = false;
-    throw new Error("Pas assez de place sur cet appareil pour recevoir vos données. Supprimez d'anciennes candidatures et réessayez.");
+    throw new Error(_t("Pas assez de place sur cet appareil pour recevoir vos données. Supprimez d'anciennes candidatures et réessayez."));
   }
 }
 function syncApply(payload, version){
@@ -4384,7 +4489,7 @@ function syncDirty(){
 async function syncPush(base){
   const at = syncSt.dirtyAt || 0;
   const blob = await encryptPayload(syncSnapshot(), syncSt.key);
-  if(blob.ct.length > SYNC_MAX_CT){ const e = new Error("Vos données dépassent la taille autorisée pour la synchronisation. Supprimez d'anciennes candidatures ou la photo de profil."); e.fatal = true; throw e; }
+  if(blob.ct.length > SYNC_MAX_CT){ const e = new Error(_t("Vos données dépassent la taille autorisée pour la synchronisation. Supprimez d'anciennes candidatures ou la photo de profil.")); e.fatal = true; throw e; }
   const res = await syncCall("put", { id:syncSt.id, auth:syncSt.auth, iv:blob.iv, ct:blob.ct, baseVersion:base });
   syncSt.version = res.version; syncSt.lastSyncAt = Date.now(); syncSt.err = "";
   if((syncSt.dirtyAt || 0) === at){ syncSt.dirty = false; } else { syncPending = true; }   // modifié pendant l'envoi : on renverra
@@ -4393,7 +4498,7 @@ async function syncPush(base){
 async function syncPull(){
   const g = await syncCall("get", { id:syncSt.id, auth:syncSt.auth });
   const payload = await decryptPayload(g, syncSt.key);
-  if(!validPayload(payload)) throw new Error("Les données en ligne ne sont pas lisibles par cette version de l'appli.");
+  if(!validPayload(payload)) throw new Error(_t("Les données en ligne ne sont pas lisibles par cette version de l'appli."));
   return { payload, version:g.version, updated:g.updated };
 }
 function showToast(txt, go){
@@ -4407,24 +4512,24 @@ function syncDisconnect(msg, kind){
 function askConflict(meta, remoteInfo){
   syncSt.err = "conflict"; syncSave(); setSyncUi();
   openSyncDlg({
-    title:"Deux versions de vos données",
-    text:"Vous avez modifié des données sur cet appareil (" + ago(syncSt.dirtyAt || Date.now()) + "), et une version plus récente a été envoyée depuis un autre appareil (" + fmtWhen(meta.updated) + "). Laquelle garder ? L'autre sera remplacée.",
+    title:_t("Deux versions de vos données"),
+    text:_t("Vous avez modifié des données sur cet appareil (") + ago(syncSt.dirtyAt || Date.now()) + _t("), et une version plus récente a été envoyée depuis un autre appareil (") + fmtWhen(meta.updated) + _t("). Laquelle garder ? L'autre sera remplacée."),
     buttons:[
-      { label:"Garder celle de cet appareil", fn: async () => { syncSt.err = ""; try{ syncBusy = true; setSyncUi(); await syncPush(meta.version); }catch(e){ syncFail(e); } finally { syncBusy = false; setSyncUi(); } } },
-      { label:"Garder celle des autres appareils", fn: async () => { try{ const r = await syncPull(); syncApply(r.payload, r.version); }catch(e){ syncFail(e); setSyncUi(); } } },
-      { label:"Décider plus tard", cls:"alt", cancel:true, fn: () => { syncPostponed = meta.version; } }
+      { label:_t("Garder celle de cet appareil"), fn: async () => { syncSt.err = ""; try{ syncBusy = true; setSyncUi(); await syncPush(meta.version); }catch(e){ syncFail(e); } finally { syncBusy = false; setSyncUi(); } } },
+      { label:_t("Garder celle des autres appareils"), fn: async () => { try{ const r = await syncPull(); syncApply(r.payload, r.version); }catch(e){ syncFail(e); setSyncUi(); } } },
+      { label:_t("Décider plus tard"), cls:"alt", cancel:true, fn: () => { syncPostponed = meta.version; } }
     ],
-    link:{ label:"Télécharger d'abord une copie de cet appareil", fn: exportData }
+    link:{ label:_t("Télécharger d'abord une copie de cet appareil"), fn: exportData }
   });
 }
 function syncFail(e){
   if(e.offline){ syncSt.err = "offline"; scheduleRetry(60000); }
   else if(e.status === 401){ syncSt.err = "auth"; }
   else if(e.status === 404 || (e.data && e.data.gone)){ syncDisconnect("Les données en ligne ont été supprimées depuis un autre appareil. La synchronisation est désactivée ici ; vos données restent sur cet appareil.", "info"); return; }
-  else if(e.status === 429){ syncSt.err = "Trop de demandes : nouvel essai dans une minute."; scheduleRetry(65000); }
-  else if(e.status >= 500){ syncSt.err = "Serveur momentanément indisponible : nouvel essai bientôt."; scheduleRetry(120000); }
+  else if(e.status === 429){ syncSt.err = _t("Trop de demandes : nouvel essai dans une minute."); scheduleRetry(65000); }
+  else if(e.status >= 500){ syncSt.err = _t("Serveur momentanément indisponible : nouvel essai bientôt."); scheduleRetry(120000); }
   else if(e.fatal){ syncSt.err = e.message; }
-  else { syncSt.err = e.message || "Erreur de synchronisation."; scheduleRetry(120000); }
+  else { syncSt.err = e.message || _t("Erreur de synchronisation."); scheduleRetry(120000); }
   syncSave();
 }
 function scheduleRetry(ms){ clearTimeout(syncRetry); syncRetry = setTimeout(() => syncNow("retry"), ms); }
@@ -4445,7 +4550,7 @@ async function syncNow(reason){
       }else{
         const r = await syncPull();
         if(syncIdle()){ syncApply(r.payload, r.version); return; }
-        syncSt.err = ""; showToast("Une version plus récente de vos données est disponible.", () => { try{ syncApply(r.payload, r.version); }catch(e){ status("#sync-msg", "err", e.message); } });
+        syncSt.err = ""; showToast(_t("Une version plus récente de vos données est disponible."), () => { try{ syncApply(r.payload, r.version); }catch(e){ status("#sync-msg", "err", e.message); } });
       }
     }else if(syncSt.dirty){ await syncPush(meta.version); }
     else { syncSt.lastSyncAt = Date.now(); if(syncSt.err !== "conflict") syncSt.err = ""; }
@@ -4467,75 +4572,75 @@ let syncStarting = false;
 async function syncStart(){
   if(syncStarting) return;
   const mail = $("#sync-mail").value.trim().toLowerCase(), pw = $("#sync-pw").value.normalize("NFKC");
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ status("#sync-msg", "err", "Entrez une adresse e-mail valide : c'est votre identifiant."); $("#sync-mail").focus(); return; }
-  if(pw.length < 8){ status("#sync-msg", "err", "Le mot de passe doit faire au moins 8 caractères."); $("#sync-pw").focus(); return; }
-  if(!syncAvailableNow()){ status("#sync-msg", "err", "Ce navigateur ne permet pas le chiffrement nécessaire. Utilisez une version récente de Safari, Chrome ou Firefox."); return; }
-  syncStarting = true; $("#sync-go").disabled = true; status("#sync-msg", "info", "Vérification en cours…");
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ status("#sync-msg", "err", _t("Entrez une adresse e-mail valide : c'est votre identifiant.")); $("#sync-mail").focus(); return; }
+  if(pw.length < 8){ status("#sync-msg", "err", _t("Le mot de passe doit faire au moins 8 caractères.")); $("#sync-pw").focus(); return; }
+  if(!syncAvailableNow()){ status("#sync-msg", "err", _t("Ce navigateur ne permet pas le chiffrement nécessaire. Utilisez une version récente de Safari, Chrome ou Firefox.")); return; }
+  syncStarting = true; $("#sync-go").disabled = true; status("#sync-msg", "info", _t("Vérification en cours…"));
   try{
     const id = await syncAccountId(mail);
     const meta = await syncCall("meta", { id });
     if(!meta.exists){
       if($("#sync-new").hidden){
         $("#sync-new").hidden = false; $("#sync-code-box").hidden = !!settings.apiKey; $("#sync-pw2").focus();
-        status("#sync-msg", "info", "Aucune synchronisation avec cet identifiant : on la crée. Retapez le mot de passe et cochez la case.");
+        status("#sync-msg", "info", _t("Aucune synchronisation avec cet identifiant : on la crée. Retapez le mot de passe et cochez la case."));
         return;
       }
-      if(pw !== $("#sync-pw2").value.normalize("NFKC")){ status("#sync-msg", "err", "Les deux mots de passe sont différents."); $("#sync-pw2").focus(); return; }
+      if(pw !== $("#sync-pw2").value.normalize("NFKC")){ status("#sync-msg", "err", _t("Les deux mots de passe sont différents.")); $("#sync-pw2").focus(); return; }
       const codeIn = $("#sync-code").value.trim(), code = codeIn || settings.apiKey || "";
-      if(!code){ $("#sync-code-box").hidden = false; status("#sync-msg", "err", "Entrez votre code d'accès " + BRAND.name + " (celui qu'on vous a donné) pour créer la synchronisation."); $("#sync-code").focus(); return; }
-      if(!$("#sync-ok").checked){ status("#sync-msg", "err", "Cochez la case pour confirmer que vous avez compris."); return; }
-      status("#sync-msg", "info", "Création de votre espace chiffré…");
+      if(!code){ $("#sync-code-box").hidden = false; status("#sync-msg", "err", _t("Entrez votre code d'accès ") + BRAND.name + " (celui qu'on vous a donné) pour créer la synchronisation."); $("#sync-code").focus(); return; }
+      if(!$("#sync-ok").checked){ status("#sync-msg", "err", _t("Cochez la case pour confirmer que vous avez compris.")); return; }
+      status("#sync-msg", "info", _t("Création de votre espace chiffré…"));
       const salt = crypto.getRandomValues(new Uint8Array(16)), k = await deriveKeys(pw, salt);
       const blob = await encryptPayload(syncSnapshot(), k.key);
-      if(blob.ct.length > SYNC_MAX_CT){ status("#sync-msg", "err", "Vos données dépassent la taille autorisée. Supprimez d'anciennes candidatures ou la photo de profil."); return; }
+      if(blob.ct.length > SYNC_MAX_CT){ status("#sync-msg", "err", _t("Vos données dépassent la taille autorisée. Supprimez d'anciennes candidatures ou la photo de profil.")); return; }
       let res;
       try{ res = await syncCall("put", { id, auth:k.auth, salt:toB64(salt), iv:blob.iv, ct:blob.ct, baseVersion:0 }, code); }
-      catch(e){ if(e.status === 403 || e.status === 401){ $("#sync-code-box").hidden = false; status("#sync-msg", "err", "Code d'accès refusé. Vérifiez-le (majuscules, tirets) ou demandez-en un nouveau."); $("#sync-code").focus(); return; } throw e; }
+      catch(e){ if(e.status === 403 || e.status === 401){ $("#sync-code-box").hidden = false; status("#sync-msg", "err", _t("Code d'accès refusé. Vérifiez-le (majuscules, tirets) ou demandez-en un nouveau.")); $("#sync-code").focus(); return; } throw e; }
       if(!settings.apiKey && codeIn){ settings.apiKey = codeIn; saveSettings(); }
       syncSt = { id, auth:k.auth, key:k.key, mail:maskMail(mail), version:res.version, dirty:false, dirtyAt:0, lastSyncAt:Date.now(), err:"" };
       syncSave(); syncResetForm(); setSyncUi();
-      status("#sync-msg", "ok", "Synchronisation activée. Sur un autre appareil, entrez le même identifiant et le même mot de passe.");
+      status("#sync-msg", "ok", _t("Synchronisation activée. Sur un autre appareil, entrez le même identifiant et le même mot de passe."));
       return;
     }
     $("#sync-new").hidden = true;
-    status("#sync-msg", "info", "Déverrouillage de vos données…");
+    status("#sync-msg", "info", _t("Déverrouillage de vos données…"));
     const k = await deriveKeys(pw, fromB64(meta.salt));
     let g;
     try{ g = await syncCall("get", { id, auth:k.auth }); }
-    catch(e){ if(e.status === 401){ status("#sync-msg", "err", "Identifiant ou mot de passe incorrect."); return; } throw e; }
+    catch(e){ if(e.status === 401){ status("#sync-msg", "err", _t("Identifiant ou mot de passe incorrect.")); return; } throw e; }
     let payload;
-    try{ payload = await decryptPayload(g, k.key); }catch(e){ status("#sync-msg", "err", e.message && /navigateur/.test(e.message) ? e.message : "Impossible de lire les données en ligne avec ce mot de passe."); return; }
-    if(!validPayload(payload)){ status("#sync-msg", "err", "Les données en ligne ne sont pas lisibles par cette version de l'appli."); return; }
+    try{ payload = await decryptPayload(g, k.key); }catch(e){ status("#sync-msg", "err", e.message && /navigateur/.test(e.message) ? e.message : _t("Impossible de lire les données en ligne avec ce mot de passe.")); return; }
+    if(!validPayload(payload)){ status("#sync-msg", "err", _t("Les données en ligne ne sont pas lisibles par cette version de l'appli.")); return; }
     const st = { id, auth:k.auth, key:k.key, mail:maskMail(mail), version:g.version, dirty:false, dirtyAt:0, lastSyncAt:Date.now(), err:"" };
     syncResetForm();
-    if(!hasLocalData()){ syncSt = st; syncSave(); status("#sync-msg", "ok", "Données retrouvées. Chargement…"); syncApply(payload, g.version); return; }
+    if(!hasLocalData()){ syncSt = st; syncSave(); status("#sync-msg", "ok", _t("Données retrouvées. Chargement…")); syncApply(payload, g.version); return; }
     status("#sync-msg", "", "");
     openSyncDlg({
-      title:"Des données existent déjà ici et en ligne",
-      text:"Cet appareil contient déjà des données, et des données ont été envoyées en ligne le " + fmtWhen(g.updated) + ". Le plus simple : tout regrouper. Vous retrouverez les candidatures et les profils des deux côtés. Si une même personne a été créée sur deux appareils, elle apparaîtra deux fois : supprimez simplement le doublon.",
+      title:_t("Des données existent déjà ici et en ligne"),
+      text:_t("Cet appareil contient déjà des données, et des données ont été envoyées en ligne le ") + fmtWhen(g.updated) + ". Le plus simple : tout regrouper. Vous retrouverez les candidatures et les profils des deux côtés. Si une même personne a été créée sur deux appareils, elle apparaîtra deux fois : supprimez simplement le doublon.",
       buttons:[
-        { label:"Fusionner les deux (recommandé)", cls:"primary", fn: async () => {
+        { label:_t("Fusionner les deux (recommandé)"), cls:"primary", fn: async () => {
             let merged;
             try{ merged = syncMerge(syncSnapshot(), payload); syncWrite(merged); }
-            catch(e){ syncApplying = false; status("#sync-msg", "err", e.message || "Fusion impossible."); return; }
+            catch(e){ syncApplying = false; status("#sync-msg", "err", e.message || _t("Fusion impossible.")); return; }
             syncSt = st; syncSt.dirty = true; syncSt.dirtyAt = Date.now(); syncSave();
-            status("#sync-msg", "info", "Fusion en cours…");
+            status("#sync-msg", "info", _t("Fusion en cours…"));
             try{ syncBusy = true; await syncPush(g.version); }
             catch(e){ syncFail(e); }      // les données fusionnées restent sur l'appareil ; l'envoi sera retenté
             finally{ syncBusy = false; }
             location.reload(); } },
-        { label:"Garder seulement cet appareil", fn: async () => {
+        { label:_t("Garder seulement cet appareil"), fn: async () => {
             syncSt = st; syncSt.dirty = true; syncSt.dirtyAt = Date.now(); syncSave();
-            try{ syncBusy = true; setSyncUi(); await syncPush(g.version); status("#sync-msg", "ok", "Synchronisation activée : les données de cet appareil sont en ligne."); }
+            try{ syncBusy = true; setSyncUi(); await syncPush(g.version); status("#sync-msg", "ok", _t("Synchronisation activée : les données de cet appareil sont en ligne.")); }
             catch(e){ syncFail(e); status("#sync-msg", "err", syncSt ? (syncSt.err || e.message) : e.message); }
             finally{ syncBusy = false; setSyncUi(); } } },
-        { label:"Garder seulement la version en ligne", fn: () => { syncSt = st; syncSave(); try{ syncApply(payload, g.version); }catch(e){ syncSt = null; syncSave(); status("#sync-msg", "err", e.message); } } },
-        { label:"Annuler", cls:"alt", cancel:true, fn: () => { status("#sync-msg", "info", "Rien n'a été changé."); } }
+        { label:_t("Garder seulement la version en ligne"), fn: () => { syncSt = st; syncSave(); try{ syncApply(payload, g.version); }catch(e){ syncSt = null; syncSave(); status("#sync-msg", "err", e.message); } } },
+        { label:_t("Annuler"), cls:"alt", cancel:true, fn: () => { status("#sync-msg", "info", _t("Rien n'a été changé.")); } }
       ],
-      link:{ label:"Télécharger d'abord une copie de cet appareil", fn: exportData }
+      link:{ label:_t("Télécharger d'abord une copie de cet appareil"), fn: exportData }
     });
   }catch(e){
-    status("#sync-msg", "err", e.offline ? "Pas de connexion. Réessayez quand vous serez en ligne." : (e.message || "Erreur."));
+    status("#sync-msg", "err", e.offline ? _t("Pas de connexion. Réessayez quand vous serez en ligne.") : (e.message || "Erreur."));
   }finally{
     syncStarting = false; $("#sync-go").disabled = false;
   }
@@ -4549,19 +4654,19 @@ function postponeReset(){ syncPostponed = 0; if(syncSt && syncSt.err === "confli
 $("#sync-pill").addEventListener("click", () => { if(syncSt && syncSt.err === "conflict") postponeReset(); });
 $("#sync-out").addEventListener("click", () => {
   if(!syncSt) return;
-  const go = () => syncDisconnect("Cet appareil est déconnecté. Vos données y restent, et restent aussi en ligne.", "ok");
+  const go = () => syncDisconnect(_t("Cet appareil est déconnecté. Vos données y restent, et restent aussi en ligne."), "ok");
   if(!syncSt.dirty){ go(); return; }
-  openSyncDlg({ title:"Modifications non envoyées", text:"Des modifications de cet appareil n'ont pas encore été envoyées. Si vous vous déconnectez maintenant, elles resteront ici mais ne seront pas en ligne.",
-    buttons:[{ label:"Envoyer, puis me déconnecter", fn: async () => { try{ await syncPush((await syncCall("meta", { id:syncSt.id })).version); go(); }catch(e){ status("#sync-msg", "err", "Envoi impossible : " + (e.message || "erreur") + ". Vous êtes toujours connecté."); } } },
-             { label:"Me déconnecter quand même", cls:"danger", fn: go }, { label:"Annuler", cls:"alt", cancel:true, fn: () => {} }] });
+  openSyncDlg({ title:_t("Modifications non envoyées"), text:_t("Des modifications de cet appareil n'ont pas encore été envoyées. Si vous vous déconnectez maintenant, elles resteront ici mais ne seront pas en ligne."),
+    buttons:[{ label:_t("Envoyer, puis me déconnecter"), fn: async () => { try{ await syncPush((await syncCall("meta", { id:syncSt.id })).version); go(); }catch(e){ status("#sync-msg", "err", _t("Envoi impossible : ") + (e.message || "erreur") + ". Vous êtes toujours connecté."); } } },
+             { label:_t("Me déconnecter quand même"), cls:"danger", fn: go }, { label:_t("Annuler"), cls:"alt", cancel:true, fn: () => {} }] });
 });
 $("#sync-del").addEventListener("click", () => {
   if(!syncSt) return;
-  openSyncDlg({ title:"Supprimer vos données en ligne ?", text:"Vos données seront effacées du serveur, définitivement, et la synchronisation s'arrêtera sur tous vos appareils. Les données déjà présentes sur chaque appareil ne sont pas touchées.",
-    buttons:[{ label:"Supprimer mes données en ligne", cls:"danger", fn: async () => {
-                try{ await syncCall("delete", { id:syncSt.id, auth:syncSt.auth }); syncDisconnect("Vos données en ligne ont été supprimées. Vos données restent sur cet appareil.", "ok"); }
-                catch(e){ status("#sync-msg", "err", e.status === 401 ? "Mot de passe refusé : déconnectez cet appareil puis reconnectez-vous pour supprimer." : ("Suppression impossible : " + (e.message || "erreur"))); } } },
-             { label:"Annuler", cls:"alt", cancel:true, fn: () => {} }] });
+  openSyncDlg({ title:_t("Supprimer vos données en ligne ?"), text:_t("Vos données seront effacées du serveur, définitivement, et la synchronisation s'arrêtera sur tous vos appareils. Les données déjà présentes sur chaque appareil ne sont pas touchées."),
+    buttons:[{ label:_t("Supprimer mes données en ligne"), cls:"danger", fn: async () => {
+                try{ await syncCall("delete", { id:syncSt.id, auth:syncSt.auth }); syncDisconnect(_t("Vos données en ligne ont été supprimées. Vos données restent sur cet appareil."), "ok"); }
+                catch(e){ status("#sync-msg", "err", e.status === 401 ? _t("Mot de passe refusé : déconnectez cet appareil puis reconnectez-vous pour supprimer.") : (_t("Suppression impossible : ") + (e.message || "erreur"))); } } },
+             { label:_t("Annuler"), cls:"alt", cancel:true, fn: () => {} }] });
 });
 $("#sync-toast").addEventListener("keydown", e => { if(e.key === "Escape") $("#sync-toast").hidden = true; });
 if(syncSt) setTimeout(() => syncNow("open"), 500);
@@ -4582,18 +4687,18 @@ setInterval(() => { if(syncSt && document.visibilityState === "visible" && !sync
 })();
 /* ---------- Visite guidée (première visite, puis « Revoir la visite guidée » dans Mon profil) ---------- */
 const TOUR = [
-  { title:"Bienvenue sur " + BRAND.name, text:"<p>" + BRAND.name + " adapte votre CV et votre lettre de motivation à chaque offre d'emploi, puis vous aide à suivre vos candidatures jusqu'à l'entretien.</p><p>Petite visite : moins d'une minute.</p><p class=\"hint\" style=\"margin:0\">" + BRAND.name + " est une intelligence artificielle : relisez toujours vos documents avant de les envoyer.</p>" },
-  { view:"create", target:[".views", "#tabbar"], title:"Les onglets",
-    text:"<ul><li><b>Créer</b> : un CV et une lettre pour une offre.</li><li><b>Mes candidatures</b> : le suivi de vos envois.</li><li><b>Mon profil</b> : votre parcours et vos réglages.</li></ul>",
-    mtext:"<p>En bas de l'écran :</p><ul><li><b>Créer</b> : un CV et une lettre pour une offre.</li><li><b>Candidatures</b> : le suivi de vos envois.</li><li><b>Coach</b> : vos questions.</li><li><b>Profil</b> : votre parcours.</li></ul>" },
-  { view:"create", target:["#step-key"], title:"Votre code d'accès", text:"<p>Saisissez ici le code d'accès qu'on vous a donné, puis « Enregistrer ». Il reste sur cet appareil.</p>" },
-  { view:"profile", target:["#step-parcours"], title:"Votre parcours", text:"<p>Tout commence ici. Importez votre CV actuel (PDF, Word ou une simple photo), ou racontez votre parcours à l'écrit ou à voix haute.</p><p>" + BRAND.name + " n'invente rien : il part uniquement de ce que vous lui donnez.</p>" },
-  { view:"create", target:["#step-offre"], title:"L'offre d'emploi", text:"<p>Pour chaque offre, collez le <b>lien de l'annonce</b> (Hellowork, France Travail, Indeed…) ou son <b>texte</b>, puis cliquez sur <b>« Créer mon CV adapté »</b>.</p><p>Comptez 30 secondes à 1 minute.</p>", mtext:"<p>Pour chaque offre, collez le <b>lien de l'annonce</b> ou son <b>texte</b>, puis touchez <b>« Créer mon CV adapté »</b> (30 secondes à 1 minute).</p><p>Votre CV s'affiche ensuite : touchez <b>« Je veux changer quelque chose »</b> pour le faire corriger, à l'écrit ou à la voix, ou <b>« C'est parfait, je l'envoie »</b>.</p>" },
-  { view:"create", target:["#preview"], desktop:true, title:"Votre CV et votre lettre", text:"<ul><li>Pour corriger un mot, <b>cliquez directement dans le texte</b>. Une barre apparaît en bas pour la police, la taille et la couleur.</li><li>Cliquez ensuite sur <b>« Enregistrer mes retouches »</b>.</li><li>Pour un changement plus important, écrivez ce qui ne va pas dans « Que voulez-vous corriger ? ».</li><li>Les anciennes versions restent dans « Revenir à une version précédente ».</li></ul>" },
-  { view:"apps", target:[".views [data-view=apps]", "#tabbar [data-tab=apps]"], title:"Mes candidatures", text:"<p>Chaque CV créé y est rangé. Vous indiquez quand vous l'avez envoyé : " + BRAND.name + " vous rappelle de relancer au bout d'une semaine, vous aide à préparer l'entretien, et peut imprimer le récapitulatif de vos démarches pour France Travail.</p><p>Vos derniers CV se retrouvent aussi dans « Mes CV récents », dans l'onglet Créer.</p>" },
-  { view:"create", target:["#fab", "#tabbar [data-tab=coach]"], title:"Votre coach", text:"<p>Posez-lui toutes vos questions : « mon accroche est-elle bonne ? », « que répondre si on me demande mes défauts ? ». Il peut appliquer ses conseils à votre CV ou à votre lettre en un clic.</p>" },
-  { view:"create", target:["#btn-apply"], desktop:true, title:"Prêt à postuler ?", text:"<p>Quand le CV vous plaît, <b>« Préparer ma candidature »</b> regroupe la dernière relecture, les PDF à télécharger et le message à envoyer au recruteur.</p>" },
-  { title:"C'est parti !", text:"<p>Commencez par <b>Mon profil</b> pour donner votre parcours. Ensuite, une offre, un clic, et votre CV est prêt.</p><p class=\"hint\" style=\"margin:0\">Vous pouvez revoir cette visite à tout moment depuis Mon profil.</p>", last:true }
+  { title:_t("Bienvenue sur ") + BRAND.name, text:"<p>" + BRAND.name + _t(" adapte votre CV et votre lettre de motivation à chaque offre d'emploi, puis vous aide à suivre vos candidatures jusqu'à l'entretien.</p><p>Petite visite : moins d'une minute.</p><p class=\"hint\" style=\"margin:0\">") + BRAND.name + _t(" est une intelligence artificielle : relisez toujours vos documents avant de les envoyer.</p>") },
+  { view:"create", target:[".views", "#tabbar"], title:_t("Les onglets"),
+    text:_t("<ul><li><b>Créer</b> : un CV et une lettre pour une offre.</li><li><b>Mes candidatures</b> : le suivi de vos envois.</li><li><b>Mon profil</b> : votre parcours et vos réglages.</li></ul>"),
+    mtext:_t("<p>En bas de l'écran :</p><ul><li><b>Créer</b> : un CV et une lettre pour une offre.</li><li><b>Candidatures</b> : le suivi de vos envois.</li><li><b>Coach</b> : vos questions.</li><li><b>Profil</b> : votre parcours.</li></ul>") },
+  { view:"create", target:["#step-key"], title:_t("Votre code d'accès"), text:_t("<p>Saisissez ici le code d'accès qu'on vous a donné, puis « Enregistrer ». Il reste sur cet appareil.</p>") },
+  { view:"profile", target:["#step-parcours"], title:_t("Votre parcours"), text:_t("<p>Tout commence ici. Importez votre CV actuel (PDF, Word ou une simple photo), ou racontez votre parcours à l'écrit ou à voix haute.</p><p>") + BRAND.name + _t(" n'invente rien : il part uniquement de ce que vous lui donnez.</p>") },
+  { view:"create", target:["#step-offre"], title:_t("L'offre d'emploi"), text:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b> (Hellowork, France Travail, Indeed…) ou son <b>texte</b>, puis cliquez sur <b>« Créer mon CV adapté »</b>.</p><p>Comptez 30 secondes à 1 minute.</p>"), mtext:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b> ou son <b>texte</b>, puis touchez <b>« Créer mon CV adapté »</b> (30 secondes à 1 minute).</p><p>Votre CV s'affiche ensuite : touchez <b>« Je veux changer quelque chose »</b> pour le faire corriger, à l'écrit ou à la voix, ou <b>« C'est parfait, je l'envoie »</b>.</p>") },
+  { view:"create", target:["#preview"], desktop:true, title:_t("Votre CV et votre lettre"), text:_t("<ul><li>Pour corriger un mot, <b>cliquez directement dans le texte</b>. Une barre apparaît en bas pour la police, la taille et la couleur.</li><li>Cliquez ensuite sur <b>« Enregistrer mes retouches »</b>.</li><li>Pour un changement plus important, écrivez ce qui ne va pas dans « Que voulez-vous corriger ? ».</li><li>Les anciennes versions restent dans « Revenir à une version précédente ».</li></ul>") },
+  { view:"apps", target:[".views [data-view=apps]", "#tabbar [data-tab=apps]"], title:_t("Mes candidatures"), text:_t("<p>Chaque CV créé y est rangé. Vous indiquez quand vous l'avez envoyé : ") + BRAND.name + _t(" vous rappelle de relancer au bout d'une semaine, vous aide à préparer l'entretien, et peut imprimer le récapitulatif de vos démarches pour France Travail.</p><p>Vos derniers CV se retrouvent aussi dans « Mes CV récents », dans l'onglet Créer.</p>") },
+  { view:"create", target:["#fab", "#tabbar [data-tab=coach]"], title:_t("Votre coach"), text:_t("<p>Posez-lui toutes vos questions : « mon accroche est-elle bonne ? », « que répondre si on me demande mes défauts ? ». Il peut appliquer ses conseils à votre CV ou à votre lettre en un clic.</p>") },
+  { view:"create", target:["#btn-apply"], desktop:true, title:_t("Prêt à postuler ?"), text:_t("<p>Quand le CV vous plaît, <b>« Préparer ma candidature »</b> regroupe la dernière relecture, les PDF à télécharger et le message à envoyer au recruteur.</p>") },
+  { title:_t("C'est parti !"), text:_t("<p>Commencez par <b>Mon profil</b> pour donner votre parcours. Ensuite, une offre, un clic, et votre CV est prêt.</p><p class=\"hint\" style=\"margin:0\">Vous pouvez revoir cette visite à tout moment depuis Mon profil.</p>"), last:true }
 ];
 let tourI = -1, tourList = [], tourBack = null;
 const visibleEl = sel => { const n = document.querySelector(sel); if(!n || n.closest("[hidden]")) return null; const r = n.getBoundingClientRect(); return r.width > 0 && r.height > 0 ? n : null; };
@@ -4624,11 +4729,11 @@ function showTourStep(i, dir){
   if(i >= tourList.length){ endTour(); return; }
   tourI = i;
   const st = tourList[i];
-  $("#tour-step").textContent = "Étape " + (i + 1) + " sur " + tourList.length;
+  $("#tour-step").textContent = _t("Étape ") + (i + 1) + _t(" sur ") + tourList.length;
   $("#tour-title").textContent = st.title;
   $("#tour-text").innerHTML = (isM() && st.mtext) || st.text;
   $("#tour-prev").hidden = i === 0;
-  $("#tour-next").textContent = st.last ? "Commencer" : i === 0 ? "C'est parti" : "Suivant";
+  $("#tour-next").textContent = st.last ? _t("Commencer") : i === 0 ? _t("C'est parti") : _t("Suivant");
   $("#tour-skip").hidden = !!st.last;
   const t = tourTarget(st);
   if(t) t.scrollIntoView({ block:"nearest" });
@@ -4668,9 +4773,16 @@ document.addEventListener("keydown", e => {
   else if(e.key === "ArrowRight") $("#tour-next").click();
   else if(e.key === "ArrowLeft" && !$("#tour-prev").hidden) $("#tour-prev").click();
 });
+/* Réglages de langue (Mon profil) et langue du CV pour chaque offre (Créer) */
+function syncLangUi(){
+  const d = (prof() && prof().docLang) || "fr";
+  $("#ui-lang").value = UI_LANG; $("#doc-lang-default").value = d; $("#doc-lang").value = d;
+}
+$("#ui-lang").addEventListener("change", e => { store.set("uiLang", e.target.value); location.reload(); });
+$("#doc-lang-default").addEventListener("change", e => { const p = prof(); if(!p) return; p.docLang = e.target.value; saveProfiles(); $("#doc-lang").value = p.docLang; });
 const firstVisit = !store.get("tourSeen", false) && !history.length && !profiles.some(p => str(p.parcours).length >= 80);
 
-purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); setSyncUi(); scalePreview();
+purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); setSyncUi(); scalePreview(); syncLangUi();
 applyMobile();
 setView(str((prof() || {}).parcours).length < 80 ? "profile" : store.get("view", "create"));
 if(firstVisit) setTimeout(() => { if($("#ap").hidden && $("#msg-dlg").hidden) startTour(); }, 700);

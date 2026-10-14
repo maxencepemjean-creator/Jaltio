@@ -13,6 +13,13 @@ Le nom de la marque se change à un seul endroit : la constante `BRAND` au débu
 - **Synchronisation optionnelle** (routes `/sync/*`, base Cloudflare D1, schéma dans `worker/schema.sql`) : le navigateur chiffre les données (AES-GCM, clé dérivée du mot de passe) avant envoi. Le serveur ne stocke qu'un hash de l'e-mail, un hash du jeton d'authentification et le bloc chiffré. Purge automatique après 400 jours sans connexion.
 - **Par défaut** : parcours, historique et réglages restent dans le navigateur (`localStorage`). Export et import de fichier disponibles.
 
+## Langues
+
+- **Langue du site** (Mon profil) : français par défaut ; anglais, espagnol, russe via `lang/en.js`, `lang/es.js`, `lang/ru.js`. Seul le fichier de la langue choisie est chargé.
+- **Langue des CV et lettres** : réglage par profil, modifiable pour chaque offre (onglet Créer). Indépendante de la langue du site (ex. site en russe, CV en français).
+- Le coach, les alertes, le résumé de l'offre et la préparation d'entretien sont rédigés dans la langue du site ; le CV, la lettre, le message et les e-mails au recruteur dans la langue du document. Le récapitulatif pour France Travail reste en français.
+- **Ajouter un texte affiché** : l'écrire en français dans `index.html` entouré de `_t("…")` (inutile pour le texte écrit directement dans le HTML), puis ajouter la même clé française avec sa traduction dans les trois fichiers `lang/*.js`. Sans traduction, le texte s'affiche en français.
+
 ## Ce que fait le site
 
 1. **Parcours** : on dépose son ancien CV (PDF, Word .docx, texte) ou on décrit son parcours. On peut ajouter une photo.
