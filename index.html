@@ -466,6 +466,22 @@ body.m .eb-tools{display:none}
 body.m .save-fab{border-radius:999px}
 
 /* Mes CV récents (onglet Créer) */
+.tour{position:fixed;inset:0;z-index:120}
+.tour[hidden]{display:none}
+.tour-hole{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(17,24,39,.62);outline:3px solid #F2A93B;outline-offset:3px;transition:all .28s ease;pointer-events:none}
+.tour-hole.none{left:50%!important;top:45%!important;width:0!important;height:0!important;outline:0}
+.tour-tip{position:fixed;width:min(400px,calc(100vw - 24px));background:#fff;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);padding:18px 20px 16px;transition:top .28s ease,left .28s ease}
+.tour-step{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.tour-tip h2{font-family:var(--display);color:var(--brand);font-size:20px;line-height:1.2;margin:0 0 8px}
+#tour-text{font-size:15.5px;line-height:1.5}
+#tour-text p{margin:0 0 8px}
+#tour-text ul{margin:4px 0 8px;padding-left:20px}
+#tour-text li{margin:3px 0}
+.tour-btns{display:flex;align-items:center;gap:8px;margin-top:12px}
+.tour-btns .spacer{flex:1}
+.tour-btns .btn{min-height:44px;font-size:15.5px}
+#tour-skip{font-size:14px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.tour-hole,.tour-tip{transition:none}}
 .msg-box{max-width:460px}
 .msg-box #msg-text{font-size:15.5px;line-height:1.5;text-align:left;margin:0 0 18px}
 .msg-box #msg-text p{margin:0 0 10px}
@@ -1136,6 +1152,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
       <p><b>Vos droits :</b> supprimer vos données en ligne à tout moment avec le bouton ci-dessus ; récupérer une copie avec « Exporter mes données » ci-dessous. Pour toute question : jalon.emploi@gmail.com (responsable du service : Maxence Pemjean).</p>
     </details>
 
+    <p class="hint tour-again"><button class="link sync-link" id="btn-tour" type="button">Revoir la visite guidée du site</button></p>
     <p class="hint sync-backup">
       <button class="link sync-link" id="btn-backup" type="button">Exporter mes données</button>
       <span aria-hidden="true">·</span>
@@ -1264,6 +1281,21 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 <div class="sync-toast app-ui" id="sync-toast" role="status" hidden><span id="sync-toast-txt"></span> <button class="btn small primary" id="sync-toast-go" type="button">Actualiser</button></div>
 
 <!-- ================= AIDE : COMMENT MODIFIER MON CV ================= -->
+<div class="tour app-ui" id="tour" hidden>
+  <div class="tour-hole" id="tour-hole"></div>
+  <div class="tour-tip" id="tour-tip" role="dialog" aria-modal="true" aria-labelledby="tour-title" aria-describedby="tour-text">
+    <div class="tour-step" id="tour-step"></div>
+    <h2 id="tour-title"></h2>
+    <div id="tour-text"></div>
+    <div class="tour-btns">
+      <button class="link" id="tour-skip" type="button">Passer la visite</button>
+      <span class="spacer"></span>
+      <button class="btn" id="tour-prev" type="button">Précédent</button>
+      <button class="btn primary" id="tour-next" type="button">Suivant</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay hlp app-ui" id="msg-dlg" hidden>
   <div class="hlp-box msg-box" role="alertdialog" aria-modal="true" aria-labelledby="msg-title" aria-describedby="msg-text">
     <h2 id="msg-title"></h2>
@@ -4548,9 +4580,100 @@ setInterval(() => { if(syncSt && document.visibilityState === "visible" && !sync
   });
   if(changed) saveHistory();
 })();
+/* ---------- Visite guidée (première visite, puis « Revoir la visite guidée » dans Mon profil) ---------- */
+const TOUR = [
+  { title:"Bienvenue sur " + BRAND.name, text:"<p>" + BRAND.name + " adapte votre CV et votre lettre de motivation à chaque offre d'emploi, puis vous aide à suivre vos candidatures jusqu'à l'entretien.</p><p>Petite visite : moins d'une minute.</p><p class=\"hint\" style=\"margin:0\">" + BRAND.name + " est une intelligence artificielle : relisez toujours vos documents avant de les envoyer.</p>" },
+  { view:"create", target:[".views", "#tabbar"], title:"Les onglets",
+    text:"<ul><li><b>Créer</b> : un CV et une lettre pour une offre.</li><li><b>Mes candidatures</b> : le suivi de vos envois.</li><li><b>Mon profil</b> : votre parcours et vos réglages.</li></ul>",
+    mtext:"<p>En bas de l'écran :</p><ul><li><b>Créer</b> : un CV et une lettre pour une offre.</li><li><b>Candidatures</b> : le suivi de vos envois.</li><li><b>Coach</b> : vos questions.</li><li><b>Profil</b> : votre parcours.</li></ul>" },
+  { view:"create", target:["#step-key"], title:"Votre code d'accès", text:"<p>Saisissez ici le code d'accès qu'on vous a donné, puis « Enregistrer ». Il reste sur cet appareil.</p>" },
+  { view:"profile", target:["#step-parcours"], title:"Votre parcours", text:"<p>Tout commence ici. Importez votre CV actuel (PDF, Word ou une simple photo), ou racontez votre parcours à l'écrit ou à voix haute.</p><p>" + BRAND.name + " n'invente rien : il part uniquement de ce que vous lui donnez.</p>" },
+  { view:"create", target:["#step-offre"], title:"L'offre d'emploi", text:"<p>Pour chaque offre, collez le <b>lien de l'annonce</b> (Hellowork, France Travail, Indeed…) ou son <b>texte</b>, puis cliquez sur <b>« Créer mon CV adapté »</b>.</p><p>Comptez 30 secondes à 1 minute.</p>", mtext:"<p>Pour chaque offre, collez le <b>lien de l'annonce</b> ou son <b>texte</b>, puis touchez <b>« Créer mon CV adapté »</b> (30 secondes à 1 minute).</p><p>Votre CV s'affiche ensuite : touchez <b>« Je veux changer quelque chose »</b> pour le faire corriger, à l'écrit ou à la voix, ou <b>« C'est parfait, je l'envoie »</b>.</p>" },
+  { view:"create", target:["#preview"], desktop:true, title:"Votre CV et votre lettre", text:"<ul><li>Pour corriger un mot, <b>cliquez directement dans le texte</b>. Une barre apparaît en bas pour la police, la taille et la couleur.</li><li>Cliquez ensuite sur <b>« Enregistrer mes retouches »</b>.</li><li>Pour un changement plus important, écrivez ce qui ne va pas dans « Que voulez-vous corriger ? ».</li><li>Les anciennes versions restent dans « Revenir à une version précédente ».</li></ul>" },
+  { view:"apps", target:[".views [data-view=apps]", "#tabbar [data-tab=apps]"], title:"Mes candidatures", text:"<p>Chaque CV créé y est rangé. Vous indiquez quand vous l'avez envoyé : " + BRAND.name + " vous rappelle de relancer au bout d'une semaine, vous aide à préparer l'entretien, et peut imprimer le récapitulatif de vos démarches pour France Travail.</p><p>Vos derniers CV se retrouvent aussi dans « Mes CV récents », dans l'onglet Créer.</p>" },
+  { view:"create", target:["#fab", "#tabbar [data-tab=coach]"], title:"Votre coach", text:"<p>Posez-lui toutes vos questions : « mon accroche est-elle bonne ? », « que répondre si on me demande mes défauts ? ». Il peut appliquer ses conseils à votre CV ou à votre lettre en un clic.</p>" },
+  { view:"create", target:["#btn-apply"], desktop:true, title:"Prêt à postuler ?", text:"<p>Quand le CV vous plaît, <b>« Préparer ma candidature »</b> regroupe la dernière relecture, les PDF à télécharger et le message à envoyer au recruteur.</p>" },
+  { title:"C'est parti !", text:"<p>Commencez par <b>Mon profil</b> pour donner votre parcours. Ensuite, une offre, un clic, et votre CV est prêt.</p><p class=\"hint\" style=\"margin:0\">Vous pouvez revoir cette visite à tout moment depuis Mon profil.</p>", last:true }
+];
+let tourI = -1, tourList = [], tourBack = null;
+const visibleEl = sel => { const n = document.querySelector(sel); if(!n || n.closest("[hidden]")) return null; const r = n.getBoundingClientRect(); return r.width > 0 && r.height > 0 ? n : null; };
+function tourTarget(st){ for(const sel of st.target || []){ const n = visibleEl(sel); if(n) return n; } return null; }
+function startTour(){
+  if(document.body.classList.contains("chat-open")) openChat(false);
+  tourBack = document.body.dataset.view || "create";
+  tourList = TOUR.filter(st => !(st.desktop && isM()) && !(st.target && st.target[0] === "#step-key" && settings.apiKey));
+  tourI = 0; $("#tour").hidden = false; document.body.classList.add("modal-open");
+  showTourStep(0);
+}
+function endTour(){
+  if($("#tour").hidden) return;
+  $("#tour").hidden = true; document.body.classList.remove("modal-open");
+  store.set("tourSeen", true);
+  setView(str((prof() || {}).parcours).length < 80 ? "profile" : (tourBack || "create"));
+}
+function showTourStep(i, dir){
+  dir = dir || 1;
+  // saute les étapes dont la zone n'est pas visible (ex. code d'accès déjà saisi)
+  while(i >= 0 && i < tourList.length){
+    const st = tourList[i];
+    if(st.view && document.body.dataset.view !== st.view) setView(st.view);
+    if(!st.target || tourTarget(st)) break;
+    i += dir;
+  }
+  if(i < 0) i = 0;
+  if(i >= tourList.length){ endTour(); return; }
+  tourI = i;
+  const st = tourList[i];
+  $("#tour-step").textContent = "Étape " + (i + 1) + " sur " + tourList.length;
+  $("#tour-title").textContent = st.title;
+  $("#tour-text").innerHTML = (isM() && st.mtext) || st.text;
+  $("#tour-prev").hidden = i === 0;
+  $("#tour-next").textContent = st.last ? "Commencer" : i === 0 ? "C'est parti" : "Suivant";
+  $("#tour-skip").hidden = !!st.last;
+  const t = tourTarget(st);
+  if(t) t.scrollIntoView({ block:"nearest" });
+  requestAnimationFrame(placeTour);
+  $("#tour-next").focus({ preventScroll:true });
+}
+function placeTour(){
+  if($("#tour").hidden) return;
+  const st = tourList[tourI], t = tourTarget(st), hole = $("#tour-hole"), tip = $("#tour-tip");
+  const W = window.innerWidth, H = window.innerHeight, tw = tip.offsetWidth, th = tip.offsetHeight, pad = 8;
+  if(!t){
+    hole.classList.add("none");
+    tip.style.left = Math.max(12, (W - tw) / 2) + "px"; tip.style.top = Math.max(12, (H - th) / 2) + "px"; return;
+  }
+  hole.classList.remove("none");
+  const r = t.getBoundingClientRect();
+  const top = Math.max(4, r.top - pad), left = Math.max(4, r.left - pad);
+  const bottom = Math.min(H - 4, r.bottom + pad), right = Math.min(W - 4, r.right + pad);
+  Object.assign(hole.style, { top: top + "px", left: left + "px", width: (right - left) + "px", height: (bottom - top) + "px" });
+  // bulle : à droite de la zone si possible, sinon dessous, sinon dessus, sinon au centre
+  let x, y;
+  if(W - right > tw + 24){ x = right + 16; y = Math.min(Math.max(12, top), H - th - 12); }
+  else if(left > tw + 24){ x = left - tw - 16; y = Math.min(Math.max(12, top), H - th - 12); }
+  else if(H - bottom > th + 24){ y = bottom + 14; x = Math.min(Math.max(12, (left + right) / 2 - tw / 2), W - tw - 12); }
+  else if(top > th + 24){ y = top - th - 14; x = Math.min(Math.max(12, (left + right) / 2 - tw / 2), W - tw - 12); }
+  else { x = (W - tw) / 2; y = H - th - 12; }
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+$("#tour-next").addEventListener("click", () => { if(tourList[tourI] && tourList[tourI].last) endTour(); else showTourStep(tourI + 1, 1); });
+$("#tour-prev").addEventListener("click", () => showTourStep(tourI - 1, -1));
+$("#tour-skip").addEventListener("click", endTour);
+$("#btn-tour").addEventListener("click", startTour);
+window.addEventListener("resize", () => requestAnimationFrame(placeTour));
+document.addEventListener("keydown", e => {
+  if($("#tour").hidden) return;
+  if(e.key === "Escape") endTour();
+  else if(e.key === "ArrowRight") $("#tour-next").click();
+  else if(e.key === "ArrowLeft" && !$("#tour-prev").hidden) $("#tour-prev").click();
+});
+const firstVisit = !store.get("tourSeen", false) && !history.length && !profiles.some(p => str(p.parcours).length >= 80);
+
 purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); setSyncUi(); scalePreview();
 applyMobile();
 setView(str((prof() || {}).parcours).length < 80 ? "profile" : store.get("view", "create"));
+if(firstVisit) setTimeout(() => { if($("#ap").hidden && $("#msg-dlg").hidden) startTour(); }, 700);
 window.__cvx = { renderAll, showTab, cleanHex, linesDiff, purgeOld, setView, resultatsBlock, statusOf, groupsFor }; // utilisé pour les tests
 })();
 </script>
