@@ -118,6 +118,7 @@ details summary{cursor:pointer;font-weight:600}
 .cv .list{list-style:none;padding:0}
 .cv .list li{margin-bottom:.3em}
 .cv .photo{width:34mm;height:34mm;border-radius:50%;object-fit:cover;display:block}
+.cv .photo.sq{border-radius:2.5mm}
 
 /* Modèle moderne : colonne colorée à gauche */
 .cv.tpl-moderne{grid-template-columns:70mm 1fr;grid-template-rows:auto 1fr;grid-template-areas:"side head" "side main";height:297mm}
@@ -483,6 +484,21 @@ body.m .save-fab{border-radius:999px}
 .tour-btns .btn{min-height:44px;font-size:15.5px}
 #tour-skip{font-size:14px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.tour-hole,.tour-tip{transition:none}}
+.crop-box{max-width:400px}
+.crop-shape{display:flex;gap:8px;justify-content:center;margin:0 0 14px}
+.crop-shape button{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:110px;padding:10px 12px;border:2px solid var(--line);border-radius:14px;background:#fff;font:inherit;font-weight:600;font-size:15px;cursor:pointer;color:var(--ink)}
+.crop-shape button[aria-pressed="true"]{border-color:var(--brand);background:#F4EEF6;color:var(--brand)}
+.crop-shape i{display:block;width:28px;height:28px;background:currentColor;opacity:.75}
+.crop-shape .rd i{border-radius:50%}.crop-shape .sqb i{border-radius:5px}
+.crop-view{position:relative;width:280px;height:280px;max-width:100%;margin:0 auto;overflow:hidden;border-radius:12px;background:#1f1a22;touch-action:none;cursor:grab;user-select:none}
+.crop-view.drag{cursor:grabbing}
+.crop-view img{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;pointer-events:none}
+.crop-mask{position:absolute;inset:14px;border-radius:50%;box-shadow:0 0 0 400px rgba(20,14,24,.62);outline:2px solid #fff;pointer-events:none;transition:border-radius .2s}
+.crop-mask.sq{border-radius:10px}
+.crop-zoom{display:flex;align-items:center;gap:10px;margin:14px auto 4px;max-width:280px}
+.crop-zoom input{flex:1}
+.crop-zoom span{font-size:18px;font-weight:700;color:var(--muted);width:16px;text-align:center}
+.crop-box .hint{margin:6px 0 16px}
 .msg-box{max-width:460px}
 .msg-box #msg-text{font-size:15.5px;line-height:1.5;text-align:left;margin:0 0 18px}
 .msg-box #msg-text p{margin:0 0 10px}
@@ -983,6 +999,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
       <label for="profile-name" class="sr-only">Votre prénom et nom</label>
       <input type="text" id="profile-name" placeholder="Votre prénom et nom" autocomplete="name">
       <div class="who-actions">
+        <button class="link" id="btn-photo-crop" type="button" hidden>Recadrer la photo</button>
         <button class="link" id="btn-photo-del" type="button" hidden>Retirer la photo</button>
         <span class="who-switch" id="who-switch" hidden><label for="profile-select" class="sr-only">Changer de personne</label><select id="profile-select"></select></span>
         <button class="link" id="btn-new-profile" type="button" title="Créer un profil pour une autre personne">+ Autre personne</button>
@@ -1315,6 +1332,20 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   </div>
 </div>
 
+<div class="overlay hlp app-ui" id="crop-dlg" hidden>
+  <div class="hlp-box crop-box" role="dialog" aria-modal="true" aria-labelledby="crop-title">
+    <h2 id="crop-title">Ma photo</h2>
+    <div class="crop-shape" role="group" aria-label="Forme de la photo">
+      <button type="button" class="rd" data-shape="round" aria-pressed="true"><i aria-hidden="true"></i>Rond</button>
+      <button type="button" class="sqb" data-shape="square" aria-pressed="false"><i aria-hidden="true"></i>Carré</button>
+    </div>
+    <div class="crop-view" id="crop-view"><img id="crop-img" alt=""><div class="crop-mask" id="crop-mask"></div></div>
+    <div class="crop-zoom"><span aria-hidden="true">−</span><input type="range" id="crop-zoom" min="1" max="4" step="0.01" value="1" aria-label="Zoom"><span aria-hidden="true">+</span></div>
+    <p class="hint">Faites glisser la photo pour la centrer, et zoomez avec le curseur.</p>
+    <div class="msg-btns"><button class="btn primary" id="crop-ok" type="button">Valider</button><button class="btn alt" id="crop-cancel" type="button">Annuler</button></div>
+  </div>
+</div>
+
 <div class="overlay hlp app-ui" id="msg-dlg" hidden>
   <div class="hlp-box msg-box" role="alertdialog" aria-modal="true" aria-labelledby="msg-title" aria-describedby="msg-text">
     <h2 id="msg-title"></h2>
@@ -1642,6 +1673,7 @@ function renderProfiles(){
   const th = $("#photo-thumb");
   if(p.photo){ th.src = p.photo; th.hidden = false; $("#btn-photo-del").hidden = false; }
   else { th.hidden = true; th.removeAttribute("src"); $("#btn-photo-del").hidden = true; }
+  $("#btn-photo-crop").hidden = !p.photo;
   $("#btn-del-profile").hidden = profiles.length < 2;
   renderAvatar();
   renderHistory();
@@ -1674,7 +1706,7 @@ $("#file-photo").addEventListener("change", e => { const f = e.target.files[0]; 
 /* Retirer la photo : du profil, du CV affiché, et de tous les CV déjà créés pour ce profil */
 const stripPhoto = html => String(html || "").replace(/<img[^>]*class="photo"[^>]*>/g, "");
 $("#btn-photo-del").addEventListener("click", () => {
-  const p = prof(); p.photo = ""; saveProfiles(); renderProfiles();
+  const p = prof(); p.photo = ""; delete p.photoSrc; delete p.photoShape; saveProfiles(); renderProfiles();
   const ph = $("#page-cv .photo"); if(ph) ph.remove();
   history.filter(h => h.profileId === p.id).forEach(h => {
     h.cvHtml = stripPhoto(h.cvHtml); if(h.baseCvHtml) h.baseCvHtml = stripPhoto(h.baseCvHtml);
@@ -1729,20 +1761,81 @@ async function pdfViaClaude(buf){
   addCost(data.usage);
   return (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim();
 }
-function setPhotoFromFile(f){
+/* Photo : on garde une copie réduite de l'original (pour recadrer plus tard), puis on choisit la forme et le cadrage */
+function fileToDataUrl(f, max){
   return new Promise(res => {
-    const img = new Image(); const url = URL.createObjectURL(f);
+    const img = new Image(), url = URL.createObjectURL(f);
     img.onload = () => {
-      const S = 360, c = document.createElement("canvas"); c.width = S; c.height = S;
-      const m = Math.min(img.width, img.height);
-      c.getContext("2d").drawImage(img, (img.width-m)/2, (img.height-m)/2, m, m, 0, 0, S, S);
-      prof().photo = c.toDataURL("image/jpeg", 0.85); saveProfiles(); renderProfiles(); URL.revokeObjectURL(url);
-      const side = currentHistId && $("#page-cv .cv-side");
-      if(side){ let im = side.querySelector(".photo"); if(!im){ im = el("img", "photo"); im.alt = ""; side.prepend(im); } im.src = prof().photo; saveCurrentEdits(); fitVisible(); }
-      res();
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", 0.85));
     };
-    img.onerror = () => { URL.revokeObjectURL(url); res(); };
+    img.onerror = () => { URL.revokeObjectURL(url); res(""); };
     img.src = url;
+  });
+}
+async function setPhotoFromFile(f){
+  const src = await fileToDataUrl(f, 900);
+  if(!src){ await askBox({ title:_t("Format non compatible"), html:"<p>" + _t("Cette image n'a pas pu être lue.") + "</p>", buttons:[{ label:_t("J'ai compris"), cls:"primary", value:true }] }); return; }
+  await cropAndSave(src);
+}
+async function cropAndSave(src){
+  const p = prof();
+  const r = await openCropper(src, p.photoShape || "round"); if(!r) return;
+  p.photo = r.data; p.photoShape = r.shape; p.photoSrc = src; saveProfiles(); renderProfiles();
+  const side = currentHistId && $("#page-cv .cv-side");
+  if(side){ let im = side.querySelector(".photo"); if(!im){ im = el("img", "photo"); im.alt = ""; side.prepend(im); } im.src = p.photo; im.classList.toggle("sq", r.shape === "square"); saveCurrentEdits(); fitVisible(); }
+  // La nouvelle photo et sa forme s'appliquent aussi aux CV déjà créés pour ce profil
+  const cls = r.shape === "square" ? "photo sq" : "photo";
+  const swap = html => String(html || "").replace(/<img[^>]*class="photo[^"]*"[^>]*>/g, m => m.includes("@@PHOTO@@") ? m.replace(/class="photo[^"]*"/, 'class="' + cls + '"') : '<img class="' + cls + '" src="' + p.photo + '" alt="">');
+  history.filter(h => h.profileId === p.id && h.id !== currentHistId).forEach(h => { h.cvHtml = swap(h.cvHtml); if(h.baseCvHtml) h.baseCvHtml = swap(h.baseCvHtml); (h.snaps || []).forEach(sn => { sn.cv = swap(sn.cv); }); });
+  const cur = currentHistId && history.find(h => h.id === currentHistId);
+  if(cur){ if(cur.baseCvHtml) cur.baseCvHtml = swap(cur.baseCvHtml); (cur.snaps || []).forEach(sn => { sn.cv = swap(sn.cv); }); }
+  saveHistory();
+}
+$("#btn-photo-crop").addEventListener("click", () => { const p = prof(); if(p.photo) cropAndSave(p.photoSrc || p.photo); });
+
+/* Fenêtre de recadrage : forme (rond ou carré), déplacement à la souris ou au doigt, zoom */
+function openCropper(src, shape){
+  return new Promise(resolve => {
+    const ov = $("#crop-dlg"), view = $("#crop-view"), img = $("#crop-img"), mask = $("#crop-mask"), zoom = $("#crop-zoom");
+    let W = 0, H = 0, base = 1, z = 1, x = 0, y = 0, drag = null;
+    const V = () => view.clientWidth, M = 14;                // cadre = vue moins la marge du masque
+    const setShape = s => { shape = s; mask.classList.toggle("sq", s === "square"); ov.querySelectorAll("[data-shape]").forEach(b => b.setAttribute("aria-pressed", b.dataset.shape === s ? "true" : "false")); };
+    const clamp = () => { const v = V(), w = W * base * z, h = H * base * z; x = Math.min(M, Math.max(v - M - w, x)); y = Math.min(M, Math.max(v - M - h, y)); };
+    const draw = () => { clamp(); img.style.transform = "translate(" + x + "px," + y + "px) scale(" + (base * z) + ")"; };
+    const zoomTo = (nz, cx, cy) => { const v = V(); cx = cx == null ? v / 2 : cx; cy = cy == null ? v / 2 : cy; const k = nz / z; x = cx - (cx - x) * k; y = cy - (cy - y) * k; z = nz; zoom.value = z; draw(); };
+    const onDown = e => { drag = { px:e.clientX, py:e.clientY, x, y }; view.classList.add("drag"); view.setPointerCapture(e.pointerId); };
+    const onMove = e => { if(!drag) return; x = drag.x + e.clientX - drag.px; y = drag.y + e.clientY - drag.py; draw(); };
+    const onUp = () => { drag = null; view.classList.remove("drag"); };
+    const onWheel = e => { e.preventDefault(); const r = view.getBoundingClientRect(); zoomTo(Math.min(4, Math.max(1, z * (e.deltaY < 0 ? 1.08 : 1 / 1.08))), e.clientX - r.left, e.clientY - r.top); };
+    const onZoom = () => zoomTo(parseFloat(zoom.value));
+    const onShape = e => { const b = e.target.closest("[data-shape]"); if(b) setShape(b.dataset.shape); };
+    const onKey = e => { if(e.key === "Escape") done(null); };
+    const cleanup = () => { view.removeEventListener("pointerdown", onDown); view.removeEventListener("pointermove", onMove); view.removeEventListener("pointerup", onUp); view.removeEventListener("pointercancel", onUp);
+      view.removeEventListener("wheel", onWheel); zoom.removeEventListener("input", onZoom); ov.removeEventListener("click", onShape); document.removeEventListener("keydown", onKey);
+      $("#crop-ok").onclick = null; $("#crop-cancel").onclick = null; };
+    const done = v => { cleanup(); ov.hidden = true; document.body.classList.remove("modal-open"); resolve(v); };
+    img.onload = () => {
+      W = img.naturalWidth; H = img.naturalHeight;
+      const v = V(), c = v - 2 * M; base = Math.max(c / W, c / H); z = 1; zoom.value = 1;
+      x = M + (c - W * base) / 2; y = M + (c - H * base) * 0.3;     // légèrement vers le haut : le visage est souvent en haut
+      draw();
+    };
+    view.addEventListener("pointerdown", onDown); view.addEventListener("pointermove", onMove); view.addEventListener("pointerup", onUp); view.addEventListener("pointercancel", onUp);
+    view.addEventListener("wheel", onWheel, { passive:false }); zoom.addEventListener("input", onZoom); ov.addEventListener("click", onShape); document.addEventListener("keydown", onKey);
+    $("#crop-cancel").onclick = () => done(null);
+    $("#crop-ok").onclick = () => {
+      const c = V() - 2 * M, k = base * z, out = 420, cv = document.createElement("canvas"); cv.width = out; cv.height = out;
+      const g = cv.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, out, out);
+      g.drawImage(img, (M - x) / k, (M - y) / k, c / k, c / k, 0, 0, out, out);
+      done({ data: cv.toDataURL("image/jpeg", 0.88), shape });
+    };
+    setShape(shape);
+    ov.hidden = false; document.body.classList.add("modal-open");
+    img.src = src;
+    $("#crop-ok").focus({ preventScroll:true });
   });
 }
 /* Petite fenêtre centrée : message et boutons ; renvoie la valeur du bouton cliqué */
@@ -2253,7 +2346,7 @@ function renderCV(out){
   if(str(cv.phrase_cle)) head.appendChild(rich("p", "cle", cv.phrase_cle));
 
   const side = el("aside", "cv-side");
-  if(prof().photo){ const im = el("img", "photo"); im.src = prof().photo; im.alt = ""; side.appendChild(im); }
+  if(prof().photo){ const im = el("img", "photo" + (prof().photoShape === "square" ? " sq" : "")); im.src = prof().photo; im.alt = ""; side.appendChild(im); }
   const contacts = [c.adresse, c.ville, c.telephone, c.email, c.linkedin, c.permis].map(plain).filter(Boolean)
     .filter((x, i, a) => a.indexOf(x) === i);
   if(contacts.length){ const s = section(D().contact, "contact-blk"); const ul = el("ul", "list side-contact"); contacts.forEach(x => ul.appendChild(el("li", "", x))); s.appendChild(ul); side.appendChild(s); }
