@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Jalon — votre coach emploi IA</title>
+<title>Elanos — votre coach emploi IA</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 72 72%27%3E%3Crect width=%2772%27 height=%2772%27 rx=%2718%27 fill=%27%233A2340%27/%3E%3Cpath d=%27M19 38l11 11 23-26%27 fill=%27none%27 stroke=%27white%27 stroke-width=%277%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3Ccircle cx=%2753%27 cy=%2722%27 r=%274.5%27 fill=%27none%27 stroke=%27%23F2A93B%27 stroke-width=%274%27/%3E%3C/svg%3E">
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -560,7 +560,7 @@ body.modal-open{overflow:hidden}
 @media (max-width:600px){ .overlay{padding:0} .dialog{border-radius:0} .ap-pages{grid-template-columns:1fr} }
 @media print{ .overlay{display:none!important} body.modal-open{overflow:visible} }
 
-/* ================= Identité Jalon ================= */
+/* ================= Identité Elanos ================= */
 [hidden]{display:none!important} /* un élément masqué le reste, quel que soit son style */
 body{font-family:'Figtree',system-ui,sans-serif;background:var(--bg)}
 .panel{background:#fff;border-right:1px solid var(--line)}
@@ -849,10 +849,10 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 
 <!-- ================= PANNEAU DE GAUCHE ================= -->
 <aside class="panel app-ui">
-  <div class="brand"><svg class="logo" width="40" height="40" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name" data-brand>Jalon</span></div>
+  <div class="brand"><svg class="logo" width="40" height="40" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name" data-brand>Elanos</span></div>
   <p class="sub" data-brand-sig>Chaque étape, jusqu'au poste.</p>
   <button class="sync-pill app-ui" id="sync-pill" type="button" data-goto="profile" hidden><span class="sync-dot" aria-hidden="true"></span><span id="sync-pill-txt"></span></button>
-  <nav class="views" role="tablist" aria-label="Sections de Jalon">
+  <nav class="views" role="tablist" aria-label="Sections d'Elanos">
     <button class="view-tab" role="tab" type="button" data-view="create" aria-selected="true">Créer</button>
     <button class="view-tab" role="tab" type="button" data-view="apps" aria-selected="false">Mes candidatures <span class="badge" id="nav-badge" hidden></span></button>
     <button class="view-tab" role="tab" type="button" data-view="profile" aria-selected="false">Mon profil</button>
@@ -894,7 +894,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   <div class="step" data-v="profile" id="step-parcours">
     <h2><span class="num">1</span> Votre CV</h2>
     <div id="pc-empty">
-      <p class="hint" style="margin-top:0"><span data-brand>Jalon</span> part de votre CV actuel pour écrire tous les autres. Rien n'est inventé.</p>
+      <p class="hint" style="margin-top:0"><span data-brand>Elanos</span> part de votre CV actuel pour écrire tous les autres. Rien n'est inventé.</p>
       <div class="drop" id="drop" tabindex="0" role="button" style="margin-top:10px">
         <b>Importer mon CV</b><br>Déposez-le ici ou touchez pour le choisir : PDF ou Word
       </div>
@@ -926,7 +926,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
     <div class="status" id="pc-status"></div>
     <input type="file" id="file-any" accept=".pdf,.docx,.txt,.md,image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" multiple hidden>
     <textarea id="profile-parcours" hidden aria-hidden="true" tabindex="-1"></textarea>
-    <p class="hint" id="retouches-info" hidden><span data-brand>Jalon</span> s'inspire de <span id="retouches-n"></span> pour écrire comme vous. <button class="btn small" id="btn-forget" type="button">Oublier</button></p>
+    <p class="hint" id="retouches-info" hidden><span data-brand>Elanos</span> s'inspire de <span id="retouches-n"></span> pour écrire comme vous. <button class="btn small" id="btn-forget" type="button">Oublier</button></p>
   </div>
 
   <div class="step" data-v="create" id="step-offre" data-mkeep>
@@ -984,7 +984,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
     <div class="goal" id="goal"></div>
     <div class="apps-head"><b>Mes candidatures</b><button class="btn" id="btn-add-app" type="button" aria-expanded="false">+ Ajouter</button></div>
     <form class="add-form" id="add-form" hidden>
-      <p class="hint" style="margin:0">Une candidature faite sans <span data-brand>Jalon</span> (spontanée, en magasin, sur un autre site) : ajoutez-la pour que votre suivi soit complet.</p>
+      <p class="hint" style="margin:0">Une candidature faite sans <span data-brand>Elanos</span> (spontanée, en magasin, sur un autre site) : ajoutez-la pour que votre suivi soit complet.</p>
       <label for="add-poste">Poste</label><input type="text" id="add-poste" placeholder="Ex. : Caissière" required>
       <label for="add-ent">Entreprise</label><input type="text" id="add-ent" placeholder="Ex. : Super U Surgères">
       <label for="add-url">Lien de l'annonce <span style="font-weight:400;color:var(--muted)">(facultatif)</span></label><input type="text" id="add-url" inputmode="url" placeholder="https://…">
@@ -999,11 +999,11 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   </div>
 
   <div class="step" data-v="profile" id="step-backup">
-    <h2><span class="num"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span><span>Retrouver <span data-brand>Jalon</span> sur tous mes appareils</span></h2>
+    <h2><span class="num"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span><span>Retrouver <span data-brand>Elanos</span> sur tous mes appareils</span></h2>
 
     <div id="sync-off">
       <p class="hint" style="margin-top:0">Choisissez un identifiant (votre e-mail) et un mot de passe. Sur un autre appareil, entrez les mêmes : vous retrouvez votre parcours, vos CV, vos candidatures et votre suivi.</p>
-      <div class="sync-warn" role="note"><b>À lire avant de commencer.</b> Vos données sont verrouillées avec votre mot de passe, sur votre appareil, avant d'être envoyées. Personne d'autre ne peut les lire, pas même <span data-brand>Jalon</span>. <b>Conséquence : si vous oubliez ce mot de passe, vos données en ligne sont perdues pour toujours, personne ne peut les récupérer.</b> Gardez-le dans un endroit sûr (le gestionnaire de mots de passe de votre téléphone, par exemple).</div>
+      <div class="sync-warn" role="note"><b>À lire avant de commencer.</b> Vos données sont verrouillées avec votre mot de passe, sur votre appareil, avant d'être envoyées. Personne d'autre ne peut les lire, pas même <span data-brand>Elanos</span>. <b>Conséquence : si vous oubliez ce mot de passe, vos données en ligne sont perdues pour toujours, personne ne peut les récupérer.</b> Gardez-le dans un endroit sûr (le gestionnaire de mots de passe de votre téléphone, par exemple).</div>
       <form id="sync-form" autocomplete="on" novalidate>
         <label for="sync-mail">Identifiant (votre e-mail)</label>
         <input type="email" id="sync-mail" name="username" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="prenom.nom@exemple.fr">
@@ -1013,7 +1013,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
           <label for="sync-pw2">Retapez le mot de passe</label>
           <input type="password" id="sync-pw2" name="password2" autocomplete="new-password">
           <div id="sync-code-box" hidden>
-            <label for="sync-code">Code d'accès <span data-brand>Jalon</span></label>
+            <label for="sync-code">Code d'accès <span data-brand>Elanos</span></label>
             <input type="text" id="sync-code" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Le code qu'on vous a donné">
           </div>
           <label class="sync-check"><input type="checkbox" id="sync-ok"><span>J'ai compris : si j'oublie ce mot de passe, mes données en ligne sont perdues.</span></label>
@@ -1029,7 +1029,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
         <button class="btn" id="sync-now" type="button">Synchroniser maintenant</button>
         <button class="btn" id="sync-out" type="button">Se déconnecter de cet appareil</button>
       </div>
-      <p class="hint" style="margin-top:8px">Se déconnecter garde vos données sur cet appareil et en ligne. Le code d'accès à <span data-brand>Jalon</span> n'est jamais synchronisé : il reste propre à chaque appareil.</p>
+      <p class="hint" style="margin-top:8px">Se déconnecter garde vos données sur cet appareil et en ligne. Le code d'accès à <span data-brand>Elanos</span> n'est jamais synchronisé : il reste propre à chaque appareil.</p>
       <button class="link danger sync-link" id="sync-del" type="button">Supprimer mes données en ligne</button>
     </div>
 
@@ -1037,7 +1037,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 
     <details class="sync-rgpd">
       <summary>Vos données et vos droits</summary>
-      <p><b>Ce qui est enregistré en ligne :</b> un bloc de données chiffré sur votre appareil avec votre mot de passe (parcours, CV, lettres, suivi, objectifs), un identifiant haché dérivé de votre e-mail, et des dates techniques. <span data-brand>Jalon</span> ne reçoit jamais votre e-mail, votre mot de passe ni le contenu lisible de vos documents.</p>
+      <p><b>Ce qui est enregistré en ligne :</b> un bloc de données chiffré sur votre appareil avec votre mot de passe (parcours, CV, lettres, suivi, objectifs), un identifiant haché dérivé de votre e-mail, et des dates techniques. <span data-brand>Elanos</span> ne reçoit jamais votre e-mail, votre mot de passe ni le contenu lisible de vos documents.</p>
       <p><b>Hébergement :</b> Cloudflare. <b>Durée :</b> tant que vous utilisez la synchronisation ; sans aucune connexion pendant 400 jours (environ 13 mois), le bloc est supprimé automatiquement.</p>
       <p><b>Vos droits :</b> supprimer vos données en ligne à tout moment avec le bouton ci-dessus ; récupérer une copie avec « Exporter mes données » ci-dessous. Pour toute question : jalon.emploi@gmail.com (responsable du service : Maxence Pemjean).</p>
     </details>
@@ -1076,11 +1076,11 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   <div class="empty app-ui" id="empty">
     <svg class="logo" width="56" height="56" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg>
     <h2>Jamais seul face à une candidature.</h2>
-    <p><span data-brand>Jalon</span>, votre coach IA : CV, lettre de motivation et suivi de vos candidatures, jusqu'à l'entretien.</p>
+    <p><span data-brand>Elanos</span>, votre coach IA : CV, lettre de motivation et suivi de vos candidatures, jusqu'à l'entretien.</p>
     <div class="how">
       <div><b>1. Votre parcours</b><span>Déposez votre ancien CV, ou décrivez-vous à voix haute.</span></div>
       <div><b>2. L'offre</b><span>Collez le lien de l'annonce : le CV et la lettre s'adaptent.</span></div>
-      <div><b>3. Postulez</b><span>Relisez, envoyez, et <span data-brand>Jalon</span> vous dit quand relancer.</span></div>
+      <div><b>3. Postulez</b><span>Relisez, envoyez, et <span data-brand>Elanos</span> vous dit quand relancer.</span></div>
     </div>
   </div>
   <div class="fiche-view app-ui" id="fiche-view"></div>
@@ -1093,7 +1093,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 <!-- ================= DISCUSSION AVEC CLAUDE ================= -->
 <aside class="chat app-ui" id="chat" aria-label="Discussion avec votre coach">
   <div class="chat-head">
-    <div><b>Demande à <span data-brand>Jalon</span></b><p class="hint" id="chat-ctx">Votre coach IA voit votre parcours, l'annonce, votre CV, votre lettre et votre photo.</p></div>
+    <div><b>Demande à <span data-brand>Elanos</span></b><p class="hint" id="chat-ctx">Votre coach IA voit votre parcours, l'annonce, votre CV, votre lettre et votre photo.</p></div>
     <button class="btn small" id="chat-close" aria-label="Fermer la discussion"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
   </div>
   <div class="chat-msgs" id="chat-msgs" aria-live="polite"></div>
@@ -1113,7 +1113,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
       <button class="send" id="chat-send" type="submit" aria-label="Envoyer" title="Envoyer" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></button>
     </div>
   </form>
-  <div class="row chat-foot"><p class="hint"><span data-brand>Jalon</span> est une IA : il peut se tromper, gardez votre jugement.</p><button class="btn small" id="chat-clear" type="button">Effacer</button></div>
+  <div class="row chat-foot"><p class="hint"><span data-brand>Elanos</span> est une IA : il peut se tromper, gardez votre jugement.</p><button class="btn small" id="chat-clear" type="button">Effacer</button></div>
 </aside>
 </div>
 
@@ -1126,7 +1126,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 <button class="save-fab app-ui" id="save-fab" type="button" title="Enregistrer les modifications faites à la main dans le CV et la lettre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span id="save-fab-label">Enregistrer mes retouches</span></button>
 <button class="fab app-ui" id="fab" type="button" aria-label="Demande à votre coach">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 2.5c-5.25 0-9.5 3.8-9.5 8.5 0 2.3 1 4.4 2.7 5.9L4.3 21l4.6-2.1c.97.27 2 .4 3.1.4 5.25 0 9.5-3.8 9.5-8.5S17.25 2.5 12 2.5z"/><circle cx="7.9" cy="11" r="1.35" fill="var(--accent)"/><circle cx="12" cy="11" r="1.35" fill="var(--accent)"/><circle cx="16.1" cy="11" r="1.35" fill="var(--accent)"/></svg>
-  <span class="tip">Demande à <span data-brand>Jalon</span> !</span>
+  <span class="tip">Demande à <span data-brand>Elanos</span> !</span>
 </button>
 
 <!-- ================= SYNCHRO : CHOIX À FAIRE ================= -->
@@ -1207,7 +1207,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 "use strict";
 
 /* ===== Nom et signature de la marque : à changer ICI uniquement ===== */
-const BRAND = { name: "Jalon", signature: "Chaque étape, jusqu'au poste." };
+const BRAND = { name: "Elanos", signature: "Chaque étape, jusqu'au poste." };
 document.querySelectorAll("[data-brand]").forEach(n => { n.textContent = BRAND.name; });
 document.querySelectorAll("[data-brand-sig]").forEach(n => { n.textContent = BRAND.signature; });
 document.title = BRAND.name + " — votre coach emploi IA";
@@ -2199,7 +2199,7 @@ function renderHistory(){
   });
 }
 
-/* Ajouter une candidature faite sans Jalon */
+/* Ajouter une candidature faite sans Elanos */
 function toggleAdd(show){ $("#add-form").hidden = !show; $("#btn-add-app").setAttribute("aria-expanded", show ? "true" : "false"); if(show){ $("#add-date").value = new Date().toISOString().slice(0, 10); $("#add-poste").focus(); } }
 $("#btn-add-app").addEventListener("click", () => toggleAdd($("#add-form").hidden));
 $("#add-cancel").addEventListener("click", () => toggleAdd(false));
@@ -2229,7 +2229,7 @@ function downloadIcs(G, kind){
     if(!S.itwAt) return; start = new Date(S.itwAt).getTime(); end = start + 3600e3;
     title = "Entretien " + v.poste + (v.entreprise ? " – " + v.entreprise : ""); desc = (S.contact ? "Contact : " + S.contact + "\n" : "") + "Préparation dans " + BRAND.name + ".";
   }
-  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Jalon//FR", "CALSCALE:GREGORIAN", "BEGIN:VEVENT",
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Elanos//FR", "CALSCALE:GREGORIAN", "BEGIN:VEVENT",
     "UID:" + G.id + "-" + (kind || "itw") + "@jalon", "DTSTAMP:" + icsDate(Date.now()), "DTSTART:" + icsDate(start), "DTEND:" + icsDate(end),
     "SUMMARY:" + icsEsc(title), "DESCRIPTION:" + icsEsc(desc), "BEGIN:VALARM", "TRIGGER:-PT2H", "ACTION:DISPLAY", "DESCRIPTION:" + icsEsc(title), "END:VALARM", "END:VEVENT", "END:VCALENDAR"];
   const blob = new Blob([lines.join("\r\n")], { type:"text/calendar;charset=utf-8" });
@@ -3136,7 +3136,7 @@ function chipSearch(k, list, onAdd){
     q.split(/\s*[,;]\s*/).filter(Boolean).forEach(commit); });
   const box = el("div"); box.appendChild(form); box.appendChild(warn); return box;
 }
-/* Suggestions personnalisées : Jalon lit les expériences et propose des compétences à cocher */
+/* Suggestions personnalisées : Elanos lit les expériences et propose des compétences à cocher */
 const SKILL_SUGG_SYSTEM = "Tu aides un candidat à compléter la rubrique compétences de son CV. On te donne sa fiche (JSON). Propose 12 compétences concrètes qu'il a très probablement d'après ses expériences et formations : d'abord des savoir-faire précis du métier (verbes ou noms courts, 2 à 5 mots, vocabulaire des offres d'emploi), puis 3 qualités professionnelles. Pas de doublon avec ses compétences actuelles, rien qu'il ne puisse justifier par son parcours. Réponds UNIQUEMENT en JSON : {\"competences\":[\"...\"]}";
 let suggLoading = null;
 async function suggestSkills(p){
@@ -3298,7 +3298,7 @@ function renderProfilView(){
     if(k === "competences"){
       const ideas = el("div", "pv-ideas");
       const left = arr(p.sugg).filter(x => !already(r.competences, x));
-      if(suggLoading === p.id){ const w = el("div", "pv-wait"); w.appendChild(el("span", "spin")); w.appendChild(el("span", "", "Jalon relit vos expériences…")); ideas.appendChild(w); }
+      if(suggLoading === p.id){ const w = el("div", "pv-wait"); w.appendChild(el("span", "spin")); w.appendChild(el("span", "", "Elanos relit vos expériences…")); ideas.appendChild(w); }
       else if(left.length){
         ideas.appendChild(el("b", "", "Suggestions d'après votre parcours (touchez pour ajouter) :"));
         const sc = el("div", "chips");
@@ -3526,7 +3526,7 @@ function exportData(){
   const blob = new Blob([JSON.stringify(file)], { type:"application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "Jalon sauvegarde " + new Date().toISOString().slice(0, 10) + ".json";
+  a.download = "Elanos sauvegarde " + new Date().toISOString().slice(0, 10) + ".json";
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   store.set("lastBackup", Date.now()); updateBackupInfo();

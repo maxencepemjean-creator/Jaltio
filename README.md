@@ -1,4 +1,4 @@
-# Jalon — votre coach emploi IA
+# Elanos — votre coach emploi IA
 
 *Chaque étape, jusqu'au poste.*
 
