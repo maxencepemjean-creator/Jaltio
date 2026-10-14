@@ -466,6 +466,13 @@ body.m .eb-tools{display:none}
 body.m .save-fab{border-radius:999px}
 
 /* Mes CV récents (onglet Créer) */
+.msg-box{max-width:460px}
+.msg-box #msg-text{font-size:15.5px;line-height:1.5;text-align:left;margin:0 0 18px}
+.msg-box #msg-text p{margin:0 0 10px}
+.msg-box #msg-text ul{margin:6px 0 10px;padding-left:20px}
+.msg-box #msg-text li{margin:3px 0}
+.msg-btns{display:flex;flex-direction:column;gap:10px;align-items:center}
+.msg-btns .btn{min-height:48px;min-width:240px;font-size:16px}
 .company-miss{margin:8px 0 4px}
 .company-miss .hint{margin:0 0 6px}
 .recent summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:16px;color:var(--brand);list-style:none;display:flex;align-items:center;gap:6px;min-height:32px}
@@ -978,7 +985,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
     <div id="pc-empty">
       <p class="hint" style="margin-top:0"><span data-brand>Elanos</span> part de votre CV actuel pour écrire tous les autres. Rien n'est inventé.</p>
       <div class="drop" id="drop" tabindex="0" role="button" style="margin-top:10px">
-        <b>Importer mon CV</b><br>Déposez-le ici ou touchez pour le choisir : PDF ou Word
+        <b>Importer mon CV</b><br>Déposez-le ici ou touchez pour le choisir : PDF, Word ou photo du CV (JPG, PNG)
       </div>
       <p class="or">Pas de CV sous la main ?</p>
       <div class="pc-choices">
@@ -1006,7 +1013,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
       </div>
     </div>
     <div class="status" id="pc-status"></div>
-    <input type="file" id="file-any" accept=".pdf,.docx,.txt,.md,image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" multiple hidden>
+    <input type="file" id="file-any" accept=".pdf,.docx,.txt,.md,.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" multiple hidden>
     <textarea id="profile-parcours" hidden aria-hidden="true" tabindex="-1"></textarea>
     <p class="hint" id="retouches-info" hidden><span data-brand>Elanos</span> s'inspire de <span id="retouches-n"></span> pour écrire comme vous. <button class="btn small" id="btn-forget" type="button">Oublier</button></p>
   </div>
@@ -1257,6 +1264,14 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 <div class="sync-toast app-ui" id="sync-toast" role="status" hidden><span id="sync-toast-txt"></span> <button class="btn small primary" id="sync-toast-go" type="button">Actualiser</button></div>
 
 <!-- ================= AIDE : COMMENT MODIFIER MON CV ================= -->
+<div class="overlay hlp app-ui" id="msg-dlg" hidden>
+  <div class="hlp-box msg-box" role="alertdialog" aria-modal="true" aria-labelledby="msg-title" aria-describedby="msg-text">
+    <h2 id="msg-title"></h2>
+    <div id="msg-text"></div>
+    <div class="msg-btns" id="msg-btns"></div>
+  </div>
+</div>
+
 <div class="overlay hlp app-ui" id="help" hidden>
   <div class="hlp-box" role="dialog" aria-modal="true" aria-labelledby="help-title" aria-describedby="help-desc">
     <h2 id="help-title">Comment modifier mon CV ?</h2>
@@ -1593,10 +1608,89 @@ function setPhotoFromFile(f){
     img.src = url;
   });
 }
+/* Petite fenêtre centrée : message et boutons ; renvoie la valeur du bouton cliqué */
+function askBox({ title, html, buttons }){
+  return new Promise(resolve => {
+    const ov = $("#msg-dlg"), back = document.activeElement;
+    $("#msg-title").textContent = title; $("#msg-text").innerHTML = html;
+    const row = $("#msg-btns"); row.textContent = "";
+    const done = v => { ov.hidden = true; document.body.classList.remove("modal-open"); document.removeEventListener("keydown", esc); if(back && back.focus) try{ back.focus({ preventScroll:true }); }catch(e){} resolve(v); };
+    const esc = e => { if(e.key === "Escape") done(null); };
+    buttons.forEach(b => { const x = el("button", "btn " + (b.cls || ""), b.label); x.type = "button"; x.addEventListener("click", () => done(b.value)); row.appendChild(x); });
+    ov.hidden = false; document.body.classList.add("modal-open"); document.addEventListener("keydown", esc);
+    row.querySelector("button").focus({ preventScroll:true });
+  });
+}
+const escHtml = t => String(t).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]);
+const FORMATS_HTML = "<ul><li><b>PDF</b> (.pdf), même scanné</li><li><b>Word</b> (.docx)</li><li><b>Photo ou capture d'écran du CV</b> (.jpg, .jpeg, .png, .webp)</li><li><b>Texte</b> (.txt)</li></ul>";
+const IMG_RE = /\.(jpe?g|png|webp)$/i, OK_RE = /\.(pdf|docx|txt|md|jpe?g|png|webp)$/i;
+function badFormatHtml(names){
+  const n = names.map(x => x.toLowerCase());
+  let tip = "";
+  if(n.some(x => x.endsWith(".doc"))) tip += "<p><b>Ancien fichier Word (.doc) :</b> ouvrez-le dans Word, puis « Fichier › Enregistrer sous » et choisissez « Document Word (.docx) » ou « PDF ».</p>";
+  if(n.some(x => /\.(heic|heif)$/.test(x))) tip += "<p><b>Photo d'iPhone (.heic) :</b> faites plutôt une capture d'écran de la photo, ou envoyez-vous la photo par e-mail : elle arrivera en .jpg.</p>";
+  if(n.some(x => /\.(odt|pages|rtf)$/.test(x))) tip += "<p><b>Autre traitement de texte :</b> enregistrez le fichier en PDF (« Exporter en PDF »).</p>";
+  return "<p>" + (names.length > 1 ? "Ces fichiers ne peuvent pas être lus : " : "Ce fichier ne peut pas être lu : ") + names.map(x => "« " + escHtml(x) + " »").join(", ") + ".</p>" +
+    "<p>Formats acceptés :</p>" + FORMATS_HTML + tip;
+}
+/* Photo ou capture d'écran d'un CV : réduite puis lue par Claude (plusieurs pages possibles) */
+function imageToJpeg(f, max){
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(f);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", 0.85).split(",")[1]);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("L'image « " + f.name + " » n'a pas pu être ouverte. Essayez une capture d'écran en .png ou .jpg.")); };
+    img.src = url;
+  });
+}
+async function imagesViaClaude(files){
+  if(!settings.apiKey) throw new Error("Enregistrez d'abord votre code d'accès pour que la photo du CV puisse être lue.");
+  const content = [];
+  for(const f of files.slice(0, 5)) content.push({ type:"image", source:{ type:"base64", media_type:"image/jpeg", data: await imageToJpeg(f, 1600) } });
+  content.push({ type:"text", text:"Ces images sont " + (files.length > 1 ? "les pages d'un même CV, dans l'ordre" : "la photo ou la capture d'écran d'un CV") + ". Retranscris fidèlement son contenu en texte brut, section par section (coordonnées, expériences avec dates, formations, compétences, langues, centres d'intérêt). N'ajoute rien, ne commente pas. Si les images ne contiennent pas de CV ou sont illisibles, réponds uniquement : ILLISIBLE." });
+  const data = await callClaude({ model:settings.model, max_tokens:4000, messages:[{ role:"user", content }] }, settings.apiKey);
+  addCost(data.usage);
+  const t = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim();
+  if(/^ILLISIBLE\b/i.test(t)) throw new Error("Aucun CV lisible sur cette image. Prenez la photo bien à plat, avec une bonne lumière, ou faites une capture d'écran.");
+  return t;
+}
+
 async function handleFiles(files){
+  // 1) Formats non compatibles : une fenêtre explique lesquels sont acceptés
+  const bad = files.filter(f => !OK_RE.test(f.name) && !(f.type === "text/plain"));
+  if(bad.length){
+    await askBox({ title:"Format non compatible", html: badFormatHtml(bad.map(f => f.name)), buttons:[{ label:"J'ai compris", cls:"primary", value:true }] });
+    files = files.filter(f => !bad.includes(f));
+  }
+  // 2) Images : photo du CV ou photo de profil ?
+  const imgs = files.filter(f => IMG_RE.test(f.name));
+  files = files.filter(f => !imgs.includes(f));
+  if(imgs.length){
+    const kind = await askBox({ title: imgs.length > 1 ? "Ces images sont…" : "Cette image est…",
+      html:"<p>" + imgs.map(f => "« " + escHtml(f.name) + " »").join(", ") + "</p>",
+      buttons:[{ label: imgs.length > 1 ? "Les pages de mon CV" : "Une photo de mon CV", cls:"primary", value:"cv" }, { label:"Ma photo pour le CV", value:"photo" }, { label:"Annuler", cls:"alt", value:null }] });
+    if(kind === "photo") await setPhotoFromFile(imgs[0]);
+    else if(kind === "cv"){
+      drop.innerHTML = "<b>Lecture de la photo du CV… (10 à 30 s)</b>";
+      status("#pc-status", "info", "Lecture de la photo du CV…");
+      try{
+        const txt = await imagesViaClaude(imgs);
+        if(txt.length < 40) throw new Error("Aucun texte trouvé sur cette image. Prenez la photo bien à plat, avec une bonne lumière.");
+        const pp = prof();
+        if(!(str(pp.parcours).length >= 80 && !confirm("Remplacer votre CV enregistré par « " + imgs[0].name + " » ?"))) setParcours(txt, "la photo du CV « " + imgs[0].name + " »");
+      }catch(e){ status("#pc-status", "err", e.message || "Cette image n'a pas pu être lue."); }
+      finally{ drop.innerHTML = DROP_HTML; }
+    }
+  }
+  return handleDocFiles(files);
+}
+async function handleDocFiles(files){
   for(const f of files){
     const name = f.name.toLowerCase();
-    if(f.type.startsWith("image/")){ await setPhotoFromFile(f); continue; }
     drop.innerHTML = "<b>Lecture de « " + f.name.replace(/[<>&"]/g, "") + " »…</b>";
     status("#pc-status", "info", "Lecture de « " + f.name + " »…");
     try{
