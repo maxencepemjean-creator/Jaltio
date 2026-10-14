@@ -513,6 +513,11 @@ body.m .save-fab{border-radius:999px}
 .msg-btns .btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
 .msg-btns .btn{min-height:48px;min-width:240px;font-size:16px}
 .company-miss{margin:8px 0 4px}
+.ap-find{margin:8px 0 0}
+.ap-contact{margin:10px 0 0;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:14px;line-height:1.45}
+.ap-contact p{margin:0 0 6px}.ap-contact p:last-child{margin:0}
+.ap-contact .src{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.ap-share{margin:12px 0 0;width:100%}
 .doc-lang-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 12px}
 .doc-lang-row label{margin:0}
 .doc-lang-row select{width:auto;min-width:140px}
@@ -1440,7 +1445,10 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
         <div class="row"><input type="text" id="ap-url" inputmode="url" placeholder="https://…"><button class="btn" id="ap-open" type="button">Ouvrir <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></button></div>
         <label for="ap-email">Candidature par e-mail <span style="font-weight:400;color:var(--muted)">(si l'annonce donne une adresse)</span></label>
         <div class="row"><input type="text" id="ap-email" inputmode="email" placeholder="recrutement@entreprise.fr"><button class="btn" id="ap-mail" type="button">Préparer l'e-mail</button></div>
-        <p class="hint">L'e-mail s'ouvre déjà rédigé dans votre messagerie : il reste à joindre le CV et la lettre en PDF, puis à envoyer.</p>
+        <button class="btn small ap-find" id="ap-find" type="button"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg> Trouver le contact de l'entreprise</button>
+        <div class="ap-contact" id="ap-contact" hidden></div>
+        <button class="btn primary ap-share" id="ap-share" type="button" hidden><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.4 11.6-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></svg> Envoyer avec mes fichiers en pièces jointes</button>
+        <p class="hint" id="ap-mail-hint">L'e-mail s'ouvre déjà rédigé dans votre messagerie : il reste à joindre le CV et la lettre en PDF, puis à envoyer.</p>
         <div class="applied-box" id="ap-applied"></div>
       </section>
     </div>
@@ -3524,14 +3532,14 @@ function renderOwnFiles(){
     const open = el("button", "btn small", _t("Ouvrir")); open.type = "button";
     open.addEventListener("click", () => window.open(f.url, "_blank", "noopener"));
     const del = el("button", "btn small danger"); del.innerHTML = ICON.x; del.setAttribute("aria-label", _t("Retirer ce fichier")); del.type = "button"; del.title = _t("Retirer");
-    del.addEventListener("click", () => { URL.revokeObjectURL(f.url); apOwnFiles.splice(i, 1); renderOwnFiles(); });
+    del.addEventListener("click", () => { URL.revokeObjectURL(f.url); apOwnFiles.splice(i, 1); renderOwnFiles(); refreshShare(); });
     if(/\.pdf$/i.test(f.name)) li.appendChild(open);
     li.appendChild(del); ul.appendChild(li);
   });
 }
 function addOwnFiles(files){
-  files.filter(f => /\.(pdf|docx?|odt)$/i.test(f.name)).forEach(f => apOwnFiles.push({ name:f.name, url:URL.createObjectURL(f) }));
-  renderOwnFiles();
+  files.filter(f => /\.(pdf|docx?|odt)$/i.test(f.name)).forEach(f => apOwnFiles.push({ name:f.name, url:URL.createObjectURL(f), file:f }));
+  renderOwnFiles(); refreshShare();
 }
 const apDrop = $("#ap-drop");
 apDrop.addEventListener("click", () => $("#ap-files").click());
@@ -3540,7 +3548,7 @@ apDrop.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " ")
 ["dragleave", "drop"].forEach(ev => apDrop.addEventListener(ev, e => { e.preventDefault(); apDrop.classList.remove("over"); }));
 apDrop.addEventListener("drop", e => addOwnFiles([...e.dataTransfer.files]));
 $("#ap-files").addEventListener("change", e => { addOwnFiles([...e.target.files]); e.target.value = ""; });
-document.querySelectorAll('input[name="ap-src"]').forEach(r => r.addEventListener("change", renderApDocs));
+document.querySelectorAll('input[name="ap-src"]').forEach(r => r.addEventListener("change", () => { renderApDocs(); refreshShare(); }));
 
 /* Envoi : annonce, e-mail, suivi */
 function apSave(key, v){ const h = curHist(); if(h){ (h.apply || (h.apply = {}))[key] = v; saveHistory(); } }
@@ -3554,6 +3562,74 @@ $("#ap-open").addEventListener("click", () => {
 const openMail = u => (window.__cvxOpenMail || (x => { window.location.href = x; }))(u);
 function mailto(to, subject, body){ return "mailto:" + encodeURIComponent(to).replace(/%40/g, "@") + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body); }
 const nomComplet = () => { const f = ficheFields(); const g = k => (f.find(x => x.k === k) || {}).value || ""; return [g("prenom"), g("nom")].filter(Boolean).join(" "); };
+/* Envoi avec pièces jointes : menu de partage du téléphone ou de l'ordinateur (Gmail, Outlook…) avec les fichiers déjà joints */
+const shareFiles = () => apOwnFiles.map(f => f.file).filter(Boolean);
+function canShareFiles(){ const fs = shareFiles(); try{ return fs.length > 0 && !!navigator.canShare && navigator.canShare({ files: fs }); }catch(e){ return false; } }
+function refreshShare(){
+  const own = (document.querySelector('input[name="ap-src"]:checked') || {}).value === "own";
+  const ok = own && canShareFiles();
+  $("#ap-share").hidden = !ok;
+  $("#ap-mail-hint").textContent = ok ? _t("« Envoyer avec mes fichiers » ouvre le menu de partage : choisissez votre messagerie, vos fichiers sont déjà joints. L'adresse du recruteur est copiée : collez-la dans « À ».")
+    : own ? _t("L'e-mail s'ouvre déjà rédigé dans votre messagerie : il reste à joindre le CV et la lettre en PDF, puis à envoyer.")
+    : _t("L'e-mail s'ouvre déjà rédigé dans votre messagerie : il reste à joindre le CV et la lettre en PDF, puis à envoyer. Astuce : téléchargez vos PDF puis ajoutez-les dans « Mes propres fichiers » pour les joindre automatiquement.");
+}
+function mailParts(){
+  const h = curHist(), f = ficheFields(), g = k => (f.find(x => x.k === k) || {}).value || "";
+  const ref = h && h.data.candidature && str(h.data.candidature.reference);
+  const L = DOCT[(h && h.data._lang) || "fr"] || DOCT.fr;
+  return { subject: L.subj(g("poste") || "…", ref, nomComplet()), body: L.hello + "\n\n" + (g("message") || L.body(g("poste") || "…")) + "\n\n" + L.end + "\n" + nomComplet() + (g("tel") ? "\n" + g("tel") : "") };
+}
+$("#ap-share").addEventListener("click", async () => {
+  const to = $("#ap-email").value.trim(), m = mailParts();
+  if(to) try{ await navigator.clipboard.writeText(to); }catch(e){}
+  try{ await navigator.share({ files: shareFiles(), title: m.subject, text: (to ? to + "\n\n" : "") + m.subject + "\n\n" + m.body }); }
+  catch(e){ if(e && e.name !== "AbortError") alert(_t("Le partage n'a pas fonctionné sur cet appareil. Utilisez « Préparer l'e-mail » puis joignez vos fichiers.")); }
+});
+
+/* Contact de l'entreprise : uniquement ce que l'employeur publie pour recevoir des candidatures (annonce, page carrières officielle) */
+$("#ap-find").addEventListener("click", async () => {
+  const h = curHist(), box = $("#ap-contact"), b = $("#ap-find");
+  if(!settings.apiKey){ box.hidden = false; box.textContent = _t("Enregistrez d'abord la clé d'accès."); return; }
+  if(!h){ box.hidden = false; box.textContent = _t("Créez d'abord un CV et une lettre pour cette candidature."); return; }
+  const url = $("#ap-url").value.trim(), d = h.data || {};
+  b.disabled = true; box.hidden = false; box.textContent = _t("Recherche en cours…");
+  try{
+    const prompt = "Tu aides un candidat à savoir COMMENT envoyer sa candidature pour cette offre.\n" +
+      "Offre : " + str(h.poste) + (h.entreprise ? " chez " + str(h.entreprise) : "") + (d.entreprise_adresse ? " (" + str(d.entreprise_adresse) + ")" : "") + "\n" +
+      (URL_RE.test(url) ? "Lien de l'annonce (lis-le d'abord avec web_fetch) : " + url + "\n" : "") +
+      (str(d.offre_resume) ? "Résumé de l'annonce : " + str(d.offre_resume) + "\n" : "") +
+      "Cherche UNIQUEMENT des coordonnées publiées par l'employeur pour recevoir des candidatures : d'abord dans l'annonce elle-même, sinon sur la page carrières, recrutement ou contact du site officiel de l'entreprise.\n" +
+      "Règles absolues : n'invente jamais une adresse et ne la déduis jamais d'un format (prenom.nom@…). N'utilise ni LinkedIn, ni réseaux sociaux, ni annuaires de personnes. Ne donne le nom d'une personne que s'il est écrit dans l'annonce elle-même. Chaque information doit venir d'une page que tu as réellement consultée : donne son adresse. Si l'annonce passe par un formulaire en ligne, donne son lien.\n" +
+      "Réponds UNIQUEMENT avec un objet JSON valide : {\"email\":\"\",\"formulaire\":\"\",\"telephone\":\"\",\"personne\":\"\",\"source\":\"\",\"note\":\"une phrase courte pour le candidat\"}. Rien de fiable : champs vides, et la note l'explique." + uiLangLine();
+    const tools = [{ type:"web_search_20250305", name:"web_search", max_uses:2 }];
+    if(URL_RE.test(url)) tools.unshift({ type:"web_fetch_20250910", name:"web_fetch", max_uses:3, max_content_tokens:20000 });
+    const body = { model:settings.model, max_tokens:1500, tools, messages:[{ role:"user", content: prompt }] };
+    let data;
+    for(let i = 0; i < 3; i++){
+      data = await callClaude(body, settings.apiKey); addCost(data.usage);
+      if(data.stop_reason !== "pause_turn") break;
+      body.messages = body.messages.concat([{ role:"assistant", content:data.content }]);
+    }
+    const blocks = data.content || []; let last = -1; blocks.forEach((x, i) => { if(/_tool_result$/.test(x.type)) last = i; });
+    const out = parseJSON(blocks.slice(last + 1).filter(x => x.type === "text").map(x => x.text).join(""));
+    const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str(out.email)) ? str(out.email) : "";
+    const form = URL_RE.test(str(out.formulaire)) ? str(out.formulaire) : "", src = URL_RE.test(str(out.source)) ? str(out.source) : "";
+    box.textContent = "";
+    const line = (label, val, href) => { const p = el("p"); p.appendChild(el("b", "", label + " ")); if(href){ const a = el("a", "", val); a.href = href; a.target = "_blank"; a.rel = "noopener"; p.appendChild(a); } else p.appendChild(document.createTextNode(val)); box.appendChild(p); };
+    if(email) line(_t("E-mail :"), email);
+    if(form) line(_t("Formulaire :"), _t("ouvrir"), form);
+    if(str(out.telephone)) line(_t("Téléphone :"), str(out.telephone));
+    if(str(out.personne)) line(_t("Contact cité dans l'annonce :"), str(out.personne));
+    if(str(out.note)) box.appendChild(el("p", "", str(out.note)));
+    if(src){ const p = el("p", "src"); p.appendChild(document.createTextNode(_t("Source : "))); const a = el("a", "", src); a.href = src; a.target = "_blank"; a.rel = "noopener"; p.appendChild(a); box.appendChild(p); }
+    if(!email && !form && !str(out.telephone)) box.insertBefore(el("p", "", _t("Aucun contact public trouvé. Passez par le lien de l'annonce.")), box.firstChild);
+    if(email && !$("#ap-email").value.trim()){ $("#ap-email").value = email; apSave("email", email); }
+    if(form && !$("#ap-url").value.trim()){ $("#ap-url").value = form; apSave("url", form); }
+    if(email || form || str(out.telephone)) box.appendChild(el("p", "src", _t("Vérifiez toujours sur la source avant d'envoyer.")));
+  }catch(e){ box.textContent = e.message || _t("La recherche a échoué. Réessayez."); }
+  finally{ b.disabled = false; }
+});
+
 $("#ap-mail").addEventListener("click", () => {
   const to = $("#ap-email").value.trim(), h = curHist();
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)){ alert(_t("Indiquez l'adresse e-mail donnée dans l'annonce.")); $("#ap-email").focus(); return; }
@@ -3617,6 +3693,7 @@ function openApply(){
   delete $("#ap-pages").dataset.zoom; document.querySelectorAll(".ap-zoom").forEach(x => { x.textContent = _t("Agrandir"); });
   $("#ap").hidden = false; document.body.classList.add("modal-open");
   renderApDocs(); renderFiche(); renderApplied();
+  $("#ap-contact").hidden = true; $("#ap-contact").textContent = ""; refreshShare();
   $("#ap-close").focus();
 }
 function closeApply(){
