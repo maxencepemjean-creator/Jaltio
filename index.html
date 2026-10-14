@@ -197,7 +197,7 @@ body[data-view="profile"] [data-v]:not([data-v~="profile"]){display:none!importa
   body[data-view="apps"][data-sub="suivi"] #preview > .page-holder,
   body[data-view="apps"]:not([data-has-doc]) #preview > .page-holder{display:none!important}
   body:not([data-view="apps"]) #fiche-view{display:none!important}
-  body[data-view="apps"][data-sub="suivi"] .save-fab{display:none!important}
+  body[data-view="apps"][data-sub="suivi"] .edit-bar{display:none!important}
 }
 .for-who{margin:-4px 0 14px;font-size:14px;color:var(--muted)}
 .for-who b{color:var(--ink)}
@@ -217,7 +217,7 @@ body[data-view="profile"] [data-v]:not([data-v~="profile"]){display:none!importa
   .tabbar button svg{width:24px;height:24px}
   .tabbar button[aria-selected="true"]{color:var(--brand);font-weight:700}
   .tabbar .badge{position:absolute;top:0;left:calc(50% + 6px);background:var(--danger);color:#fff;border-radius:999px;font-size:11px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 4px}
-  body.m .save-fab{bottom:calc(96px + env(safe-area-inset-bottom, 0px))}
+  body.m .edit-bar{bottom:calc(96px + env(safe-area-inset-bottom, 0px))}
   body.m .chat{top:10px;left:8px;right:8px;bottom:calc(76px + env(safe-area-inset-bottom, 0px));height:auto;z-index:65}
   body.m.chat-open{padding-bottom:calc(84px + env(safe-area-inset-bottom, 0px))}
   body.m .edit-hint{display:none!important}
@@ -416,15 +416,46 @@ body[data-view="profile"] [data-v]:not([data-v~="profile"]){display:none!importa
 .validate.show{display:inline-flex}
 .validate .btn{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:600;border-radius:999px}
 
-/* Bulle flottante « Enregistrer mes retouches » : toujours visible pendant qu'on retouche */
-.save-fab{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);white-space:nowrap;z-index:51;display:none;align-items:center;gap:8px;border:0;border-radius:999px;padding:12px 18px 12px 14px;background:var(--ok);color:#fff;font:inherit;font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.22);animation:savepop .25s ease-out}
-.save-fab.show{display:inline-flex}
+/* Barre flottante : outils de mise en forme (fond blanc) collés à « Enregistrer mes retouches » (fond vert) */
+.edit-bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:51;display:none;align-items:stretch;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.22);animation:savepop .25s ease-out;max-width:calc(100vw - 24px)}
+.edit-bar.show{display:flex}
+.eb-tools{display:flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--line);border-right:0;border-radius:999px 0 0 999px;padding:6px 10px 6px 14px}
+.eb-tools select{flex:none;width:118px;border:1px solid var(--line);border-radius:8px;padding:5px 6px;font:inherit;font-size:14px;max-width:150px;background:#fff;color:var(--ink);min-height:34px}
+.eb-btn{flex:none;border:0;background:transparent;color:var(--ink);font:inherit;font-size:15px;font-weight:600;min-width:34px;height:34px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
+.eb-btn:hover{background:#f3f0f5}
+.eb-btn:focus-visible,.eb-sw:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.eb-sep{width:1px;align-self:stretch;background:var(--line);margin:2px 4px}
+.eb-colors{display:inline-flex;gap:4px}
+.eb-sw{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #c9c2cd;cursor:pointer;padding:0}
+.eb-custom{flex:none;display:inline-flex;width:26px;height:26px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 1px #c9c2cd;cursor:pointer;margin-left:2px;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)}
+.eb-custom input{opacity:0;width:100%;height:100%;cursor:pointer;border:0;padding:0}
+.save-fab{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;border:0;border-radius:0 999px 999px 0;padding:12px 18px 12px 14px;background:var(--ok);color:#fff;font:inherit;font-weight:600;font-size:15px;cursor:pointer}
+.edit-bar.solo .save-fab{border-radius:999px}
+.eb-tools[hidden]{display:none}
 .save-fab:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
 .save-fab svg{width:20px;height:20px;flex:none}
 .save-fab.done{background:var(--brand)}
+.save-fab.idle{opacity:.55;cursor:default}
+.eb-tip{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:52;background:var(--ink);color:#fff;border-radius:10px;padding:8px 12px;font-size:14px;margin:0;box-shadow:0 6px 18px rgba(0,0,0,.2)}
 @keyframes savepop{from{opacity:0;margin-bottom:-10px}to{opacity:1;margin-bottom:0}}
-@media (prefers-reduced-motion:reduce){.save-fab{animation:none}}
-@media (max-width:560px){.save-fab{bottom:96px}}
+@media (prefers-reduced-motion:reduce){.edit-bar{animation:none}}
+@media (max-width:560px){.edit-bar{bottom:96px}}
+@media (max-width:900px){.eb-tools{flex-wrap:wrap;border-radius:18px 0 0 18px}.save-fab{border-radius:0 18px 18px 0}}
+body.m .eb-tools{display:none}
+body.m .save-fab{border-radius:999px}
+
+/* Mes CV récents (onglet Créer) */
+.recent summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:16px;color:var(--brand);list-style:none;display:flex;align-items:center;gap:6px;min-height:32px}
+.recent summary::-webkit-details-marker{display:none}
+.recent summary::before{content:"▶";display:inline-block;transition:transform .15s;font-size:10px;line-height:1;color:var(--brand)}
+.recent[open] summary::before{transform:rotate(90deg)}
+.recent-n{font-weight:600;font-size:13px;color:var(--muted);font-family:inherit}
+.recent-list{list-style:none;margin:8px 0 6px;padding:0;display:flex;flex-direction:column;gap:6px}
+.recent-list button{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:8px 12px;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:2px;color:var(--ink)}
+.recent-list button:hover{border-color:var(--brand)}
+.recent-list button.on{border-color:var(--brand);box-shadow:0 0 0 2px var(--lilas,#efe7f1)}
+.recent-list b{font-size:14.5px}
+.recent-list span{font-size:13px;color:var(--muted)}
 
 /* Retour en arrière : liste des versions gardées à chaque « Enregistrer mes retouches » */
 .undo-box{max-width:520px;text-align:left}
@@ -897,6 +928,12 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 
   <div class="m-steps" id="m-steps" aria-live="polite"></div>
   <p class="for-who" data-v="create">CV et lettre pour <b id="for-who-name"></b> · <button class="link" type="button" data-goto="profile">changer</button></p>
+  <details class="step recent" id="recent-box" data-v="create" hidden>
+    <summary><span>Mes CV récents</span> <span class="recent-n" id="recent-n"></span></summary>
+    <ul class="recent-list" id="recent-list"></ul>
+    <button class="link" type="button" data-goto="apps" id="recent-all" hidden>Voir toutes mes candidatures</button>
+  </details>
+
   <div class="step nudge" id="nudge-parcours" data-v="create" hidden>
     <p><b>Commencez par votre parcours.</b> Déposez votre ancien CV ou décrivez vos expériences : c'est la base de tous vos CV.</p>
     <button class="btn primary" type="button" data-goto="profile">Remplir mon parcours</button>
@@ -1135,7 +1172,32 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   <button type="button" data-tab="coach" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Coach</button>
   <button type="button" data-tab="profile" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Profil</button>
 </nav>
-<button class="save-fab app-ui" id="save-fab" type="button" title="Enregistrer les modifications faites à la main dans le CV et la lettre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span id="save-fab-label">Enregistrer mes retouches</span></button>
+<div class="edit-bar app-ui" id="edit-bar" role="toolbar" aria-label="Mise en forme du texte">
+  <div class="eb-tools" id="eb-tools">
+    <label class="sr-only" for="eb-font">Police</label>
+    <select id="eb-font" title="Police du texte sélectionné">
+      <option value="">Police</option>
+      <option value="Lato, Carlito, Arial, sans-serif">Lato</option>
+      <option value="Inter, Arial, sans-serif">Inter</option>
+      <option value="Figtree, Arial, sans-serif">Figtree</option>
+      <option value="Lora, Georgia, serif">Lora (avec empattements)</option>
+      <option value="Arial, Helvetica, sans-serif">Arial</option>
+    </select>
+    <span class="eb-sep" aria-hidden="true"></span>
+    <button type="button" class="eb-btn" data-fmt="size" data-val="0.9" title="Texte plus petit" aria-label="Texte plus petit"><span style="font-size:12px">A</span>−</button>
+    <button type="button" class="eb-btn" data-fmt="size" data-val="1.1" title="Texte plus grand" aria-label="Texte plus grand"><span style="font-size:17px">A</span>+</button>
+    <span class="eb-sep" aria-hidden="true"></span>
+    <button type="button" class="eb-btn" data-fmt="bold" title="Gras" aria-label="Gras"><b>G</b></button>
+    <button type="button" class="eb-btn" data-fmt="italic" title="Italique" aria-label="Italique"><i style="font-family:Georgia,serif">I</i></button>
+    <span class="eb-sep" aria-hidden="true"></span>
+    <span class="eb-colors" id="eb-colors"></span>
+    <label class="eb-custom" title="Autre couleur"><input type="color" id="eb-color" value="#1f2937" aria-label="Autre couleur"></label>
+    <span class="eb-sep" aria-hidden="true"></span>
+    <button type="button" class="eb-btn eb-clear" data-fmt="clear" title="Remettre la mise en forme d'origine" aria-label="Effacer la mise en forme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+  </div>
+  <button class="save-fab" id="save-fab" type="button" title="Enregistrer les modifications faites à la main dans le CV et la lettre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span id="save-fab-label">Enregistrer mes retouches</span></button>
+</div>
+<p class="eb-tip app-ui" id="eb-tip" role="status" hidden></p>
 <button class="fab app-ui" id="fab" type="button" aria-label="Demande à votre coach">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 2.5c-5.25 0-9.5 3.8-9.5 8.5 0 2.3 1 4.4 2.7 5.9L4.3 21l4.6-2.1c.97.27 2 .4 3.1.4 5.25 0 9.5-3.8 9.5-8.5S17.25 2.5 12 2.5z"/><circle cx="7.9" cy="11" r="1.35" fill="var(--accent)"/><circle cx="12" cy="11" r="1.35" fill="var(--accent)"/><circle cx="16.1" cy="11" r="1.35" fill="var(--accent)"/></svg>
   <span class="tip">Demande à <span data-brand>Elanos</span> !</span>
@@ -1968,6 +2030,7 @@ function applyLook(){
   cv.classList.remove("tpl-moderne", "tpl-classique", "tpl-bandeau"); cv.classList.add("tpl-" + settings.tpl);
   const pal = currentPal();
   [cv, $("#page-lettre")].forEach(pg => { pg.style.setProperty("--accent", pal.accent); pg.style.setProperty("--dark", pal.dark); pg.style.setProperty("--tint", pal.tint); pg.style.setProperty("--light", pal.light); });
+  renderEbColors();
   fitVisible();
 }
 
@@ -2184,7 +2247,30 @@ function openGroup(G, sub){
   renderFicheView();
   if(window.innerWidth < 900) $("#fiche-view").scrollIntoView({ behavior:"smooth", block:"start" });
 }
+/* Mes CV récents, dans l'onglet Créer : on retrouve un ancien CV sans passer par « Mes candidatures » */
+const fmtShort = t => { const d = new Date(t); return d.toLocaleDateString("fr-FR", { day:"numeric", month:"short" }) + " à " + d.toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" }); };
+function renderRecent(){
+  const box = $("#recent-box"), ul = $("#recent-list"); ul.textContent = "";
+  const all = groupsFor(currentProfileId).filter(G => !G.versions[G.versions.length - 1].manual), cur = curHist();
+  box.hidden = !all.length; if(!all.length) return;
+  $("#recent-n").textContent = "(" + all.length + ")";
+  all.slice(0, 6).forEach(G => {
+    const latest = G.versions[G.versions.length - 1], first = G.versions[0];
+    const b = el("button"); b.type = "button";
+    if(cur && groupOf(cur) === G.id) b.classList.add("on");
+    b.appendChild(el("b", "", (first.poste || "Poste") + (latest.entreprise ? " · " + latest.entreprise : "")));
+    const n = G.versions.length;
+    b.appendChild(el("span", "", "Créé le " + fmtShort(first.date) + (G.last - first.date > 60e3 ? " · modifié le " + fmtShort(G.last) : "") + (n > 1 ? " · " + n + " versions" : "")));
+    b.addEventListener("click", () => { saveCurrentEdits(); openHist(latest); if(isM()) $("#preview").scrollIntoView({ behavior:"smooth", block:"start" }); });
+    const li = el("li"); li.appendChild(b); ul.appendChild(li);
+  });
+  $("#recent-all").hidden = all.length <= 6;
+}
+$("#recent-box").open = store.get("recentOpen", true);
+$("#recent-box").addEventListener("toggle", () => store.set("recentOpen", $("#recent-box").open));
+
 function renderHistory(){
+  renderRecent();
   const ul = $("#hist"); ul.innerHTML = "";
   const all = groupsFor(currentProfileId), cur = curHist();
   renderBoard(all);
@@ -2427,12 +2513,19 @@ function validateEdits(silent){
     : "Version validée.");
   return changes.length;
 }
+let ebActive = false;   // barre affichée parce qu'on vient de cliquer dans le CV ou la lettre
 function refreshValidate(){
   const h = currentHistId && history.find(x => x.id === currentHistId);
   const dirty = !!(h && h.dirty);
-  const f = $("#save-fab");
-  if(dirty){ f.classList.remove("done"); $("#save-fab-label").textContent = "Enregistrer mes retouches"; f.classList.add("show"); placeSaveFab(); }
-  else if(!f.classList.contains("done")) f.classList.remove("show");
+  const f = $("#save-fab"), bar = $("#edit-bar");
+  const docShown = !!h && !h.manual && (!$("#holder-cv").hidden || !$("#holder-lettre").hidden);
+  const tools = ebActive && docShown && !isM();
+  if(f.classList.contains("done")){ bar.classList.add("show"); return; }
+  f.classList.toggle("idle", !dirty);
+  $("#save-fab-label").textContent = dirty ? "Enregistrer mes retouches" : "Aucune retouche à enregistrer";
+  $("#eb-tools").hidden = !tools; bar.classList.toggle("solo", !tools);
+  bar.classList.toggle("show", dirty || tools);
+  if(bar.classList.contains("show")) placeSaveFab();
 }
 function markDirty(){
   const h = history.find(x => x.id === currentHistId);
@@ -2440,17 +2533,113 @@ function markDirty(){
 }
 // Centre la bulle sous l'aperçu du CV / de la lettre (et non au milieu de l'écran)
 function placeSaveFab(){
-  const pv = $("#preview"), f = $("#save-fab"); if(!pv || !f) return;
+  const pv = $("#preview"), f = $("#edit-bar"); if(!pv || !f) return;
   const r = pv.getBoundingClientRect();
   f.style.left = (r.width && r.width < window.innerWidth - 40) ? (r.left + r.width / 2) + "px" : "50%";
 }
 window.addEventListener("resize", placeSaveFab);
 $("#save-fab").addEventListener("click", () => {
-  const f = $("#save-fab");
-  f.classList.add("done"); $("#save-fab-label").textContent = "Retouches enregistrées";
+  const f = $("#save-fab"), h = history.find(x => x.id === currentHistId);
+  if(!h || !h.dirty) return;
+  f.classList.remove("idle"); f.classList.add("done"); $("#save-fab-label").textContent = "Retouches enregistrées";
   validateEdits(false);
-  setTimeout(() => { if(f.classList.contains("done")){ f.classList.remove("show", "done"); } }, 1800);
+  setTimeout(() => { if(f.classList.contains("done")){ f.classList.remove("done"); refreshValidate(); } }, 1800);
 });
+
+/* ---------- Mise en forme : police, taille, gras, italique, couleur ---------- */
+const EDIT_PAGES = ["#page-cv", "#page-lettre"];
+let ebRange = null, ebPage = null, ebTipT = 0;
+const pageOf = n => { const e = n && (n.nodeType === 1 ? n : n.parentElement); return e ? e.closest(EDIT_PAGES.join(",")) : null; };
+document.addEventListener("selectionchange", () => {
+  const sel = getSelection(); if(!sel.rangeCount) return;
+  const r = sel.getRangeAt(0), pg = pageOf(r.commonAncestorContainer);
+  if(pg && pg.isContentEditable){ ebRange = r.cloneRange(); ebPage = pg; }
+});
+EDIT_PAGES.forEach(sel => $(sel).addEventListener("focusin", () => { if(!ebActive){ ebActive = true; refreshValidate(); } }));
+document.addEventListener("pointerdown", e => {
+  if(!ebActive) return;
+  if(e.target.closest("#edit-bar, #eb-tip, " + EDIT_PAGES.join(","))) return;
+  ebActive = false; refreshValidate();
+});
+function ebTip(msg){
+  const t = $("#eb-tip"); t.textContent = msg; t.hidden = false;
+  clearTimeout(ebTipT); ebTipT = setTimeout(() => { t.hidden = true; }, 2600);
+}
+function ebRestore(){
+  if(!ebRange || !ebPage || !document.contains(ebPage) || !ebPage.contains(ebRange.startContainer)) return false;
+  ebPage.focus({ preventScroll:true });
+  const sel = getSelection(); sel.removeAllRanges(); sel.addRange(ebRange);
+  return true;
+}
+const BLOCKS = "li,p,h1,h2,h3,h4,h5,dt,dd,td";
+function ebBlock(node){
+  const e = node.nodeType === 1 ? node : node.parentElement; if(!e) return null;
+  let b = e.closest(BLOCKS) || e.closest("span,div,b,strong,em,i");
+  if(b && b.matches(".blk, .cv-head, .cv-side, .cv-main, section, aside, main, header")) b = null;
+  return b && ebPage.contains(b) && b !== ebPage ? b : null;
+}
+const pxOf = n => parseFloat(getComputedStyle(n).fontSize) || 12;
+function ebSize(target, factor){            // taille relative au parent : le CV peut toujours se réajuster sur une page
+  const parent = target.parentElement; if(!parent) return;
+  const em = Math.min(2.4, Math.max(0.55, pxOf(target) * factor / pxOf(parent)));
+  target.style.fontSize = Math.abs(em - 1) < 0.02 ? "" : em.toFixed(3) + "em";
+}
+function ebClear(n){ ["fontSize", "fontFamily", "color", "fontWeight", "fontStyle"].forEach(k => { n.style[k] = ""; }); if(n.getAttribute("style") === "") n.removeAttribute("style"); }
+function ebApply(kind, val){
+  if(!ebRestore()){ ebTip("Cliquez d'abord dans le texte à modifier (ou sélectionnez-le)."); return; }
+  const sel = getSelection(), r = sel.getRangeAt(0);
+  if(r.collapsed){
+    // Aucun texte sélectionné : on modifie toute la ligne où se trouve le curseur
+    const b = ebBlock(r.startContainer);
+    if(!b){ ebTip("Sélectionnez le texte à modifier."); return; }
+    const cs = getComputedStyle(b);
+    if(kind === "size") ebSize(b, val);
+    else if(kind === "font") b.style.fontFamily = val;
+    else if(kind === "color") b.style.color = val;
+    else if(kind === "bold") b.style.fontWeight = parseInt(cs.fontWeight, 10) >= 600 ? "400" : "700";
+    else if(kind === "italic") b.style.fontStyle = cs.fontStyle === "italic" ? "normal" : "italic";
+    else if(kind === "clear"){ ebClear(b); b.querySelectorAll("[style]").forEach(ebClear); }
+  } else {
+    try{ document.execCommand("styleWithCSS", false, true); }catch(e){}
+    if(kind === "size"){
+      const startEl = r.startContainer.nodeType === 1 ? r.startContainer : r.startContainer.parentElement;
+      const target = pxOf(startEl) * val;
+      document.execCommand("fontSize", false, "7");
+      ebPage.querySelectorAll('font[size="7"], span[style*="xxx-large"], span[style*="-webkit-xxx-large"]').forEach(n => {
+        n.removeAttribute("size");
+        const parent = n.parentElement;
+        const em = Math.min(2.4, Math.max(0.55, target / pxOf(parent)));
+        n.style.fontSize = em.toFixed(3) + "em";
+      });
+    }
+    else if(kind === "font") document.execCommand("fontName", false, val);
+    else if(kind === "color") document.execCommand("foreColor", false, val);
+    else if(kind === "bold") document.execCommand("bold");
+    else if(kind === "italic") document.execCommand("italic");
+    else if(kind === "clear"){
+      document.execCommand("removeFormat");
+      ebPage.querySelectorAll("[style]").forEach(n => { if(r.intersectsNode(n) && !n.matches(".page, .cv-head, .cv-side, .cv-main")) ebClear(n); });
+    }
+  }
+  const s2 = getSelection(); if(s2.rangeCount) ebRange = s2.getRangeAt(0).cloneRange();
+  markDirty(); onEditSave();
+}
+function renderEbColors(){
+  const pal = currentPal(), box = $("#eb-colors"); box.textContent = "";
+  [["#1f2937", "Noir"], ["#6b7280", "Gris"], [pal.dark, "Couleur foncée du CV"], [pal.accent, "Couleur des titres du CV"], ["#1d4ed8", "Bleu"], ["#b91c1c", "Rouge"]]
+    .filter((c, i, a) => c[0] && a.findIndex(x => x[0].toLowerCase() === c[0].toLowerCase()) === i)
+    .forEach(([c, name]) => {
+      const b = el("button", "eb-sw"); b.type = "button"; b.style.background = c; b.title = name; b.setAttribute("aria-label", "Couleur : " + name);
+      b.dataset.fmt = "color"; b.dataset.val = c; box.appendChild(b);
+    });
+}
+$("#edit-bar").addEventListener("mousedown", e => { if(e.target.closest("button")) e.preventDefault(); });   // garde la sélection dans le CV
+$("#edit-bar").addEventListener("click", e => {
+  const b = e.target.closest("[data-fmt]"); if(!b) return;
+  ebApply(b.dataset.fmt, b.dataset.val ? (b.dataset.fmt === "size" ? parseFloat(b.dataset.val) : b.dataset.val) : undefined);
+});
+$("#eb-font").addEventListener("change", e => { const v = e.target.value; e.target.value = ""; if(v) ebApply("font", v); });
+$("#eb-color").addEventListener("change", e => ebApply("color", e.target.value));
 
 function renderRetouchesInfo(){
   const p = prof(), n = (p.retouches || []).length, box = $("#retouches-info");
