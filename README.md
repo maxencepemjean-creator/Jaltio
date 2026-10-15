@@ -1,4 +1,4 @@
-# Elanos — votre coach emploi IA
+# Jaltio — votre coach emploi IA
 
 *Chaque étape, jusqu'au poste.*
 
@@ -36,7 +36,7 @@ Le nom de la marque se change à un seul endroit : la constante `BRAND` au débu
 
 ## Le relais Cloudflare
 
-Voir l'en-tête de `worker/jalon-relais.js` : secrets `ANTHROPIC_KEY` (clé dédiée à Elanos) et `CODES` (un code d'accès par testeur, séparés par des virgules), base D1 liée sous le nom `DB`, déclencheur planifié `0 3 * * 0`.
+Voir l'en-tête de `worker/jalon-relais.js` : secrets `ANTHROPIC_KEY` (clé dédiée à Jaltio) et `CODES` (un code d'accès par testeur, séparés par des virgules), base D1 liée sous le nom `DB`, déclencheur planifié `0 3 * * 0`.
 
 - **Révoquer un testeur** : retirer son code de `CODES`.
 - **Plafonner la dépense** : fixer une limite mensuelle dans la console Anthropic et ne pas activer la recharge automatique.

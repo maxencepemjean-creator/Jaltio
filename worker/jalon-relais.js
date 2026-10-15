@@ -1,4 +1,4 @@
-// Relais Elanos (Cloudflare Worker)
+// Relais Jaltio (Cloudflare Worker)
 //
 // 1) Relais Claude : garde la clé Anthropic côté serveur ; le navigateur n'envoie qu'un code d'accès testeur.
 // 2) Synchronisation entre appareils (routes /sync/*) : le serveur ne reçoit qu'un bloc CHIFFRÉ dans le
@@ -7,7 +7,7 @@
 //
 // À créer dans Cloudflare :
 //   Secrets (Settings > Variables and Secrets, type « Secret ») :
-//     ANTHROPIC_KEY  = la clé sk-ant-... dédiée à Elanos
+//     ANTHROPIC_KEY  = la clé sk-ant-... dédiée à Jaltio
 //     CODES          = codes testeurs séparés par des virgules, ex. « maman-7k2, julien-p9x »
 //   Base D1 liée au Worker (Settings > Bindings > Add > D1 database), nom de variable : DB
 //   Tables : voir worker/schema.sql (à coller dans l'onglet Console de la base D1)
