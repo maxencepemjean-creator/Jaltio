@@ -13,7 +13,7 @@
 //   Tables : voir worker/schema.sql (à coller dans l'onglet Console de la base D1)
 //   Déclencheur planifié (Settings > Triggers > Cron) : « 0 3 * * 0 » (nettoyage hebdomadaire)
 
-const ORIGINES = ["https://maxencepemjean-creator.github.io"];
+const ORIGINES = ["https://maxencepemjean-creator.github.io", "https://jaltio.fr", "https://www.jaltio.fr"];
 const MODELES = ["claude-sonnet-5-5"];
 const MAX_TOKENS = 16000;
 
