@@ -975,9 +975,31 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   .mo-ghost.mo-g-chip .x{border:0;background:none;color:var(--brand);width:24px;height:24px;margin-right:-4px;font-size:16px;line-height:1;display:grid;place-items:center}
 }
 @media print{ .mo-ghost{display:none!important} }
+
+/* ===== Écran de connexion ===== */
+.gate{position:fixed;inset:0;z-index:105;background:var(--bg, #FBF6F1);overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:6vh 16px 32px}
+.gate[hidden]{display:none}
+.gate-box{width:100%;max-width:440px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px 24px 22px;box-shadow:0 18px 50px rgba(58,35,64,.12)}
+.gate-box h1{margin:14px 0 6px;font-size:26px;line-height:1.2}
+.gate-box .gate-forgot{margin:14px 0 0;font-size:13px}
+.in-gate > p.hint:first-child, .in-gate .sync-warn{display:none}
+body.gate-open{overflow:hidden}
+body.gate-open .tabbar, body.gate-open .fab{display:none}
+.tour-sample{position:relative;margin:0 auto;max-width:560px;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+.tour-sample img{display:block;width:100%;height:auto}
+.tour-sample span{position:absolute;top:10px;right:10px;background:var(--ink);color:#fff;font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px}
 </style>
 </head>
 <body>
+<div class="gate app-ui" id="gate" hidden>
+  <div class="gate-box" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+    <svg class="logo" width="52" height="52" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1 id="gate-title">Bienvenue sur <span data-brand>Jaltio</span></h1>
+    <p class="hint" style="margin-top:0">Connectez-vous avec votre e-mail et votre mot de passe. Première visite ? Choisissez-les maintenant : votre compte est créé en quelques secondes.</p>
+    <div id="gate-slot"></div>
+    <p class="hint gate-forgot">Mot de passe oublié : vos données sont chiffrées avec lui, personne ne peut le réinitialiser. Créez un nouveau compte avec une autre adresse e-mail.</p>
+  </div>
+</div>
 <div class="app">
 
 <!-- ================= PANNEAU DE GAUCHE ================= -->
@@ -985,7 +1007,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   <div class="brand"><svg class="logo" width="40" height="40" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name" data-brand>Jaltio</span></div>
   <p class="sub" data-brand-sig>Chaque étape, jusqu'au poste.</p>
   <button class="sync-pill app-ui" id="sync-pill" type="button" data-goto="profile" hidden><span class="sync-dot" aria-hidden="true"></span><span id="sync-pill-txt"></span></button>
-  <nav class="views" role="tablist" aria-label="Sections d'Jaltio">
+  <nav class="views" role="tablist" aria-label="Sections de Jaltio">
     <button class="view-tab" role="tab" type="button" data-view="create" aria-selected="true">Créer</button>
     <button class="view-tab" role="tab" type="button" data-view="apps" aria-selected="false">Mes candidatures <span class="badge" id="nav-badge" hidden></span></button>
     <button class="view-tab" role="tab" type="button" data-view="profile" aria-selected="false">Mon profil</button>
@@ -4577,6 +4599,7 @@ function syncState(){      // { txt (ligne complète), short (pastille), cls }
 }
 function setSyncUi(){
   const on = !!syncSt;
+  if(on) hideGate();
   $("#sync-off").hidden = on; $("#sync-on").hidden = !on;
   const pill = $("#sync-pill"); pill.hidden = !on;
   if(on){
@@ -4722,6 +4745,7 @@ function showToast(txt, go){
 function syncDisconnect(msg, kind){
   clearTimeout(syncTimer); clearTimeout(syncRetry); syncSt = null; syncSave(); $("#sync-toast").hidden = true;
   setSyncUi(); if(msg) status("#sync-msg", kind || "info", msg);
+  showGate();
 }
 function askConflict(meta, remoteInfo){
   syncSt.err = "conflict"; syncSave(); setSyncUi();
@@ -4796,12 +4820,12 @@ async function syncStart(){
     if(!meta.exists){
       if($("#sync-new").hidden){
         $("#sync-new").hidden = false; $("#sync-code-box").hidden = !!settings.apiKey; $("#sync-pw2").focus();
-        status("#sync-msg", "info", _t("Aucune synchronisation avec cet identifiant : on la crée. Retapez le mot de passe et cochez la case."));
+        status("#sync-msg", "info", _t("Nouveau compte : retapez le mot de passe et cochez la case pour le créer."));
         return;
       }
       if(pw !== $("#sync-pw2").value.normalize("NFKC")){ status("#sync-msg", "err", _t("Les deux mots de passe sont différents.")); $("#sync-pw2").focus(); return; }
       const codeIn = $("#sync-code").value.trim(), code = codeIn || settings.apiKey || "";
-      if(!code){ $("#sync-code-box").hidden = false; status("#sync-msg", "err", _t("Entrez votre code d'accès ") + BRAND.name + " (celui qu'on vous a donné) pour créer la synchronisation."); $("#sync-code").focus(); return; }
+      if(!code){ $("#sync-code-box").hidden = false; status("#sync-msg", "err", _t("Entrez votre code d'accès ") + BRAND.name + " (celui qu'on vous a donné) pour créer votre compte."); $("#sync-code").focus(); return; }
       if(!$("#sync-ok").checked){ status("#sync-msg", "err", _t("Cochez la case pour confirmer que vous avez compris.")); return; }
       status("#sync-msg", "info", _t("Création de votre espace chiffré…"));
       const salt = crypto.getRandomValues(new Uint8Array(16)), k = await deriveKeys(pw, salt);
@@ -4810,7 +4834,7 @@ async function syncStart(){
       let res;
       try{ res = await syncCall("put", { id, auth:k.auth, salt:toB64(salt), iv:blob.iv, ct:blob.ct, baseVersion:0 }, code); }
       catch(e){ if(e.status === 403 || e.status === 401){ $("#sync-code-box").hidden = false; status("#sync-msg", "err", _t("Code d'accès refusé. Vérifiez-le (majuscules, tirets) ou demandez-en un nouveau.")); $("#sync-code").focus(); return; } throw e; }
-      if(!settings.apiKey && codeIn){ settings.apiKey = codeIn; saveSettings(); }
+      if(!settings.apiKey && codeIn){ settings.apiKey = codeIn; saveSettings(); renderSettings(); }
       syncSt = { id, auth:k.auth, key:k.key, mail:maskMail(mail), version:res.version, dirty:false, dirtyAt:0, lastSyncAt:Date.now(), err:"" };
       syncSave(); syncResetForm(); setSyncUi();
       status("#sync-msg", "ok", _t("Synchronisation activée. Sur un autre appareil, entrez le même identifiant et le même mot de passe."));
@@ -4858,6 +4882,25 @@ async function syncStart(){
   }finally{
     syncStarting = false; $("#sync-go").disabled = false;
   }
+}
+/* ----- Écran de connexion : obligatoire tant qu'aucun compte n'est actif sur cet appareil ----- */
+let gateHome = null;
+function showGate(){
+  if(syncSt || !syncAvailableNow() || !$("#gate").hidden) return;
+  const f = $("#sync-off");
+  if(!gateHome) gateHome = { parent:f.parentNode, next:f.nextSibling };
+  $("#gate-slot").appendChild(f); f.classList.add("in-gate");
+  $("#sync-go").textContent = _t("Continuer");
+  $("#gate").hidden = false; document.body.classList.add("gate-open");
+  setTimeout(() => { try{ $("#sync-mail").focus({ preventScroll:true }); }catch(e){} }, 60);
+}
+function hideGate(){
+  if($("#gate").hidden) return;
+  const f = $("#sync-off"); f.classList.remove("in-gate");
+  if(gateHome) gateHome.parent.insertBefore(f, gateHome.next);
+  $("#sync-go").textContent = _t("Activer la synchronisation");
+  $("#gate").hidden = true; document.body.classList.remove("gate-open");
+  if(!store.get("tourSeen", false) && !history.length && !profiles.some(p => str(p.parcours).length >= 80)) setTimeout(() => { if($("#ap").hidden && $("#msg-dlg").hidden && $("#gate").hidden) startTour(); }, 500);
 }
 const syncAvailableNow = () => !!(window.crypto && crypto.subtle && crypto.getRandomValues);
 function syncResetForm(){ ["#sync-pw", "#sync-pw2", "#sync-code"].forEach(s => { $(s).value = ""; }); $("#sync-ok").checked = false; $("#sync-new").hidden = true; }
@@ -4908,7 +4951,7 @@ const TOUR = [
   { view:"create", target:["#step-key"], title:_t("Votre code d'accès"), text:_t("<p>Saisissez ici le code d'accès qu'on vous a donné, puis « Enregistrer ». Il reste sur cet appareil.</p>") },
   { view:"profile", target:["#step-parcours"], title:_t("Votre parcours"), text:_t("<p>Tout commence ici. Importez votre CV actuel (PDF, Word ou une simple photo), ou racontez votre parcours à l'écrit ou à voix haute.</p><p>") + BRAND.name + _t(" n'invente rien : il part uniquement de ce que vous lui donnez.</p>") },
   { view:"create", target:["#step-offre"], title:_t("L'offre d'emploi"), text:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b> (Hellowork, France Travail, Indeed…) ou son <b>texte</b>, puis cliquez sur <b>« Créer mon CV adapté »</b>.</p><p>Comptez 30 secondes à 1 minute.</p>"), mtext:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b> ou son <b>texte</b>, puis touchez <b>« Créer mon CV adapté »</b> (30 secondes à 1 minute).</p><p>Votre CV s'affiche ensuite : touchez <b>« Je veux changer quelque chose »</b> pour le faire corriger, à l'écrit ou à la voix, ou <b>« C'est parfait, je l'envoie »</b>.</p>") },
-  { view:"create", target:["#preview"], desktop:true, title:_t("Votre CV et votre lettre"), text:_t("<ul><li>Pour corriger un mot, <b>cliquez directement dans le texte</b>. Une barre apparaît en bas pour la police, la taille et la couleur.</li><li>Cliquez ensuite sur <b>« Enregistrer mes retouches »</b>.</li><li>Pour un changement plus important, écrivez ce qui ne va pas dans « Que voulez-vous corriger ? ».</li><li>Les anciennes versions restent dans « Revenir à une version précédente ».</li></ul>") },
+  { view:"create", target:["#preview"], desktop:true, sample:true, title:_t("Votre CV et votre lettre"), text:_t("<ul><li>Pour corriger un mot, <b>cliquez directement dans le texte</b>. Une barre apparaît en bas pour la police, la taille et la couleur.</li><li>Cliquez ensuite sur <b>« Enregistrer mes retouches »</b>.</li><li>Pour un changement plus important, écrivez ce qui ne va pas dans « Que voulez-vous corriger ? ».</li><li>Les anciennes versions restent dans « Revenir à une version précédente ».</li></ul>") },
   { view:"apps", target:[".views [data-view=apps]", "#tabbar [data-tab=apps]"], title:_t("Mes candidatures"), text:_t("<p>Chaque CV créé y est rangé. Vous indiquez quand vous l'avez envoyé : ") + BRAND.name + _t(" vous rappelle de relancer au bout d'une semaine, vous aide à préparer l'entretien, et peut imprimer le récapitulatif de vos démarches pour France Travail.</p><p>Vos derniers CV se retrouvent aussi dans « Mes CV récents », dans l'onglet Créer.</p>") },
   { view:"create", target:["#fab", "#tabbar [data-tab=coach]"], title:_t("Votre coach"), text:_t("<p>Posez-lui toutes vos questions : « mon accroche est-elle bonne ? », « que répondre si on me demande mes défauts ? ». Il peut appliquer ses conseils à votre CV ou à votre lettre en un clic.</p>") },
   { view:"create", target:["#btn-apply"], desktop:true, title:_t("Prêt à postuler ?"), text:_t("<p>Quand le CV vous plaît, <b>« Préparer ma candidature »</b> regroupe la dernière relecture, les PDF à télécharger et le message à envoyer au recruteur.</p>") },
@@ -4924,8 +4967,19 @@ function startTour(){
   tourI = 0; $("#tour").hidden = false; document.body.classList.add("modal-open");
   showTourStep(0);
 }
+function tourSample(on){
+  const old = $("#tour-sample"); if(old) old.remove();
+  const empty = $("#empty");
+  if(!on || !empty || empty.hidden){ if(empty) empty.style.display = ""; return; }
+  const d = el("div", "tour-sample"); d.id = "tour-sample";
+  const img = document.createElement("img"); img.src = "demos/exemple-cv.jpg"; img.alt = _t("Exemple de CV (personne fictive)");
+  img.addEventListener("load", () => requestAnimationFrame(placeTour));
+  d.appendChild(img); d.appendChild(el("span", "", _t("Exemple fictif")));
+  empty.style.display = "none"; empty.parentNode.insertBefore(d, empty);
+}
 function endTour(){
   if($("#tour").hidden) return;
+  tourSample(false);
   $("#tour").hidden = true; document.body.classList.remove("modal-open");
   store.set("tourSeen", true);
   setView(str((prof() || {}).parcours).length < 80 ? "profile" : (tourBack || "create"));
@@ -4945,7 +4999,8 @@ function showTourStep(i, dir){
   const st = tourList[i];
   $("#tour-step").textContent = _t("Étape ") + (i + 1) + _t(" sur ") + tourList.length;
   $("#tour-title").textContent = st.title;
-  $("#tour-text").innerHTML = (isM() && st.mtext) || st.text;
+  $("#tour-text").innerHTML = ((isM() && st.mtext) || st.text).replace(/« /g, "«\u00a0").replace(/ »/g, "\u00a0»").replace(/ ([?!:;])/g, "\u00a0$1");
+  tourSample(!!st.sample);
   $("#tour-prev").hidden = i === 0;
   $("#tour-next").textContent = st.last ? _t("Commencer") : i === 0 ? _t("C'est parti") : _t("Suivant");
   $("#tour-skip").hidden = !!st.last;
@@ -5035,7 +5090,8 @@ const firstVisit = !store.get("tourSeen", false) && !history.length && !profiles
 purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); setSyncUi(); scalePreview(); syncLangUi();
 applyMobile();
 setView(str((prof() || {}).parcours).length < 80 ? "profile" : store.get("view", "create"));
-if(firstVisit) setTimeout(() => { if($("#ap").hidden && $("#msg-dlg").hidden) startTour(); }, 700);
+showGate();
+if(firstVisit) setTimeout(() => { if($("#ap").hidden && $("#msg-dlg").hidden && $("#gate").hidden) startTour(); }, 700);
 window.__cvx = { renderAll, showTab, cleanHex, linesDiff, purgeOld, setView, resultatsBlock, statusOf, groupsFor }; // utilisé pour les tests
 })();
 </script>
