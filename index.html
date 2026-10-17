@@ -1571,6 +1571,7 @@ const ICON = {
 /* Données qui voyagent d'un appareil à l'autre (jamais le code d'accès, ni la vue, ni les réglages propres à l'appareil) */
 const SYNC_KEYS = ["profiles", "currentProfile", "history", "pins", "suivi", "goal", "settings"];
 let syncSt = null, syncApplying = false, syncTimer = 0;   // état de la synchro (voir « Synchronisation entre appareils »)
+let syncBusy = false, syncPending = false, syncRetry = 0, syncPostponed = 0, syncDlgOpen = false, syncTouched = false, syncLastTry = 0;
 const store = {
   get(k, d){ try{ const v = localStorage.getItem("cvx_"+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
   set(k, v){
@@ -4576,7 +4577,6 @@ function ago(t){
   return "le " + fmtDay(t);
 }
 const fmtWhen = t => new Date(t).toLocaleString(LOCALE, { day:"numeric", month:"long", hour:"2-digit", minute:"2-digit" });
-let syncBusy = false, syncPending = false, syncRetry = 0, syncPostponed = 0, syncDlgOpen = false, syncTouched = false, syncLastTry = 0;
 let syncLastInput = 0;
 document.addEventListener("input", () => { syncTouched = true; syncLastInput = Date.now(); }, true);
 document.addEventListener("keydown", () => { syncLastInput = Date.now(); }, true);
