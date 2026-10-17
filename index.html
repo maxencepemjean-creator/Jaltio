@@ -4715,7 +4715,8 @@ function syncMerge(local, remote){
 /* ----- Envoi, réception ----- */
 function syncDirty(){
   if(!syncSt || syncApplying) return;
-  syncSt.dirty = true; syncSt.dirtyAt = Date.now(); syncSave(); setSyncUi();
+  syncSt.dirty = true; syncSt.dirtyAt = Date.now(); syncSave();
+  try{ setSyncUi(); }catch(e){}       // appelé parfois pendant le chargement, avant que l'interface soit prête
   clearTimeout(syncTimer); syncTimer = setTimeout(() => syncNow("change"), 3000);   // on regroupe les changements
 }
 async function syncPush(base){
