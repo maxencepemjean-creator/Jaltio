@@ -12,6 +12,8 @@
 //     CODES          = codes testeurs séparés par des virgules, ex. « maman-7k2, julien-p9x »
 //     STRIPE_KEY            = clé RESTREINTE Stripe (rk_test_… puis rk_live_…), droit « Checkout Sessions : lecture » uniquement
 //     STRIPE_WEBHOOK_SECRET = secret de signature du webhook Stripe (whsec_…)
+//     MAIL_WEBHOOK          = adresse du webhook n8n qui envoie le code par e-mail (workflow « [JLT] 03 »)
+//     MAIL_SECRET           = secret partagé avec ce workflow n8n (en-tête x-jaltio-secret)
 //   Base D1 liée au Worker (Settings > Bindings > Add > D1 database), nom de variable : DB
 //   Tables : voir worker/schema.sql (à coller dans l'onglet Console de la base D1)
 //   Stripe : webhook vers https://jalon-relais.jalon-emploi.workers.dev/stripe/webhook
@@ -293,8 +295,27 @@ async function enregistrerSession(env, s) {
   return row ? row.code : null;
 }
 
+// Envoie le code par e-mail (via n8n) une seule fois par paiement. Renvoie false si l'envoi a échoué.
+async function envoyerCode(env, session, email, code) {
+  if (!env.MAIL_WEBHOOK || !env.MAIL_SECRET || !email || !code) return true;
+  const pris = await env.DB.prepare("UPDATE abonnes SET envoye = 1 WHERE session = ?1 AND envoye = 0").bind(session).run();
+  if (!pris.meta || pris.meta.changes !== 1) return true;       // déjà envoyé (ou en cours d'envoi ailleurs)
+  try {
+    const r = await fetch(env.MAIL_WEBHOOK, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-jaltio-secret": env.MAIL_SECRET },
+      body: JSON.stringify({ email, code }),
+      signal: AbortSignal.timeout(15000),
+    });
+    if (r.ok) return true;
+  } catch (e) { /* on retentera */ }
+  await env.DB.prepare("UPDATE abonnes SET envoye = 0 WHERE session = ?1").bind(session).run();
+  return false;
+}
+const emailSession = s => (s && ((s.customer_details && s.customer_details.email) || s.customer_email)) || "";
+
 // Appelée par le site au retour du paiement (jaltio.fr/?paye=cs_…) : renvoie le code d'accès de l'acheteur
-async function codeApresPaiement(request, env, origin) {
+async function codeApresPaiement(request, env, origin, ctx) {
   if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
   if (!env.DB || !env.STRIPE_KEY) return erreur(503, "Le paiement n'est pas encore configuré côté serveur.", origin);
   const ip = await sha256hex("ip|" + (request.headers.get("CF-Connecting-IP") || "?"));
@@ -311,8 +332,11 @@ async function codeApresPaiement(request, env, origin) {
   });
   if (res.status === 404) return erreur(404, "Paiement introuvable.", origin);
   if (!res.ok) return erreur(502, "Stripe ne répond pas. Réessayez dans une minute.", origin);
-  const code = await enregistrerSession(env, await res.json());
+  const s = await res.json();
+  const code = await enregistrerSession(env, s);
   if (!code) return erreur(409, "Le paiement n'est pas encore confirmé. Réessayez dans une minute.", origin, { attente: true });
+  const envoi = envoyerCode(env, session, emailSession(s), code);
+  if (ctx && ctx.waitUntil) ctx.waitUntil(envoi); else await envoi;
   return reponse({ code }, 200, origin);
 }
 
@@ -337,7 +361,9 @@ async function webhookStripe(request, env) {
   let ev; try { ev = JSON.parse(brut); } catch (e) { return json({ error: "Illisible." }, 400); }
   const o = (ev && ev.data && ev.data.object) || {};
   if (ev.type === "checkout.session.completed") {
-    await enregistrerSession(env, o);
+    const code = await enregistrerSession(env, o);
+    if (code && !(await envoyerCode(env, o.id, emailSession(o), code)))
+      return json({ error: "Envoi de l'e-mail impossible pour l'instant." }, 500);   // Stripe renverra l'événement plus tard
   } else if (ev.type === "customer.subscription.updated" || ev.type === "customer.subscription.deleted") {
     // past_due : Stripe retente le prélèvement, on laisse l'accès pendant les relances
     const actif = ev.type === "customer.subscription.updated" && ["active", "trialing", "past_due"].includes(o.status) ? 1 : 0;
@@ -347,7 +373,7 @@ async function webhookStripe(request, env) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const chemin = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
     if (chemin === "/stripe/webhook") {       // appelé par les serveurs de Stripe : pas d'en-tête Origin
       try { return await webhookStripe(request, env); }
@@ -357,7 +383,7 @@ export default {
     if (!ORIGINES.includes(origin)) return erreur(403, "Origine non autorisée.", "null");
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(origin) });
     try {
-      if (chemin === "/stripe/code") return await codeApresPaiement(request, env, origin);
+      if (chemin === "/stripe/code") return await codeApresPaiement(request, env, origin, ctx);
       if (chemin.startsWith("/sync/")) return await synchro(request, env, origin, chemin);
       return await relais(request, env, origin);
     } catch (e) {
