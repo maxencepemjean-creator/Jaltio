@@ -1,6 +1,7 @@
 // Relais Jaltio (Cloudflare Worker)
 //
-// 1) Relais Claude : garde la clé Anthropic côté serveur ; le navigateur n'envoie qu'un code d'accès testeur.
+// 1) Relais Claude : garde la clé Anthropic côté serveur ; le navigateur n'envoie qu'un code d'accès
+//    (code testeur du secret CODES, ou code d'abonné créé automatiquement après un paiement Stripe).
 // 2) Synchronisation entre appareils (routes /sync/*) : le serveur ne reçoit qu'un bloc CHIFFRÉ dans le
 //    navigateur (AES-GCM, clé dérivée du mot de passe par PBKDF2) et un identifiant haché. Il ne voit jamais
 //    l'e-mail, le mot de passe ni le contenu des CV.
@@ -9,8 +10,13 @@
 //   Secrets (Settings > Variables and Secrets, type « Secret ») :
 //     ANTHROPIC_KEY  = la clé sk-ant-... dédiée à Jaltio
 //     CODES          = codes testeurs séparés par des virgules, ex. « maman-7k2, julien-p9x »
+//     STRIPE_KEY            = clé RESTREINTE Stripe (rk_test_… puis rk_live_…), droit « Checkout Sessions : lecture » uniquement
+//     STRIPE_WEBHOOK_SECRET = secret de signature du webhook Stripe (whsec_…)
 //   Base D1 liée au Worker (Settings > Bindings > Add > D1 database), nom de variable : DB
 //   Tables : voir worker/schema.sql (à coller dans l'onglet Console de la base D1)
+//   Stripe : webhook vers https://jalon-relais.jalon-emploi.workers.dev/stripe/webhook
+//            (événements checkout.session.completed, customer.subscription.updated, customer.subscription.deleted)
+//            Lien de paiement : redirection après paiement vers https://jaltio.fr/?paye={CHECKOUT_SESSION_ID}
 //   Déclencheur planifié (Settings > Triggers > Cron) : « 0 3 * * 0 » (nettoyage hebdomadaire)
 
 const ORIGINES = ["https://maxencepemjean-creator.github.io", "https://jaltio.fr", "https://www.jaltio.fr"];
@@ -26,7 +32,17 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
   creation: [5, 3600],                 // créations de compte, par adresse (hachée)
   code_h:   [40, 3600],                // appels Claude par code d'accès et par heure
   code_j:   [150, 86400],              // appels Claude par code d'accès et par jour
+  paiement: [20, 3600],                // récupérations de code après paiement, par adresse (hachée)
 };
+
+// Quotas mensuels par offre (mois calendaire). Les codes testeurs (secret CODES) n'ont pas de quota mensuel.
+// « generations » = création ou régénération d'un CV et d'une lettre (requêtes à plus de SEUIL_GENERATION jetons max) ;
+// « autres » = petits appels (lecture d'offre, coach, analyse du parcours…) : garde-fou de coût.
+const QUOTAS = {
+  essentiel: { generations: 50, autres: 300 },
+};
+const SEUIL_GENERATION = 8000;
+const OFFRE_PAR_DEFAUT = "essentiel";  // offre attribuée à un paiement (une seule offre en vente pour l'instant)
 
 const RE_ID = /^[0-9a-f]{64}$/;
 const RE_B64 = /^[A-Za-z0-9+/]+={0,2}$/;
@@ -60,6 +76,28 @@ function egal(a, b) {                  // comparaison à temps constant
   return r === 0;
 }
 const maintenant = () => Date.now();
+const moisCourant = () => new Date().toISOString().slice(0, 7);   // « 2026-10 »
+
+async function hmacHex(secret, texte) {
+  const cle = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", cle, new TextEncoder().encode(texte));
+  return [...new Uint8Array(sig)].map(x => x.toString(16).padStart(2, "0")).join("");
+}
+
+/* ---------- Codes d'accès : testeurs (secret CODES) et abonnés (table abonnes) ---------- */
+function nouveauCode() {               // ex. « jal-7k2m-p9xq » (sans 0/o/1/l pour éviter les confusions)
+  const alpha = "23456789abcdefghijkmnpqrstuvwxyz", r = crypto.getRandomValues(new Uint8Array(8));
+  const c = [...r].map(x => alpha[x % alpha.length]).join("");
+  return "jal-" + c.slice(0, 4) + "-" + c.slice(4);
+}
+async function verifierCode(env, code) {      // renvoie { offre } si le code est valable, sinon null
+  if (!code) return null;
+  const codes = String(env.CODES || "").split(",").map(c => c.trim()).filter(Boolean);
+  if (codes.includes(code)) return { offre: "testeur" };
+  if (!env.DB || !/^jal-[a-z0-9]{4}-[a-z0-9]{4}$/.test(code)) return null;
+  const row = await env.DB.prepare("SELECT offre, actif FROM abonnes WHERE code = ?1").bind(code).first();
+  return row && row.actif === 1 ? { offre: row.offre } : null;
+}
 
 /* ---------- Limites de requêtes (compteurs atomiques dans D1) ---------- */
 async function compter(env, cle, fenetre) {
@@ -126,9 +164,8 @@ async function synchro(request, env, origin, chemin) {
     const baseVersion = Number.isInteger(b.baseVersion) ? b.baseVersion : -1;
 
     if (!row) {                                              // création du compte
-      const codes = String(env.CODES || "").split(",").map(c => c.trim()).filter(Boolean);
       const code = (request.headers.get("x-jalon-code") || "").trim();
-      if (!code || !codes.includes(code)) return erreur(403, "Un code d'accès valide est nécessaire pour créer la synchronisation.", origin);
+      if (!(await verifierCode(env, code))) return erreur(403, "Un code d'accès valide est nécessaire pour créer la synchronisation.", origin);
       if (!RE_ID.test(b.auth || "")) return erreur(400, "Authentification invalide.", origin);
       if (!RE_B64.test(b.salt || "") || b.salt.length !== 24) return erreur(400, "Sel invalide.", origin);
       if (!(await sous_limite(env, "new:" + ip, LIMITES.creation))) return erreur(429, "Trop de créations de compte. Réessayez plus tard.", origin);
@@ -168,15 +205,15 @@ async function synchro(request, env, origin, chemin) {
 async function relais(request, env, origin) {
   if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
 
-  const codes = String(env.CODES || "").split(",").map(c => c.trim()).filter(Boolean);
   const code = (request.headers.get("x-jalon-code") || "").trim();
-  if (!code || !codes.includes(code)) return erreur(401, "Code d'accès refusé.", origin);
+  const acces = await verifierCode(env, code);
+  if (!acces) return erreur(401, "Code d'accès refusé.", origin);
 
   if (Number(request.headers.get("content-length") || 0) > MAX_BODY) return erreur(413, "Données trop volumineuses.", origin);
 
-  // Quota par code d'accès (le code est haché : il n'est jamais écrit dans la base)
+  // Quota par code d'accès (le code est haché : il n'est jamais écrit dans les compteurs)
+  const h = await sha256hex("code|" + code);
   if (env.DB) {
-    const h = await sha256hex("code|" + code);
     const ok_h = await sous_limite(env, "ch:" + h, LIMITES.code_h);
     const ok_j = await sous_limite(env, "cj:" + h, LIMITES.code_j);
     if (!ok_h || !ok_j) return erreur(429, "Quota atteint pour ce code d'accès. Réessayez plus tard.", origin);
@@ -199,6 +236,16 @@ async function relais(request, env, origin) {
     if (tools.length) body.tools = tools;
   }
 
+  // Quota mensuel de l'offre
+  const generation = body.max_tokens > SEUIL_GENERATION, mois = moisCourant(), quota = QUOTAS[acces.offre];
+  if (env.DB && quota) {
+    const u = await env.DB.prepare("SELECT generations, autres FROM conso WHERE code_h = ?1 AND mois = ?2").bind(h, mois).first();
+    if (generation && u && u.generations >= quota.generations)
+      return erreur(402, "Vous avez utilisé vos " + quota.generations + " générations de CV de ce mois. Le compteur repart à zéro le 1er du mois prochain.", origin, { quota: true });
+    if (!generation && u && u.autres >= quota.autres)
+      return erreur(402, "Limite mensuelle d'utilisation atteinte. Le compteur repart à zéro le 1er du mois prochain.", origin, { quota: true });
+  }
+
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -208,19 +255,109 @@ async function relais(request, env, origin) {
     },
     body: JSON.stringify(body),
   });
-  return new Response(res.body, {
+  const texte = await res.text();
+
+  // Consommation réelle (jetons, recherches web) par code et par mois : sert au quota et au calcul du coût
+  if (env.DB && res.ok) {
+    try {
+      const u = (JSON.parse(texte) || {}).usage || {};
+      const entree = (u.input_tokens || 0) + (u.cache_creation_input_tokens || 0) + (u.cache_read_input_tokens || 0);
+      const recherches = (u.server_tool_use && u.server_tool_use.web_search_requests) || 0;
+      await env.DB.prepare(
+        "INSERT INTO conso (code_h, mois, offre, generations, autres, tokens_in, tokens_out, recherches) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8) " +
+        "ON CONFLICT(code_h, mois) DO UPDATE SET generations = generations + excluded.generations, autres = autres + excluded.autres, " +
+        "tokens_in = tokens_in + excluded.tokens_in, tokens_out = tokens_out + excluded.tokens_out, recherches = recherches + excluded.recherches"
+      ).bind(h, mois, acces.offre, generation ? 1 : 0, generation ? 0 : 1, entree, u.output_tokens || 0, recherches).run();
+    } catch (e) { /* le comptage ne doit jamais bloquer la réponse */ }
+  }
+
+  return new Response(texte, {
     status: res.status,
     headers: { "content-type": "application/json", ...cors(origin) },
   });
 }
 
+/* ---------- Paiement Stripe ---------- */
+const idStripe = v => (typeof v === "string" ? v : (v && typeof v.id === "string" ? v.id : null));
+
+// Enregistre une session de paiement payée et renvoie son code d'accès (toujours le même pour une même session)
+async function enregistrerSession(env, s) {
+  const paye = s && s.mode === "subscription" && s.status === "complete" &&
+    (s.payment_status === "paid" || s.payment_status === "no_payment_required");
+  if (!paye || typeof s.id !== "string") return null;
+  await env.DB.prepare(
+    "INSERT INTO abonnes (code, session, client, abonnement, offre, actif, cree) VALUES (?1, ?2, ?3, ?4, ?5, 1, ?6) " +
+    "ON CONFLICT(session) DO UPDATE SET client = COALESCE(excluded.client, client), abonnement = COALESCE(excluded.abonnement, abonnement)"
+  ).bind(nouveauCode(), s.id, idStripe(s.customer), idStripe(s.subscription), OFFRE_PAR_DEFAUT, maintenant()).run();
+  const row = await env.DB.prepare("SELECT code FROM abonnes WHERE session = ?1").bind(s.id).first();
+  return row ? row.code : null;
+}
+
+// Appelée par le site au retour du paiement (jaltio.fr/?paye=cs_…) : renvoie le code d'accès de l'acheteur
+async function codeApresPaiement(request, env, origin) {
+  if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
+  if (!env.DB || !env.STRIPE_KEY) return erreur(503, "Le paiement n'est pas encore configuré côté serveur.", origin);
+  const ip = await sha256hex("ip|" + (request.headers.get("CF-Connecting-IP") || "?"));
+  if (!(await sous_limite(env, "pay:" + ip, LIMITES.paiement))) return erreur(429, "Trop de demandes. Patientez une minute.", origin);
+  let b; try { b = await request.json(); } catch (e) { return erreur(400, "Requête illisible.", origin); }
+  const session = String((b && b.session) || "");
+  if (!/^cs_(test|live)_[A-Za-z0-9]{10,200}$/.test(session)) return erreur(400, "Référence de paiement invalide.", origin);
+
+  const deja = await env.DB.prepare("SELECT code FROM abonnes WHERE session = ?1").bind(session).first();
+  if (deja) return reponse({ code: deja.code }, 200, origin);
+
+  const res = await fetch((env.STRIPE_API || "https://api.stripe.com") + "/v1/checkout/sessions/" + session, {
+    headers: { "Authorization": "Bearer " + env.STRIPE_KEY },
+  });
+  if (res.status === 404) return erreur(404, "Paiement introuvable.", origin);
+  if (!res.ok) return erreur(502, "Stripe ne répond pas. Réessayez dans une minute.", origin);
+  const code = await enregistrerSession(env, await res.json());
+  if (!code) return erreur(409, "Le paiement n'est pas encore confirmé. Réessayez dans une minute.", origin, { attente: true });
+  return reponse({ code }, 200, origin);
+}
+
+// Webhook Stripe (signature vérifiée) : enregistre les paiements et coupe les codes des abonnements terminés
+async function webhookStripe(request, env) {
+  const json = (obj, status) => new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json" } });
+  if (request.method !== "POST") return json({ error: "Méthode non autorisée." }, 405);
+  if (!env.DB || !env.STRIPE_WEBHOOK_SECRET) return json({ error: "Non configuré." }, 503);
+  const brut = await request.text();
+  if (brut.length > 500000) return json({ error: "Trop volumineux." }, 413);
+
+  let t = "";
+  const v1 = [];
+  for (const morceau of (request.headers.get("Stripe-Signature") || "").split(",")) {
+    const i = morceau.indexOf("="), k = morceau.slice(0, i).trim(), v = morceau.slice(i + 1).trim();
+    if (k === "t") t = v; else if (k === "v1") v1.push(v);
+  }
+  if (!/^\d+$/.test(t) || !v1.length || Math.abs(Date.now() / 1000 - Number(t)) > 300) return json({ error: "Signature invalide." }, 400);
+  const attendu = await hmacHex(env.STRIPE_WEBHOOK_SECRET, t + "." + brut);
+  if (!v1.some(s => egal(s, attendu))) return json({ error: "Signature invalide." }, 400);
+
+  let ev; try { ev = JSON.parse(brut); } catch (e) { return json({ error: "Illisible." }, 400); }
+  const o = (ev && ev.data && ev.data.object) || {};
+  if (ev.type === "checkout.session.completed") {
+    await enregistrerSession(env, o);
+  } else if (ev.type === "customer.subscription.updated" || ev.type === "customer.subscription.deleted") {
+    // past_due : Stripe retente le prélèvement, on laisse l'accès pendant les relances
+    const actif = ev.type === "customer.subscription.updated" && ["active", "trialing", "past_due"].includes(o.status) ? 1 : 0;
+    if (typeof o.id === "string") await env.DB.prepare("UPDATE abonnes SET actif = ?1 WHERE abonnement = ?2").bind(actif, o.id).run();
+  }
+  return json({ received: true }, 200);
+}
+
 export default {
   async fetch(request, env) {
+    const chemin = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
+    if (chemin === "/stripe/webhook") {       // appelé par les serveurs de Stripe : pas d'en-tête Origin
+      try { return await webhookStripe(request, env); }
+      catch (e) { return new Response(JSON.stringify({ error: "Erreur du serveur." }), { status: 500, headers: { "content-type": "application/json" } }); }
+    }
     const origin = request.headers.get("Origin") || "";
     if (!ORIGINES.includes(origin)) return erreur(403, "Origine non autorisée.", "null");
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(origin) });
-    const chemin = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
     try {
+      if (chemin === "/stripe/code") return await codeApresPaiement(request, env, origin);
       if (chemin.startsWith("/sync/")) return await synchro(request, env, origin, chemin);
       return await relais(request, env, origin);
     } catch (e) {
@@ -233,5 +370,6 @@ export default {
     if (!env.DB) return;
     await env.DB.prepare("DELETE FROM sync WHERE accessed < ?1").bind(Date.now() - CONSERVATION_JOURS * 864e5).run();
     await env.DB.prepare("DELETE FROM rate WHERE exp < ?1").bind(Math.floor(Date.now() / 1000)).run();
+    try { await env.DB.prepare("DELETE FROM conso WHERE mois < ?1").bind(new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 7)).run(); } catch (e) {}
   },
 };

@@ -19,3 +19,28 @@ CREATE TABLE IF NOT EXISTS rate (
   n   INTEGER NOT NULL,
   exp INTEGER NOT NULL
 );
+
+-- Abonnés payants : un code d'accès par paiement Stripe (créé automatiquement par le Worker)
+CREATE TABLE IF NOT EXISTS abonnes (
+  code       TEXT PRIMARY KEY,      -- code d'accès donné à l'acheteur, ex. jal-7k2m-p9xq
+  session    TEXT UNIQUE NOT NULL,  -- session de paiement Stripe (cs_...)
+  client     TEXT,                  -- client Stripe (cus_...)
+  abonnement TEXT,                  -- abonnement Stripe (sub_...)
+  offre      TEXT NOT NULL,         -- essentiel (pro plus tard)
+  actif      INTEGER NOT NULL,      -- 1 = abonnement en cours, 0 = terminé
+  cree       INTEGER NOT NULL       -- date de création (ms)
+);
+CREATE INDEX IF NOT EXISTS abonnes_abonnement ON abonnes (abonnement);
+
+-- Consommation par code et par mois (le code est haché) : quota mensuel et coût réel
+CREATE TABLE IF NOT EXISTS conso (
+  code_h      TEXT NOT NULL,        -- SHA-256 du code d'accès
+  mois        TEXT NOT NULL,        -- ex. 2026-10
+  offre       TEXT NOT NULL,        -- testeur, essentiel...
+  generations INTEGER NOT NULL,     -- CV + lettres générés ou régénérés
+  autres      INTEGER NOT NULL,     -- petits appels (lecture d'offre, coach...)
+  tokens_in   INTEGER NOT NULL,
+  tokens_out  INTEGER NOT NULL,
+  recherches  INTEGER NOT NULL,     -- recherches web facturées
+  PRIMARY KEY (code_h, mois)
+);

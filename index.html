@@ -2092,6 +2092,7 @@ async function callClaude(body, key){
     const m = (data && data.error && data.error.message) || "";
     if(res.status === 401){ settings.apiKey = ""; saveSettings(); renderSettings(); throw new Error(_t("Code d'accès refusé. Saisissez-le à nouveau dans l'encadré « Première utilisation », ou demandez-en un nouveau à Maxence.")); }
     if(res.status === 403) throw new Error(_t("Cette clé n'a pas l'autorisation. Prévenez Maxence."));
+    if(res.status === 402) throw new Error(m || _t("Limite mensuelle atteinte. Le compteur repart à zéro le 1er du mois prochain."));
     if(res.status === 429) throw new Error(_t("Trop de demandes d'un coup. Patientez une minute et réessayez."));
     if(res.status === 529 || res.status >= 500) throw new Error(_t("Le service Claude est surchargé. Réessayez dans quelques minutes."));
     if(/credit|balance|billing/i.test(m)) throw new Error(_t("Le crédit est épuisé. Prévenez Maxence pour qu'il recharge le compte."));
@@ -4885,12 +4886,13 @@ async function syncStart(){
   }
 }
 /* ----- Écran de connexion : obligatoire tant qu'aucun compte n'est actif sur cet appareil ----- */
-let gateHome = null;
+let gateHome = null, msgHome = null;
 function showGate(){
   if(syncSt || !syncAvailableNow() || !$("#gate").hidden) return;
   const f = $("#sync-off");
   if(!gateHome) gateHome = { parent:f.parentNode, next:f.nextSibling };
   $("#gate-slot").appendChild(f); f.classList.add("in-gate");
+  const m = $("#sync-msg"); if(!msgHome) msgHome = { parent:m.parentNode, next:m.nextSibling }; $("#gate-slot").appendChild(m);   // messages visibles sur l'écran de connexion
   $("#sync-go").textContent = _t("Continuer");
   $("#gate").hidden = false; document.body.classList.add("gate-open");
   setTimeout(() => { try{ $("#sync-mail").focus({ preventScroll:true }); }catch(e){} }, 60);
@@ -4899,6 +4901,7 @@ function hideGate(){
   if($("#gate").hidden) return;
   const f = $("#sync-off"); f.classList.remove("in-gate");
   if(gateHome) gateHome.parent.insertBefore(f, gateHome.next);
+  if(msgHome) msgHome.parent.insertBefore($("#sync-msg"), msgHome.next);
   $("#sync-go").textContent = _t("Activer la synchronisation");
   $("#gate").hidden = true; document.body.classList.remove("gate-open");
   if(!store.get("tourSeen", false) && !history.length && !profiles.some(p => str(p.parcours).length >= 80)) setTimeout(() => { if($("#ap").hidden && $("#msg-dlg").hidden && $("#gate").hidden) startTour(); }, 500);
@@ -5092,6 +5095,27 @@ purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); setSyncUi
 applyMobile();
 setView(str((prof() || {}).parcours).length < 80 ? "profile" : store.get("view", "create"));
 showGate();
+/* Retour de paiement Stripe (jaltio.fr/?paye=cs_…) : on récupère le code d'accès de l'acheteur et on l'enregistre */
+(async () => {
+  const sess = new URLSearchParams(location.search).get("paye") || "";
+  if(!/^cs_(test|live)_[A-Za-z0-9]{10,200}$/.test(sess)) return;
+  status("#sync-msg", "info", _t("Paiement reçu. Récupération de votre code d'accès…"));
+  for(let i = 0; i < 6; i++){
+    try{
+      const res = await fetch(RELAIS.replace(/\/+$/, "") + "/stripe/code", { method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify({ session:sess }) });
+      let d = null; try{ d = await res.json(); }catch(e){}
+      if(res.ok && d && d.code){
+        settings.apiKey = d.code; saveSettings(); renderSettings(); $("#sync-code").value = d.code;
+        if(syncSt) syncDirty();
+        status("#sync-msg", "ok", _t("Paiement confirmé, merci ! Votre code d'accès : ") + d.code + _t(" (notez-le). Il est déjà enregistré : choisissez votre e-mail et un mot de passe pour créer votre compte."));
+        return;
+      }
+      if(res.status !== 409 && res.status !== 502 && res.status !== 429) break;
+    }catch(e){}
+    await new Promise(r => setTimeout(r, 4000));
+  }
+  status("#sync-msg", "err", _t("Votre paiement est bien enregistré, mais votre code n'est pas encore prêt. Rechargez la page dans une minute. Si le problème continue, écrivez à contact@jaltio.fr."));
+})();
 if(firstVisit) setTimeout(() => { if($("#ap").hidden && $("#msg-dlg").hidden && $("#gate").hidden) startTour(); }, 700);
 window.__cvx = { renderAll, showTab, cleanHex, linesDiff, purgeOld, setView, resultatsBlock, statusOf, groupsFor }; // utilisé pour les tests
 })();
