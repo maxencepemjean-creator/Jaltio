@@ -2845,24 +2845,47 @@ $("#btn-recap").addEventListener("click", () => {
   rows.forEach(r => { const tr = document.createElement("tr"); [new Date(r[0]).toLocaleDateString("fr-FR"), r[1], r[2], r[3]].forEach(t => tr.appendChild(el("td", "", t))); tbody.appendChild(tr); });
   tb.appendChild(tbody); R.appendChild(tb);
   R.appendChild(el("p", "foot", "Document établi par le candidat à partir de son suivi personnel (" + BRAND.name + "). Il ne constitue pas une attestation officielle."));
-  const old = document.title; document.title = "Récap démarches " + (p.name || "");
+  printTitleOld = document.title; document.title = "Récap démarches " + (p.name || "");
   document.body.dataset.print = "recap";
-  setTimeout(() => { window.print(); document.title = old; }, 50);
+  doPrint();
 });
 
 /* ---------- Export PDF & copie ---------- */
+/* Navigateurs intégrés aux applis (Gmail, Instagram, TikTok, Facebook, LinkedIn…) :
+   l'impression y est désactivée, le bouton ne ferait rien. On le dit au lieu de se taire. */
+let printTitleOld = null;
+function inAppBrowser(){
+  const ua = navigator.userAgent || "";
+  return /FBAN|FBAV|FB_IAB|Instagram|musical_ly|Bytedance|TikTok|Snapchat|LinkedInApp|GSA\/|Line\/|; wv\)/i.test(ua);
+}
+function printDone(){
+  delete document.body.dataset.print;
+  if(printTitleOld !== null){ document.title = printTitleOld; printTitleOld = null; }
+}
+function doPrint(){
+  if(inAppBrowser() || typeof window.print !== "function"){
+    printDone();
+    try{ navigator.clipboard.writeText(location.href); }catch(e){}
+    alert(_t("Cette fenêtre (ouverte depuis une application) ne permet pas de créer le PDF.\n\nOuvrez Jaltio dans Safari ou Chrome : touchez « ⋯ » puis « Ouvrir dans le navigateur ». Le lien a été copié, vous pouvez aussi le coller dans Safari ou Chrome."));
+    return;
+  }
+  /* Appel direct dans le clic : sur iPhone, un print() différé (setTimeout) peut être ignoré */
+  window.print();
+  /* Filet si « afterprint » n'arrive jamais (certains mobiles) */
+  setTimeout(() => { if(printTitleOld !== null){ document.title = printTitleOld; printTitleOld = null; } }, 60000);
+}
 function printPage(which){
   if(!currentHistId){ alert(_t("Générez d'abord un CV.")); return; }
   if(which === "lettre" && $("#tab-lettre").hidden){ alert(_t("Aucune lettre pour ce CV.")); return; }
   showTab(which);
   const h = history.find(x => x.id === currentHistId);
   const nom = (h && h.data && h.data.cv && str(h.data.cv.nom)) || "CV";
-  const old = document.title;
+  printTitleOld = document.title;
   document.title = (which === "cv" ? "CV " : _t("Lettre ")) + nom + (h && h.entreprise ? " - " + h.entreprise : "");
   document.body.dataset.print = which;
-  setTimeout(() => { window.print(); document.title = old; }, 50);
+  doPrint();
 }
-window.addEventListener("afterprint", () => { delete document.body.dataset.print; });
+window.addEventListener("afterprint", printDone);
 $("#btn-pdf-cv").addEventListener("click", () => printPage("cv"));
 $("#btn-pdf-lettre").addEventListener("click", () => printPage("lettre"));
 
