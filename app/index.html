@@ -1191,7 +1191,7 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
     <p class="hint" id="abo-etat" style="margin-top:0" aria-live="polite">Vérification de votre abonnement…</p>
     <div class="row" style="margin-top:10px"><button class="btn" id="abo-resilier" type="button" hidden>Résilier mon abonnement</button><a class="btn" id="abo-forfaits" href="/forfaits/" hidden>Voir les forfaits</a></div>
     <div class="status" id="abo-msg" role="status"></div>
-    <p class="hint">Abonnement mensuel, renouvelé automatiquement chaque mois, sans engagement. La résiliation prend effet à la fin du mois déjà payé : le mois commencé reste dû et l'accès continue jusqu'à sa fin. Rétractation sous 14 jours avec remboursement intégral : écrivez à contact@jaltio.fr.</p>
+    <p class="hint" id="abo-info">Abonnement mensuel, renouvelé automatiquement chaque mois, sans engagement. La résiliation prend effet à la fin du mois déjà payé : le mois commencé reste dû et l'accès continue jusqu'à sa fin. Rétractation sous 14 jours avec remboursement intégral : écrivez à contact@jaltio.fr.</p>
     <p class="hint legal-links"><a href="/cgv.html" target="_blank" rel="noopener">Conditions générales</a> · <a href="/confidentialite.html" target="_blank" rel="noopener">Politique de confidentialité</a> · <a href="/mentions-legales.html" target="_blank" rel="noopener">Mentions légales</a></p>
   </div>
 
@@ -4953,7 +4953,8 @@ async function aboCall(route){
   if(!res.ok){ const err = new Error((d && d.error && d.error.message) || ("Erreur " + res.status)); err.status = res.status; throw err; }
   return d || {};
 }
-function aboRender(etat, bouton, forfaits){
+function aboRender(etat, bouton, forfaits, offert){
+  $("#abo-info").hidden = !!offert;
   $("#abo-etat").textContent = etat; $("#abo-resilier").hidden = !bouton; $("#abo-forfaits").hidden = !forfaits;
 }
 async function aboStatut(){
@@ -4961,7 +4962,7 @@ async function aboStatut(){
   if(!aboCode()){ aboRender(_t("Aucun abonnement n'est enregistré sur cet appareil. Connectez-vous avec votre compte, ou choisissez un forfait."), false, true); return; }
   try{
     const d = await aboCall("statut");
-    if(d.offre === "offert") aboRender(_t("Accès offert : Jaltio sans limite mensuelle, aucun prélèvement."), d.actif && !d.resiliation_prevue, false);
+    if(d.offre === "offert") aboRender(_t("Accès offert : Jaltio sans limite mensuelle, aucun prélèvement."), d.actif && !d.resiliation_prevue, false, true);
     else if(d.offre === "testeur") aboRender(_t("Accès testeur : aucun abonnement payant n'est lié à ce compte."), false, false);
     else if(d.actif && d.resiliation_prevue) aboRender(_t("Résiliation enregistrée. Votre accès Jaltio Essentiel continue jusqu'au ") + dateLongue(d.fin) + _t(", sans nouveau prélèvement."), false, false);
     else if(d.actif) aboRender(_t("Jaltio Essentiel : abonnement actif, renouvelé automatiquement chaque mois."), true, false);
