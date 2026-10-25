@@ -4954,7 +4954,8 @@ async function aboStatut(){
   if(!aboCode()){ aboRender(_t("Aucun abonnement n'est enregistré sur cet appareil. Connectez-vous avec votre compte, ou choisissez un forfait."), false, true); return; }
   try{
     const d = await aboCall("statut");
-    if(d.offre === "testeur") aboRender(_t("Accès testeur : aucun abonnement payant n'est lié à ce compte."), false, false);
+    if(d.offre === "offert") aboRender(_t("Accès offert : Jaltio sans limite mensuelle, aucun prélèvement."), d.actif && !d.resiliation_prevue, false);
+    else if(d.offre === "testeur") aboRender(_t("Accès testeur : aucun abonnement payant n'est lié à ce compte."), false, false);
     else if(d.actif && d.resiliation_prevue) aboRender(_t("Résiliation enregistrée. Votre accès Jaltio Essentiel continue jusqu'au ") + dateLongue(d.fin) + _t(", sans nouveau prélèvement."), false, false);
     else if(d.actif) aboRender(_t("Jaltio Essentiel : abonnement actif, renouvelé automatiquement chaque mois."), true, false);
     else aboRender(_t("Abonnement terminé") + (d.fin ? _t(" depuis le ") + dateLongue(d.fin) : "") + _t(". Vos documents restent consultables 6 mois, puis sont supprimés."), false, true);

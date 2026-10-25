@@ -52,6 +52,9 @@ const QUOTAS = {
 };
 const SEUIL_GENERATION = 8000;
 const OFFRE_PAR_DEFAUT = "essentiel";  // offre attribuée à un paiement (une seule offre en vente pour l'instant)
+// Accès offert (proches, testeurs) : abonnement Stripe pris avec un code promo du coupon COUPON_OFFERT (100 %, à vie).
+// L'offre « offert » n'a aucun quota mensuel et aura accès à toutes les fonctions, y compris celles de Pro.
+const COUPON_OFFERT = "JALTIO_OFFERT";
 
 const RE_ID = /^[0-9a-f]{64}$/;
 const RE_B64 = /^[A-Za-z0-9+/]+={0,2}$/;
@@ -299,6 +302,21 @@ async function relais(request, env, origin) {
 /* ---------- Paiement Stripe ---------- */
 const idStripe = v => (typeof v === "string" ? v : (v && typeof v.id === "string" ? v.id : null));
 
+// Identifiants des coupons appliqués à une session (lus sur la session, sinon sur l'abonnement créé)
+async function couponsSession(env, s) {
+  const ids = [];
+  const lire = d => { if (!d) return; const c = d.coupon || (d.source && d.source.coupon); const id = idStripe(c); if (id) ids.push(id); };
+  (Array.isArray(s.discounts) ? s.discounts : []).forEach(lire);
+  const sub = idStripe(s.subscription);
+  if (!ids.length && sub && env.STRIPE_KEY) {
+    try {
+      const r = await stripe(env, "GET", "/v1/subscriptions/" + encodeURIComponent(sub) + "?expand[]=discounts");
+      if (r.ok && r.d) { (Array.isArray(r.d.discounts) ? r.d.discounts : []).forEach(lire); lire(r.d.discount); }
+    } catch (e) { /* en cas d'échec : offre par défaut */ }
+  }
+  return ids;
+}
+
 // Enregistre une session de paiement payée et renvoie son code d'accès (toujours le même pour une même session)
 async function enregistrerSession(env, s) {
   const paye = s && s.mode === "subscription" && s.status === "complete" &&
@@ -306,10 +324,11 @@ async function enregistrerSession(env, s) {
   if (!paye || typeof s.id !== "string") return null;
   // Preuve d'acceptation : versions des CGV et de la politique + horodatage, transmis par la page d'inscription
   const accepte = /^[A-Za-z0-9_-]{1,200}$/.test(s.client_reference_id || "") ? s.client_reference_id : null;
+  const offre = (await couponsSession(env, s)).includes(COUPON_OFFERT) ? "offert" : OFFRE_PAR_DEFAUT;
   await env.DB.prepare(
     "INSERT INTO abonnes (code, session, client, abonnement, offre, actif, cree, accepte) VALUES (?1, ?2, ?3, ?4, ?5, 1, ?6, ?7) " +
     "ON CONFLICT(session) DO UPDATE SET client = COALESCE(excluded.client, client), abonnement = COALESCE(excluded.abonnement, abonnement), accepte = COALESCE(excluded.accepte, accepte)"
-  ).bind(nouveauCode(), s.id, idStripe(s.customer), idStripe(s.subscription), OFFRE_PAR_DEFAUT, maintenant(), accepte).run();
+  ).bind(nouveauCode(), s.id, idStripe(s.customer), idStripe(s.subscription), offre, maintenant(), accepte).run();
   const row = await env.DB.prepare("SELECT code FROM abonnes WHERE session = ?1").bind(s.id).first();
   return row ? row.code : null;
 }
