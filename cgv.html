@@ -11,8 +11,11 @@
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="/forfaits/"><svg width="36" height="36" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name">Jaltio</span></a>
-  <a class="top-link" href="/">Se connecter</a>
+  <a class="brand" href="/"><svg width="36" height="36" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name">Jaltio</span></a>
+  <nav class="mainnav" aria-label="Menu principal"><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav>
+  <div class="top-cta"><a class="top-link" href="/app/">Se connecter</a><a class="top-link solid" href="/inscription/?offre=essentiel">S'inscrire</a></div>
+  <details class="menu"><summary aria-label="Ouvrir le menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A2340" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
+    <div class="menu-pop"><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><hr><a href="/app/">Se connecter</a><a href="/inscription/?offre=essentiel">S'inscrire</a></div></details>
 </header>
 <main>
 <article class="wrap narrow doc" id="doc">
@@ -51,7 +54,7 @@
 <li><b>Une génération</b> = chaque création d'un CV et de sa lettre pour une offre, et chaque nouvelle version (régénération) demandée ensuite. Les petites demandes (lecture d'une offre, coach) ne comptent pas comme des générations.</li>
 <li><b>Les compteurs repartent à zéro le 1er de chaque mois</b>, quelle que soit votre date d'abonnement. Exemple : abonné le 28 octobre, vous disposez de 50 générations jusqu'au 31 octobre, puis de 50 nouvelles le 1er novembre.</li>
 <li>Ce qui n'est pas utilisé dans le mois n'est pas reporté.</li>
-<li>Quand une limite est atteinte, la fonction concernée est bloquée jusqu'au 1er du mois suivant. Vos documents déjà créés restent accessibles. Pour protéger le service, chaque code d'accès est aussi limité à 40 demandes à l'IA par heure et 150 par jour.</li>
+<li>Quand une limite est atteinte, la fonction concernée est bloquée jusqu'au 1er du mois suivant. Vos documents déjà créés restent accessibles. Pour protéger le service, chaque compte est aussi limité à 40 demandes à l'IA par heure et 150 par jour.</li>
 </ul>
 
 <h2>5. Offre d'accès anticipé</h2>
@@ -65,14 +68,14 @@
 <li>Vous lisez et acceptez ces conditions, puis la politique de confidentialité.</li>
 <li>Vous êtes redirigé vers la page de paiement sécurisée de notre prestataire Stripe, où vous vérifiez le prix. Le bouton de paiement indique clairement que la commande vous oblige à payer.</li>
 <li>Votre carte est débitée le jour de la souscription, puis chaque mois à la même date, jusqu'à la résiliation.</li>
-<li>Vous recevez par e-mail la confirmation de votre abonnement et votre code d'accès, avec <b>en pièces jointes ces conditions</b> (formulaire de rétractation compris) <b>et la politique de confidentialité</b>.</li>
+<li>Vous recevez par e-mail la confirmation de votre abonnement et un code de validation à 6 chiffres, avec <b>en pièces jointes ces conditions</b> (formulaire de rétractation compris) <b>et la politique de confidentialité</b>.</li>
 </ol>
 <p>Ces deux documents restent consultables et téléchargeables à tout moment, depuis le bas de chaque page de jaltio.fr.</p>
 <p>Une facture est émise pour chaque paiement et envoyée par e-mail. Nous n'avons jamais accès à vos numéros de carte : ils sont traités par Stripe.</p>
 <p>En cas d'échec de paiement, Stripe peut retenter le prélèvement. Si le paiement reste impayé, l'abonnement est suspendu, puis arrêté <span class="todo">[À CONFIRMER : délai, selon le réglage Stripe des relances]</span>.</p>
 
-<h2>7. Compte, code d'accès, mot de passe et suppression des données</h2>
-<p>Après le paiement, votre code d'accès s'affiche à l'écran et vous est envoyé par e-mail. Vous créez ensuite votre mot de passe. Le service est utilisable immédiatement.</p>
+<h2>7. Compte, validation de l'adresse e-mail, mot de passe et suppression des données</h2>
+<p>Après le paiement, vous recevez par e-mail un code de validation à 6 chiffres, qui confirme votre adresse. Vous le saisissez sur le site, puis vous créez votre mot de passe. Le service est utilisable immédiatement.</p>
 <ul>
 <li>Le code et le compte sont personnels. Vous ne devez pas les partager.</li>
 <li><b>Gardez votre mot de passe en lieu sûr.</b> Vos données sont chiffrées avec une clé tirée de ce mot de passe : nous ne le connaissons pas et ne pouvons pas le récupérer. <b>Si vous l'oubliez, les données enregistrées sont définitivement perdues.</b> Votre abonnement, lui, reste actif.</li>
@@ -86,7 +89,7 @@
 <li><b>Vous êtes remboursé intégralement</b>, même si vous avez déjà utilisé le service pendant ce délai.</li>
 <li><b>Comment faire</b> : envoyez-nous votre décision à contact@jaltio.fr, par exemple avec le formulaire en annexe (son usage n'est pas obligatoire). Une simple phrase claire suffit. Nous accusons réception par e-mail.</li>
 <li><b>Remboursement</b> : au plus tard 14 jours après réception de votre demande, sur le moyen de paiement utilisé, sans frais.</li>
-<li>Après la rétractation, l'abonnement est arrêté et votre code d'accès désactivé. Votre compte reste consultable, sans génération possible (article 3).</li>
+<li>Après la rétractation, l'abonnement est arrêté et l'accès aux fonctions payantes désactivé. Votre compte reste consultable, sans génération possible (article 3).</li>
 </ul>
 <p>Le délai de 14 jours s'applique à la souscription initiale, pas aux renouvellements mensuels. Après ce délai, vous pouvez résilier à tout moment (article 9).</p>
 
@@ -97,12 +100,12 @@
 <li><b>Par e-mail</b> : à contact@jaltio.fr, depuis l'adresse utilisée pour l'abonnement.</li>
 </ul>
 <p>Vous recevez une <b>confirmation de résiliation par e-mail</b>, avec sa date d'effet.</p>
-<p>La résiliation prend effet <b>à la fin du mois déjà payé</b> : le mois en cours reste dû et n'est pas remboursé (hors rétractation, article 8), vous gardez votre abonnement jusqu'à cette date, et aucun nouveau prélèvement n'a lieu. Ensuite, votre code d'accès est désactivé ; votre compte reste consultable pendant 6 mois, sans génération possible, puis vos données en ligne sont supprimées (article 7).</p>
+<p>La résiliation prend effet <b>à la fin du mois déjà payé</b> : le mois en cours reste dû et n'est pas remboursé (hors rétractation, article 8), vous gardez votre abonnement jusqu'à cette date, et aucun nouveau prélèvement n'a lieu. Ensuite, l'accès aux fonctions payantes est désactivé ; votre compte reste consultable pendant 6 mois, sans génération possible, puis vos données en ligne sont supprimées (article 7).</p>
 
 <h2>10. Suspension en cas d'abus</h2>
 <p>Nous pouvons suspendre ou résilier un accès en cas de manquement grave à ces conditions, notamment :</p>
 <ul>
-<li>partage ou revente du code d'accès ou du compte ;</li>
+<li>partage ou revente du compte ;</li>
 <li>utilisation automatisée (robots, scripts) ou tentative de contourner les limites ;</li>
 <li>usage du service pour créer des documents frauduleux ou au nom d'une autre personne sans son accord ;</li>
 <li>contenus illicites, injurieux ou portant atteinte aux droits d'autrui ;</li>
@@ -170,7 +173,7 @@
 </article>
 </main>
 <footer class="foot">
-  <nav><a href="/forfaits/">Forfaits</a><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a><a href="/?resilier">Résilier mon abonnement</a></nav>
+  <nav><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a><a href="/app/?resilier">Résilier mon abonnement</a></nav>
   Jaltio · <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> · IA : Claude, d'Anthropic (États-Unis)
 </footer>
 </body>

@@ -11,8 +11,11 @@
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="/forfaits/"><svg width="36" height="36" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name">Jaltio</span></a>
-  <a class="top-link" href="/">Se connecter</a>
+  <a class="brand" href="/"><svg width="36" height="36" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name">Jaltio</span></a>
+  <nav class="mainnav" aria-label="Menu principal"><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav>
+  <div class="top-cta"><a class="top-link" href="/app/">Se connecter</a><a class="top-link solid" href="/inscription/?offre=essentiel">S'inscrire</a></div>
+  <details class="menu"><summary aria-label="Ouvrir le menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A2340" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
+    <div class="menu-pop"><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><hr><a href="/app/">Se connecter</a><a href="/inscription/?offre=essentiel">S'inscrire</a></div></details>
 </header>
 <main>
 <article class="wrap narrow doc" id="doc">
@@ -52,7 +55,7 @@
 <tr><td>Abonnement et accès</td><td>Code d'accès, identifiants Stripe (session, client, abonnement), offre, statut, date de fin, versions des conditions acceptées et date d'acceptation</td><td>Exécution du contrat ; preuve du contrat</td><td>Durée de l'abonnement, puis 5 ans pour la preuve en cas de litige</td></tr>
 <tr><td>Paiement</td><td>Nom, e-mail, données de carte (chez Stripe)</td><td>Exécution du contrat</td><td>Selon la politique de Stripe</td></tr>
 <tr><td>Factures et comptabilité</td><td>Nom, e-mail, montants, dates</td><td>Obligation légale</td><td>10 ans (article L123-22 du Code de commerce)</td></tr>
-<tr><td>E-mails liés à l'abonnement (code d'accès et documents contractuels, confirmation de résiliation, avertissement avant suppression)</td><td>E-mail, code d'accès, dates</td><td>Exécution du contrat</td><td>L'e-mail est lu chez Stripe au moment de l'envoi, sans être stocké dans notre base ; copie dans la messagerie contact@jaltio.fr</td></tr>
+<tr><td>E-mails liés à l'abonnement (code de validation et documents contractuels, confirmation de résiliation, avertissement avant suppression)</td><td>E-mail, code de validation, dates</td><td>Exécution du contrat</td><td>L'e-mail est lu chez Stripe au moment de l'envoi, sans être stocké dans notre base ; copie dans la messagerie contact@jaltio.fr</td></tr>
 <tr><td>Limites mensuelles et suivi des coûts</td><td>Nombre de générations, volume traité, recherches, liés à l'empreinte du code</td><td>Intérêt légitime (faire respecter les limites, maîtriser les coûts)</td><td>24 mois</td></tr>
 <tr><td>Questions et réclamations</td><td>E-mail, contenu de vos messages</td><td>Intérêt légitime (vous répondre)</td><td>3 ans après le dernier échange</td></tr>
 <tr><td>Liste d'attente et nouvelles de Jaltio</td><td>Prénom, nom, e-mail, provenance (réseau social), date d'inscription</td><td>Consentement (inscription sur jaltio.fr/attente)</td><td>Jusqu'à votre désinscription, ou 3 ans sans interaction</td></tr>
@@ -110,7 +113,7 @@
 </article>
 </main>
 <footer class="foot">
-  <nav><a href="/forfaits/">Forfaits</a><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a><a href="/?resilier">Résilier mon abonnement</a></nav>
+  <nav><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a><a href="/app/?resilier">Résilier mon abonnement</a></nav>
   Jaltio · <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> · IA : Claude, d'Anthropic (États-Unis)
 </footer>
 </body>
