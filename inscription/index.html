@@ -12,6 +12,7 @@
 <link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/fonts.css">
 <link rel="stylesheet" href="/pages.css">
+<script>document.documentElement.style.visibility = "hidden";   /* masqué le temps de vérifier que les inscriptions sont ouvertes */</script>
 <script src="/anim.js"></script>
 <style>
 .steps{display:flex;gap:6px;margin:4px 0 18px;padding:0;list-style:none}
@@ -114,6 +115,13 @@
   var VERSION_CGV = "20261025", VERSION_CONF = "20261025";
   /* Code promo Stripe de l'accès anticipé (1er mois à 6,49 €), appliqué automatiquement jusqu'au 23/11/2026 inclus (heure de Paris) */
   var CODE_PROMO = "ANTICIPE", FIN_PROMO = Date.parse("2026-11-24T00:00:00+01:00");
+
+  /* Inscriptions fermées tant que Jaltio n'est pas ouvert : avant le 31/10/2026 à 9 h (Paris), ou tant que le lien de paiement
+     est un lien Stripe de TEST. Les visiteurs sont envoyés vers la liste d'attente. Pour tester soi-même : /inscription/?test=1 */
+  var OUVERTURE = Date.parse("2026-10-31T09:00:00+01:00");
+  var testPerso = /[?&]test=1(&|$)/.test(location.search);
+  if(!testPerso && (Date.now() < OUVERTURE || LIEN_PAIEMENT.indexOf("/test_") !== -1)){ location.replace("/attente/"); return; }
+  document.documentElement.style.visibility = "";
 
   var $ = function(s){ return document.querySelector(s); };
   var etape = 1, email = "";
