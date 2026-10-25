@@ -109,6 +109,8 @@
   var LIEN_PAIEMENT = "https://buy.stripe.com/test_cNiaEQ5wqcLq9uH3SSa3u00";
   /* Versions des documents acceptés (à changer quand les documents changent) : enregistrées avec le paiement */
   var VERSION_CGV = "20261025", VERSION_CONF = "20261025";
+  /* Code promo Stripe de l'accès anticipé (1er mois à 6,49 €), appliqué automatiquement jusqu'au 23/11/2026 inclus (heure de Paris) */
+  var CODE_PROMO = "ANTICIPE", FIN_PROMO = Date.parse("2026-11-24T00:00:00+01:00");
 
   var $ = function(s){ return document.querySelector(s); };
   var etape = 1, email = "";
@@ -166,7 +168,7 @@
     if(!email || !$("#ok-cgv").checked || !$("#ok-conf").checked){ montrer(email ? 2 : 1); return; }
     var ref = "cgv" + VERSION_CGV + "_conf" + VERSION_CONF + "_" + Date.now();
     store("jaltio_inscription", JSON.stringify({ email: email, ref: ref, offre: "essentiel" }));
-    var u = LIEN_PAIEMENT + "?prefilled_email=" + encodeURIComponent(email) + "&client_reference_id=" + encodeURIComponent(ref) + "&locale=fr";
+    var u = LIEN_PAIEMENT + "?prefilled_email=" + encodeURIComponent(email) + "&client_reference_id=" + encodeURIComponent(ref) + "&locale=fr" + (Date.now() < FIN_PROMO ? "&prefilled_promo_code=" + CODE_PROMO : "");
     $("#payer").disabled = true; $("#payer").textContent = "Ouverture de la page de paiement…";
     location.href = u;
   });
