@@ -998,6 +998,13 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
     <svg class="logo" width="52" height="52" viewBox="0 0 72 72" role="img" aria-label="Logo"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <h1 id="gate-title">Bienvenue sur <span data-brand>Jaltio</span></h1>
     <p class="hint" style="margin-top:0">Connectez-vous avec votre e-mail et votre mot de passe. Première visite ? Choisissez-les maintenant : votre compte est créé en quelques secondes.</p>
+    <div id="gate-otp" hidden>
+      <p class="hint" id="otp-txt" style="margin-top:0"></p>
+      <label for="otp-in">Code de validation (6 chiffres)</label>
+      <input type="text" id="otp-in" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" style="font-size:22px;letter-spacing:6px;text-align:center">
+      <div class="row" style="margin-top:12px"><button class="btn primary" id="otp-go" type="button">Valider</button><button class="link" id="otp-renvoi" type="button">Renvoyer le code</button></div>
+      <div class="status" id="otp-msg"></div>
+    </div>
     <div id="gate-slot"></div>
     <p class="hint gate-plans">Pas encore abonné ? <a href="/forfaits/">Voir les forfaits</a> · <a href="/cgv.html">CGV</a> · <a href="/confidentialite.html">Confidentialité</a></p>
     <p class="hint gate-forgot">Mot de passe oublié : vos données sont chiffrées avec lui, personne ne peut le réinitialiser. Créez un nouveau compte avec une autre adresse e-mail.</p>
@@ -5001,7 +5008,7 @@ function hideGate(){
 const syncAvailableNow = () => !!(window.crypto && crypto.subtle && crypto.getRandomValues);
 function syncResetForm(){ ["#sync-pw", "#sync-pw2", "#sync-code"].forEach(s => { $(s).value = ""; }); $("#sync-ok").checked = false; $("#sync-new").hidden = true; }
 $("#sync-form").addEventListener("submit", e => { e.preventDefault(); syncStart(); });
-$("#sync-mail").addEventListener("input", () => { $("#sync-new").hidden = true; });
+$("#sync-mail").addEventListener("input", () => { if(!$("#sync-form").dataset.creation) $("#sync-new").hidden = true; });
 $("#sync-now").addEventListener("click", () => { postponeReset(); syncNow("manual"); });
 function postponeReset(){ syncPostponed = 0; if(syncSt && syncSt.err === "conflict") syncSt.err = ""; }
 $("#sync-pill").addEventListener("click", () => { if(syncSt && syncSt.err === "conflict") postponeReset(); });
@@ -5198,26 +5205,75 @@ if(new URLSearchParams(location.search).has("resilier")){
   setTimeout(() => { try{ $("#step-abo").scrollIntoView({ behavior:"smooth", block:"start" }); }catch(e){} }, 400);
   if(!$("#gate").hidden) status("#sync-msg", "info", _t("Connectez-vous pour gérer ou résilier votre abonnement."));
 }
-/* Retour de paiement Stripe (jaltio.fr/?paye=cs_…) : on récupère le code d'accès de l'acheteur et on l'enregistre */
+/* Retour de paiement Stripe (jaltio.fr/?paye=cs_…) : code à 6 chiffres reçu par mail, puis création du compte */
 (async () => {
   const sess = new URLSearchParams(location.search).get("paye") || "";
   if(!/^cs_(test|live)_[A-Za-z0-9]{10,200}$/.test(sess)) return;
-  status("#sync-msg", "info", _t("Paiement reçu. Récupération de votre code d'accès…"));
-  for(let i = 0; i < 6; i++){
+  const base = RELAIS.replace(/\/+$/, "");
+  const post = async (chemin, corps) => {
+    const res = await fetch(base + chemin, { method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify(corps) });
+    let d = null; try{ d = await res.json(); }catch(e){}
+    return { ok:res.ok, status:res.status, d:d || {} };
+  };
+  const msg = (cls, t) => status("#otp-msg", cls, t);
+  // Écran de validation : par-dessus l'appli, que l'appareil ait déjà un compte ou non
+  const dejaConnecte = !!syncSt;
+  if(!dejaConnecte) showGate();
+  $("#gate").hidden = false; document.body.classList.add("gate-open");
+  $("#gate-title").textContent = _t("Confirmez votre adresse e-mail");
+  [".gate-box > .hint", ".gate-plans", ".gate-forgot"].forEach(q => document.querySelectorAll(q).forEach(n => { n.style.display = "none"; }));
+  $("#gate-slot").hidden = true; $("#gate-otp").hidden = false;
+  $("#otp-txt").textContent = _t("Paiement reçu, merci ! Vérification en cours…");
+  let email = "";
+  for(let i = 0; i < 8; i++){
     try{
-      const res = await fetch(RELAIS.replace(/\/+$/, "") + "/stripe/code", { method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify({ session:sess }) });
-      let d = null; try{ d = await res.json(); }catch(e){}
-      if(res.ok && d && d.code){
-        settings.apiKey = d.code; saveSettings(); renderSettings(); $("#sync-code").value = d.code; aboStatut();
-        if(syncSt) syncDirty();
-        status("#sync-msg", "ok", _t("Paiement confirmé, merci ! Votre code d'accès : ") + d.code + _t(" (notez-le). Il est déjà enregistré : choisissez votre e-mail et un mot de passe pour créer votre compte."));
-        return;
-      }
-      if(res.status !== 409 && res.status !== 502 && res.status !== 429) break;
+      const r = await post("/stripe/code", { session:sess });
+      if(r.ok){ email = r.d.email || ""; break; }
+      if(r.status !== 409 && r.status !== 502 && r.status !== 429){ msg("err", (r.d.error && r.d.error.message) || _t("Paiement introuvable.")); return; }
     }catch(e){}
     await new Promise(r => setTimeout(r, 4000));
   }
-  status("#sync-msg", "err", _t("Votre paiement est bien enregistré, mais votre code n'est pas encore prêt. Rechargez la page dans une minute. Si le problème continue, écrivez à contact@jaltio.fr."));
+  $("#otp-txt").textContent = _t("Nous venons d'envoyer un code à 6 chiffres à ") + (email || _t("votre adresse e-mail")) + _t(", avec vos conditions générales et la politique de confidentialité. Saisissez-le ici. Pensez à regarder dans les courriers indésirables.");
+  setTimeout(() => { try{ $("#otp-in").focus(); }catch(e){} }, 60);
+  const fini = code => {
+    settings.apiKey = code; saveSettings(); renderSettings(); aboStatut();
+    try{ window.history.replaceState(null, "", location.pathname); }catch(e){}
+    $("#gate-otp").hidden = true;
+    if(dejaConnecte){
+      syncDirty();
+      $("#gate").hidden = true; document.body.classList.remove("gate-open");
+      status("#sync-msg", "ok", _t("Abonnement activé sur votre compte."));
+      return;
+    }
+    $("#gate-title").textContent = _t("Créez votre compte");
+    $("#gate-slot").hidden = false;
+    $("#sync-new").hidden = false; $("#sync-code-box").hidden = true; $("#sync-form").dataset.creation = "1";
+    $("#sync-go").textContent = _t("Créer mon compte");
+    status("#sync-msg", "ok", _t("Adresse confirmée. Choisissez votre identifiant (votre e-mail) et votre mot de passe."));
+    setTimeout(() => { try{ ($("#sync-mail").value ? $("#sync-pw") : $("#sync-mail")).focus(); }catch(e){} }, 60);
+  };
+  const valider = async () => {
+    const otp = $("#otp-in").value.replace(/\D/g, "");
+    if(otp.length !== 6){ msg("err", _t("Le code contient 6 chiffres.")); $("#otp-in").focus(); return; }
+    $("#otp-go").disabled = true; msg("info", _t("Vérification…"));
+    try{
+      const r = await post("/stripe/valider", { session:sess, otp });
+      if(r.ok && r.d.code){ msg("", ""); fini(r.d.code); return; }
+      msg("err", (r.d.error && r.d.error.message) || _t("Vérification impossible. Réessayez."));
+    }catch(e){ msg("err", _t("Connexion impossible. Vérifiez votre réseau et réessayez.")); }
+    finally{ $("#otp-go").disabled = false; }
+  };
+  $("#otp-go").addEventListener("click", valider);
+  $("#otp-in").addEventListener("keydown", e => { if(e.key === "Enter") valider(); });
+  $("#otp-in").addEventListener("input", () => { const v = $("#otp-in").value.replace(/\D/g, "").slice(0, 6); $("#otp-in").value = v; if(v.length === 6) valider(); });
+  $("#otp-renvoi").addEventListener("click", async () => {
+    $("#otp-renvoi").disabled = true; msg("info", _t("Envoi en cours…"));
+    try{
+      const r = await post("/stripe/valider", { session:sess, renvoyer:true });
+      msg(r.ok ? "ok" : "err", r.ok ? _t("Nouveau mail envoyé à ") + (r.d.email || _t("votre adresse")) + "." : ((r.d.error && r.d.error.message) || _t("Envoi impossible.")));
+    }catch(e){ msg("err", _t("Connexion impossible. Réessayez.")); }
+    finally{ setTimeout(() => { $("#otp-renvoi").disabled = false; }, 30000); }
+  });
 })();
 if(firstVisit) setTimeout(() => { if($("#ap").hidden && $("#msg-dlg").hidden && $("#gate").hidden) startTour(); }, 700);
 window.__cvx = { renderAll, showTab, cleanHex, linesDiff, purgeOld, setView, resultatsBlock, statusOf, groupsFor }; // utilisé pour les tests

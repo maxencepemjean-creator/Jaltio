@@ -42,6 +42,9 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
   code_j:   [150, 86400],              // appels Claude par code d'accès et par jour
   paiement: [20, 3600],                // récupérations de code après paiement, par adresse (hachée)
   compte_abo: [20, 3600],              // consultations et résiliations d'abonnement, par adresse (hachée)
+  otp_ip:   [30, 3600],                // essais de code de validation, par adresse (hachée)
+  otp:      [8, 3600],                 // essais de code de validation, par paiement
+  renvoi:   [3, 3600],                 // renvois du mail de validation, par paiement
 };
 
 // Quotas mensuels par offre (mois calendaire). Les codes testeurs (secret CODES) n'ont pas de quota mensuel.
@@ -349,12 +352,21 @@ async function envoyerMail(env, donnees) {
   } catch (e) { return false; }
 }
 
-// Envoie le mail de bienvenue une seule fois par paiement. Renvoie false si l'envoi a échoué.
-async function envoyerCode(env, session, email, code) {
-  if (!env.MAIL_SECRET || !email || !code) return true;
+// Code de validation à 6 chiffres envoyé par mail après le paiement : calculé à partir de la session (rien à stocker).
+// Le code d'accès « jal-… » reste interne : il n'est remis à l'appli qu'après saisie de ce code.
+async function codeValidation(env, session) {
+  const h = await hmacHex(String(env.STRIPE_WEBHOOK_SECRET || env.MAIL_SECRET || "") + "|validation", "otp|" + session);
+  return String(parseInt(h.slice(0, 12), 16) % 1000000).padStart(6, "0");
+}
+const mailBienvenue = async (env, session, email) =>
+  envoyerMail(env, { type: "bienvenue", email, code: await codeValidation(env, session), lien: "https://jaltio.fr/?paye=" + session });
+
+// Envoie le mail de bienvenue (code de validation + CGV et politique) une seule fois par paiement. Renvoie false si l'envoi a échoué.
+async function envoyerCode(env, session, email) {
+  if (!env.MAIL_SECRET || !email) return true;
   const pris = await env.DB.prepare("UPDATE abonnes SET envoye = 1 WHERE session = ?1 AND envoye = 0").bind(session).run();
   if (!pris.meta || pris.meta.changes !== 1) return true;       // déjà envoyé (ou en cours d'envoi ailleurs)
-  if (await envoyerMail(env, { type: "bienvenue", email, code })) return true;
+  if (await mailBienvenue(env, session, email)) return true;
   await env.DB.prepare("UPDATE abonnes SET envoye = 0 WHERE session = ?1").bind(session).run();
   return false;
 }
@@ -426,7 +438,18 @@ async function resilierAbonnement(request, env, origin, ctx) {
 }
 const emailSession = s => (s && ((s.customer_details && s.customer_details.email) || s.customer_email)) || "";
 
-// Appelée par le site au retour du paiement (jaltio.fr/?paye=cs_…) : renvoie le code d'accès de l'acheteur
+const masquer = m => { const [u, d] = String(m).split("@"); return d ? u.slice(0, 1) + "•••@" + d : ""; };
+async function lireSession(env, session) {
+  const res = await fetch((env.STRIPE_API || "https://api.stripe.com") + "/v1/checkout/sessions/" + session, {
+    headers: { "Authorization": "Bearer " + env.STRIPE_KEY },
+  });
+  if (res.status === 404) return { statut: 404 };
+  if (!res.ok) return { statut: 502 };
+  return { statut: 200, s: await res.json() };
+}
+
+// Appelée par le site au retour du paiement (jaltio.fr/?paye=cs_…) : enregistre le paiement, envoie le code
+// de validation par mail et renvoie l'adresse masquée. Ne renvoie JAMAIS le code d'accès.
 async function codeApresPaiement(request, env, origin, ctx) {
   if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
   if (!env.DB || !env.STRIPE_KEY) return erreur(503, "Le paiement n'est pas encore configuré côté serveur.", origin);
@@ -436,20 +459,40 @@ async function codeApresPaiement(request, env, origin, ctx) {
   const session = String((b && b.session) || "");
   if (!/^cs_(test|live)_[A-Za-z0-9]{10,200}$/.test(session)) return erreur(400, "Référence de paiement invalide.", origin);
 
-  const deja = await env.DB.prepare("SELECT code FROM abonnes WHERE session = ?1").bind(session).first();
-  if (deja) return reponse({ code: deja.code }, 200, origin);
-
-  const res = await fetch((env.STRIPE_API || "https://api.stripe.com") + "/v1/checkout/sessions/" + session, {
-    headers: { "Authorization": "Bearer " + env.STRIPE_KEY },
-  });
-  if (res.status === 404) return erreur(404, "Paiement introuvable.", origin);
-  if (!res.ok) return erreur(502, "Stripe ne répond pas. Réessayez dans une minute.", origin);
-  const s = await res.json();
-  const code = await enregistrerSession(env, s);
+  const l = await lireSession(env, session);
+  if (l.statut === 404) return erreur(404, "Paiement introuvable.", origin);
+  if (l.statut !== 200) return erreur(502, "Stripe ne répond pas. Réessayez dans une minute.", origin);
+  const code = await enregistrerSession(env, l.s);
   if (!code) return erreur(409, "Le paiement n'est pas encore confirmé. Réessayez dans une minute.", origin, { attente: true });
-  const envoi = envoyerCode(env, session, emailSession(s), code);
+  const envoi = envoyerCode(env, session, emailSession(l.s));
   if (ctx && ctx.waitUntil) ctx.waitUntil(envoi); else await envoi;
-  return reponse({ code }, 200, origin);
+  return reponse({ email: masquer(emailSession(l.s)) }, 200, origin);
+}
+
+// Saisie du code de validation reçu par mail ({ session, otp }) → code d'accès ; ou renvoi du mail ({ session, renvoyer: true })
+async function validerPaiement(request, env, origin) {
+  if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
+  if (!env.DB || !env.STRIPE_KEY) return erreur(503, "Le paiement n'est pas encore configuré côté serveur.", origin);
+  const ip = await sha256hex("ip|" + (request.headers.get("CF-Connecting-IP") || "?"));
+  if (!(await sous_limite(env, "otpip:" + ip, LIMITES.otp_ip))) return erreur(429, "Trop d'essais. Patientez une heure.", origin);
+  let b; try { b = await request.json(); } catch (e) { return erreur(400, "Requête illisible.", origin); }
+  const session = String((b && b.session) || "");
+  if (!/^cs_(test|live)_[A-Za-z0-9]{10,200}$/.test(session)) return erreur(400, "Référence de paiement invalide.", origin);
+  const row = await env.DB.prepare("SELECT code FROM abonnes WHERE session = ?1").bind(session).first();
+  if (!row) return erreur(409, "Le paiement n'est pas encore confirmé. Réessayez dans une minute.", origin, { attente: true });
+
+  if (b.renvoyer === true) {
+    if (!(await sous_limite(env, "renvoi:" + session, LIMITES.renvoi))) return erreur(429, "Le code a déjà été renvoyé plusieurs fois. Vérifiez vos courriers indésirables, ou réessayez dans une heure.", origin);
+    const l = await lireSession(env, session);
+    if (l.statut !== 200) return erreur(502, "Stripe ne répond pas. Réessayez dans une minute.", origin);
+    if (!(await mailBienvenue(env, session, emailSession(l.s)))) return erreur(502, "Envoi du mail impossible pour l'instant. Réessayez dans quelques minutes.", origin);
+    return reponse({ envoye: true, email: masquer(emailSession(l.s)) }, 200, origin);
+  }
+
+  if (!(await sous_limite(env, "otp:" + session, LIMITES.otp))) return erreur(429, "Trop d'essais. Demandez un nouvel envoi dans une heure, ou écrivez à contact@jaltio.fr.", origin);
+  const otp = String(b.otp || "").replace(/\D/g, "");
+  if (otp.length !== 6 || !egal(otp, await codeValidation(env, session))) return erreur(401, "Code incorrect. Vérifiez les 6 chiffres reçus par mail.", origin);
+  return reponse({ code: row.code }, 200, origin);
 }
 
 // Webhook Stripe (signature vérifiée) : enregistre les paiements et coupe les codes des abonnements terminés
@@ -474,7 +517,7 @@ async function webhookStripe(request, env) {
   const o = (ev && ev.data && ev.data.object) || {};
   if (ev.type === "checkout.session.completed") {
     const code = await enregistrerSession(env, o);
-    if (code && !(await envoyerCode(env, o.id, emailSession(o), code)))
+    if (code && !(await envoyerCode(env, o.id, emailSession(o))))
       return json({ error: "Envoi de l'e-mail impossible pour l'instant." }, 500);   // Stripe renverra l'événement plus tard
   } else if (ev.type === "customer.subscription.updated" || ev.type === "customer.subscription.deleted") {
     // past_due : Stripe retente le prélèvement, on laisse l'accès pendant les relances
@@ -501,6 +544,7 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(origin) });
     try {
       if (chemin === "/stripe/code") return await codeApresPaiement(request, env, origin, ctx);
+      if (chemin === "/stripe/valider") return await validerPaiement(request, env, origin);
       if (chemin === "/stripe/statut") return await statutAbonnement(request, env, origin);
       if (chemin === "/stripe/resilier") return await resilierAbonnement(request, env, origin, ctx);
       if (chemin.startsWith("/sync/")) return await synchro(request, env, origin, chemin);
