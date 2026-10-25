@@ -304,6 +304,10 @@ body[data-view="profile"] [data-v]:not([data-v~="profile"]){display:none!importa
 .pv-form input,.pv-form textarea{width:100%}
 .pv-form textarea{min-height:110px}
 .pv-form .row{grid-column:1/-1;margin-top:10px}
+body.pdf-busy, body.pdf-busy .btn{cursor:progress}
+.pv-reform{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
+.pv-reform .hint{flex:1 1 100%;margin:0}
+.pv-form select{width:100%}
 .pv-add{margin-top:12px;border:1px dashed #D9C6DC;background:none;color:var(--brand);border-radius:12px;min-height:44px;width:100%;font-weight:600;cursor:pointer}
 .pv-add:hover{background:var(--lilas)}
 .profil-view .chips span{display:inline-flex;align-items:center;gap:4px}
@@ -1176,7 +1180,7 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
       <button class="btn small" id="btn-pdf-lettre">Lettre (PDF)</button>
       <button class="btn small" id="btn-copy-lettre">Copier la lettre</button>
     </div>
-    <p class="hint">Pour le PDF, choisissez « Enregistrer au format PDF » dans la fenêtre d'impression.</p>
+    <p class="hint">Le PDF se télécharge directement, sur une seule page.</p>
   </div>
 
   <div class="step" data-v="apps">
@@ -2204,7 +2208,7 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans texte avant ni après, sans 
     "phrase_cle": "…",
     "accroche": "…",
     "contact": { "adresse": "rue et code postal si le parcours les donne", "ville": "", "telephone": "", "email": "", "linkedin": "", "permis": "Permis B — véhiculé, si le parcours le dit" },
-    "experiences": [ { "poste": "", "entreprise": "", "lieu": "", "dates": "", "contexte": "", "points": ["…"] } ],
+    "experiences": [ { "poste": "", "entreprise": "", "lieu": "", "dates": "", "contrat": "type de contrat (Stage, Alternance, CDD…) seulement si le parcours l'indique, sinon chaîne vide", "contexte": "", "points": ["…"] } ],
     "autres_experiences": "",
     "formations": [ { "diplome": "", "detail": "option, spécialité, durée ou mention", "etablissement": "", "dates": "" } ],
     "certifications": ["…"],
@@ -2447,7 +2451,7 @@ function renderCV(out){
   if(exps.length || str(cv.autres_experiences)){
     const s = section(D().exp);
     exps.forEach(x => {
-      const org = [plain(x.entreprise), plain(x.lieu)].filter(Boolean).join(" — ");
+      const org = [[plain(x.entreprise), plain(x.lieu)].filter(Boolean).join(" — "), plain(x.contrat)].filter(Boolean).join(" · ");
       const d = el("div", "exp" + (org ? " has-org" : "")), top = el("div", "exp-top");
       top.appendChild(el("span", "poste", plain(x.poste))); top.appendChild(el("span", "dates", plain(x.dates))); d.appendChild(top);
       if(org) d.appendChild(el("div", "org", org));
@@ -2923,20 +2927,88 @@ function doPrint(){
   /* Filet si « afterprint » n'arrive jamais (certains mobiles) */
   setTimeout(() => { if(printTitleOld !== null){ document.title = printTitleOld; printTitleOld = null; } }, 60000);
 }
-function printPage(which){
+/* Téléchargement direct du CV ou de la lettre en PDF, toujours sur UNE page A4 (plus de fenêtre d'impression).
+   L'image de la page est posée dans le PDF, avec le texte en calque invisible : les logiciels de recrutement (ATS) le lisent. */
+const PDF_LIBS = ["https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js", "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"];
+async function pdfLibs(){
+  if(!window.html2canvas) await loadScript(PDF_LIBS[0]);
+  if(!(window.jspdf && window.jspdf.jsPDF)) await loadScript(PDF_LIBS[1]);
+}
+/* Les polices standard du PDF ne connaissent que l'alphabet latin : on simplifie la ponctuation typographique */
+const pdfTxt = s => s.replace(/[‘’ʼ]/g, "'").replace(/[“”«»]/g, '"').replace(/[–—−]/g, "-").replace(/…/g, "...")
+  .replace(/[•●▪‣]/g, "-").replace(/[   ]/g, " ").replace(/œ/g, "oe").replace(/Œ/g, "OE").replace(/[^\x20-\xFF]/g, "");
+function pdfTextLayer(doc, page){
+  const P = page.getBoundingClientRect(), k = 210 / P.width, w = document.createTreeWalker(page, NodeFilter.SHOW_TEXT);
+  doc.setFont("helvetica", "normal");
+  while(w.nextNode()){
+    const n = w.currentNode, t = n.nodeValue; if(!t.trim() || !n.parentElement) continue;
+    const pt = parseFloat(getComputedStyle(n.parentElement).fontSize) * k * 72 / 25.4;
+    let line = "", x0 = 0, top = null;
+    const flush = () => { const s = pdfTxt(line).trim(); if(s && top !== null) doc.text(s, x0, top, { baseline:"top", renderingMode:"invisible" }); line = ""; top = null; };
+    doc.setFontSize(pt || 10);
+    const r = document.createRange();
+    for(let i = 0; i < t.length; i++){
+      r.setStart(n, i); r.setEnd(n, i + 1);
+      const b = r.getClientRects()[0];
+      if(!b || !b.width){ if(top !== null) line += t[i]; continue; }
+      const y = (b.top - P.top) * k;
+      if(top !== null && Math.abs(y - top) > 1){ flush(); }
+      if(top === null){ top = y; x0 = (b.left - P.left) * k; }
+      line += t[i];
+    }
+    flush();
+  }
+}
+async function downloadPDF(which){
   if(!currentHistId){ alert(_t("Générez d'abord un CV.")); return; }
   if(which === "lettre" && $("#tab-lettre").hidden){ alert(_t("Aucune lettre pour ce CV.")); return; }
-  showTab(which);
   const h = history.find(x => x.id === currentHistId);
   const nom = (h && h.data && h.data.cv && str(h.data.cv.nom)) || "CV";
-  printTitleOld = document.title;
-  document.title = (which === "cv" ? "CV " : _t("Lettre ")) + nom + (h && h.entreprise ? " - " + h.entreprise : "");
-  document.body.dataset.print = which;
-  doPrint();
+  const fname = ((which === "cv" ? "CV " : _t("Lettre ")) + nom + (h && h.entreprise ? " - " + h.entreprise : "")).replace(/[\\/:*?"<>|]+/g, "").trim() + ".pdf";
+  if(typeof saveCurrentEdits === "function") try{ saveCurrentEdits(); }catch(e){}
+  document.body.classList.add("pdf-busy");
+  const wrap = document.createElement("div"); wrap.setAttribute("data-noi18n", "");
+  wrap.style.cssText = "position:fixed;left:-10000px;top:0;width:210mm;z-index:-1;pointer-events:none";
+  try{
+    await pdfLibs();
+    if(document.fonts && document.fonts.ready) await document.fonts.ready;
+    const src = $(which === "cv" ? "#page-cv" : "#page-lettre"), c = src.cloneNode(true);
+    c.removeAttribute("id"); c.removeAttribute("contenteditable"); c.querySelectorAll("[contenteditable]").forEach(e => e.removeAttribute("contenteditable"));
+    c.style.transform = "none"; c.style.boxShadow = "none"; c.style.outline = "none";
+    wrap.appendChild(c); document.body.appendChild(wrap);
+    /* Mise en page recalculée sur la copie : même si l'aperçu est caché, le PDF tient sur une page */
+    if(which === "cv") fitCV(c); else fitPage(c, 11, 9.5);
+    /* La photo (recadrée en rond ou carré) passe en fond d'image : html2canvas ne gère pas « object-fit » */
+    c.querySelectorAll("img.photo").forEach(im => {
+      const d = document.createElement("div"); d.className = im.className; const cs = getComputedStyle(im);
+      d.style.cssText = "background:url(" + JSON.stringify(im.src) + ") center/cover no-repeat;width:" + cs.width + ";height:" + cs.height;
+      im.replaceWith(d);
+    });
+    const W = c.offsetWidth, H = c.offsetHeight;
+    const canvas = await window.html2canvas(c, { scale:3, backgroundColor:"#ffffff", useCORS:true, logging:false, width:W, height:H, windowWidth:Math.max(W, 1200) });
+    const doc = new window.jspdf.jsPDF({ unit:"mm", format:"a4", orientation:"portrait", compress:true });
+    doc.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, 210, 297, undefined, "FAST");
+    try{ pdfTextLayer(doc, c); }catch(e){}
+    doc.setProperties({ title:fname.replace(/\.pdf$/, ""), creator:BRAND.name });
+    const blob = doc.output("blob");
+    /* Fenêtres ouvertes depuis une appli (Instagram, Gmail…) : le téléchargement y est souvent bloqué, on passe par le partage */
+    let file = null; try{ file = new File([blob], fname, { type:"application/pdf" }); }catch(e){}
+    if(inAppBrowser() && file && navigator.canShare && navigator.canShare({ files:[file] })){
+      try{ await navigator.share({ files:[file], title:fname }); }catch(e){}
+    } else {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = fname;
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+    }
+  }catch(e){
+    alert(_t("Le PDF n'a pas pu être créé. Vérifiez votre connexion internet puis réessayez."));
+  }finally{
+    wrap.remove(); document.body.classList.remove("pdf-busy");
+  }
 }
+
 window.addEventListener("afterprint", printDone);
-$("#btn-pdf-cv").addEventListener("click", () => printPage("cv"));
-$("#btn-pdf-lettre").addEventListener("click", () => printPage("lettre"));
+$("#btn-pdf-cv").addEventListener("click", () => downloadPDF("cv"));
+$("#btn-pdf-lettre").addEventListener("click", () => downloadPDF("lettre"));
 
 $("#btn-copy-lettre").addEventListener("click", async () => {
   const p = $("#page-lettre"); const parts = [];
@@ -3804,8 +3876,8 @@ $("#ap-close").addEventListener("click", closeApply);
 $("#ap").addEventListener("mousedown", e => { if(e.target === $("#ap")) closeApply(); });   // clic à côté de la fenêtre = fermer
 document.addEventListener("keydown", e => { if(e.key === "Escape" && !$("#ap").hidden) closeApply(); });
 window.addEventListener("resize", () => { if(!$("#ap").hidden) apScale(); });
-$("#ap-pdf-cv").addEventListener("click", () => printPage("cv"));
-$("#ap-pdf-l").addEventListener("click", () => printPage("lettre"));
+$("#ap-pdf-cv").addEventListener("click", () => downloadPDF("cv"));
+$("#ap-pdf-l").addEventListener("click", () => downloadPDF("lettre"));
 
 
 /* ===================== Navigation : Créer / Mes candidatures / Mon profil ===================== */
@@ -3959,7 +4031,7 @@ function profileText(r){
   const c = [["Ville", r.ville], ["Téléphone", r.telephone], ["E-mail", r.email], ["Permis", r.permis]].filter(x => str(x[1])).map(x => x[0] + " : " + str(x[1]));
   if(c.length) L.push(c.join(" · "));
   const ex = arr(r.experiences);
-  if(ex.length){ L.push("", "EXPÉRIENCES"); ex.forEach(x => { L.push("- " + [x.poste, x.entreprise, x.lieu].map(str).filter(Boolean).join(", ") + (str(x.dates) ? " (" + str(x.dates) + ")" : "")); arr(x.missions).map(str).filter(Boolean).forEach(m => L.push("  • " + m)); }); }
+  if(ex.length){ L.push("", "EXPÉRIENCES"); ex.forEach(x => { L.push("- " + [x.poste, x.entreprise, x.lieu].map(str).filter(Boolean).join(", ") + (str(x.dates) ? " (" + str(x.dates) + ")" : "") + (str(x.contrat) ? " — contrat : " + str(x.contrat) : "")); arr(x.missions).map(str).filter(Boolean).forEach(m => L.push("  • " + m)); }); }
   const fo = arr(r.formations);
   if(fo.length){ L.push("", "FORMATIONS"); fo.forEach(x => L.push("- " + [x.diplome, x.etablissement].map(str).filter(Boolean).join(", ") + (str(x.dates) ? " (" + str(x.dates) + ")" : ""))); }
   Object.keys(LISTS).forEach(k => { const xs = arr(r[k]).map(str).filter(Boolean); if(xs.length) L.push("", LISTS[k].toUpperCase() + " : " + xs.join(", ")); });
@@ -4033,7 +4105,7 @@ $("#pc-reset").addEventListener("click", () => {
 });
 
 /* Lecture du CV par l'IA */
-const RESUME_SCHEMA = "{\"nom\":\"\",\"titre\":\"métier principal en quelques mots\",\"ville\":\"\",\"telephone\":\"\",\"email\":\"\",\"permis\":\"\",\"experiences\":[{\"poste\":\"\",\"entreprise\":\"\",\"lieu\":\"\",\"dates\":\"\",\"missions\":[\"tâches et résultats, tels qu'écrits\"]}],\"formations\":[{\"diplome\":\"\",\"etablissement\":\"\",\"dates\":\"\"}],\"competences\":[\"compétences courtes\"],\"langues\":[\"Anglais — courant\"],\"certifications\":[\"CACES, habilitations, cartes pro (pas le permis B)\"],\"interets\":[\"\"]}";
+const RESUME_SCHEMA = "{\"nom\":\"\",\"titre\":\"métier principal en quelques mots\",\"ville\":\"\",\"telephone\":\"\",\"email\":\"\",\"permis\":\"\",\"experiences\":[{\"poste\":\"\",\"entreprise\":\"\",\"lieu\":\"\",\"dates\":\"\",\"contrat\":\"CDI, CDD, Intérim, Stage, Alternance, Apprentissage, Saisonnier, Job étudiant, Indépendant, Bénévolat ou Service civique, seulement si le CV le dit, sinon vide\",\"missions\":[\"tâches et résultats, tels qu'écrits\"]}],\"formations\":[{\"diplome\":\"\",\"etablissement\":\"\",\"dates\":\"\"}],\"competences\":[\"compétences courtes\"],\"langues\":[\"Anglais — courant\"],\"certifications\":[\"CACES, habilitations, cartes pro (pas le permis B)\"],\"interets\":[\"\"]}";
 const RESUME_SYSTEM = "Tu lis le parcours d'un candidat (texte extrait de son CV, parfois en vrac) et tu le ranges fidèlement dans une fiche. N'invente rien, ne reformule pas les intitulés, garde toutes les missions décrites. " +
   "Si le texte contient une section « Précisions et corrections du candidat », elle prime sur le reste. Expériences de la plus récente à la plus ancienne. Chaîne ou liste vide si inconnu. " +
   "Réponds UNIQUEMENT avec un objet JSON valide de cette forme : " + RESUME_SCHEMA;
@@ -4199,6 +4271,48 @@ function field(form, label, value, opts){
 }
 function editBtn(label, fn){ const b = el("button", "pv-edit"); b.type = "button"; b.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>'; b.appendChild(document.createTextNode(label)); b.addEventListener("click", fn); return b; }
 function saveResume(p){ syncParcours(p); pvEdit = null; renderParcoursUI(); }
+/* Type de contrat d'une expérience (enregistré en français : c'est la langue du CV) */
+const CONTRATS = ["CDI", "CDD", "Intérim", "Stage", "Alternance", "Apprentissage", "Saisonnier", "Job étudiant", "Indépendant", "Bénévolat", "Service civique"];
+function contratField(form, value){
+  const w = el("div"), id = "pv-" + Math.random().toString(36).slice(2, 8);
+  const l = el("label", "", _t("Type de contrat")); l.htmlFor = id;
+  const s = document.createElement("select"); s.id = id; s.style.width = "100%";
+  const list = CONTRATS.slice(); if(str(value) && !list.includes(str(value))) list.push(str(value));
+  [["", _t("Non précisé")]].concat(list.map(c => [c, _t(c)])).forEach(([v, t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; s.appendChild(o); });
+  s.value = str(value) || "";
+  w.appendChild(l); w.appendChild(s); form.appendChild(w); return s;
+}
+/* Missions écrites avec ses mots : Jaltio comprend le contexte du poste et les reformule pour le CV */
+const MISSIONS_SYSTEM = "Tu aides un candidat à décrire une expérience pour son CV. Il écrit avec ses mots, parfois en vrac, comme à l'oral, avec des fautes, éventuellement dans une autre langue. " +
+  "Comprends ce qu'il faisait dans le contexte du poste (intitulé, type de contrat, entreprise), puis réécris-le en missions de CV, en français : une mission par ligne, 2 à 6 lignes, chacune d'une ligne ou deux, sans point final, commençant par un nom d'action (« Mise en rayon… », « Accueil et conseil… », « Gestion de… »), avec le vocabulaire des offres d'emploi du métier. " +
+  "Garde tous les faits qu'il donne (chiffres, volumes, fréquences, outils, logiciels, publics, résultats) et rien d'autre : n'invente aucune tâche, aucun chiffre, aucun outil, aucune responsabilité, et n'exagère pas son niveau. Regroupe ce qui se répète, retire le hors-sujet et ce qui n'est pas professionnel. " +
+  "Si le texte est déjà une liste de missions propres, corrige seulement l'orthographe et la forme. Réponds UNIQUEMENT en JSON : {\"missions\":[\"...\"]}";
+function missionsReformBox(form, ta, ctx, initial){
+  let before = "", reformed = false, busy = false;
+  const w = el("div", "full pv-reform");
+  const msg = el("p", "hint", _t("Écrivez librement : Jaltio comprend le contexte du poste et en fait des missions claires pour le CV, sans rien inventer."));
+  const b = btn(_t("Reformuler avec Jaltio"), "small", () => run(false));
+  const undo = btn(_t("Revenir à mon texte"), "small", () => { ta.value = before; undo.hidden = true; msg.textContent = _t("Votre texte est conservé tel quel."); });
+  undo.hidden = true;
+  w.appendChild(msg); w.appendChild(b); w.appendChild(undo); form.appendChild(w);
+  async function run(fromSave){
+    const txt = ta.value.trim();
+    if(!txt){ ta.focus(); return; }
+    if(!settings.apiKey){ reformed = true; msg.textContent = _t("Saisissez d'abord votre code d'accès pour utiliser la reformulation."); return; }
+    if(busy) return;
+    busy = true; b.disabled = true; msg.textContent = _t("Jaltio reformule vos missions…");
+    try{
+      const r = await askResume(MISSIONS_SYSTEM, "<poste>\n" + JSON.stringify(ctx()) + "\n</poste>\n<texte_du_candidat>\n" + txt + "\n</texte_du_candidat>");
+      const xs = arr(r && r.missions).map(s => str(s).replace(/^[-•*]\s*/, "").replace(/\.\s*$/, "")).filter(Boolean);
+      if(!xs.length) throw new Error("vide");
+      before = ta.value; ta.value = xs.join("\n"); reformed = true; undo.hidden = false;
+      msg.textContent = fromSave ? _t("Voici vos missions reformulées. Vérifiez-les, corrigez si besoin, puis cliquez à nouveau sur « Enregistrer ».")
+        : _t("Missions reformulées. Vérifiez-les et corrigez si besoin avant d'enregistrer.");
+    }catch(e){ reformed = true; msg.textContent = _t("La reformulation n'a pas fonctionné. Votre texte est conservé : vous pouvez l'enregistrer tel quel ou réessayer."); }
+    busy = false; b.disabled = false;
+  }
+  return { run, needs: () => !!settings.apiKey && !reformed && !!ta.value.trim() && ta.value.trim() !== str(initial).trim() };
+}
 function formRow(onSave, onDelete, extra){
   const row = el("div", "row");
   row.appendChild(btn(_t("Enregistrer"), "primary", onSave));
@@ -4280,14 +4394,18 @@ function renderProfilView(){
     return out;
   };
   listCard("exp", _t("Expériences"), r.experiences,
-    (t, x) => { t.appendChild(el("b", "", str(x.poste) || _t("Poste"))); t.appendChild(el("span", "", [x.entreprise, x.lieu, x.dates].map(str).filter(Boolean).join(" · "))); const n = arr(x.missions).length; if(n) t.appendChild(el("span", "", n + " mission" + (n > 1 ? "s" : "") + _t(" décrite") + (n > 1 ? "s" : ""))); },
+    (t, x) => { t.appendChild(el("b", "", str(x.poste) || _t("Poste"))); t.appendChild(el("span", "", [x.contrat, x.entreprise, x.lieu, x.dates].map(str).filter(Boolean).join(" · "))); const n = arr(x.missions).length; if(n) t.appendChild(el("span", "", n + " mission" + (n > 1 ? "s" : "") + _t(" décrite") + (n > 1 ? "s" : ""))); },
     (x, i) => {
       const f = el("div", "pv-form"); x = x || {};
-      const a = { poste:field(f, _t("Poste"), x.poste), entreprise:field(f, _t("Entreprise"), x.entreprise, { ph:_t("Ex. : Super U") }), lieu:field(f, _t("Ville"), x.lieu), dates:field(f, _t("Dates"), x.dates, { ph:_t("Ex. : 2020 – 2025, ou Depuis 2024") }) };
-      const mi = field(f, _t("Ce que vous faisiez (une ligne par tâche ou résultat)"), arr(x.missions).join("\n"), { area:true, full:true, ph:_t("Mise en rayon des produits frais\nRéception d'environ 2 palettes par jour") });
-      f.appendChild(formRow(() => {
-        const o = { poste:a.poste.value.trim(), entreprise:a.entreprise.value.trim(), lieu:a.lieu.value.trim(), dates:a.dates.value.trim(), missions:mi.value.split("\n").map(s => s.trim()).filter(Boolean) };
-        if(!o.poste){ a.poste.focus(); return; }
+      const a = { poste:field(f, _t("Poste"), x.poste), contrat:contratField(f, x.contrat), entreprise:field(f, _t("Entreprise"), x.entreprise, { ph:_t("Ex. : Super U") }), lieu:field(f, _t("Ville"), x.lieu), dates:field(f, _t("Dates"), x.dates, { ph:_t("Ex. : 2020 – 2025, ou Depuis 2024") }) };
+      const mi = field(f, _t("Ce que vous faisiez, avec vos mots"), arr(x.missions).join("\n"), { area:true, full:true, ph:_t("Ex. : je mettais les produits frais en rayon, je recevais 2 palettes par jour et je conseillais les clients\n\nÉcrivez comme vous parlez : Jaltio reformule pour le CV.") });
+      const rf = missionsReformBox(f, mi, () => ({ poste:a.poste.value.trim(), contrat:a.contrat.value, entreprise:a.entreprise.value.trim(), lieu:a.lieu.value.trim(), dates:a.dates.value.trim() }), arr(x.missions).join("\n"));
+      f.appendChild(formRow(async () => {
+        if(!a.poste.value.trim()){ a.poste.focus(); return; }
+        /* Texte libre jamais passé par Jaltio : on le reformule d'abord, l'utilisateur vérifie puis enregistre */
+        if(rf.needs()){ await rf.run(true); return; }
+        const o = { poste:a.poste.value.trim(), contrat:a.contrat.value, entreprise:a.entreprise.value.trim(), lieu:a.lieu.value.trim(), dates:a.dates.value.trim(), missions:mi.value.split("\n").map(s => s.replace(/^[-•*]\s*/, "").trim()).filter(Boolean) };
+        if(!o.contrat) delete o.contrat;
         if(i < 0) r.experiences.unshift(o); else r.experiences[i] = o; saveResume(p);
       }, i < 0 ? null : () => { if(confirm(_t("Supprimer cette expérience ?"))){ r.experiences.splice(i, 1); saveResume(p); } }, i < 0 ? [] : moveBtns(r.experiences, i)));
       setTimeout(() => a.poste.focus(), 0); return f;
