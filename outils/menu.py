@@ -32,5 +32,7 @@ for chemin, actif in PAGES.items():
     s = f.read_text()
     s, n1 = re.subn(r'<header class="top">.*?</header>', lambda m: entete(actif), s, count=1, flags=re.S)
     s, n2 = re.subn(r'<footer class="foot">.*?</footer>', lambda m: PIED, s, count=1, flags=re.S)
+    if '<script src="/anim.js"></script>' not in s:   # animations communes (apparitions, en-tête, FAQ)
+        s = s.replace('<link rel="stylesheet" href="/pages.css">', '<link rel="stylesheet" href="/pages.css">\n<script src="/anim.js"></script>', 1)
     f.write_text(s)
     print(f"{chemin}: en-tête {'ok' if n1 else 'ABSENT'}, pied {'ok' if n2 else 'ABSENT'}")

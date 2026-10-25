@@ -97,3 +97,32 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(
   h2{break-after:avoid}
   tr{break-inside:avoid}
 }
+
+/* ================= Animations (site vitrine) =================
+   Sobres : opacité et déplacement courts. Coupées si l'appareil demande moins de mouvement, et à l'impression. */
+.top-wrap{position:sticky;top:0;z-index:30;background:rgba(255,248,240,.86);-webkit-backdrop-filter:saturate(1.4) blur(10px);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid transparent;transition:border-color .25s,box-shadow .25s}
+.top-wrap.scrolled{border-bottom-color:var(--line);box-shadow:0 6px 24px rgba(58,35,64,.06)}
+.btn,.top-link,.mainnav a,.menu summary{transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease,filter .18s ease}
+.feat-c,.steps3 li,.plan,.topics li,.faq details,.card{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+@media (hover:hover){
+  .btn:hover,.top-link:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(58,35,64,.14)}
+  .btn.alt:hover,.top-link:not(.solid):hover{box-shadow:0 6px 16px rgba(58,35,64,.08)}
+  .feat-c:hover,.steps3 li:hover,.plan:not(.soon):hover,.topics li:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(58,35,64,.10);border-color:#E3CFBA}
+  .faq details:hover{border-color:#E3CFBA}
+  .feat-c:hover .ic{transform:scale(1.08) rotate(-4deg)}
+}
+.feat-c .ic{transition:transform .3s ease}
+.btn:active,.top-link:active{transform:translateY(0) scale(.97);box-shadow:none}
+.faq details > div{overflow:hidden}
+.faq summary::after{transition:transform .25s ease}
+.faq details[open] summary::after{transform:rotate(180deg)}
+@media (prefers-reduced-motion:no-preference){
+  html.js .rv{opacity:0;transform:translateY(18px);transition:opacity .65s cubic-bezier(.2,.7,.2,1) var(--d,0ms),transform .65s cubic-bezier(.2,.7,.2,1) var(--d,0ms)}
+  html.js .rv.vu{opacity:1;transform:none}
+  .menu[open] .menu-pop{animation:pop-in .2s ease-out}
+  @keyframes pop-in{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
+@media print{ html.js .rv{opacity:1!important;transform:none!important} .top-wrap{position:static} }

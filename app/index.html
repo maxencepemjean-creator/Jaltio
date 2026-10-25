@@ -968,6 +968,17 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   .overlay:not([hidden]) > .dialog, .overlay:not([hidden]) > .hlp-box{animation:mo-pop 220ms ease-out}
   /* Pastilles de compétences */
   .mo-pop{animation:mo-chip 180ms ease-out}
+  /* Écran de connexion, code de validation et création du compte */
+  .gate:not([hidden]) .gate-box{animation:mo-pop 260ms ease-out}
+  #gate-otp:not([hidden]), #gate-slot:not([hidden]){animation:mo-in 240ms ease-out}
+  /* Boutons et cartes : réaction au survol et à l'appui */
+  .btn, .view-tab{transition:transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, filter 160ms ease}
+  #hist > li, .board > *{transition:box-shadow 160ms ease}
+  .btn:active, .view-tab:active{transform:scale(.97)}
+  @media (hover:hover){
+    .btn.primary:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(58,35,64,.16)}
+    #hist > li:hover, .board > *:hover{box-shadow:0 10px 24px rgba(58,35,64,.08)}
+  }
   /* Fantômes de sortie : copie figée de l'élément qui vient de disparaître, qui s'efface puis se retire (jamais cliquable) */
   .mo-ghost{position:fixed;z-index:130;pointer-events:none;box-sizing:border-box}
   .mo-ghost.mo-g-fade{animation:mo-g-fade 170ms ease-out forwards}

@@ -30,6 +30,7 @@
 <link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/fonts.css">
 <link rel="stylesheet" href="/pages.css">
+<script src="/anim.js"></script>
 <style>
 .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;max-width:1040px;margin:0 auto;padding:28px 16px 48px}
 .hero h1{font-size:clamp(34px,5vw,52px);line-height:1.04;margin:6px 0 16px}
@@ -46,6 +47,47 @@
 .duo .avant figcaption{background:#fff;color:var(--muted);border:1px solid var(--line)}
 .duo .apres figcaption{background:var(--brand);color:#fff}
 .duo-note{font-size:12.5px;color:var(--muted);text-align:right;margin:8px 0 0}
+/* Transformation du CV : le CV mis en forme se dévoile de haut en bas, en boucle */
+.duo .scan{position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,transparent,var(--accent),transparent);box-shadow:0 0 18px 4px rgba(242,169,59,.55);opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:no-preference){
+  .duo .apres{animation:cv-reveal 10s cubic-bezier(.45,.05,.3,1) .6s infinite both}
+  .duo .scan{animation:cv-scan 10s cubic-bezier(.45,.05,.3,1) .6s infinite both}
+  .duo .avant{animation:cv-back 10s ease-in-out .6s infinite both}
+  .duo .apres figcaption{animation:cv-cap 10s ease .6s infinite both}
+  @keyframes cv-reveal{0%,6%{clip-path:inset(0 0 100% 0);opacity:1}36%{clip-path:inset(0 0 0 0)}90%{clip-path:inset(0 0 0 0);opacity:1}97%{clip-path:inset(0 0 0 0);opacity:0}98%,100%{clip-path:inset(0 0 100% 0);opacity:1}}
+  @keyframes cv-scan{0%,6%{top:0;opacity:0}8%{opacity:1}34%{top:calc(100% - 3px);opacity:1}38%,100%{top:calc(100% - 3px);opacity:0}}
+  @keyframes cv-back{0%,6%,100%{transform:rotate(-3deg);opacity:.95}36%,90%{transform:rotate(-5deg) translateX(-10px) scale(.97);opacity:.75}}
+  @keyframes cv-cap{0%,33%{opacity:0;transform:translateY(6px)}40%,90%{opacity:1;transform:none}95%,100%{opacity:0}}
+}
+/* Démonstration de l'appli (se joue seule quand elle est visible) */
+.demo-win{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--float);overflow:hidden;margin-top:22px}
+.demo-bar{display:flex;align-items:center;gap:7px;padding:12px 16px;border-bottom:1px solid var(--line);background:#FCF8F3}
+.demo-bar span{width:11px;height:11px;border-radius:50%;background:#E8D9C9}
+.demo-bar em{font-style:normal;font-size:12.5px;color:var(--muted);margin-left:10px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px 12px}
+.demo-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:26px;padding:26px;min-height:430px}
+.demo-left label{display:block;font-size:13.5px;font-weight:700;margin:0 0 6px;color:var(--ink)}
+.demo-input{border:1px solid #d6c9d9;border-radius:12px;padding:12px 14px;font-size:14.5px;min-height:46px;background:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.demo-win.s-type .demo-input{border-color:var(--brand);outline:2px solid var(--accent);outline-offset:1px}
+.caret{display:inline-block;width:2px;height:1.05em;background:var(--brand);vertical-align:-2px;margin-left:1px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.demo-go{display:block;width:100%;margin-top:12px;border:0;border-radius:12px;padding:13px;background:var(--brand);color:#fff;font:inherit;font-weight:700;font-size:15px;transition:transform .15s,filter .15s;pointer-events:none}
+.demo-win.s-click .demo-go{transform:scale(.97);filter:brightness(1.25)}
+.demo-progress{height:6px;border-radius:99px;background:var(--line);margin:18px 0 12px;overflow:hidden}
+.demo-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand),#7A4F84);border-radius:99px;transition:width .5s ease}
+.demo-steps{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.demo-steps li{display:flex;gap:9px;align-items:flex-start;font-size:14.5px;color:var(--muted);opacity:.35;transition:opacity .35s,color .35s}
+.demo-steps li::before{content:"";flex:none;width:18px;height:18px;margin-top:1px;border-radius:50%;border:2px solid #D9C8DC;transition:all .3s;background:#fff center/12px no-repeat}
+.demo-steps li.on{opacity:1;color:var(--ink)}
+.demo-steps li.on::before{border-color:var(--ok);background-color:var(--ok);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")}
+.demo-right{position:relative;border-radius:14px;background:#F6EFE8;overflow:hidden;min-height:380px}
+.demo-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:14.5px;padding:20px;transition:opacity .3s}
+.demo-cv{position:absolute;left:8%;right:8%;top:22px;margin:0;border-radius:8px;overflow:hidden;box-shadow:0 14px 34px rgba(58,35,64,.16);opacity:0;transform:translateY(22px) scale(.97);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1)}
+.demo-cv img{display:block;width:100%;height:auto}
+.demo-chip{position:absolute;top:14px;right:14px;background:var(--ok);color:#fff;font-size:12.5px;font-weight:700;border-radius:999px;padding:5px 11px;opacity:0;transform:scale(.8);transition:opacity .3s .45s,transform .3s .45s}
+.demo-win.s-done .demo-ph{opacity:0}
+.demo-win.s-done .demo-cv{opacity:1;transform:none}
+.demo-win.s-done .demo-chip{opacity:1;transform:none}
+.demo-note{font-size:12.5px;color:var(--muted);text-align:center;margin:10px 0 0}
 .band{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px;counter-reset:n}
 .steps3 li{list-style:none;background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:20px}
@@ -72,7 +114,9 @@
   .hero{grid-template-columns:1fr;gap:18px;padding-top:12px}
   .duo{height:auto;display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .duo figure{position:relative;width:auto!important;top:auto!important;left:auto;right:auto;transform:none!important}
-  .steps3,.feats,.honest,.price-card{grid-template-columns:1fr}
+  .steps3,.feats,.honest,.price-card,.demo-body{grid-template-columns:1fr}
+  .demo-body{padding:18px;gap:18px;min-height:0}
+  .demo-right{min-height:330px}
   .cta-row .btn{flex:1 1 100%}
 }
 </style>
@@ -101,10 +145,10 @@
         <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>14 jours pour changer d'avis</li>
       </ul>
     </div>
-    <div>
+    <div class="duo-wrap">
       <div class="duo">
         <figure class="avant"><img src="/assets/cv-avant.webp" width="900" height="1273" alt="CV d'origine : un texte brut sans mise en forme"><figcaption>Avant</figcaption></figure>
-        <figure class="apres"><img src="/assets/cv-apres.webp" width="900" height="1273" alt="Le même parcours mis en forme par Jaltio pour une offre d'aide-soignante"><figcaption>Après Jaltio</figcaption></figure>
+        <figure class="apres"><img src="/assets/cv-apres.webp" width="900" height="1273" alt="Le même parcours mis en forme par Jaltio pour une offre d'aide-soignante"><span class="scan" aria-hidden="true"></span><figcaption>Après Jaltio</figcaption></figure>
       </div>
       <p class="duo-note">Exemple réel de rendu, pour une offre d'aide-soignante. Personne fictive.</p>
     </div>
@@ -120,6 +164,35 @@
         <li><b>CV et lettre</b><p>Vous recevez un CV d'une page et une lettre adaptés au poste. Corrigez un mot, demandez une autre version, puis téléchargez en PDF.</p></li>
       </ol>
     </div>
+  </section>
+
+  <section class="section" id="demo">
+    <p class="kicker">Démonstration</p>
+    <h2 style="margin-top:0">Voyez Jaltio à l'œuvre</h2>
+    <div class="demo-win" role="img" aria-label="Démonstration : un lien d'annonce est collé, Jaltio lit l'offre, rédige le CV et la lettre, puis le CV mis en forme apparaît.">
+      <div class="demo-bar" aria-hidden="true"><span></span><span></span><span></span><em>jaltio.fr</em></div>
+      <div class="demo-body" aria-hidden="true">
+        <div class="demo-left">
+          <label>Lien de l'annonce</label>
+          <div class="demo-input"><span class="demo-typed"></span><i class="caret"></i></div>
+          <button class="demo-go" type="button" tabindex="-1">Créer mon CV et ma lettre</button>
+          <div class="demo-progress"><i></i></div>
+          <ul class="demo-steps">
+            <li>Lecture de l'offre : aide-soignant(e) en maison de retraite</li>
+            <li>Ce que le recruteur attend : soins d'hygiène, transmissions, travail en équipe</li>
+            <li>Rédaction du CV d'une page, à partir de votre parcours</li>
+            <li>Lettre de motivation</li>
+            <li>Couleurs de l'entreprise appliquées</li>
+          </ul>
+        </div>
+        <div class="demo-right">
+          <div class="demo-ph">Votre CV apparaîtra ici</div>
+          <figure class="demo-cv"><img src="/assets/cv-apres.webp" width="900" height="1273" alt="" loading="lazy"></figure>
+          <span class="demo-chip">CV et lettre prêts</span>
+        </div>
+      </div>
+    </div>
+    <p class="demo-note">Démonstration accélérée. Personne et offre fictives.</p>
   </section>
 
   <section class="section">
@@ -167,6 +240,36 @@
     <p class="hint" style="text-align:center;margin-top:18px">Une question avant de vous lancer ? Consultez la <a href="/faq/">FAQ</a> ou <a href="/contact/">écrivez-nous</a>.</p>
   </section>
 </main>
+<script>
+/* Démonstration : se joue quand elle est visible, en boucle ; état final fixe si l'appareil demande moins de mouvement */
+(function(){
+  var w = document.querySelector(".demo-win"); if(!w) return;
+  var typed = w.querySelector(".demo-typed"), bar = w.querySelector(".demo-progress i"), steps = w.querySelectorAll(".demo-steps li");
+  var URL_DEMO = "https://www.exemple-emploi.fr/offres/aide-soignant-h-f-saintes";
+  var fin = function(){ typed.textContent = URL_DEMO; bar.style.width = "100%"; steps.forEach(function(li){ li.classList.add("on"); }); w.classList.add("s-done"); };
+  if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches){ fin(); return; }
+  var timers = [], visible = false, enCours = false;
+  var t = function(ms, fn){ timers.push(setTimeout(fn, ms)); };
+  var reset = function(){ timers.forEach(clearTimeout); timers = []; typed.textContent = ""; bar.style.width = "0"; steps.forEach(function(li){ li.classList.remove("on"); }); w.classList.remove("s-type", "s-click", "s-done"); };
+  var jouer = function(){
+    enCours = true; reset(); w.classList.add("s-type");
+    var i = 0, ms = 500;
+    for(i = 1; i <= URL_DEMO.length; i++){ (function(n){ t(ms + n * 32, function(){ typed.textContent = URL_DEMO.slice(0, n); }); })(i); }
+    ms += URL_DEMO.length * 32 + 450;
+    t(ms, function(){ w.classList.remove("s-type"); w.classList.add("s-click"); });
+    t(ms + 220, function(){ w.classList.remove("s-click"); });
+    steps.forEach(function(li, k){ t(ms + 500 + k * 750, function(){ li.classList.add("on"); bar.style.width = ((k + 1) / steps.length * 100) + "%"; }); });
+    ms += 500 + steps.length * 750 + 200;
+    t(ms, function(){ w.classList.add("s-done"); });
+    t(ms + 5200, function(){ enCours = false; if(visible) jouer(); });
+  };
+  if(!("IntersectionObserver" in window)){ fin(); return; }
+  new IntersectionObserver(function(es){
+    visible = es[0].isIntersecting;
+    if(visible && !enCours) jouer();
+  }, { threshold: 0.35 }).observe(w);
+})();
+</script>
 <footer class="foot">
   <nav><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a><a href="/app/?resilier">Résilier mon abonnement</a></nav>
   Jaltio · <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> · IA : Claude, d'Anthropic (États-Unis)
