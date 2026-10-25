@@ -1,0 +1,65 @@
+/* Styles communs des pages publiques de Jaltio (forfaits, inscription, documents légaux, liste d'attente) */
+:root{
+  --bg:#FFF8F0; --panel:#fff; --ink:#2A1A2F; --muted:#6E5872; --line:#EEDFCF;
+  --brand:#3A2340; --accent:#F2A93B; --accent-soft:#FDEBCB; --lilas:#EFE4F2;
+  --danger:#B42318; --ok:#1F6B45; --ok-soft:#E3F4EA;
+  --display:'Bricolage Grotesque','Figtree',system-ui,sans-serif;
+  --float:0 1px 2px rgba(58,35,64,.05),0 16px 44px rgba(58,35,64,.09);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;color-scheme:only light}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Arial,sans-serif;font-size:16px;line-height:1.55;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+button,input{font:inherit}
+a{color:var(--brand)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1040px;width:100%;margin:0 auto;padding:18px 16px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand .name{font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:-.01em;color:var(--brand)}
+.top-link{font-size:15px;font-weight:600;color:var(--brand);text-decoration:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px}
+main{flex:1;width:100%}
+.wrap{max-width:1040px;margin:0 auto;padding:8px 16px 40px}
+.narrow{max-width:720px}
+h1{font-family:var(--display);font-weight:700;font-size:34px;line-height:1.12;letter-spacing:-.02em;margin:8px 0 10px;color:var(--brand)}
+h2{font-family:var(--display);font-size:21px;line-height:1.25;margin:30px 0 8px;color:var(--brand)}
+h3{font-size:16px;margin:18px 0 6px}
+.lead{color:var(--muted);font-size:17px;margin:0 0 22px}
+.tag{display:inline-block;background:var(--accent-soft);color:#7A4A05;font-weight:600;font-size:13px;border-radius:999px;padding:5px 12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--float)}
+.btn{display:inline-block;width:100%;border:0;border-radius:12px;padding:14px;background:var(--brand);color:#fff;font-weight:700;font-size:16.5px;cursor:pointer;text-align:center;text-decoration:none}
+.btn:hover{filter:brightness(1.1)}
+.btn:disabled,.btn[aria-disabled=true]{opacity:.45;cursor:not-allowed;filter:none}
+.btn.alt{background:#fff;color:var(--brand);border:1px solid var(--line)}
+label{display:block;font-size:14px;font-weight:600;margin:12px 0 5px}
+input[type=text],input[type=email]{width:100%;border:1px solid #d6c9d9;border-radius:10px;padding:12px;background:#fff;color:var(--ink);font-size:16px;-webkit-appearance:none;appearance:none}
+input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--brand)}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:15px;margin:14px 0 0;cursor:pointer}
+.check input{width:20px;height:20px;margin:2px 0 0;flex:none;accent-color:var(--brand)}
+.msg{margin:12px 0 0;font-size:14.5px;border-radius:10px;display:none;padding:10px 12px}
+.msg.err{display:block;background:#fef3f2;color:var(--danger)}
+.msg.info{display:block;background:var(--lilas);color:var(--brand)}
+.hint{font-size:13.5px;color:var(--muted);margin:10px 0 0}
+.ia-note{font-size:13px;color:var(--muted)}
+.todo{background:#FFF1B8;color:#6B4B00;border-radius:4px;padding:0 4px;font-weight:600}
+/* Documents légaux */
+.doc h2{font-size:19px;margin-top:28px}
+.doc p,.doc li{font-size:15.5px}
+.doc ul,.doc ol{padding-left:22px}
+.doc table{width:100%;border-collapse:collapse;margin:10px 0 6px;font-size:14.5px;background:#fff}
+.doc th,.doc td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.doc th{background:var(--lilas)}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.version{font-size:14px;color:var(--muted);margin:0 0 18px}
+.doc-actions{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 22px}
+.doc-actions a{font-size:14px;font-weight:600;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;text-decoration:none}
+/* Pied de page commun */
+.foot{border-top:1px solid var(--line);padding:22px 16px 30px;text-align:center;font-size:13.5px;color:var(--muted)}
+.foot nav{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;margin-bottom:10px}
+.foot a{color:var(--muted)}
+@media print{
+  body{background:#fff;font-size:11pt}
+  .top,.foot,.doc-actions,.no-print{display:none!important}
+  .doc table{font-size:9.5pt}
+  .todo{background:none;border:1px solid #999}
+  a{color:#000;text-decoration:none}
+  h2{break-after:avoid}
+  tr{break-inside:avoid}
+}

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<title>Politique de confidentialité — Jaltio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 72 72%27%3E%3Crect width=%2772%27 height=%2772%27 rx=%2718%27 fill=%27%233A2340%27/%3E%3Cpath d=%27M19 38l11 11 23-26%27 fill=%27none%27 stroke=%27%23fff%27 stroke-width=%276.5%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/pages.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/forfaits/"><svg width="36" height="36" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name">Jaltio</span></a>
+  <a class="top-link" href="/">Se connecter</a>
+</header>
+<main>
+<article class="wrap narrow doc" id="doc">
+<h1>Politique de confidentialité</h1>
+<p class="version">Version du 25 octobre 2026</p>
+<div class="doc-actions"><a href="/legal/jaltio-confidentialite.pdf" download>Télécharger en PDF</a><a href="/cgv.html">Conditions générales</a><a href="/mentions-legales.html">Mentions légales</a></div>
+
+<p>Cette page explique quelles données Jaltio traite, pourquoi, combien de temps et avec quels prestataires, conformément au Règlement général sur la protection des données (RGPD) et à la loi Informatique et Libertés.</p>
+
+<h2>Qui est responsable de vos données</h2>
+<p>Maxence Pemjean, entrepreneur individuel, SIREN 994 838 522, 6 chemin des Bouviers, 17250 Sainte-Radegonde. Pour toute question sur vos données : contact@jaltio.fr.</p>
+<p><b>L'essentiel :</b></p>
+<ol>
+<li>Vos documents enregistrés (CV, lettres, candidatures) sont chiffrés dans votre navigateur : nous ne pouvons pas les lire.</li>
+<li>Pour générer un document, son contenu est envoyé en clair à Claude, l'IA de la société américaine Anthropic, aux États-Unis.</li>
+<li>Nous ne vendons pas vos données et n'utilisons ni publicité ciblée ni outil de mesure d'audience.</li>
+<li>Vous pouvez supprimer vos données à tout moment depuis l'application. Sinon, elles sont supprimées 6 mois après la fin de votre abonnement.</li>
+</ol>
+
+<h2>Ce que nous pouvons lire, et ce que nous ne pouvons pas lire</h2>
+<div class="table-wrap"><table>
+<tr><th>Donnée</th><th>Qui peut la lire</th></tr>
+<tr><td>Vos documents enregistrés : parcours, CV, lettres, candidatures, photo éventuelle</td><td><b>Vous seul.</b> Ils sont chiffrés dans votre navigateur (AES-GCM) avec une clé tirée de votre mot de passe, avant tout envoi. Ils sont aussi gardés dans votre navigateur.</td></tr>
+<tr><td>Votre mot de passe</td><td><b>Personne.</b> Il ne quitte jamais votre navigateur.</td></tr>
+<tr><td>Votre e-mail sur nos serveurs</td><td>Nous ne le stockons pas en clair : votre compte est identifié par une empreinte de l'e-mail (SHA-256). Cette empreinte reste une donnée personnelle.</td></tr>
+<tr><td><b>Ce que vous envoyez pour une génération</b> : CV, offre, demandes au coach</td><td><b>Transmis en clair</b> à notre relais technique (Cloudflare), puis à Anthropic, le temps du traitement. Notre relais n'enregistre pas ce contenu <span class="todo">[À CONFIRMER : après désactivation des journaux Cloudflare Workers Logs]</span>.</td></tr>
+<tr><td>Votre e-mail et vos données de paiement</td><td>Stripe (paiement). Nous voyons votre nom et votre e-mail dans notre espace Stripe, jamais vos numéros de carte.</td></tr>
+</table></div>
+<p>Conséquence : si vous oubliez votre mot de passe, nous ne pouvons pas récupérer vos documents enregistrés.</p>
+
+<h2>Quelles données, pourquoi, et pendant combien de temps</h2>
+<div class="table-wrap"><table>
+<tr><th>Traitement</th><th>Données</th><th>Base légale (RGPD)</th><th>Durée de conservation</th></tr>
+<tr><td>Votre compte et vos documents enregistrés</td><td>Empreinte de l'e-mail, documents chiffrés, lien technique avec votre abonnement</td><td>Exécution du contrat</td><td>Jusqu'à leur suppression par vous. Sinon, <b>6 mois après la fin de votre abonnement</b>, avec un e-mail d'avertissement 7 jours avant. Comptes de test sans abonnement : 400 jours sans connexion.</td></tr>
+<tr><td>Génération de CV et de lettres, coach</td><td>Contenu de votre CV, de l'offre et de vos demandes</td><td>Exécution du contrat</td><td>Le temps du traitement chez nous ; chez Anthropic, voir la section suivante</td></tr>
+<tr><td>Données de santé ou de handicap que vous choisissez de garder dans votre CV</td><td>Par exemple une reconnaissance de travailleur handicapé (RQTH)</td><td>Votre consentement explicite (art. 9.2.a), donné dans l'application</td><td>Comme votre compte. Retrait possible à tout moment en les supprimant de votre parcours</td></tr>
+<tr><td>Abonnement et accès</td><td>Code d'accès, identifiants Stripe (session, client, abonnement), offre, statut, date de fin, versions des conditions acceptées et date d'acceptation</td><td>Exécution du contrat ; preuve du contrat</td><td>Durée de l'abonnement, puis 5 ans pour la preuve en cas de litige</td></tr>
+<tr><td>Paiement</td><td>Nom, e-mail, données de carte (chez Stripe)</td><td>Exécution du contrat</td><td>Selon la politique de Stripe</td></tr>
+<tr><td>Factures et comptabilité</td><td>Nom, e-mail, montants, dates</td><td>Obligation légale</td><td>10 ans (article L123-22 du Code de commerce)</td></tr>
+<tr><td>E-mails liés à l'abonnement (code d'accès et documents contractuels, confirmation de résiliation, avertissement avant suppression)</td><td>E-mail, code d'accès, dates</td><td>Exécution du contrat</td><td>L'e-mail est lu chez Stripe au moment de l'envoi, sans être stocké dans notre base ; copie dans la messagerie contact@jaltio.fr</td></tr>
+<tr><td>Limites mensuelles et suivi des coûts</td><td>Nombre de générations, volume traité, recherches, liés à l'empreinte du code</td><td>Intérêt légitime (faire respecter les limites, maîtriser les coûts)</td><td>24 mois</td></tr>
+<tr><td>Questions et réclamations</td><td>E-mail, contenu de vos messages</td><td>Intérêt légitime (vous répondre)</td><td>3 ans après le dernier échange</td></tr>
+<tr><td>Liste d'attente et nouvelles de Jaltio</td><td>Prénom, nom, e-mail, provenance (réseau social), date d'inscription</td><td>Consentement (inscription sur jaltio.fr/attente)</td><td>Jusqu'à votre désinscription, ou 3 ans sans interaction</td></tr>
+<tr><td>Sécurité du site</td><td>Adresse IP, données techniques de connexion</td><td>Intérêt légitime (sécurité)</td><td>Selon les politiques de GitHub et de Cloudflare <span class="todo">[À VÉRIFIER]</span></td></tr>
+</table></div>
+
+<h2>L'intelligence artificielle et le transfert hors de l'Union européenne</h2>
+<p>La rédaction et le coach reposent sur Claude, le modèle d'IA d'Anthropic, PBC, société américaine. Quand vous lancez une génération ou parlez au coach, le contenu nécessaire lui est envoyé et traité aux États-Unis. L'IA peut aussi consulter la page de l'offre et faire des recherches sur internet.</p>
+<ul>
+<li><b>Encadrement du transfert</b> : Anthropic agit comme notre sous-traitant. Son accord de traitement des données, intégré à ses conditions commerciales, inclut les clauses contractuelles types de la Commission européenne.</li>
+<li><b>Pas d'entraînement</b> : Anthropic indique ne pas utiliser les données envoyées par son API pour entraîner ses modèles.</li>
+<li><b>Conservation chez Anthropic</b> : <span class="todo">[À VÉRIFIER : durée de conservation des requêtes API]</span>.</li>
+<li><b>Pas de décision automatisée</b> : l'IA rédige des propositions que vous relisez et modifiez. Elle ne prend aucune décision vous concernant.</li>
+</ul>
+<p>Si vous ne souhaitez pas que votre CV soit traité aux États-Unis, n'utilisez pas les fonctions de génération.</p>
+
+<h2>Nos prestataires</h2>
+<p>Ces prestataires traitent des données pour notre compte, chacun pour son rôle. Aucun n'est autorisé à les utiliser pour ses propres besoins, sauf Stripe pour la lutte contre la fraude et ses obligations légales.</p>
+<div class="table-wrap"><table>
+<tr><th>Prestataire</th><th>Rôle</th><th>Pays</th><th>Garantie pour un transfert hors UE</th></tr>
+<tr><td>Anthropic, PBC</td><td>IA (Claude) : rédaction, coach, lecture d'offre</td><td>États-Unis</td><td>Clauses contractuelles types (accord de traitement)</td></tr>
+<tr><td>Cloudflare, Inc.</td><td>Relais vers l'IA, base d'abonnements et de comptes chiffrés, diffusion technique du site</td><td>États-Unis et réseau mondial</td><td><span class="todo">[À VÉRIFIER : Data Privacy Framework et/ou clauses contractuelles types]</span></td></tr>
+<tr><td>GitHub, Inc. (GitHub Pages)</td><td>Hébergement des pages du site</td><td>États-Unis</td><td><span class="todo">[À VÉRIFIER]</span></td></tr>
+<tr><td>Stripe Payments Europe, Ltd</td><td>Paiement, factures</td><td>Irlande (UE), avec transferts possibles</td><td><span class="todo">[À VÉRIFIER]</span></td></tr>
+<tr><td>Hostinger</td><td>Nom de domaine, messagerie contact@jaltio.fr, serveur d'envoi des e-mails et d'automatisation</td><td>Union européenne <span class="todo">[À VÉRIFIER]</span></td><td>Sans objet si UE</td></tr>
+<tr><td>Google (Google Sheets)</td><td>Tableau de la liste d'attente</td><td>Irlande (UE), avec transferts possibles</td><td><span class="todo">[À VÉRIFIER]</span></td></tr>
+</table></div>
+
+<h2>Stockage dans votre navigateur et cookies</h2>
+<p>Jaltio n'utilise <b>aucun cookie publicitaire ni outil de mesure d'audience</b>. Le site enregistre dans votre navigateur (stockage local) uniquement ce qui est nécessaire au service que vous demandez : votre langue, votre session, vos choix d'inscription et une copie chiffrée de vos documents. Ces traceurs strictement nécessaires ne demandent pas de consentement (article 82 de la loi Informatique et Libertés) ; c'est pourquoi aucun bandeau ne s'affiche.</p>
+<p>Certains fichiers techniques du site (bibliothèques de code) sont chargés depuis le réseau de Cloudflare (cdnjs), qui reçoit alors votre adresse IP, sans déposer de cookie.</p>
+
+<h2>Sécurité</h2>
+<ul>
+<li>Chiffrement de vos documents dans votre navigateur avant tout envoi, et connexions chiffrées (HTTPS).</li>
+<li>Clé d'accès à l'IA gardée côté serveur, jamais dans le site.</li>
+<li>Aucun e-mail stocké en clair dans notre base d'abonnements.</li>
+</ul>
+<p>En cas de violation de données présentant un risque pour vous, nous prévenons la CNIL dans les 72 heures et vous informons si le risque est élevé (articles 33 et 34 du RGPD).</p>
+
+<h2>Vos droits</h2>
+<p>Vous pouvez demander l'accès à vos données, leur rectification, leur effacement, leur portabilité, la limitation du traitement, vous opposer à un traitement fondé sur notre intérêt légitime, retirer votre consentement (liste d'attente, données de santé) et donner des directives sur le sort de vos données après votre décès.</p>
+<ul>
+<li><b>Dans l'application</b> : onglet Mon profil, boutons « Exporter mes données » (copie de vos documents) et « Supprimer mes données en ligne » (effacement de votre compte).</li>
+<li><b>Par e-mail</b> : écrivez à contact@jaltio.fr. Nous répondons dans un délai d'un mois. Nous pouvons vous demander de confirmer que l'adresse vous appartient.</li>
+<li><b>Réclamation</b> : si vous estimez que vos droits ne sont pas respectés, vous pouvez saisir la CNIL (www.cnil.fr, 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07).</li>
+</ul>
+
+<h2>Mineurs, données sensibles et modifications</h2>
+<ul>
+<li><b>Mineurs</b> : l'abonnement est réservé aux personnes de 18 ans et plus.</li>
+<li><b>Données sensibles</b> : nous ne vous les demandons pas, et il est déconseillé d'en mettre dans un CV. Avant votre premier import, l'application vous le rappelle. Si vous choisissez de garder une information de santé ou de handicap, elle est traitée avec votre consentement explicite, uniquement pour produire les documents que vous demandez, y compris par l'IA d'Anthropic.</li>
+<li><b>Modifications</b> : nous pouvons mettre à jour cette politique. La date en haut de page indique la dernière version ; les abonnés sont prévenus par e-mail d'un changement important.</li>
+</ul>
+</article>
+</main>
+<footer class="foot">
+  <nav><a href="/forfaits/">Forfaits</a><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a><a href="/?resilier">Résilier mon abonnement</a></nav>
+  Jaltio · <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> · IA : Claude, d'Anthropic (États-Unis)
+</footer>
+</body>
+</html>
