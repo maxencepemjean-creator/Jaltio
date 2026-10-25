@@ -1,0 +1,295 @@
+[
+{
+ "id": "D21", "metier": "électricien du bâtiment", "score": 88, "couleur": "#1F5A8C",
+ "profil": "Yannick Pelletier, 32 ans, électricien en rénovation dans une entreprise de 12 salariés à Rochefort depuis 2019, après 3 ans d'intérim en électricité industrielle à Tonnay-Charente.",
+ "offre": "Électricien du bâtiment (rénovation et neuf), CDI 39 h, La Rochelle.",
+ "ancien_cv": "Yannick Pelletier\nRochefort - 06 00 00 00 00 - yannick.pelletier@exemple.fr\n32 ans - permis B et véhicule\n\nJe recherche un poste d'électricien dans une entreprise sérieuse, je suis autonome et j'aime le travail bien fait.\n\nDepuis 2019 je travaille dans une entreprise d'électricité de 12 salariés à Rochefort, je fais surtout de la rénovation de maisons et d'appartements, je tire les câbles, je pose les tableaux électriques et je fais les mises en conformité NF C 15-100. Je gère seul des chantiers de 2 à 3 semaines, je fais les devis de petits dépannages avec le patron et je forme les apprentis (2 depuis 2022).\n\nDe 2016 à 2019 j'étais intérimaire en électricité industrielle à Tonnay-Charente, câblage d'armoires et maintenance sur des lignes de production, en équipe de 2x8.\n\nAvant, en 2014 et 2015, j'ai fait des saisons comme vendeur au rayon électricité d'un magasin de bricolage à Saintes.\n\nCAP électricien en 2014 au lycée de Rochefort. Habilitation électrique BR et B2V renouvelée en 2024.\n\nJe fais du rugby le week-end.",
+ "cv": {
+  "nom": "Yannick Pelletier", "titre": "Électricien du bâtiment — 7 ans en rénovation",
+  "phrase_cle": "Chantiers de rénovation menés seul pendant **2 à 3 semaines**, du tableau à la mise en conformité NF C 15-100.",
+  "accroche": "Électricien habilité BR et B2V, spécialisé dans la rénovation de maisons et d'appartements. Expérience complémentaire en électricité industrielle et en formation d'apprentis.",
+  "contact": { "adresse": "", "ville": "Rochefort", "telephone": "06 00 00 00 00", "email": "yannick.pelletier@exemple.fr", "linkedin": "", "permis": "Permis B — véhiculé" },
+  "experiences": [
+   { "poste": "Électricien", "entreprise": "Entreprise d'électricité", "lieu": "Rochefort", "dates": "Depuis 2019", "contexte": "Entreprise de **12 salariés** spécialisée en rénovation résidentielle.", "points": ["Tirage de câbles, pose de tableaux électriques et mises en conformité NF C 15-100", "Gestion autonome de chantiers de **2 à 3 semaines**", "Préparation des devis de petits dépannages avec le dirigeant", "Formation de **2 apprentis** depuis 2022"] },
+   { "poste": "Électricien industriel (intérim)", "entreprise": "Missions d'intérim", "lieu": "Tonnay-Charente", "dates": "2016 – 2019", "contexte": "Lignes de production en équipe de 2x8.", "points": ["Câblage d'armoires électriques", "Maintenance électrique sur lignes de production"] }
+  ],
+  "autres_experiences": "Autres expériences : vendeur au rayon électricité d'un magasin de bricolage, Saintes (saisons 2014 et 2015).",
+  "formations": [ { "diplome": "CAP Électricien", "detail": "", "etablissement": "Lycée de Rochefort", "dates": "2014" } ],
+  "certifications": ["**Habilitation électrique BR et B2V** — renouvelée en 2024"],
+  "competences": ["**Rénovation :** tirage de câbles, tableaux électriques, mises en conformité", "**Normes :** NF C 15-100", "**Industrie :** câblage d'armoires, maintenance de lignes", "**Autonomie :** gestion seul de chantiers, devis de dépannage", "**Transmission :** accompagnement d'apprentis"],
+  "langues": [], "interets": ["Rugby"]
+ }
+},
+{
+ "id": "D22", "metier": "hôtesse de caisse", "score": 90, "couleur": "#B03A2E",
+ "profil": "Sandrine Giraudeau, 41 ans, hôtesse de caisse en hypermarché à Saintes depuis 2015, après 8 ans d'employée de boulangerie à Cognac.",
+ "offre": "Hôtesse de caisse et accueil, CDI 30 h, supermarché, Saintes.",
+ "ancien_cv": "Sandrine Giraudeau\nSaintes - 06 00 00 00 00 - sandrine.giraudeau@exemple.fr\n41 ans - permis B\n\nJe voudrais continuer dans la grande distribution, je suis souriante, rapide et je connais bien le travail de caisse.\n\nDepuis 2015 je suis hôtesse de caisse dans un hypermarché à Saintes, je passe environ 400 articles par heure aux heures de pointe, je fais l'ouverture et la fermeture de caisse, je compte mon fond de caisse et je n'ai jamais eu d'écart important. Je remplace aussi à l'accueil 2 jours par semaine (retours, colis, cartes de fidélité, réclamations). Depuis 2021 je forme les nouvelles hôtesses et les étudiants de l'été.\n\nDe 2007 à 2015 j'étais employée dans une boulangerie à Cognac, vente, encaissement et mise en place de la vitrine.\n\nCAP vente en 2001.\n\nJ'aime la cuisine et la randonnée.",
+ "cv": {
+  "nom": "Sandrine Giraudeau", "titre": "Hôtesse de caisse et d'accueil — 10 ans en hypermarché",
+  "phrase_cle": "Jusqu'à **400 articles par heure** aux heures de pointe, et 2 jours par semaine à l'accueil clients.",
+  "accroche": "Hôtesse de caisse expérimentée en hypermarché, également formée au service accueil : retours, colis et réclamations. Formatrice des nouvelles recrues depuis 2021.",
+  "contact": { "adresse": "", "ville": "Saintes", "telephone": "06 00 00 00 00", "email": "sandrine.giraudeau@exemple.fr", "linkedin": "", "permis": "Permis B" },
+  "experiences": [
+   { "poste": "Hôtesse de caisse", "entreprise": "Hypermarché", "lieu": "Saintes", "dates": "Depuis 2015", "contexte": "Caisse et accueil clients dans un hypermarché.", "points": ["Encaissement de **400 articles par heure** aux heures de pointe", "Ouverture, fermeture et comptage du fond de caisse", "Remplacement à l'accueil **2 jours par semaine** : retours, colis, cartes de fidélité, réclamations", "Formation des nouvelles hôtesses et des saisonniers d'été depuis 2021"] },
+   { "poste": "Employée de boulangerie", "entreprise": "Boulangerie", "lieu": "Cognac", "dates": "2007 – 2015", "contexte": "", "points": ["Vente et encaissement", "Mise en place de la vitrine"] }
+  ],
+  "autres_experiences": "",
+  "formations": [ { "diplome": "CAP Vente", "detail": "", "etablissement": "", "dates": "2001" } ],
+  "certifications": [],
+  "competences": ["**Encaissement :** rapidité aux heures de pointe, fond de caisse, ouverture et fermeture", "**Accueil :** retours, colis, cartes de fidélité, réclamations", "**Transmission :** formation des nouvelles hôtesses et saisonniers", "**Relation client :** vente au comptoir en boulangerie"],
+  "langues": [], "interets": ["Cuisine", "Randonnée"]
+ }
+},
+{
+ "id": "D23", "metier": "boulanger", "score": 86, "couleur": "#8A5A2B",
+ "profil": "Mathis Fradin, 26 ans, ouvrier boulanger dans une boulangerie artisanale de Royan depuis 2020 après un CAP en apprentissage à Marennes.",
+ "offre": "Boulanger (H/F), CDI 39 h, boulangerie artisanale, Rochefort.",
+ "ancien_cv": "Mathis Fradin\nRoyan - 06 00 00 00 00 - mathis.fradin@exemple.fr\n26 ans - permis B\n\nJe cherche une place de boulanger dans une boulangerie artisanale, je suis passionné et je n'ai pas peur des horaires de nuit.\n\nDepuis 2020 je suis ouvrier boulanger dans une boulangerie artisanale de Royan, on fait environ 600 baguettes par jour et jusqu'à 1 000 l'été. Je commence à 3 h du matin, je fais le pétrissage, le façonnage et la cuisson du pain et des viennoiseries. Je gère la fournée seul le mardi quand le patron est en congé. J'ai lancé 2 pains spéciaux qui sont restés à la carte (pain aux algues et pain au sarrasin).\n\nDe 2017 à 2020 j'étais apprenti dans une boulangerie de Marennes.\n\nCAP boulanger en 2019 en apprentissage, mention complémentaire boulangerie spécialisée en 2020.\n\nJ'aime la pêche et le vélo.",
+ "cv": {
+  "nom": "Mathis Fradin", "titre": "Boulanger — 5 ans en boulangerie artisanale",
+  "phrase_cle": "Production de **600 baguettes par jour**, jusqu'à **1 000** l'été, en boulangerie artisanale.",
+  "accroche": "Boulanger titulaire d'un CAP et d'une mention complémentaire boulangerie spécialisée, habitué au travail de nuit. Capable de tenir seul une fournée et de créer des pains spéciaux.",
+  "contact": { "adresse": "", "ville": "Royan", "telephone": "06 00 00 00 00", "email": "mathis.fradin@exemple.fr", "linkedin": "", "permis": "Permis B" },
+  "experiences": [
+   { "poste": "Ouvrier boulanger", "entreprise": "Boulangerie artisanale", "lieu": "Royan", "dates": "Depuis 2020", "contexte": "Production de **600 baguettes par jour**, jusqu'à **1 000** en saison estivale.", "points": ["Pétrissage, façonnage et cuisson du pain et des viennoiseries dès 3 h du matin", "Gestion seul de la fournée le mardi en l'absence du dirigeant", "Création de **2 pains spéciaux** restés à la carte : pain aux algues et pain au sarrasin"] },
+   { "poste": "Apprenti boulanger", "entreprise": "Boulangerie", "lieu": "Marennes", "dates": "2017 – 2020", "contexte": "", "points": ["Apprentissage des techniques de panification et de viennoiserie"] }
+  ],
+  "autres_experiences": "",
+  "formations": [ { "diplome": "Mention complémentaire Boulangerie spécialisée", "detail": "", "etablissement": "", "dates": "2020" }, { "diplome": "CAP Boulanger", "detail": "en apprentissage", "etablissement": "", "dates": "2019" } ],
+  "certifications": [],
+  "competences": ["**Panification :** pétrissage, façonnage, cuisson", "**Viennoiserie :** production quotidienne", "**Autonomie :** gestion d'une fournée complète", "**Création :** pains spéciaux", "**Rythme :** horaires de nuit, forte production estivale"],
+  "langues": [], "interets": ["Pêche", "Vélo"]
+ }
+},
+{
+ "id": "D24", "metier": "conducteur poids lourd", "score": 89, "couleur": "#2F6B3A",
+ "profil": "Frédéric Boutin, 47 ans, conducteur poids lourd en régional pour un transporteur de Surgères depuis 2016, après 12 ans de chauffeur-livreur VL.",
+ "offre": "Conducteur PL (permis C/CE), courtes distances, CDI, Saintes.",
+ "ancien_cv": "Frédéric Boutin\nSurgères - 06 00 00 00 00 - frederic.boutin@exemple.fr\n47 ans - permis B, C, CE\n\nJe cherche un poste de chauffeur poids lourd en régional pour rentrer chez moi le soir.\n\nDepuis 2016 je suis conducteur PL chez un transporteur de Surgères, je livre des palettes de produits laitiers et d'épicerie dans les magasins de Charente-Maritime et des Deux-Sèvres, environ 350 km par jour avec 8 à 12 livraisons. Je charge et décharge au transpalette électrique, je respecte la chaîne du froid et je remplis les documents de transport. Je n'ai jamais eu d'accident responsable.\n\nDe 2004 à 2016 j'étais chauffeur-livreur VL pour un grossiste en boissons à La Rochelle.\n\nPermis C en 2015 et CE en 2016, FIMO 2015, FCO renouvelée en 2025, carte conducteur à jour. CACES R489 catégorie 1.\n\nJe fais de la pétanque.",
+ "cv": {
+  "nom": "Frédéric Boutin", "titre": "Conducteur poids lourd — 10 ans en régional",
+  "phrase_cle": "Environ **350 km par jour** et **8 à 12 livraisons**, sans aucun accident responsable depuis 2016.",
+  "accroche": "Conducteur PL titulaire des permis C et CE, FCO à jour, habitué aux tournées régionales en Charente-Maritime et Deux-Sèvres. Maîtrise de la chaîne du froid et du chargement au transpalette.",
+  "contact": { "adresse": "", "ville": "Surgères", "telephone": "06 00 00 00 00", "email": "frederic.boutin@exemple.fr", "linkedin": "", "permis": "Permis B, C et CE" },
+  "experiences": [
+   { "poste": "Conducteur poids lourd", "entreprise": "Transporteur", "lieu": "Surgères", "dates": "Depuis 2016", "contexte": "Livraison de produits laitiers et d'épicerie aux magasins de Charente-Maritime et des Deux-Sèvres.", "points": ["Tournées d'environ **350 km par jour** avec **8 à 12 livraisons**", "Chargement et déchargement au transpalette électrique", "Respect de la chaîne du froid et tenue des documents de transport", "Aucun accident responsable depuis 2016"] },
+   { "poste": "Chauffeur-livreur VL", "entreprise": "Grossiste en boissons", "lieu": "La Rochelle", "dates": "2004 – 2016", "contexte": "", "points": ["Livraison de boissons aux clients professionnels", "Manutention et remise des marchandises"] }
+  ],
+  "autres_experiences": "",
+  "formations": [],
+  "certifications": ["**Permis CE** — 2016", "**Permis C** — 2015", "**FIMO** — 2015 ; **FCO** renouvelée en 2025", "**CACES R489** — catégorie 1", "**Carte conducteur** — à jour"],
+  "competences": ["**Conduite régionale :** Charente-Maritime, Deux-Sèvres", "**Froid :** respect de la chaîne du froid", "**Manutention :** transpalette électrique, palettes", "**Administratif :** documents de transport"],
+  "langues": [], "interets": ["Pétanque"]
+ }
+},
+{
+ "id": "D25", "metier": "esthéticienne", "score": 84, "couleur": "#9C3D6B",
+ "profil": "Léa Morisset, 24 ans, esthéticienne en institut à La Rochelle depuis 2022 après un BP esthétique en alternance.",
+ "offre": "Esthéticienne en spa d'hôtel, CDI 35 h, Châtelaillon-Plage.",
+ "ancien_cv": "Léa Morisset\nLa Rochelle - 06 00 00 00 00 - lea.morisset@exemple.fr\n24 ans - permis B\n\nJe voudrais évoluer vers un spa ou un hôtel, j'adore les soins du corps et le contact avec la clientèle.\n\nDepuis 2022 je travaille dans un institut de beauté à La Rochelle, je fais les soins du visage, les épilations, les manucures et les modelages, environ 8 rendez-vous par jour. Je conseille et je vends les produits de soin, j'ai fait 1 200 euros de ventes en moyenne par mois en 2024. Je gère aussi les commandes de produits et l'agenda en ligne.\n\nDe 2020 à 2022 j'ai fait mon BP esthétique en alternance dans un institut de Rochefort.\n\nCAP esthétique en 2020. Formation modelage californien et pierres chaudes en 2023.\n\nJe parle anglais (niveau correct). Je fais du yoga.",
+ "cv": {
+  "nom": "Léa Morisset", "titre": "Esthéticienne — soins du corps et modelages",
+  "phrase_cle": "Environ **8 soins par jour** en institut et **1 200 € de ventes** de produits en moyenne par mois en 2024.",
+  "accroche": "Esthéticienne diplômée du BP, formée au modelage californien et aux pierres chaudes. Habituée à conseiller la clientèle et à gérer un agenda chargé.",
+  "contact": { "adresse": "", "ville": "La Rochelle", "telephone": "06 00 00 00 00", "email": "lea.morisset@exemple.fr", "linkedin": "", "permis": "Permis B" },
+  "experiences": [
+   { "poste": "Esthéticienne", "entreprise": "Institut de beauté", "lieu": "La Rochelle", "dates": "Depuis 2022", "contexte": "Institut proposant soins du visage, du corps et beauté des mains.", "points": ["Réalisation d'environ **8 soins par jour** : visage, épilations, manucures, modelages", "Conseil et vente de produits de soin : **1 200 €** en moyenne par mois en 2024", "Gestion des commandes de produits et de l'agenda en ligne"] },
+   { "poste": "Esthéticienne en alternance", "entreprise": "Institut de beauté", "lieu": "Rochefort", "dates": "2020 – 2022", "contexte": "", "points": ["Soins du visage et du corps dans le cadre du BP Esthétique"] }
+  ],
+  "autres_experiences": "",
+  "formations": [ { "diplome": "BP Esthétique", "detail": "en alternance", "etablissement": "", "dates": "2022" }, { "diplome": "CAP Esthétique", "detail": "", "etablissement": "", "dates": "2020" }, { "diplome": "Formation modelage", "detail": "californien et pierres chaudes", "etablissement": "", "dates": "2023" } ],
+  "certifications": [],
+  "competences": ["**Soins du corps :** modelage californien, pierres chaudes", "**Soins du visage :** soins, épilations", "**Vente :** conseil et vente de produits de soin", "**Organisation :** agenda en ligne, commandes"],
+  "langues": ["Anglais — correct"], "interets": ["Yoga"]
+ }
+},
+{
+ "id": "D26", "metier": "agent de sécurité", "score": 87, "couleur": "#26364F",
+ "profil": "Karim Belkacem, 35 ans, agent de sécurité en grande surface à Rochefort depuis 2019, après 5 ans dans l'armée de terre.",
+ "offre": "Agent de sécurité SSIAP 1, site industriel, CDI, La Rochelle.",
+ "ancien_cv": "Karim Belkacem\nRochefort - 06 00 00 00 00 - karim.belkacem@exemple.fr\n35 ans - permis B\n\nJe cherche un poste d'agent de sécurité sur un site plus calme que le commerce, je suis rigoureux et calme.\n\nDepuis 2019 je suis agent de sécurité dans une grande surface à Rochefort pour une société de sécurité, je fais la surveillance du magasin, le contrôle des accès, les rondes et la gestion des alarmes. Je rédige les mains courantes. J'interviens environ 3 fois par semaine sur des vols ou des clients agressifs, toujours sans violence. Je fais aussi les rondes incendie.\n\nDe 2013 à 2018 j'étais militaire dans l'armée de terre, j'ai fait 2 missions à l'étranger.\n\nCarte professionnelle CNAPS à jour, SSIAP 1 en 2019 (recyclage 2025), SST.\n\nJe fais de la boxe et de la course.",
+ "cv": {
+  "nom": "Karim Belkacem", "titre": "Agent de sécurité SSIAP 1 — 6 ans d'expérience",
+  "phrase_cle": "Environ **3 interventions par semaine** sur des vols ou des clients agressifs, toujours gérées sans violence.",
+  "accroche": "Agent de sécurité titulaire du SSIAP 1 et de la carte professionnelle CNAPS, ancien militaire. Rigoureux sur les rondes, le contrôle d'accès et la traçabilité.",
+  "contact": { "adresse": "", "ville": "Rochefort", "telephone": "06 00 00 00 00", "email": "karim.belkacem@exemple.fr", "linkedin": "", "permis": "Permis B" },
+  "experiences": [
+   { "poste": "Agent de sécurité", "entreprise": "Société de sécurité — grande surface", "lieu": "Rochefort", "dates": "Depuis 2019", "contexte": "Surveillance d'une grande surface pour le compte d'une société de sécurité.", "points": ["Surveillance du magasin, contrôle des accès et rondes, dont rondes incendie", "Gestion des alarmes et rédaction des mains courantes", "Environ **3 interventions par semaine** sur des vols ou des clients agressifs, sans violence"] },
+   { "poste": "Militaire", "entreprise": "Armée de terre", "lieu": "", "dates": "2013 – 2018", "contexte": "", "points": ["Participation à **2 missions** à l'étranger"] }
+  ],
+  "autres_experiences": "",
+  "formations": [],
+  "certifications": ["**Carte professionnelle CNAPS** — à jour", "**SSIAP 1** — 2019, recyclage 2025", "**SST** — Sauveteur secouriste du travail"],
+  "competences": ["**Surveillance :** rondes, contrôle des accès, alarmes", "**Sécurité incendie :** rondes incendie", "**Gestion des conflits :** interventions sans violence", "**Traçabilité :** mains courantes"],
+  "langues": [], "interets": ["Boxe", "Course à pied"]
+ }
+},
+{
+ "id": "D27", "metier": "AESH", "score": 82, "couleur": "#3E7C8C",
+ "profil": "Nathalie Rousseau, 44 ans, AESH en école primaire à Saint-Jean-d'Angély depuis 2021, après 10 ans d'assistante maternelle.",
+ "offre": "Accompagnant(e) d'élèves en situation de handicap (AESH), collège, Saintes.",
+ "ancien_cv": "Nathalie Rousseau\nSaint-Jean-d'Angély - 06 00 00 00 00 - nathalie.rousseau@exemple.fr\n44 ans - permis B et véhicule\n\nJe souhaite continuer comme AESH et accompagner des collégiens, je suis patiente et à l'écoute.\n\nDepuis 2021 je suis AESH dans une école primaire de Saint-Jean-d'Angély, j'accompagne 3 élèves (un enfant autiste, un enfant dyspraxique et un enfant avec un trouble de l'attention). Je les aide à s'organiser, je reformule les consignes, j'adapte les supports avec l'enseignante et je participe aux réunions avec les familles et l'équipe de suivi (ESS).\n\nDe 2010 à 2020 j'étais assistante maternelle agréée à mon domicile, je gardais 3 enfants de 0 à 3 ans.\n\nFormation d'adaptation à l'emploi AESH de 60 heures en 2021. CAP petite enfance en 2009.\n\nJ'aime la lecture et la couture.",
+ "cv": {
+  "nom": "Nathalie Rousseau", "titre": "AESH — 4 ans d'accompagnement d'élèves",
+  "phrase_cle": "Accompagnement de **3 élèves** aux besoins différents : autisme, dyspraxie, trouble de l'attention.",
+  "accroche": "AESH formée à l'accompagnement d'élèves en situation de handicap, après 10 ans auprès de jeunes enfants. Habituée à travailler avec les enseignants, les familles et les équipes de suivi.",
+  "contact": { "adresse": "", "ville": "Saint-Jean-d'Angély", "telephone": "06 00 00 00 00", "email": "nathalie.rousseau@exemple.fr", "linkedin": "", "permis": "Permis B — véhiculée" },
+  "experiences": [
+   { "poste": "AESH", "entreprise": "École primaire", "lieu": "Saint-Jean-d'Angély", "dates": "Depuis 2021", "contexte": "Accompagnement de **3 élèves** : trouble du spectre de l'autisme, dyspraxie, trouble de l'attention.", "points": ["Aide à l'organisation et reformulation des consignes", "Adaptation des supports pédagogiques avec l'enseignante", "Participation aux réunions avec les familles et aux équipes de suivi de scolarisation (ESS)"] },
+   { "poste": "Assistante maternelle agréée", "entreprise": "À domicile", "lieu": "Saint-Jean-d'Angély", "dates": "2010 – 2020", "contexte": "", "points": ["Accueil de **3 enfants** de 0 à 3 ans", "Accompagnement de l'éveil et des apprentissages"] }
+  ],
+  "autres_experiences": "",
+  "formations": [ { "diplome": "Formation d'adaptation à l'emploi AESH", "detail": "60 heures", "etablissement": "", "dates": "2021" }, { "diplome": "CAP Petite enfance", "detail": "", "etablissement": "", "dates": "2009" } ],
+  "certifications": [],
+  "competences": ["**Accompagnement :** autisme, dyspraxie, trouble de l'attention", "**Pédagogie :** reformulation, adaptation des supports", "**Travail d'équipe :** enseignants, familles, ESS", "**Petite enfance :** 10 ans d'accueil d'enfants"],
+  "langues": [], "interets": ["Lecture", "Couture"]
+ }
+},
+{
+ "id": "D28", "metier": "plombier-chauffagiste", "score": 85, "couleur": "#1D6A8A",
+ "profil": "Romain Chevallier, 29 ans, plombier-chauffagiste dans une entreprise de Marennes depuis 2018, spécialisé dans l'entretien de chaudières et l'installation de pompes à chaleur.",
+ "offre": "Plombier-chauffagiste dépanneur (pompes à chaleur), CDI, Royan.",
+ "ancien_cv": "Romain Chevallier\nMarennes - 06 00 00 00 00 - romain.chevallier@exemple.fr\n29 ans - permis B\n\nJe recherche un poste de plombier chauffagiste, de préférence en dépannage, j'aime trouver les pannes.\n\nDepuis 2018 je travaille dans une entreprise de plomberie chauffage de 8 personnes à Marennes. Je fais l'entretien et le dépannage des chaudières gaz et fioul (environ 6 interventions par jour en hiver), l'installation de pompes à chaleur air-eau (une vingtaine par an depuis 2022) et la rénovation de salles de bains. J'ai un véhicule de service et je gère mon planning avec le secrétariat.\n\nDe 2016 à 2018 j'ai fait mon apprentissage dans la même entreprise.\n\nCAP installateur thermique en 2018. Attestation de capacité fluides frigorigènes catégorie 1 en 2022. Habilitation électrique BR.\n\nJe joue au football.",
+ "cv": {
+  "nom": "Romain Chevallier", "titre": "Plombier-chauffagiste — dépannage et pompes à chaleur",
+  "phrase_cle": "Jusqu'à **6 dépannages par jour** en hiver et une **vingtaine de pompes à chaleur** installées par an depuis 2022.",
+  "accroche": "Plombier-chauffagiste habilité aux fluides frigorigènes, expérimenté dans le dépannage de chaudières et l'installation de pompes à chaleur air-eau. Autonome avec un véhicule de service.",
+  "contact": { "adresse": "", "ville": "Marennes", "telephone": "06 00 00 00 00", "email": "romain.chevallier@exemple.fr", "linkedin": "", "permis": "Permis B" },
+  "experiences": [
+   { "poste": "Plombier-chauffagiste", "entreprise": "Entreprise de plomberie et chauffage", "lieu": "Marennes", "dates": "Depuis 2018", "contexte": "Entreprise de **8 personnes**, interventions chez les particuliers.", "points": ["Entretien et dépannage de chaudières gaz et fioul : jusqu'à **6 interventions par jour** en hiver", "Installation d'une **vingtaine de pompes à chaleur** air-eau par an depuis 2022", "Rénovation de salles de bains", "Organisation du planning avec le secrétariat, véhicule de service"] },
+   { "poste": "Apprenti plombier-chauffagiste", "entreprise": "Entreprise de plomberie et chauffage", "lieu": "Marennes", "dates": "2016 – 2018", "contexte": "", "points": ["Apprentissage de l'installation et de l'entretien des équipements thermiques"] }
+  ],
+  "autres_experiences": "",
+  "formations": [ { "diplome": "CAP Installateur thermique", "detail": "en apprentissage", "etablissement": "", "dates": "2018" } ],
+  "certifications": ["**Attestation de capacité fluides frigorigènes** — catégorie 1, 2022", "**Habilitation électrique BR**"],
+  "competences": ["**Dépannage :** chaudières gaz et fioul, diagnostic de pannes", "**Pompes à chaleur :** installation air-eau", "**Plomberie :** rénovation de salles de bains", "**Autonomie :** planning, véhicule de service"],
+  "langues": [], "interets": ["Football"]
+ }
+},
+{
+ "id": "D29", "metier": "gestionnaire de paie", "score": 80, "couleur": "#4A3F8C",
+ "profil": "Céline Arnaud, 38 ans, assistante paie et RH dans une PME agroalimentaire à Surgères depuis 2018, après 7 ans d'assistante administrative en cabinet d'intérim.",
+ "offre": "Gestionnaire de paie (H/F), cabinet d'expertise comptable, CDI, La Rochelle.",
+ "ancien_cv": "Céline Arnaud\nSurgères - 06 00 00 00 00 - celine.arnaud@exemple.fr\n38 ans - permis B\n\nJe voudrais devenir gestionnaire de paie à part entière, j'aime les chiffres et la rigueur.\n\nDepuis 2018 je suis assistante paie et RH dans une PME agroalimentaire de 140 salariés à Surgères. Je prépare la paie chaque mois avec la responsable (saisie des variables, absences, heures supplémentaires, primes), je fais les DSN, les déclarations d'arrêts maladie et les attestations employeur, et je gère les contrats des saisonniers (jusqu'à 40 l'été). On utilise Sage Paie.\n\nDe 2011 à 2018 j'étais assistante administrative dans une agence d'intérim à La Rochelle, contrats de mission, relevés d'heures et accueil des intérimaires.\n\nBTS assistant de gestion PME-PMI en 2008. Formation paie de 120 heures en 2019.\n\nJe fais de la natation.",
+ "cv": {
+  "nom": "Céline Arnaud", "titre": "Assistante paie — 7 ans en entreprise de 140 salariés",
+  "phrase_cle": "Préparation mensuelle de la paie de **140 salariés** et gestion de **jusqu'à 40 saisonniers** l'été.",
+  "accroche": "Assistante paie et RH formée à la paie, à l'aise avec la DSN et Sage Paie. Rigueur acquise sur des effectifs variables avec de nombreux saisonniers.",
+  "contact": { "adresse": "", "ville": "Surgères", "telephone": "06 00 00 00 00", "email": "celine.arnaud@exemple.fr", "linkedin": "", "permis": "Permis B" },
+  "experiences": [
+   { "poste": "Assistante paie et RH", "entreprise": "PME agroalimentaire", "lieu": "Surgères", "dates": "Depuis 2018", "contexte": "Entreprise de **140 salariés**, paie préparée avec la responsable RH.", "points": ["Saisie des variables de paie : absences, heures supplémentaires, primes", "Établissement des DSN, déclarations d'arrêts maladie et attestations employeur", "Gestion des contrats de **jusqu'à 40 saisonniers** l'été", "Utilisation quotidienne de Sage Paie"] },
+   { "poste": "Assistante administrative", "entreprise": "Agence d'intérim", "lieu": "La Rochelle", "dates": "2011 – 2018", "contexte": "", "points": ["Contrats de mission et relevés d'heures", "Accueil des intérimaires"] }
+  ],
+  "autres_experiences": "",
+  "formations": [ { "diplome": "Formation Paie", "detail": "120 heures", "etablissement": "", "dates": "2019" }, { "diplome": "BTS Assistant de gestion PME-PMI", "detail": "", "etablissement": "", "dates": "2008" } ],
+  "certifications": [],
+  "competences": ["**Paie :** variables, absences, heures supplémentaires, primes", "**Déclaratif :** DSN, arrêts maladie, attestations employeur", "**Logiciel :** Sage Paie", "**RH :** contrats de saisonniers et d'intérimaires"],
+  "langues": [], "interets": ["Natation"]
+ }
+},
+{
+ "id": "D30", "metier": "coiffeuse", "score": 88, "couleur": "#7A2E4F",
+ "profil": "Inès Barreau, 28 ans, coiffeuse en salon à Saintes depuis 2017, spécialisée en coloration, avec un BP coiffure.",
+ "offre": "Coiffeuse coloriste confirmée, CDI 35 h, salon, Cognac.",
+ "ancien_cv": "Inès Barreau\nSaintes - 06 00 00 00 00 - ines.barreau@exemple.fr\n28 ans - permis B\n\nJe recherche un salon où je pourrai me spécialiser en coloration, c'est ce que je préfère.\n\nDepuis 2017 je suis coiffeuse dans un salon de 4 coiffeuses à Saintes. Je fais les coupes femmes, hommes et enfants, les colorations, les mèches et les balayages, environ 10 clientes par jour. Je suis la référente coloration du salon depuis 2021, je fais les diagnostics et je prépare les mélanges. J'ai une clientèle fidèle d'environ 150 personnes qui me demandent. Je fais aussi les commandes de produits.\n\nDe 2014 à 2017 j'étais apprentie dans un salon de Pons.\n\nCAP coiffure en 2015, BP coiffure en 2017. Formation balayage et ombré en 2022.\n\nJ'aime la mode et les voyages.",
+ "cv": {
+  "nom": "Inès Barreau", "titre": "Coiffeuse coloriste — référente coloration depuis 2021",
+  "phrase_cle": "Référente coloration d'un salon de **4 coiffeuses**, avec une clientèle fidèle d'environ **150 personnes**.",
+  "accroche": "Coiffeuse titulaire du BP, spécialisée en coloration, mèches et balayages. Diagnostic couleur et préparation des mélanges au quotidien.",
+  "contact": { "adresse": "", "ville": "Saintes", "telephone": "06 00 00 00 00", "email": "ines.barreau@exemple.fr", "linkedin": "", "permis": "Permis B" },
+  "experiences": [
+   { "poste": "Coiffeuse, référente coloration", "entreprise": "Salon de coiffure", "lieu": "Saintes", "dates": "Depuis 2017", "contexte": "Salon de **4 coiffeuses**, environ **10 clientes par jour**.", "points": ["Diagnostics couleur et préparation des mélanges en tant que référente coloration depuis 2021", "Colorations, mèches et balayages", "Coupes femmes, hommes et enfants", "Fidélisation d'environ **150 clientes et clients** réguliers", "Commandes de produits"] },
+   { "poste": "Apprentie coiffeuse", "entreprise": "Salon de coiffure", "lieu": "Pons", "dates": "2014 – 2017", "contexte": "", "points": ["Apprentissage des techniques de coupe et de coloration"] }
+  ],
+  "autres_experiences": "",
+  "formations": [ { "diplome": "BP Coiffure", "detail": "", "etablissement": "", "dates": "2017" }, { "diplome": "CAP Coiffure", "detail": "", "etablissement": "", "dates": "2015" }, { "diplome": "Formation balayage et ombré", "detail": "", "etablissement": "", "dates": "2022" } ],
+  "certifications": [],
+  "competences": ["**Coloration :** diagnostic, mélanges, mèches, balayages, ombrés", "**Coupe :** femmes, hommes, enfants", "**Relation client :** fidélisation", "**Gestion :** commandes de produits"],
+  "langues": [], "interets": ["Mode", "Voyages"]
+ }
+},
+{
+ "id": "D31", "metier": "mécanicien automobile", "score": 91, "couleur": "#A3361F",
+ "profil": "Lucas Gendron, 30 ans, mécanicien automobile dans un garage multimarque de Tonnay-Charente depuis 2016, formé au diagnostic électronique.",
+ "offre": "Mécanicien automobile confirmé (diagnostic), CDI, concession, Rochefort.",
+ "ancien_cv": "Lucas Gendron\nTonnay-Charente - 06 00 00 00 00 - lucas.gendron@exemple.fr\n30 ans - permis B\n\nJe cherche un poste de mécanicien dans une concession, je veux me spécialiser dans le diagnostic.\n\nDepuis 2016 je suis mécanicien dans un garage multimarque de 5 personnes à Tonnay-Charente. Je fais l'entretien (vidanges, freins, distributions, embrayages), environ 5 véhicules par jour, et surtout le diagnostic électronique avec la valise, c'est moi qui m'en occupe au garage depuis 2020. Je fais aussi la préparation au contrôle technique et je conseille les clients sur les réparations.\n\nDe 2013 à 2016 j'étais apprenti dans un garage de Rochefort.\n\nCAP maintenance des véhicules en 2015, Bac pro maintenance des véhicules en 2016. Habilitation électrique véhicules électriques et hybrides B1VL en 2023.\n\nJe fais de la moto.",
+ "cv": {
+  "nom": "Lucas Gendron", "titre": "Mécanicien automobile — référent diagnostic électronique",
+  "phrase_cle": "Référent diagnostic électronique d'un garage multimarque depuis 2020, environ **5 véhicules par jour**.",
+  "accroche": "Mécanicien titulaire d'un bac pro maintenance des véhicules et habilité aux véhicules électriques et hybrides. Expérience solide en entretien et en diagnostic multimarque.",
+  "contact": { "adresse": "", "ville": "Tonnay-Charente", "telephone": "06 00 00 00 00", "email": "lucas.gendron@exemple.fr", "linkedin": "", "permis": "Permis B" },
+  "experiences": [
+   { "poste": "Mécanicien automobile", "entreprise": "Garage multimarque", "lieu": "Tonnay-Charente", "dates": "Depuis 2016", "contexte": "Garage de **5 personnes**, environ **5 véhicules par jour**.", "points": ["Diagnostic électronique à la valise, en tant que référent du garage depuis 2020", "Entretien : vidanges, freins, distributions, embrayages", "Préparation des véhicules au contrôle technique", "Conseil aux clients sur les réparations"] },
+   { "poste": "Apprenti mécanicien", "entreprise": "Garage", "lieu": "Rochefort", "dates": "2013 – 2016", "contexte": "", "points": ["Apprentissage de l'entretien et de la réparation automobile"] }
+  ],
+  "autres_experiences": "",
+  "formations": [ { "diplome": "Bac pro Maintenance des véhicules", "detail": "", "etablissement": "", "dates": "2016" }, { "diplome": "CAP Maintenance des véhicules", "detail": "", "etablissement": "", "dates": "2015" } ],
+  "certifications": ["**Habilitation B1VL** — véhicules électriques et hybrides, 2023"],
+  "competences": ["**Diagnostic :** valise électronique, multimarque", "**Entretien :** vidanges, freins, distributions, embrayages", "**Contrôle technique :** préparation des véhicules", "**Relation client :** conseil sur les réparations"],
+  "langues": [], "interets": ["Moto"]
+ }
+},
+{
+ "id": "D32", "metier": "ouvrier viticole", "score": 86, "couleur": "#5B2A4E",
+ "profil": "Damien Rivière, 37 ans, ouvrier viticole dans un domaine de Cognac depuis 2017, après 8 ans d'ouvrier agricole en polyculture.",
+ "offre": "Ouvrier viticole qualifié (tractoriste), CDI, Saint-Jean-d'Angély.",
+ "ancien_cv": "Damien Rivière\nCognac - 06 00 00 00 00 - damien.riviere@exemple.fr\n37 ans - permis B et permis BE\n\nJe cherche un poste à l'année dans la vigne, j'aime travailler dehors et je conduis bien le tracteur.\n\nDepuis 2017 je travaille dans un domaine viticole de 45 hectares près de Cognac. Je fais la taille, le palissage, les travaux du sol et les traitements au tracteur, et je conduis la machine à vendanger pendant les vendanges. Je fais aussi l'entretien courant du matériel. J'encadre l'équipe de saisonniers pour la taille l'hiver (5 à 8 personnes).\n\nDe 2009 à 2017 j'étais ouvrier agricole dans une exploitation en polyculture élevage à Matha.\n\nBEP agricole en 2006. Certiphyto opérateur renouvelé en 2024. CACES R482 catégorie A.\n\nJe fais de la chasse.",
+ "cv": {
+  "nom": "Damien Rivière", "titre": "Ouvrier viticole tractoriste — 8 ans en domaine de 45 ha",
+  "phrase_cle": "Taille, traitements et vendange mécanique sur un domaine de **45 hectares**, encadrement de **5 à 8 saisonniers**.",
+  "accroche": "Ouvrier viticole qualifié, à l'aise sur tous les travaux de la vigne et en conduite d'engins. Certiphyto à jour et expérience d'encadrement d'équipes de taille.",
+  "contact": { "adresse": "", "ville": "Cognac", "telephone": "06 00 00 00 00", "email": "damien.riviere@exemple.fr", "linkedin": "", "permis": "Permis B et BE" },
+  "experiences": [
+   { "poste": "Ouvrier viticole", "entreprise": "Domaine viticole", "lieu": "Cognac", "dates": "Depuis 2017", "contexte": "Domaine de **45 hectares**.", "points": ["Taille, palissage et travaux du sol", "Traitements au tracteur et conduite de la machine à vendanger", "Encadrement des équipes de taille l'hiver : **5 à 8 saisonniers**", "Entretien courant du matériel"] },
+   { "poste": "Ouvrier agricole", "entreprise": "Exploitation en polyculture élevage", "lieu": "Matha", "dates": "2009 – 2017", "contexte": "", "points": ["Travaux des cultures et soins aux animaux", "Conduite d'engins agricoles"] }
+  ],
+  "autres_experiences": "",
+  "formations": [ { "diplome": "BEP agricole", "detail": "", "etablissement": "", "dates": "2006" } ],
+  "certifications": ["**Certiphyto opérateur** — renouvelé en 2024", "**CACES R482** — catégorie A"],
+  "competences": ["**Vigne :** taille, palissage, travaux du sol", "**Conduite :** tracteur, machine à vendanger", "**Encadrement :** équipes de saisonniers", "**Matériel :** entretien courant"],
+  "langues": [], "interets": ["Chasse"]
+ }
+},
+{
+ "id": "D33", "metier": "réceptionniste d'hôtel", "score": 83, "couleur": "#245E73",
+ "profil": "Chloé Mercier, 25 ans, réceptionniste dans un hôtel 3 étoiles de La Rochelle depuis 2022, après un BTS tourisme.",
+ "offre": "Réceptionniste tournant (H/F), hôtel 4 étoiles, CDI, Île de Ré.",
+ "ancien_cv": "Chloé Mercier\nLa Rochelle - 06 00 00 00 00 - chloe.mercier@exemple.fr\n25 ans - permis B\n\nJe voudrais travailler dans un hôtel haut de gamme, j'aime accueillir les clients étrangers.\n\nDepuis 2022 je suis réceptionniste dans un hôtel 3 étoiles de 60 chambres à La Rochelle. Je fais les arrivées et les départs, les réservations, l'encaissement et la facturation, et je réponds aux avis en ligne. Environ 40 % des clients sont étrangers. Je fais des nuits 1 semaine par mois. On utilise le logiciel Mews.\n\nEn 2021 j'ai fait un stage de 3 mois à l'office de tourisme de Royan.\n\nBTS tourisme en 2022.\n\nJe parle anglais couramment et espagnol (niveau intermédiaire). J'aime la photo et la danse.",
+ "cv": {
+  "nom": "Chloé Mercier", "titre": "Réceptionniste d'hôtel — anglais courant",
+  "phrase_cle": "Accueil d'une clientèle étrangère à **40 %** dans un hôtel 3 étoiles de **60 chambres**.",
+  "accroche": "Réceptionniste diplômée d'un BTS tourisme, habituée aux arrivées, départs, réservations et facturation. Expérience des nuits et des avis en ligne.",
+  "contact": { "adresse": "", "ville": "La Rochelle", "telephone": "06 00 00 00 00", "email": "chloe.mercier@exemple.fr", "linkedin": "", "permis": "Permis B" },
+  "experiences": [
+   { "poste": "Réceptionniste", "entreprise": "Hôtel 3 étoiles", "lieu": "La Rochelle", "dates": "Depuis 2022", "contexte": "Hôtel de **60 chambres**, clientèle étrangère à **40 %**.", "points": ["Arrivées, départs et réservations", "Encaissement et facturation sur le logiciel Mews", "Réponses aux avis clients en ligne", "Service de nuit **1 semaine par mois**"] },
+   { "poste": "Stagiaire en accueil touristique", "entreprise": "Office de tourisme", "lieu": "Royan", "dates": "2021 (3 mois)", "contexte": "", "points": ["Accueil et information des visiteurs"] }
+  ],
+  "autres_experiences": "",
+  "formations": [ { "diplome": "BTS Tourisme", "detail": "", "etablissement": "", "dates": "2022" } ],
+  "certifications": [],
+  "competences": ["**Réception :** arrivées, départs, réservations", "**Gestion :** encaissement, facturation, logiciel Mews", "**E-réputation :** réponses aux avis en ligne", "**Horaires :** service de nuit"],
+  "langues": ["Anglais — courant", "Espagnol — intermédiaire"], "interets": ["Photographie", "Danse"]
+ }
+},
+{
+ "id": "D34", "metier": "infirmière", "score": 87, "couleur": "#1E6F6A",
+ "profil": "Aurélie Bonnin, 31 ans, infirmière en service de médecine à l'hôpital de Saintes depuis 2016, qui souhaite passer en soins à domicile.",
+ "offre": "Infirmière (IDE) en service de soins infirmiers à domicile (SSIAD), CDI, Saintes.",
+ "ancien_cv": "Aurélie Bonnin\nSaintes - 06 00 00 00 00 - aurelie.bonnin@exemple.fr\n31 ans - permis B et véhicule\n\nAprès plusieurs années à l'hôpital, je souhaite travailler à domicile auprès des personnes âgées.\n\nDepuis 2016 je suis infirmière dans un service de médecine polyvalente de 30 lits à l'hôpital de Saintes. Je fais les soins techniques (perfusions, pansements, prélèvements), la surveillance des patients, la préparation et la distribution des traitements, en équipe de 12 heures jour et nuit. Je suis tutrice des étudiants infirmiers depuis 2019. Je travaille beaucoup avec les familles pour préparer les retours à domicile.\n\nDiplôme d'État d'infirmière en 2016 à l'IFSI de Saintes. Formation plaies et cicatrisation en 2021.\n\nJ'aime la randonnée et le jardinage.",
+ "cv": {
+  "nom": "Aurélie Bonnin", "titre": "Infirmière diplômée d'État — 9 ans en médecine polyvalente",
+  "phrase_cle": "Soins techniques dans un service de **30 lits** et préparation des retours à domicile avec les familles.",
+  "accroche": "Infirmière DE formée aux plaies et à la cicatrisation, habituée à travailler avec les familles pour organiser le retour à domicile. Tutrice d'étudiants infirmiers depuis 2019.",
+  "contact": { "adresse": "", "ville": "Saintes", "telephone": "06 00 00 00 00", "email": "aurelie.bonnin@exemple.fr", "linkedin": "", "permis": "Permis B — véhiculée" },
+  "experiences": [
+   { "poste": "Infirmière", "entreprise": "Hôpital — service de médecine polyvalente", "lieu": "Saintes", "dates": "Depuis 2016", "contexte": "Service de **30 lits**, postes de **12 heures** de jour et de nuit.", "points": ["Soins techniques : perfusions, pansements, prélèvements", "Surveillance clinique des patients, préparation et distribution des traitements", "Préparation des retours à domicile avec les familles", "Tutorat des étudiants infirmiers depuis 2019"] }
+  ],
+  "autres_experiences": "",
+  "formations": [ { "diplome": "Diplôme d'État d'infirmière", "detail": "", "etablissement": "IFSI de Saintes", "dates": "2016" }, { "diplome": "Formation Plaies et cicatrisation", "detail": "", "etablissement": "", "dates": "2021" } ],
+  "certifications": [],
+  "competences": ["**Soins techniques :** perfusions, pansements, prélèvements", "**Plaies :** cicatrisation, pansements complexes", "**Coordination :** retours à domicile, lien avec les familles", "**Transmission :** tutorat d'étudiants"],
+  "langues": [], "interets": ["Randonnée", "Jardinage"]
+ }
+}
+]
