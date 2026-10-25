@@ -84,7 +84,7 @@
     <div class="card">
       <ul class="recap">
         <li><span>Offre</span><span>Jaltio Essentiel</span></li>
-        <li><span>Premier mois (accès anticipé)</span><span>6,49 €</span></li>
+        <li id="r-promo"><span>Premier mois (accès anticipé)</span><span>6,49 €</span></li>
         <li><span>Ensuite</span><span>13,99 € / mois</span></li>
         <li><span>Engagement</span><span>Aucun</span></li>
         <li><span>E-mail</span><span id="r-mail"></span></li>
@@ -106,7 +106,7 @@
 <script>
 (function(){
   /* Lien de paiement Stripe de l'offre Essentiel. À remplacer par le lien « live » (https://buy.stripe.com/…) au lancement. */
-  var LIEN_PAIEMENT = "https://buy.stripe.com/test_cNiaEQ5wqcLq9uH3SSa3u00";
+  var LIEN_PAIEMENT = "https://buy.stripe.com/test_3cI28k7Eyh1G36j3SSa3u01";
   /* Versions des documents acceptés (à changer quand les documents changent) : enregistrées avec le paiement */
   var VERSION_CGV = "20261025", VERSION_CONF = "20261025";
   /* Code promo Stripe de l'accès anticipé (1er mois à 6,49 €), appliqué automatiquement jusqu'au 23/11/2026 inclus (heure de Paris) */
@@ -123,7 +123,7 @@
     window.scrollTo(0, 0);
     if(n === 2) charger("/cgv.html", "#l-cgv", "#h-cgv", "#ok-cgv");
     if(n === 3) charger("/confidentialite.html", "#l-conf", "#h-conf", "#ok-conf");
-    if(n === 4) $("#r-mail").textContent = email;
+    if(n === 4){ $("#r-mail").textContent = email; if(Date.now() >= FIN_PROMO) $("#r-promo").remove(); }
   }
   document.querySelectorAll("[data-back]").forEach(function(b){ b.addEventListener("click", function(){ montrer(etape - 1); }); });
 
