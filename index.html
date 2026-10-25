@@ -913,6 +913,8 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 .sync-rgpd{margin:14px 0 4px;font-size:13px;color:var(--muted)}
 .sync-rgpd summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center;color:var(--brand)}
 .sync-rgpd p{margin:6px 0;line-height:1.45}
+.app-legal{font-size:12px;line-height:1.5;margin:18px 0 6px;text-align:center}
+.app-legal a,.legal-links a{color:inherit}
 .sync-dlg-btns{display:flex;flex-direction:column;gap:10px;margin:0 0 6px}
 .sync-dlg-btns .btn{min-height:50px;width:100%;font-size:15.5px;white-space:normal;line-height:1.25;padding:10px 14px}
 .sync-dlg-btns .btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
@@ -997,6 +999,7 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
     <h1 id="gate-title">Bienvenue sur <span data-brand>Jaltio</span></h1>
     <p class="hint" style="margin-top:0">Connectez-vous avec votre e-mail et votre mot de passe. Première visite ? Choisissez-les maintenant : votre compte est créé en quelques secondes.</p>
     <div id="gate-slot"></div>
+    <p class="hint gate-plans">Pas encore abonné ? <a href="/forfaits/">Voir les forfaits</a> · <a href="/cgv.html">CGV</a> · <a href="/confidentialite.html">Confidentialité</a></p>
     <p class="hint gate-forgot">Mot de passe oublié : vos données sont chiffrées avec lui, personne ne peut le réinitialiser. Créez un nouveau compte avec une autre adresse e-mail.</p>
   </div>
 </div>
@@ -1176,6 +1179,15 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
     <p class="hint" id="backup-nudge" hidden></p>
   </div>
 
+  <div class="step" data-v="profile" id="step-abo">
+    <h2><span class="num"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg></span><span>Mon abonnement</span></h2>
+    <p class="hint" id="abo-etat" style="margin-top:0" aria-live="polite">Vérification de votre abonnement…</p>
+    <div class="row" style="margin-top:10px"><button class="btn" id="abo-resilier" type="button" hidden>Résilier mon abonnement</button><a class="btn" id="abo-forfaits" href="/forfaits/" hidden>Voir les forfaits</a></div>
+    <div class="status" id="abo-msg" role="status"></div>
+    <p class="hint">Abonnement mensuel, renouvelé automatiquement chaque mois, sans engagement. La résiliation prend effet à la fin du mois déjà payé : le mois commencé reste dû et l'accès continue jusqu'à sa fin. Rétractation sous 14 jours avec remboursement intégral : écrivez à contact@jaltio.fr.</p>
+    <p class="hint legal-links"><a href="/cgv.html" target="_blank" rel="noopener">Conditions générales</a> · <a href="/confidentialite.html" target="_blank" rel="noopener">Politique de confidentialité</a> · <a href="/mentions-legales.html" target="_blank" rel="noopener">Mentions légales</a></p>
+  </div>
+
   <div class="step" data-v="profile" id="step-backup">
     <h2><span class="num"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span><span>Retrouver <span data-brand>Jaltio</span> sur tous mes appareils</span></h2>
 
@@ -1216,7 +1228,7 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
     <details class="sync-rgpd">
       <summary>Vos données et vos droits</summary>
       <p><b>Ce qui est enregistré en ligne :</b> un bloc de données chiffré sur votre appareil avec votre mot de passe (parcours, CV, lettres, suivi, objectifs), un identifiant haché dérivé de votre e-mail, et des dates techniques. <span data-brand>Jaltio</span> ne reçoit jamais votre e-mail, votre mot de passe ni le contenu lisible de vos documents.</p>
-      <p><b>Hébergement :</b> Cloudflare. <b>Durée :</b> tant que vous utilisez la synchronisation ; sans aucune connexion pendant 400 jours (environ 13 mois), le bloc est supprimé automatiquement.</p>
+      <p><b>Hébergement :</b> Cloudflare. <b>Durée :</b> tant que votre compte existe ; 6 mois après la fin de votre abonnement, le bloc est supprimé automatiquement, après un e-mail d'avertissement 7 jours avant.</p>
       <p><b>Vos droits :</b> supprimer vos données en ligne à tout moment avec le bouton ci-dessus ; récupérer une copie avec « Exporter mes données » ci-dessous. Pour toute question : contact@jaltio.fr (responsable du service : Maxence Pemjean).</p>
     </details>
 
@@ -1232,6 +1244,7 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
     <div class="status" id="status-backup"></div>
   </div>
 
+  <p class="hint app-legal"><span data-brand>Jaltio</span> rédige avec Claude, une IA de la société américaine Anthropic. Relisez toujours vos documents.<br><a href="/forfaits/" target="_blank" rel="noopener">Forfaits</a> · <a href="/cgv.html" target="_blank" rel="noopener">CGV</a> · <a href="/confidentialite.html" target="_blank" rel="noopener">Confidentialité</a> · <a href="/mentions-legales.html" target="_blank" rel="noopener">Mentions légales</a> · <a href="/?resilier">Résilier</a></p>
   <div class="panel-foot" data-v="create"><button class="btn apply-btn" id="btn-apply" type="button"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg> Préparer ma candidature</button></div>
 </aside>
 
@@ -1753,12 +1766,28 @@ $("#btn-photo-del").addEventListener("click", () => {
 
 /* ---------- Dépôt de fichiers : ancien CV (PDF, Word, texte) ou photo ---------- */
 function loadScript(src){ return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+/* Données de santé ou de handicap (RGPD, art. 9) : avertissement et choix explicite avant le premier import du parcours */
+function santeAvant(fn){
+  const c = store.get("santeChoix", null);
+  if(c && c.v) { fn(); return; }
+  openSyncDlg({
+    title:_t("Avant d'ajouter votre CV : données de santé ou de handicap"),
+    text:_t("Il est déconseillé de faire figurer dans un CV des informations de santé ou de handicap (par exemple une RQTH) : ce sont des données sensibles. Si votre CV en contient, nous vous conseillons de les retirer. Si vous choisissez de les garder, elles seront traitées uniquement pour rédiger vos documents, y compris par Claude, l'IA de la société américaine Anthropic. Vous pourrez les retirer à tout moment."),
+    buttons:[
+      { label:_t("Mon CV n'en contient pas"), cls:"primary", fn: () => { store.set("santeChoix", { v:"aucune", t:Date.now() }); fn(); } },
+      { label:_t("Mon CV en contient et j'accepte qu'elles soient traitées"), fn: () => { store.set("santeChoix", { v:"consentement", t:Date.now() }); fn(); } },
+      { label:_t("Annuler"), cls:"alt", cancel:true, fn: () => {} }
+    ],
+    link:{ label:_t("Lire la politique de confidentialité"), fn: () => window.open("/confidentialite.html", "_blank", "noopener") }
+  });
+}
+const pickFile = () => santeAvant(() => $("#file-any").click());
 const drop = $("#drop");
-drop.addEventListener("click", () => $("#file-any").click());
-drop.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); $("#file-any").click(); } });
+drop.addEventListener("click", pickFile);
+drop.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); pickFile(); } });
 ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
 ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
-drop.addEventListener("drop", e => handleFiles([...e.dataTransfer.files]));
+drop.addEventListener("drop", e => { const f = [...e.dataTransfer.files]; santeAvant(() => handleFiles(f)); });
 $("#file-any").addEventListener("change", e => { handleFiles([...e.target.files]); e.target.value = ""; });
 const DROP_HTML = drop.innerHTML;
 
@@ -3958,8 +3987,8 @@ function openWrite(mode){
   if(isM()) setTimeout(() => $("#pc-write-box").scrollIntoView({ behavior:"smooth", block:"center" }), 60);
 }
 function closeWrite(){ stopDictation(); $("#pc-write-box").hidden = true; renderParcoursUI(); }
-$("#pc-write").addEventListener("click", () => openWrite("replace"));
-$("#pc-say").addEventListener("click", () => { openWrite("replace"); $("#pc-mic").click(); });
+$("#pc-write").addEventListener("click", () => santeAvant(() => openWrite("replace")));
+$("#pc-say").addEventListener("click", () => santeAvant(() => { openWrite("replace"); $("#pc-mic").click(); }));
 $("#pc-cancel").addEventListener("click", closeWrite);
 $("#pc-save").addEventListener("click", () => {
   const t = $("#pc-input").value.trim(), p = prof();
@@ -3975,7 +4004,7 @@ $("#pc-save").addEventListener("click", () => {
   }
 });
 setupDictation($("#pc-mic"), $("#pc-input"), () => status("#pc-status", "err", DICT_HELP));
-$("#pc-reimport").addEventListener("click", () => $("#file-any").click());
+$("#pc-reimport").addEventListener("click", pickFile);
 $("#pc-add").addEventListener("click", () => openWrite("append"));
 $("#pc-reset").addEventListener("click", () => {
   if(!confirm("Effacer votre CV enregistré ? Vos candidatures déjà créées sont gardées.")) return;
@@ -4752,7 +4781,7 @@ async function syncPush(base){
   }
   const blob = await encryptPayload(snap, syncSt.key);
   if(blob.ct.length > SYNC_MAX_CT){ const e = new Error(_t("Vos données dépassent la taille autorisée pour la synchronisation. Supprimez d'anciennes candidatures ou la photo de profil.")); e.fatal = true; throw e; }
-  const res = await syncCall("put", { id:syncSt.id, auth:syncSt.auth, iv:blob.iv, ct:blob.ct, baseVersion:base });
+  const res = await syncCall("put", { id:syncSt.id, auth:syncSt.auth, iv:blob.iv, ct:blob.ct, baseVersion:base }, true);
   syncSt.version = res.version; syncSt.lastSyncAt = Date.now(); syncSt.err = "";
   if((syncSt.dirtyAt || 0) === at){ syncSt.dirty = false; } else { syncPending = true; }   // modifié pendant l'envoi : on renverra
   syncSave();
@@ -4908,6 +4937,44 @@ async function syncStart(){
     syncStarting = false; $("#sync-go").disabled = false;
   }
 }
+/* ----- Mon abonnement : état et résiliation sur le site (CGV, article 9) ----- */
+const dateLongue = ms => new Date(ms).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
+const aboCode = () => (settings.apiKey && !/^sk-ant-/.test(settings.apiKey)) ? settings.apiKey.trim() : "";
+async function aboCall(route){
+  const res = await fetch(RELAIS.replace(/\/+$/, "") + "/stripe/" + route, { method:"POST", headers:{ "content-type":"application/json", "x-jalon-code":aboCode() }, body:"{}" });
+  let d = null; try{ d = await res.json(); }catch(e){}
+  if(!res.ok){ const err = new Error((d && d.error && d.error.message) || ("Erreur " + res.status)); err.status = res.status; throw err; }
+  return d || {};
+}
+function aboRender(etat, bouton, forfaits){
+  $("#abo-etat").textContent = etat; $("#abo-resilier").hidden = !bouton; $("#abo-forfaits").hidden = !forfaits;
+}
+async function aboStatut(){
+  if(!RELAIS){ aboRender(_t("La gestion de l'abonnement n'est pas disponible pour l'instant."), false, false); return; }
+  if(!aboCode()){ aboRender(_t("Aucun abonnement n'est enregistré sur cet appareil. Connectez-vous avec votre compte, ou choisissez un forfait."), false, true); return; }
+  try{
+    const d = await aboCall("statut");
+    if(d.offre === "testeur") aboRender(_t("Accès testeur : aucun abonnement payant n'est lié à ce compte."), false, false);
+    else if(d.actif && d.resiliation_prevue) aboRender(_t("Résiliation enregistrée. Votre accès Jaltio Essentiel continue jusqu'au ") + dateLongue(d.fin) + _t(", sans nouveau prélèvement."), false, false);
+    else if(d.actif) aboRender(_t("Jaltio Essentiel : abonnement actif, renouvelé automatiquement chaque mois."), true, false);
+    else aboRender(_t("Abonnement terminé") + (d.fin ? _t(" depuis le ") + dateLongue(d.fin) : "") + _t(". Vos documents restent consultables 6 mois, puis sont supprimés."), false, true);
+  }catch(e){
+    aboRender(e.status === 404 || e.status === 401 ? _t("Aucun abonnement ne correspond au code de ce compte. Écrivez à contact@jaltio.fr si c'est une erreur.") : _t("Impossible de vérifier votre abonnement pour l'instant. Réessayez plus tard."), false, e.status === 404);
+  }
+}
+$("#abo-resilier").addEventListener("click", () => {
+  openSyncDlg({ title:_t("Résilier votre abonnement ?"),
+    text:_t("La résiliation prend effet à la fin du mois déjà payé : vous gardez votre accès jusque-là, aucun nouveau prélèvement n'aura lieu, et le mois commencé reste dû. Vos documents restent consultables 6 mois après la fin, puis sont supprimés. Vous recevrez une confirmation par e-mail."),
+    buttons:[{ label:_t("Confirmer la résiliation"), cls:"danger", fn: async () => {
+                $("#abo-resilier").disabled = true; status("#abo-msg", "info", _t("Résiliation en cours…"));
+                try{
+                  const d = await aboCall("resilier");
+                  status("#abo-msg", "ok", (d.deja ? _t("Votre résiliation était déjà enregistrée.") : _t("Résiliation enregistrée. Un e-mail de confirmation vous a été envoyé.")) + (d.fin ? _t(" Accès jusqu'au ") + dateLongue(d.fin) + "." : ""));
+                  aboStatut();
+                }catch(e){ status("#abo-msg", "err", (e.message || _t("Résiliation impossible.")) + _t(" Vous pouvez aussi résilier en écrivant à contact@jaltio.fr.")); }
+                finally{ $("#abo-resilier").disabled = false; } } },
+             { label:_t("Garder mon abonnement"), cls:"alt", cancel:true, fn: () => {} }] });
+});
 /* ----- Écran de connexion : obligatoire tant qu'aucun compte n'est actif sur cet appareil ----- */
 let gateHome = null, msgHome = null;
 function showGate(){
@@ -4917,6 +4984,7 @@ function showGate(){
   $("#gate-slot").appendChild(f); f.classList.add("in-gate");
   const m = $("#sync-msg"); if(!msgHome) msgHome = { parent:m.parentNode, next:m.nextSibling }; $("#gate-slot").appendChild(m);   // messages visibles sur l'écran de connexion
   $("#sync-go").textContent = _t("Continuer");
+  try{ const m = localStorage.getItem("jaltio_inscription_mail"); if(m && !$("#sync-mail").value) $("#sync-mail").value = m; }catch(e){}
   $("#gate").hidden = false; document.body.classList.add("gate-open");
   setTimeout(() => { try{ $("#sync-mail").focus({ preventScroll:true }); }catch(e){} }, 60);
 }
@@ -4950,6 +5018,11 @@ $("#sync-del").addEventListener("click", () => {
     buttons:[{ label:_t("Supprimer mes données en ligne"), cls:"danger", fn: async () => {
                 try{ await syncCall("delete", { id:syncSt.id, auth:syncSt.auth }); syncDisconnect(_t("Vos données en ligne ont été supprimées. Vos données restent sur cet appareil."), "ok"); }
                 catch(e){ status("#sync-msg", "err", e.status === 401 ? _t("Mot de passe refusé : déconnectez cet appareil puis reconnectez-vous pour supprimer.") : (_t("Suppression impossible : ") + (e.message || "erreur"))); } } },
+             { label:_t("Tout supprimer : en ligne et sur cet appareil"), cls:"danger", fn: async () => {
+                try{ await syncCall("delete", { id:syncSt.id, auth:syncSt.auth }); }
+                catch(e){ status("#sync-msg", "err", e.status === 401 ? _t("Mot de passe refusé : déconnectez cet appareil puis reconnectez-vous pour supprimer.") : (_t("Suppression impossible : ") + (e.message || "erreur"))); return; }
+                try{ Object.keys(localStorage).filter(k => k.indexOf("cvx_") === 0 || k.indexOf("jaltio_") === 0).forEach(k => localStorage.removeItem(k)); }catch(e){}
+                location.reload(); } },
              { label:_t("Annuler"), cls:"alt", cancel:true, fn: () => {} }] });
 });
 $("#sync-toast").addEventListener("keydown", e => { if(e.key === "Escape") $("#sync-toast").hidden = true; });
@@ -5108,7 +5181,7 @@ setTimeout(async () => {
     if(!settings.apiKey){
       const { payload } = await syncPull();
       const c = payload && payload.data && payload.data.accessCode;
-      if(typeof c === "string" && c){ settings.apiKey = c; saveSettings(); renderSettings(); }
+      if(typeof c === "string" && c){ settings.apiKey = c; saveSettings(); renderSettings(); aboStatut(); }
     } else if(!store.get("codeInSync", false)){ store.set("codeInSync", true); syncDirty(); }
   }catch(e){}
 }, 1500);
@@ -5118,6 +5191,12 @@ purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); setSyncUi
 applyMobile();
 setView(str((prof() || {}).parcours).length < 80 ? "profile" : store.get("view", "create"));
 showGate();
+aboStatut();
+if(new URLSearchParams(location.search).has("resilier")){
+  setView("profile");
+  setTimeout(() => { try{ $("#step-abo").scrollIntoView({ behavior:"smooth", block:"start" }); }catch(e){} }, 400);
+  if(!$("#gate").hidden) status("#sync-msg", "info", _t("Connectez-vous pour gérer ou résilier votre abonnement."));
+}
 /* Retour de paiement Stripe (jaltio.fr/?paye=cs_…) : on récupère le code d'accès de l'acheteur et on l'enregistre */
 (async () => {
   const sess = new URLSearchParams(location.search).get("paye") || "";
@@ -5128,7 +5207,7 @@ showGate();
       const res = await fetch(RELAIS.replace(/\/+$/, "") + "/stripe/code", { method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify({ session:sess }) });
       let d = null; try{ d = await res.json(); }catch(e){}
       if(res.ok && d && d.code){
-        settings.apiKey = d.code; saveSettings(); renderSettings(); $("#sync-code").value = d.code;
+        settings.apiKey = d.code; saveSettings(); renderSettings(); $("#sync-code").value = d.code; aboStatut();
         if(syncSt) syncDirty();
         status("#sync-msg", "ok", _t("Paiement confirmé, merci ! Votre code d'accès : ") + d.code + _t(" (notez-le). Il est déjà enregistré : choisissez votre e-mail et un mot de passe pour créer votre compte."));
         return;

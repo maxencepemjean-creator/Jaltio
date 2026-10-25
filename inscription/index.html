@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<meta name="robots" content="noindex">
+<title>Inscription — Jaltio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 72 72%27%3E%3Crect width=%2772%27 height=%2772%27 rx=%2718%27 fill=%27%233A2340%27/%3E%3Cpath d=%27M19 38l11 11 23-26%27 fill=%27none%27 stroke=%27%23fff%27 stroke-width=%276.5%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/pages.css">
+<style>
+.steps{display:flex;gap:6px;margin:4px 0 18px;padding:0;list-style:none}
+.steps li{flex:1;height:5px;border-radius:99px;background:var(--line)}
+.steps li.done{background:var(--brand)}
+.step-n{font-size:13.5px;font-weight:600;color:var(--muted);margin:0}
+.etape{display:none}
+.etape.on{display:block}
+.lecture{height:min(56vh,520px);overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px;padding:4px 16px 16px;background:#fff;margin-top:12px}
+.lecture h1{font-size:22px;margin-top:12px}
+.lecture .doc-actions,.lecture .version{display:none}
+.lecture-hint{font-size:13.5px;color:var(--muted);margin:8px 0 0;display:flex;gap:6px;align-items:center}
+.lecture-hint.ok{color:var(--ok)}
+.row2{display:flex;gap:10px;margin-top:16px}
+.row2 .btn{flex:1}
+.recap{display:grid;gap:8px;margin:12px 0 4px;padding:0;list-style:none}
+.recap li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:8px 0;font-size:15px}
+.recap li span:first-child{color:var(--muted)}
+.recap li span:last-child{text-align:right;font-weight:600}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/forfaits/"><svg width="36" height="36" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg><span class="name">Jaltio</span></a>
+  <a class="top-link" href="/forfaits/">Forfaits</a>
+</header>
+<main>
+<div class="wrap narrow">
+  <ol class="steps" aria-hidden="true"><li></li><li></li><li></li><li></li></ol>
+
+  <!-- Étape 1 : compte -->
+  <section class="etape on" id="e1" aria-labelledby="t1">
+    <p class="step-n">Étape 1 sur 4 · Jaltio Essentiel</p>
+    <h1 id="t1">Créer votre compte</h1>
+    <div class="card">
+      <form id="f1" novalidate>
+        <label for="email">Votre adresse e-mail</label>
+        <input type="email" id="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" required>
+        <p class="hint">Elle servira d'identifiant. Vous choisirez votre mot de passe juste après le paiement ; votre code d'accès arrivera aussi à cette adresse.</p>
+        <p class="msg" id="m1" role="alert"></p>
+        <button class="btn" type="submit" style="margin-top:16px">Continuer</button>
+      </form>
+    </div>
+    <p class="hint" style="text-align:center;margin-top:18px">Vous avez déjà un compte ? <a href="/">Se connecter</a></p>
+  </section>
+
+  <!-- Étape 2 : CGV -->
+  <section class="etape" id="e2" aria-labelledby="t2">
+    <p class="step-n">Étape 2 sur 4</p>
+    <h1 id="t2">Conditions générales</h1>
+    <p class="lead" style="margin:0">Lisez les conditions jusqu'en bas pour pouvoir les accepter.</p>
+    <div class="lecture" id="l-cgv" tabindex="0" aria-label="Conditions générales de vente et d'utilisation">Chargement…</div>
+    <p class="lecture-hint" id="h-cgv">Faites défiler jusqu'en bas du document.</p>
+    <label class="check"><input type="checkbox" id="ok-cgv" disabled><span>J'ai lu et j'accepte les <a href="/cgv.html" target="_blank" rel="noopener">conditions générales de vente et d'utilisation</a>.</span></label>
+    <div class="row2"><button class="btn alt" type="button" data-back>Retour</button><button class="btn" type="button" id="go2" disabled>Continuer</button></div>
+  </section>
+
+  <!-- Étape 3 : politique de confidentialité -->
+  <section class="etape" id="e3" aria-labelledby="t3">
+    <p class="step-n">Étape 3 sur 4</p>
+    <h1 id="t3">Politique de confidentialité</h1>
+    <p class="lead" style="margin:0">Lisez la politique jusqu'en bas pour pouvoir l'accepter.</p>
+    <div class="lecture" id="l-conf" tabindex="0" aria-label="Politique de confidentialité">Chargement…</div>
+    <p class="lecture-hint" id="h-conf">Faites défiler jusqu'en bas du document.</p>
+    <label class="check"><input type="checkbox" id="ok-conf" disabled><span>J'ai lu la <a href="/confidentialite.html" target="_blank" rel="noopener">politique de confidentialité</a> et j'accepte que mon CV soit traité par Claude, l'IA de la société américaine Anthropic, aux États-Unis.</span></label>
+    <div class="row2"><button class="btn alt" type="button" data-back>Retour</button><button class="btn" type="button" id="go3" disabled>Continuer</button></div>
+  </section>
+
+  <!-- Étape 4 : confirmation et paiement -->
+  <section class="etape" id="e4" aria-labelledby="t4">
+    <p class="step-n">Étape 4 sur 4</p>
+    <h1 id="t4">Confirmer votre inscription</h1>
+    <div class="card">
+      <ul class="recap">
+        <li><span>Offre</span><span>Jaltio Essentiel</span></li>
+        <li><span>Premier mois (accès anticipé)</span><span>6,49 €</span></li>
+        <li><span>Ensuite</span><span>13,99 € / mois</span></li>
+        <li><span>Engagement</span><span>Aucun</span></li>
+        <li><span>E-mail</span><span id="r-mail"></span></li>
+      </ul>
+      <p class="hint">L'abonnement se renouvelle automatiquement chaque mois. Vous pouvez le résilier à tout moment depuis le site : le mois commencé reste dû, l'accès continue jusqu'à sa fin. Vous disposez de 14 jours de rétractation avec remboursement intégral.</p>
+      <p class="hint">Après le paiement, vous recevez par e-mail votre code d'accès, avec <b>les conditions générales et la politique de confidentialité en pièces jointes</b>.</p>
+      <p class="msg" id="m4" role="alert"></p>
+      <button class="btn" type="button" id="payer" style="margin-top:16px">Payer avec Stripe</button>
+      <p class="hint" style="text-align:center">Paiement sécurisé par Stripe. Nous ne voyons jamais vos numéros de carte.</p>
+    </div>
+    <div class="row2"><button class="btn alt" type="button" data-back>Retour</button></div>
+  </section>
+</div>
+</main>
+<footer class="foot">
+  <nav><a href="/forfaits/">Forfaits</a><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a><a href="/?resilier">Résilier mon abonnement</a></nav>
+  Jaltio · <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> · IA : Claude, d'Anthropic (États-Unis)
+</footer>
+<script>
+(function(){
+  /* Lien de paiement Stripe de l'offre Essentiel. À remplacer par le lien « live » (https://buy.stripe.com/…) au lancement. */
+  var LIEN_PAIEMENT = "https://buy.stripe.com/test_cNiaEQ5wqcLq9uH3SSa3u00";
+  /* Versions des documents acceptés (à changer quand les documents changent) : enregistrées avec le paiement */
+  var VERSION_CGV = "20261025", VERSION_CONF = "20261025";
+
+  var $ = function(s){ return document.querySelector(s); };
+  var etape = 1, email = "";
+  function store(k, v){ try{ if(v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }catch(e){ return null; } }
+
+  function montrer(n){
+    etape = n;
+    document.querySelectorAll(".etape").forEach(function(s, i){ s.classList.toggle("on", i + 1 === n); });
+    document.querySelectorAll(".steps li").forEach(function(li, i){ li.classList.toggle("done", i < n); });
+    window.scrollTo(0, 0);
+    if(n === 2) charger("/cgv.html", "#l-cgv", "#h-cgv", "#ok-cgv");
+    if(n === 3) charger("/confidentialite.html", "#l-conf", "#h-conf", "#ok-conf");
+    if(n === 4) $("#r-mail").textContent = email;
+  }
+  document.querySelectorAll("[data-back]").forEach(function(b){ b.addEventListener("click", function(){ montrer(etape - 1); }); });
+
+  /* Étape 1 */
+  var deja = store("jaltio_inscription_mail"); if(deja) $("#email").value = deja;
+  $("#f1").addEventListener("submit", function(e){
+    e.preventDefault();
+    var v = $("#email").value.trim().toLowerCase();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)){ var m = $("#m1"); m.textContent = "Cette adresse e-mail ne semble pas valide."; m.className = "msg err"; $("#email").focus(); return; }
+    $("#m1").className = "msg"; email = v; store("jaltio_inscription_mail", v);
+    montrer(2);
+  });
+
+  /* Étapes 2 et 3 : document chargé depuis sa page publique, case activée une fois en bas */
+  var charges = {};
+  function charger(url, boite, hint, caseId){
+    var b = $(boite), c = $(caseId), h = $(hint);
+    function verifier(){
+      if(b.scrollTop + b.clientHeight >= b.scrollHeight - 12){
+        c.disabled = false; h.textContent = "Document lu jusqu'au bout. Vous pouvez l'accepter."; h.classList.add("ok");
+      }
+    }
+    if(!charges[url]){
+      charges[url] = true;
+      fetch(url, { cache:"no-cache" }).then(function(r){ return r.text(); }).then(function(t){
+        var d = new DOMParser().parseFromString(t, "text/html"), a = d.querySelector("#doc");
+        b.innerHTML = "";
+        if(a){ a.querySelectorAll("a[href^='/']").forEach(function(l){ l.target = "_blank"; l.rel = "noopener"; }); b.appendChild(document.importNode(a, true)); }
+        else b.textContent = "Le document n'a pas pu être chargé. Ouvrez-le avec le lien ci-dessous.";
+        b.scrollTop = 0; setTimeout(verifier, 50);
+      }).catch(function(){ b.innerHTML = ""; b.textContent = "Le document n'a pas pu être chargé. Vérifiez votre connexion, puis rechargez la page."; });
+      b.addEventListener("scroll", verifier, { passive:true });
+    }
+  }
+  $("#ok-cgv").addEventListener("change", function(e){ $("#go2").disabled = !e.target.checked; });
+  $("#ok-conf").addEventListener("change", function(e){ $("#go3").disabled = !e.target.checked; });
+  $("#go2").addEventListener("click", function(){ if($("#ok-cgv").checked) montrer(3); });
+  $("#go3").addEventListener("click", function(){ if($("#ok-conf").checked) montrer(4); });
+
+  /* Étape 4 : paiement Stripe, avec l'acceptation enregistrée dans la référence du paiement */
+  $("#payer").addEventListener("click", function(){
+    if(!email || !$("#ok-cgv").checked || !$("#ok-conf").checked){ montrer(email ? 2 : 1); return; }
+    var ref = "cgv" + VERSION_CGV + "_conf" + VERSION_CONF + "_" + Date.now();
+    store("jaltio_inscription", JSON.stringify({ email: email, ref: ref, offre: "essentiel" }));
+    var u = LIEN_PAIEMENT + "?prefilled_email=" + encodeURIComponent(email) + "&client_reference_id=" + encodeURIComponent(ref) + "&locale=fr";
+    $("#payer").disabled = true; $("#payer").textContent = "Ouverture de la page de paiement…";
+    location.href = u;
+  });
+
+  if(new URLSearchParams(location.search).get("offre") && new URLSearchParams(location.search).get("offre") !== "essentiel"){
+    var m = $("#m1"); m.textContent = "Cette offre n'est pas encore disponible. Seule l'offre Essentiel est ouverte pour l'instant."; m.className = "msg info";
+  }
+  window.addEventListener("pageshow", function(){ $("#payer").disabled = false; $("#payer").textContent = "Payer avec Stripe"; });
+})();
+</script>
+</body>
+</html>

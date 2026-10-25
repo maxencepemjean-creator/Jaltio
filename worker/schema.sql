@@ -11,8 +11,10 @@ CREATE TABLE IF NOT EXISTS sync (
   version  INTEGER NOT NULL,      -- augmente à chaque envoi (détection de conflit)
   updated  INTEGER NOT NULL,      -- dernier envoi (ms)
   accessed INTEGER NOT NULL,      -- dernière connexion (ms), sert à la suppression automatique
-  size     INTEGER NOT NULL
+  size     INTEGER NOT NULL,
+  code_h   TEXT                   -- empreinte du code d'abonné lié (suppression 6 mois après la fin de l'abonnement)
 );
+CREATE INDEX IF NOT EXISTS sync_code_h ON sync (code_h);
 
 CREATE TABLE IF NOT EXISTS rate (
   k   TEXT PRIMARY KEY,           -- compteur de limitation de requêtes
@@ -29,8 +31,12 @@ CREATE TABLE IF NOT EXISTS abonnes (
   offre      TEXT NOT NULL,         -- essentiel (pro plus tard)
   actif      INTEGER NOT NULL,      -- 1 = abonnement en cours, 0 = terminé
   cree       INTEGER NOT NULL,      -- date de création (ms)
-  envoye     INTEGER NOT NULL DEFAULT 0  -- 1 = code envoyé par e-mail
+  envoye     INTEGER NOT NULL DEFAULT 0,  -- 1 = code envoyé par e-mail
+  fin        INTEGER,                    -- date de fin d'accès (ms), prévue ou réelle
+  averti     INTEGER NOT NULL DEFAULT 0, -- date de l'e-mail d'avertissement avant suppression ; -1 = données supprimées
+  accepte    TEXT                        -- versions des CGV et de la politique acceptées + horodatage
 );
+-- Base créée avant le 25/10/2026 : exécuter une fois worker/migration-2026-10-25.sql
 -- Base créée avant l'envoi par e-mail : exécuter UNE fois  ALTER TABLE abonnes ADD COLUMN envoye INTEGER NOT NULL DEFAULT 0;
 CREATE INDEX IF NOT EXISTS abonnes_abonnement ON abonnes (abonnement);
 

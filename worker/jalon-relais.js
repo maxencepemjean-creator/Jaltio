@@ -12,21 +12,27 @@
 //     CODES          = codes testeurs séparés par des virgules, ex. « maman-7k2, julien-p9x »
 //     STRIPE_KEY            = clé RESTREINTE Stripe (rk_test_… puis rk_live_…), droit « Checkout Sessions : lecture » uniquement
 //     STRIPE_WEBHOOK_SECRET = secret de signature du webhook Stripe (whsec_…)
-//     MAIL_WEBHOOK          = adresse du webhook n8n qui envoie le code par e-mail (workflow « [JLT] 03 »)
-//     MAIL_SECRET           = secret partagé avec ce workflow n8n (en-tête x-jaltio-secret)
+//     STRIPE_KEY doit avoir les droits : Checkout Sessions (lecture), Customers (lecture), Subscriptions (écriture)
+//     MAIL_SECRET           = secret partagé avec le workflow n8n des e-mails (en-tête x-jaltio-secret)
+//     MAILS_WEBHOOK         = (facultatif) adresse du workflow n8n « [JLT] 05 - E-mails clients » ; par défaut MAILS_DEFAUT ci-dessous
+//     (MAIL_WEBHOOK, ancien workflow « [JLT] 03 », n'est plus utilisé)
 //   Base D1 liée au Worker (Settings > Bindings > Add > D1 database), nom de variable : DB
 //   Tables : voir worker/schema.sql (à coller dans l'onglet Console de la base D1)
 //   Stripe : webhook vers https://jalon-relais.jalon-emploi.workers.dev/stripe/webhook
 //            (événements checkout.session.completed, customer.subscription.updated, customer.subscription.deleted)
 //            Lien de paiement : redirection après paiement vers https://jaltio.fr/?paye={CHECKOUT_SESSION_ID}
-//   Déclencheur planifié (Settings > Triggers > Cron) : « 0 3 * * 0 » (nettoyage hebdomadaire)
+//   Déclencheur planifié (Settings > Triggers > Cron) : « 0 3 * * * » (chaque nuit : avertissements et suppressions à 6 mois)
+//   Base D1 : exécuter une fois worker/migration-2026-10-25.sql (colonnes fin, averti, accepte, code_h)
 
 const ORIGINES = ["https://maxencepemjean-creator.github.io", "https://jaltio.fr", "https://www.jaltio.fr"];
 const MODELES = ["claude-sonnet-5-5"];
 const MAX_TOKENS = 16000;
 
 const MAX_BODY = 1900000;              // octets : requête de synchro complète (D1 limite une ligne à 2 Mo)
-const CONSERVATION_JOURS = 400;        // données supprimées après ce délai sans aucune connexion
+const CONSERVATION_JOURS = 400;        // comptes sans abonnement (codes testeurs) : supprimés après ce délai sans aucune connexion
+const APRES_FIN_JOURS = 183;           // comptes d'abonnés : supprimés 6 mois après la fin de l'abonnement
+const PREAVIS_JOURS = 7;               // e-mail d'avertissement envoyé 7 jours avant la suppression
+const MAILS_DEFAUT = "https://n8n.srv1136752.hstgr.cloud/webhook/jaltio-mails";
 const LIMITES = {                      // [nombre max, fenêtre en secondes]
   ip:       [90, 60],                  // toutes routes /sync, par adresse (hachée)
   compte:   [30, 60],                  // toutes routes /sync, par identifiant
@@ -35,6 +41,7 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
   code_h:   [40, 3600],                // appels Claude par code d'accès et par heure
   code_j:   [150, 86400],              // appels Claude par code d'accès et par jour
   paiement: [20, 3600],                // récupérations de code après paiement, par adresse (hachée)
+  compte_abo: [20, 3600],              // consultations et résiliations d'abonnement, par adresse (hachée)
 };
 
 // Quotas mensuels par offre (mois calendaire). Les codes testeurs (secret CODES) n'ont pas de quota mensuel.
@@ -99,6 +106,13 @@ async function verifierCode(env, code) {      // renvoie { offre } si le code es
   if (!env.DB || !/^jal-[a-z0-9]{4}-[a-z0-9]{4}$/.test(code)) return null;
   const row = await env.DB.prepare("SELECT offre, actif FROM abonnes WHERE code = ?1").bind(code).first();
   return row && row.actif === 1 ? { offre: row.offre } : null;
+}
+
+// Empreinte d'un code d'abonné (table abonnes, actif ou non) ; null pour un code testeur ou inconnu
+async function codeAbonneH(env, code) {
+  if (!env.DB || !/^jal-[a-z0-9]{4}-[a-z0-9]{4}$/.test(code || "")) return null;
+  const row = await env.DB.prepare("SELECT code FROM abonnes WHERE code = ?1").bind(code).first();
+  return row ? await sha256hex("code|" + code) : null;
 }
 
 /* ---------- Limites de requêtes (compteurs atomiques dans D1) ---------- */
@@ -173,8 +187,8 @@ async function synchro(request, env, origin, chemin) {
       if (!(await sous_limite(env, "new:" + ip, LIMITES.creation))) return erreur(429, "Trop de créations de compte. Réessayez plus tard.", origin);
       const t = maintenant();
       const r = await env.DB.prepare(
-        "INSERT INTO sync (id, auth, salt, iv, ct, version, updated, accessed, size) VALUES (?1, ?2, ?3, ?4, ?5, 1, ?6, ?6, ?7) ON CONFLICT(id) DO NOTHING"
-      ).bind(b.id, await sha256hex(b.auth), b.salt, b.iv, b.ct, t, b.ct.length).run();
+        "INSERT INTO sync (id, auth, salt, iv, ct, version, updated, accessed, size, code_h) VALUES (?1, ?2, ?3, ?4, ?5, 1, ?6, ?6, ?7, ?8) ON CONFLICT(id) DO NOTHING"
+      ).bind(b.id, await sha256hex(b.auth), b.salt, b.iv, b.ct, t, b.ct.length, await codeAbonneH(env, code)).run();
       if (!r.meta || r.meta.changes !== 1) return erreur(409, "Ce compte vient d'être créé ailleurs.", origin, { conflict: true });
       return reponse({ version: 1, updated: t }, 200, origin);
     }
@@ -188,6 +202,9 @@ async function synchro(request, env, origin, chemin) {
       "UPDATE sync SET iv = ?1, ct = ?2, version = version + 1, updated = ?3, accessed = ?3, size = ?4 WHERE id = ?5 AND version = ?6"
     ).bind(b.iv, b.ct, t, b.ct.length, b.id, row.version).run();
     if (!r.meta || r.meta.changes !== 1) return erreur(409, "Une version plus récente existe en ligne.", origin, { conflict: true });
+    // Lien entre le compte et l'abonnement (pour la suppression 6 mois après la fin) : posé dès que le site envoie un code d'abonné
+    const ch = await codeAbonneH(env, (request.headers.get("x-jalon-code") || "").trim());
+    if (ch && row.code_h !== ch) await env.DB.prepare("UPDATE sync SET code_h = ?1 WHERE id = ?2").bind(ch, b.id).run();
     return reponse({ version: row.version + 1, updated: t }, 200, origin);
   }
 
@@ -287,30 +304,106 @@ async function enregistrerSession(env, s) {
   const paye = s && s.mode === "subscription" && s.status === "complete" &&
     (s.payment_status === "paid" || s.payment_status === "no_payment_required");
   if (!paye || typeof s.id !== "string") return null;
+  // Preuve d'acceptation : versions des CGV et de la politique + horodatage, transmis par la page d'inscription
+  const accepte = /^[A-Za-z0-9_-]{1,200}$/.test(s.client_reference_id || "") ? s.client_reference_id : null;
   await env.DB.prepare(
-    "INSERT INTO abonnes (code, session, client, abonnement, offre, actif, cree) VALUES (?1, ?2, ?3, ?4, ?5, 1, ?6) " +
-    "ON CONFLICT(session) DO UPDATE SET client = COALESCE(excluded.client, client), abonnement = COALESCE(excluded.abonnement, abonnement)"
-  ).bind(nouveauCode(), s.id, idStripe(s.customer), idStripe(s.subscription), OFFRE_PAR_DEFAUT, maintenant()).run();
+    "INSERT INTO abonnes (code, session, client, abonnement, offre, actif, cree, accepte) VALUES (?1, ?2, ?3, ?4, ?5, 1, ?6, ?7) " +
+    "ON CONFLICT(session) DO UPDATE SET client = COALESCE(excluded.client, client), abonnement = COALESCE(excluded.abonnement, abonnement), accepte = COALESCE(excluded.accepte, accepte)"
+  ).bind(nouveauCode(), s.id, idStripe(s.customer), idStripe(s.subscription), OFFRE_PAR_DEFAUT, maintenant(), accepte).run();
   const row = await env.DB.prepare("SELECT code FROM abonnes WHERE session = ?1").bind(s.id).first();
   return row ? row.code : null;
 }
 
-// Envoie le code par e-mail (via n8n) une seule fois par paiement. Renvoie false si l'envoi a échoué.
-async function envoyerCode(env, session, email, code) {
-  if (!env.MAIL_WEBHOOK || !env.MAIL_SECRET || !email || !code) return true;
-  const pris = await env.DB.prepare("UPDATE abonnes SET envoye = 1 WHERE session = ?1 AND envoye = 0").bind(session).run();
-  if (!pris.meta || pris.meta.changes !== 1) return true;       // déjà envoyé (ou en cours d'envoi ailleurs)
+// Envoie un e-mail client via le workflow n8n « [JLT] 05 » : bienvenue (code + CGV et politique en PDF),
+// resiliation (date d'effet), avertissement (suppression dans 7 jours). Renvoie true si l'envoi a réussi.
+const dateFr = ms => new Date(ms).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" });
+async function envoyerMail(env, donnees) {
+  if (!env.MAIL_SECRET || !donnees || !donnees.email) return false;
   try {
-    const r = await fetch(env.MAIL_WEBHOOK, {
+    const r = await fetch(env.MAILS_WEBHOOK || MAILS_DEFAUT, {
       method: "POST",
       headers: { "content-type": "application/json", "x-jaltio-secret": env.MAIL_SECRET },
-      body: JSON.stringify({ email, code }),
-      signal: AbortSignal.timeout(15000),
+      body: JSON.stringify(donnees),
+      signal: AbortSignal.timeout(20000),
     });
-    if (r.ok) return true;
-  } catch (e) { /* on retentera */ }
+    return r.ok;
+  } catch (e) { return false; }
+}
+
+// Envoie le mail de bienvenue une seule fois par paiement. Renvoie false si l'envoi a échoué.
+async function envoyerCode(env, session, email, code) {
+  if (!env.MAIL_SECRET || !email || !code) return true;
+  const pris = await env.DB.prepare("UPDATE abonnes SET envoye = 1 WHERE session = ?1 AND envoye = 0").bind(session).run();
+  if (!pris.meta || pris.meta.changes !== 1) return true;       // déjà envoyé (ou en cours d'envoi ailleurs)
+  if (await envoyerMail(env, { type: "bienvenue", email, code })) return true;
   await env.DB.prepare("UPDATE abonnes SET envoye = 0 WHERE session = ?1").bind(session).run();
   return false;
+}
+
+/* ---------- Appels à l'API Stripe (clé restreinte) ---------- */
+async function stripe(env, methode, chemin, form) {
+  const res = await fetch((env.STRIPE_API || "https://api.stripe.com") + chemin, {
+    method: methode,
+    headers: { "Authorization": "Bearer " + env.STRIPE_KEY, ...(form ? { "content-type": "application/x-www-form-urlencoded" } : {}) },
+    body: form ? new URLSearchParams(form).toString() : undefined,
+  });
+  let d = null; try { d = await res.json(); } catch (e) {}
+  return { ok: res.ok, status: res.status, d };
+}
+// Fin de la période payée d'un abonnement (champ déplacé dans les éléments de l'abonnement depuis l'API 2025-03)
+const finPeriode = sub => {
+  const s = (sub && (sub.current_period_end || (sub.items && sub.items.data && sub.items.data[0] && sub.items.data[0].current_period_end))) || 0;
+  return s ? s * 1000 : null;
+};
+async function emailClient(env, client) {
+  if (!client) return "";
+  const r = await stripe(env, "GET", "/v1/customers/" + encodeURIComponent(client));
+  return (r.ok && r.d && typeof r.d.email === "string") ? r.d.email : "";
+}
+
+// Lit l'abonnement lié à un code d'accès (en-tête x-jalon-code)
+async function abonnementDuCode(request, env, origin) {
+  if (request.method !== "POST") return { err: erreur(405, "Méthode non autorisée.", origin) };
+  if (!env.DB) return { err: erreur(503, "Service non configuré.", origin) };
+  const ip = await sha256hex("ip|" + (request.headers.get("CF-Connecting-IP") || "?"));
+  if (!(await sous_limite(env, "abo:" + ip, LIMITES.compte_abo))) return { err: erreur(429, "Trop de demandes. Patientez quelques minutes.", origin) };
+  const code = (request.headers.get("x-jalon-code") || "").trim();
+  const codes = String(env.CODES || "").split(",").map(c => c.trim()).filter(Boolean);
+  if (code && codes.includes(code)) return { testeur: true };
+  if (!/^jal-[a-z0-9]{4}-[a-z0-9]{4}$/.test(code)) return { err: erreur(401, "Code d'accès manquant ou invalide.", origin) };
+  const row = await env.DB.prepare("SELECT code, client, abonnement, offre, actif, fin FROM abonnes WHERE code = ?1").bind(code).first();
+  if (!row) return { err: erreur(404, "Aucun abonnement ne correspond à ce code.", origin) };
+  return { row };
+}
+
+// État de l'abonnement, pour l'onglet Mon profil
+async function statutAbonnement(request, env, origin) {
+  const a = await abonnementDuCode(request, env, origin);
+  if (a.err) return a.err;
+  if (a.testeur) return reponse({ offre: "testeur", actif: true }, 200, origin);
+  const r = a.row;
+  return reponse({ offre: r.offre, actif: r.actif === 1, fin: r.fin || null, resiliation_prevue: r.actif === 1 && !!r.fin }, 200, origin);
+}
+
+// Résiliation depuis le site : fin de l'abonnement à la fin de la période payée, confirmation par e-mail
+async function resilierAbonnement(request, env, origin, ctx) {
+  const a = await abonnementDuCode(request, env, origin);
+  if (a.err) return a.err;
+  if (a.testeur) return erreur(400, "Ce code de test n'est lié à aucun abonnement payant.", origin);
+  const r = a.row;
+  if (!env.STRIPE_KEY || !r.abonnement) return erreur(503, "La résiliation en ligne n'est pas disponible pour l'instant. Écrivez à contact@jaltio.fr.", origin);
+  if (r.actif !== 1) return reponse({ deja: true, fin: r.fin || null, actif: false }, 200, origin);
+  if (r.fin) return reponse({ deja: true, fin: r.fin, actif: true }, 200, origin);
+  const s = await stripe(env, "POST", "/v1/subscriptions/" + encodeURIComponent(r.abonnement), { cancel_at_period_end: "true" });
+  if (!s.ok) return erreur(502, "Stripe n'a pas pu enregistrer la résiliation. Réessayez dans une minute ou écrivez à contact@jaltio.fr.", origin);
+  const fin = finPeriode(s.d) || maintenant();
+  await env.DB.prepare("UPDATE abonnes SET fin = ?1 WHERE code = ?2").bind(fin, r.code).run();
+  const envoi = (async () => {
+    const email = await emailClient(env, idStripe(s.d.customer) || r.client);
+    if (email) await envoyerMail(env, { type: "resiliation", email, date: dateFr(fin) });
+  })();
+  if (ctx && ctx.waitUntil) ctx.waitUntil(envoi); else await envoi;
+  return reponse({ ok: true, fin, actif: true }, 200, origin);
 }
 const emailSession = s => (s && ((s.customer_details && s.customer_details.email) || s.customer_email)) || "";
 
@@ -367,7 +460,12 @@ async function webhookStripe(request, env) {
   } else if (ev.type === "customer.subscription.updated" || ev.type === "customer.subscription.deleted") {
     // past_due : Stripe retente le prélèvement, on laisse l'accès pendant les relances
     const actif = ev.type === "customer.subscription.updated" && ["active", "trialing", "past_due"].includes(o.status) ? 1 : 0;
-    if (typeof o.id === "string") await env.DB.prepare("UPDATE abonnes SET actif = ?1 WHERE abonnement = ?2").bind(actif, o.id).run();
+    // fin = date de fin d'accès : prévue (résiliation en fin de période), réelle (abonnement terminé), ou vide (abonnement en cours)
+    let fin = null;
+    if (!actif) fin = (o.ended_at || o.canceled_at || Math.floor(Date.now() / 1000)) * 1000;
+    else if (o.cancel_at_period_end) fin = finPeriode(o) || (o.cancel_at ? o.cancel_at * 1000 : null);
+    else if (o.cancel_at) fin = o.cancel_at * 1000;
+    if (typeof o.id === "string") await env.DB.prepare("UPDATE abonnes SET actif = ?1, fin = ?2, averti = CASE WHEN ?1 = 1 THEN 0 ELSE averti END WHERE abonnement = ?3").bind(actif, fin, o.id).run();
   }
   return json({ received: true }, 200);
 }
@@ -384,6 +482,8 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(origin) });
     try {
       if (chemin === "/stripe/code") return await codeApresPaiement(request, env, origin, ctx);
+      if (chemin === "/stripe/statut") return await statutAbonnement(request, env, origin);
+      if (chemin === "/stripe/resilier") return await resilierAbonnement(request, env, origin, ctx);
       if (chemin.startsWith("/sync/")) return await synchro(request, env, origin, chemin);
       return await relais(request, env, origin);
     } catch (e) {
@@ -391,10 +491,35 @@ export default {
     }
   },
 
-  // Nettoyage hebdomadaire : données sans aucune connexion depuis CONSERVATION_JOURS, compteurs périmés
+  // Chaque nuit : avertissement 7 jours avant, puis suppression des comptes 6 mois après la fin de l'abonnement ;
+  // comptes sans abonnement (testeurs) sans connexion depuis CONSERVATION_JOURS ; compteurs périmés
   async scheduled(event, env) {
     if (!env.DB) return;
-    await env.DB.prepare("DELETE FROM sync WHERE accessed < ?1").bind(Date.now() - CONSERVATION_JOURS * 864e5).run();
+    const t = Date.now(), apres = APRES_FIN_JOURS * 864e5, preavis = PREAVIS_JOURS * 864e5;
+    // 1. Avertissement : abonnement terminé, suppression dans 7 jours au plus, pas encore averti
+    const aAvertir = await env.DB.prepare(
+      "SELECT code, client, fin FROM abonnes WHERE actif = 0 AND fin IS NOT NULL AND averti = 0 AND fin + ?1 - ?2 <= ?3 LIMIT 50"
+    ).bind(apres, preavis, t).all();
+    for (const r of (aAvertir.results || [])) {
+      const h = await sha256hex("code|" + r.code);
+      const compte = await env.DB.prepare("SELECT id FROM sync WHERE code_h = ?1 LIMIT 1").bind(h).first();
+      let ok = true;
+      if (compte && env.STRIPE_KEY) {
+        const email = await emailClient(env, r.client);
+        ok = !email || await envoyerMail(env, { type: "avertissement", email, date: dateFr(Math.max(r.fin + apres, t + preavis)) });
+      }
+      if (ok) await env.DB.prepare("UPDATE abonnes SET averti = ?1 WHERE code = ?2").bind(t, r.code).run();
+    }
+    // 2. Suppression : 6 mois après la fin, et au moins 7 jours après l'avertissement
+    const aSupprimer = await env.DB.prepare(
+      "SELECT code FROM abonnes WHERE actif = 0 AND fin IS NOT NULL AND averti > 0 AND fin + ?1 <= ?2 AND averti + ?3 <= ?2 LIMIT 200"
+    ).bind(apres, t, preavis).all();
+    for (const r of (aSupprimer.results || [])) {
+      await env.DB.prepare("DELETE FROM sync WHERE code_h = ?1").bind(await sha256hex("code|" + r.code)).run();
+      await env.DB.prepare("UPDATE abonnes SET averti = -1 WHERE code = ?1").bind(r.code).run();   // -1 = données supprimées
+    }
+    // 3. Comptes non liés à un abonnement (codes testeurs) : 400 jours sans connexion
+    await env.DB.prepare("DELETE FROM sync WHERE code_h IS NULL AND accessed < ?1").bind(t - CONSERVATION_JOURS * 864e5).run();
     await env.DB.prepare("DELETE FROM rate WHERE exp < ?1").bind(Math.floor(Date.now() / 1000)).run();
     try { await env.DB.prepare("DELETE FROM conso WHERE mois < ?1").bind(new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 7)).run(); } catch (e) {}
   },
