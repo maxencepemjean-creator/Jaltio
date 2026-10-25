@@ -3,7 +3,7 @@
 Usage : python3 outils/menu.py   (à relancer après avoir modifié le menu ci-dessous)"""
 import re, pathlib
 RACINE = pathlib.Path(__file__).resolve().parent.parent
-LOGO = '<svg width="36" height="36" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M19 38l11 11 23-26" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="22" r="4.5" fill="none" stroke="#F2A93B" stroke-width="3.5"/></svg>'
+LOGO = '<svg width="36" height="36" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg>'
 MENU = [("/", "Accueil"), ("/forfaits/", "Tarifs"), ("/faq/", "FAQ"), ("/contact/", "Contact")]
 INSCRIPTION, CONNEXION = "/inscription/?offre=essentiel", "/app/"
 # page -> lien actif du menu (None : aucun) ; "simple" = en-tête allégé (tunnel d'inscription)
