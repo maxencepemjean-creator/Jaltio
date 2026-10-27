@@ -32,7 +32,14 @@ button,input{font:inherit}
 .tag{display:inline-block;background:var(--accent-soft);color:#7A4A05;font-weight:600;font-size:13px;border-radius:999px;padding:5px 12px;margin-bottom:14px}
 h1{font-family:var(--display);font-weight:700;font-size:32px;line-height:1.12;letter-spacing:-.02em;margin:0 0 12px;color:var(--brand)}
 .lead{color:var(--muted);font-size:17px;margin:0 0 22px}
-.points{list-style:none;padding:0;margin:0 0 26px;display:grid;gap:10px}
+.points{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:10px}
+.preuve{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 8px}
+.preuve figure{margin:0;position:relative;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 8px 24px rgba(58,35,64,.10);aspect-ratio:900/1000}
+.preuve img{display:block;width:100%;height:auto}
+.preuve figcaption{position:absolute;left:8px;bottom:8px;font-size:12.5px;font-weight:700;color:#fff;border-radius:999px;padding:4px 10px}
+.preuve .av{background:var(--danger)}
+.preuve .ap{background:var(--ok)}
+.preuve-note{font-size:12.5px;color:var(--muted);margin:0 0 22px;text-align:center}
 .points li{display:flex;gap:10px;align-items:flex-start}
 .points svg{flex:none;margin-top:2px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(58,35,64,.05),0 16px 44px rgba(58,35,64,.09)}
@@ -69,34 +76,24 @@ footer a{color:inherit}
     <span class="name">Jaltio</span>
   </div>
 
-  <span class="tag">Accès anticipé le 31 octobre</span>
-  <h1>Un CV adapté à chaque offre, en quelques minutes.</h1>
-  <p class="lead">Vous collez le lien d'une offre d'emploi, Jaltio réécrit votre CV et votre lettre de motivation pour ce poste précis.</p>
+  <span class="tag">Ouverture le 31 octobre</span>
+  <h1>Votre parcours mérite qu'on le lise.</h1>
+  <p class="lead">Collez le lien d'une offre : Jaltio range votre CV et l'adapte au poste, lettre de motivation comprise.</p>
 
-  <ul class="points">
-    <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>CV lisible par les logiciels de recrutement</span></li>
-    <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Lettre de motivation écrite pour l'entreprise visée</span></li>
-    <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Suivi de toutes vos candidatures au même endroit</span></li>
-  </ul>
+  <div class="preuve">
+    <figure><img src="/assets/cv-avant.webp" width="900" height="1273" alt="CV d'origine : un bloc de texte sans mise en forme"><figcaption class="av">Avant</figcaption></figure>
+    <figure><img src="/assets/cv-apres.webp" width="900" height="1273" alt="Le même parcours mis en forme par Jaltio pour une offre d'aide-soignante"><figcaption class="ap">Après Jaltio</figcaption></figure>
+  </div>
+  <p class="preuve-note">Même parcours, rendu réel de Jaltio. Personne fictive.</p>
 
   <section class="card" aria-live="polite">
     <form id="f" novalidate>
       <h2>Recevoir le lien le 31 octobre</h2>
-      <p class="sub">Laissez vos coordonnées, on vous écrit le jour de l'ouverture.</p>
-      <div class="duo">
-        <div>
-          <label for="prenom">Prénom</label>
-          <input type="text" id="prenom" name="prenom" autocomplete="given-name" maxlength="60" required>
-        </div>
-        <div>
-          <label for="nom">Nom</label>
-          <input type="text" id="nom" name="nom" autocomplete="family-name" maxlength="60" required>
-        </div>
-      </div>
+      <p class="sub">Juste votre e-mail. On vous écrit le jour de l'ouverture.</p>
       <label for="email">Adresse e-mail</label>
       <input type="email" id="email" name="email" autocomplete="email" inputmode="email" maxlength="120" required>
       <div class="piege" aria-hidden="true"><label for="site">Ne pas remplir</label><input type="text" id="site" name="site" tabindex="-1" autocomplete="off"></div>
-      <button class="btn" id="go" type="submit">M'inscrire</button>
+      <button class="btn" id="go" type="submit">Je veux le lien</button>
       <p class="msg" id="msg" role="alert"></p>
       <p class="rgpd">Vos informations servent uniquement à vous envoyer le lien d'accès et des nouvelles de Jaltio. Elles ne sont ni vendues ni partagées. Pour les modifier ou les supprimer, écrivez à <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a>. Détails : <a href="/confidentialite.html">politique de confidentialité</a>.</p>
     </form>
@@ -109,7 +106,11 @@ footer a{color:inherit}
     </div>
   </section>
 
-  <p class="prix">Pendant l'accès anticipé : <b>1<sup>er</sup> mois à 6,49 €</b> pour tout abonnement pris avant le 24 novembre, puis 13,99 €/mois, sans engagement.</p>
+  <ul class="points">
+    <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>CV d'une page, lisible par les logiciels de recrutement</span></li>
+    <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Lettre de motivation écrite pour l'entreprise visée</span></li>
+    <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>À partir de votre vrai parcours, rien d'inventé</span></li>
+  </ul>
 </main>
 <footer>Jaltio · <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a></footer>
 
@@ -138,21 +139,11 @@ footer a{color:inherit}
   f.addEventListener("submit", function(ev){
     ev.preventDefault();
     msg.className = "msg"; msg.textContent = "";
-    var champs = { prenom: f.prenom, nom: f.nom, email: f.email }, manque = null;
-    Object.keys(champs).forEach(function(k){
-      var el = champs[k], v = el.value.trim();
-      var bon = k === "email" ? /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) : v.length > 0;
-      el.setAttribute("aria-invalid", bon ? "false" : "true");
-      if (!bon && !manque) manque = el;
-    });
-    if (manque){
-      erreur(manque === f.email ? "Cette adresse e-mail ne semble pas valide." : "Merci de remplir votre prénom et votre nom.");
-      manque.focus(); return;
-    }
+    var bon = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.value.trim());
+    f.email.setAttribute("aria-invalid", bon ? "false" : "true");
+    if (!bon){ erreur("Cette adresse e-mail ne semble pas valide."); f.email.focus(); return; }
 
     var corps = new URLSearchParams();
-    corps.set("prenom", f.prenom.value.trim());
-    corps.set("nom", f.nom.value.trim());
     corps.set("email", f.email.value.trim());
     corps.set("site", f.site.value);
     corps.set("source", source());
@@ -162,17 +153,16 @@ footer a{color:inherit}
       .then(function(r){ return r.json().catch(function(){ return { ok: r.ok }; }); })
       .then(function(d){
         if (!d || !d.ok) throw new Error(d && d.erreur === "champs" ? "champs" : "serveur");
-        document.getElementById("merci-titre").textContent = "C'est noté, " + f.prenom.value.trim() + " !";
         document.getElementById("merci-mail").textContent = f.email.value.trim();
         f.style.display = "none";
         document.getElementById("merci").style.display = "block";
       })
       .catch(function(e){
         erreur(e && e.message === "champs"
-          ? "Vérifiez votre prénom, votre nom et votre adresse e-mail."
+          ? "Vérifiez votre adresse e-mail."
           : "L'inscription n'a pas pu être envoyée. Vérifiez votre connexion et réessayez, ou écrivez à contact@jaltio.fr.");
       })
-      .then(function(){ go.disabled = false; go.textContent = "M'inscrire"; });
+      .then(function(){ go.disabled = false; go.textContent = "Je veux le lien"; });
   });
 })();
 </script>
