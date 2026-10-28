@@ -76,7 +76,7 @@ footer a{color:inherit}
     <span class="name">Jaltio</span>
   </div>
 
-  <span class="tag">Ouverture le 31 octobre</span>
+  <span class="tag" id="tag-date">Ouverture le 31 octobre</span>
   <h1>Votre parcours mérite qu'on le lise.</h1>
   <p class="lead">Collez le lien d'une offre : Jaltio range votre CV et l'adapte au poste, lettre de motivation comprise.</p>
 
@@ -88,7 +88,7 @@ footer a{color:inherit}
 
   <section class="card" aria-live="polite">
     <form id="f" novalidate>
-      <h2>Recevoir le lien le 31 octobre</h2>
+      <h2 id="f-titre">Recevoir le lien le 31 octobre</h2>
       <p class="sub">Juste votre e-mail. On vous écrit le jour de l'ouverture.</p>
       <label for="email">Adresse e-mail</label>
       <input type="email" id="email" name="email" autocomplete="email" inputmode="email" maxlength="120" required>
@@ -101,7 +101,7 @@ footer a{color:inherit}
     <div class="merci" id="merci">
       <div class="rond"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
       <h2 id="merci-titre">C'est noté !</h2>
-      <p>Vous recevrez le lien d'accès le <b>31 octobre</b> à l'adresse <b id="merci-mail"></b>.</p>
+      <p>Vous recevrez le lien d'accès <b id="merci-quand">le 31 octobre</b> à l'adresse <b id="merci-mail"></b>.</p>
       <p>Pensez à vérifier vos spams ce jour-là.</p>
     </div>
   </section>
@@ -118,6 +118,19 @@ footer a{color:inherit}
 (function(){
   var URL_INSCRIPTION = "https://n8n.srv1136752.hstgr.cloud/webhook/jaltio-attente";
   var f = document.getElementById("f"), go = document.getElementById("go"), msg = document.getElementById("msg");
+
+  /* Après l'ouverture (31/10/2026 9 h, Paris) : si le paiement réel est branché, la liste d'attente n'a plus lieu d'être,
+     on envoie vers les tarifs ; sinon on garde le formulaire, sans date dépassée. */
+  if (Date.now() >= Date.parse("2026-10-31T09:00:00+01:00")) {
+    var setTxt = function(id, v){ var e = document.getElementById(id); if (e) e.textContent = v; };
+    setTxt("tag-date", "Ouverture imminente");
+    setTxt("f-titre", "Recevoir le lien d'accès");
+    setTxt("merci-quand", "dès l'ouverture");
+    fetch("/inscription/", { cache: "no-cache" }).then(function(r){ return r.text(); }).then(function(h){
+      var m = h.match(/LIEN_PAIEMENT\s*=\s*"([^"]+)"/);
+      if (m && m[1].indexOf("/test_") === -1 && /^https:\/\/buy\.stripe\.com\//.test(m[1])) location.replace("/forfaits/" + location.search);
+    }).catch(function(){});
+  }
 
   function source(){
     try{

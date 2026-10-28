@@ -23,7 +23,7 @@
 <main>
 <article class="wrap narrow doc" id="doc">
 <h1>Politique de confidentialité</h1>
-<p class="version">Version du 25 octobre 2026</p>
+<p class="version">Version du 28 octobre 2026</p>
 <div class="doc-actions"><a href="/legal/jaltio-confidentialite.pdf" download>Télécharger en PDF</a><a href="/cgv.html">Conditions générales</a><a href="/mentions-legales.html">Mentions légales</a></div>
 
 <p>Cette page explique quelles données Jaltio traite, pourquoi, combien de temps et avec quels prestataires, conformément au Règlement général sur la protection des données (RGPD) et à la loi Informatique et Libertés.</p>
@@ -44,7 +44,7 @@
 <tr><td>Vos documents enregistrés : parcours, CV, lettres, candidatures, photo éventuelle</td><td><b>Vous seul.</b> Ils sont chiffrés dans votre navigateur (AES-GCM) avec une clé tirée de votre mot de passe, avant tout envoi. Ils sont aussi gardés dans votre navigateur.</td></tr>
 <tr><td>Votre mot de passe</td><td><b>Personne.</b> Il ne quitte jamais votre navigateur.</td></tr>
 <tr><td>Votre e-mail sur nos serveurs</td><td>Nous ne le stockons pas en clair : votre compte est identifié par une empreinte de l'e-mail (SHA-256). Cette empreinte reste une donnée personnelle.</td></tr>
-<tr><td><b>Ce que vous envoyez pour une génération</b> : CV, offre, demandes au coach</td><td><b>Transmis en clair</b> à notre relais technique (Cloudflare), puis à Anthropic, le temps du traitement. Notre relais n'enregistre pas ce contenu <span class="todo">[À CONFIRMER : après désactivation des journaux Cloudflare Workers Logs]</span>.</td></tr>
+<tr><td><b>Ce que vous envoyez pour une génération</b> : CV, offre, demandes au coach</td><td><b>Transmis en clair</b> à notre relais technique (Cloudflare), puis à Anthropic, le temps du traitement. Notre relais n'enregistre pas ce contenu.</td></tr>
 <tr><td>Votre e-mail et vos données de paiement</td><td>Stripe (paiement). Nous voyons votre nom et votre e-mail dans notre espace Stripe, jamais vos numéros de carte.</td></tr>
 </table></div>
 <p>Conséquence : si vous oubliez votre mot de passe, nous ne pouvons pas récupérer vos documents enregistrés.</p>
@@ -61,8 +61,8 @@
 <tr><td>E-mails liés à l'abonnement (code de validation et documents contractuels, confirmation de résiliation, avertissement avant suppression)</td><td>E-mail, code de validation, dates</td><td>Exécution du contrat</td><td>L'e-mail est lu chez Stripe au moment de l'envoi, sans être stocké dans notre base ; copie dans la messagerie contact@jaltio.fr</td></tr>
 <tr><td>Limites mensuelles et suivi des coûts</td><td>Nombre de générations, volume traité, recherches, liés à l'empreinte du code</td><td>Intérêt légitime (faire respecter les limites, maîtriser les coûts)</td><td>24 mois</td></tr>
 <tr><td>Questions et réclamations</td><td>E-mail, contenu de vos messages</td><td>Intérêt légitime (vous répondre)</td><td>3 ans après le dernier échange</td></tr>
-<tr><td>Liste d'attente et nouvelles de Jaltio</td><td>Prénom, nom, e-mail, provenance (réseau social), date d'inscription</td><td>Consentement (inscription sur jaltio.fr/attente)</td><td>Jusqu'à votre désinscription, ou 3 ans sans interaction</td></tr>
-<tr><td>Sécurité du site</td><td>Adresse IP, données techniques de connexion</td><td>Intérêt légitime (sécurité)</td><td>Selon les politiques de GitHub et de Cloudflare <span class="todo">[À VÉRIFIER]</span></td></tr>
+<tr><td>Liste d'attente et nouvelles de Jaltio</td><td>E-mail, prénom et nom s'ils sont indiqués, provenance (réseau social), date d'inscription</td><td>Consentement (inscription sur jaltio.fr/attente)</td><td>Jusqu'à votre désinscription, ou 3 ans sans interaction</td></tr>
+<tr><td>Sécurité du site</td><td>Adresse IP, données techniques de connexion</td><td>Intérêt légitime (sécurité)</td><td>Selon les politiques de GitHub et de Cloudflare</td></tr>
 </table></div>
 
 <h2>L'intelligence artificielle et le transfert hors de l'Union européenne</h2>
@@ -70,7 +70,7 @@
 <ul>
 <li><b>Encadrement du transfert</b> : Anthropic agit comme notre sous-traitant. Son accord de traitement des données, intégré à ses conditions commerciales, inclut les clauses contractuelles types de la Commission européenne.</li>
 <li><b>Pas d'entraînement</b> : Anthropic indique ne pas utiliser les données envoyées par son API pour entraîner ses modèles.</li>
-<li><b>Conservation chez Anthropic</b> : <span class="todo">[À VÉRIFIER : durée de conservation des requêtes API]</span>.</li>
+<li><b>Conservation chez Anthropic</b> : Anthropic indique supprimer les requêtes et réponses de son API dans les 30 jours, sauf si la loi impose de les garder ou s'il doit les conserver plus longtemps pour faire respecter sa politique d'utilisation.</li>
 <li><b>Pas de décision automatisée</b> : l'IA rédige des propositions que vous relisez et modifiez. Elle ne prend aucune décision vous concernant.</li>
 </ul>
 <p>Si vous ne souhaitez pas que votre CV soit traité aux États-Unis, n'utilisez pas les fonctions de génération.</p>
@@ -80,11 +80,11 @@
 <div class="table-wrap"><table>
 <tr><th>Prestataire</th><th>Rôle</th><th>Pays</th><th>Garantie pour un transfert hors UE</th></tr>
 <tr><td>Anthropic, PBC</td><td>IA (Claude) : rédaction, coach, lecture d'offre</td><td>États-Unis</td><td>Clauses contractuelles types (accord de traitement)</td></tr>
-<tr><td>Cloudflare, Inc.</td><td>Relais vers l'IA, base d'abonnements et de comptes chiffrés, diffusion technique du site</td><td>États-Unis et réseau mondial</td><td><span class="todo">[À VÉRIFIER : Data Privacy Framework et/ou clauses contractuelles types]</span></td></tr>
-<tr><td>GitHub, Inc. (GitHub Pages)</td><td>Hébergement des pages du site</td><td>États-Unis</td><td><span class="todo">[À VÉRIFIER]</span></td></tr>
-<tr><td>Stripe Payments Europe, Ltd</td><td>Paiement, factures</td><td>Irlande (UE), avec transferts possibles</td><td><span class="todo">[À VÉRIFIER]</span></td></tr>
-<tr><td>Hostinger</td><td>Nom de domaine, messagerie contact@jaltio.fr, serveur d'envoi des e-mails et d'automatisation</td><td>Union européenne <span class="todo">[À VÉRIFIER]</span></td><td>Sans objet si UE</td></tr>
-<tr><td>Google (Google Sheets)</td><td>Tableau de la liste d'attente</td><td>Irlande (UE), avec transferts possibles</td><td><span class="todo">[À VÉRIFIER]</span></td></tr>
+<tr><td>Cloudflare, Inc.</td><td>Relais vers l'IA, base d'abonnements et de comptes chiffrés, diffusion technique du site</td><td>États-Unis et réseau mondial</td><td>Clauses contractuelles types de la Commission européenne, prévues par l'accord de traitement des données du prestataire</td></tr>
+<tr><td>GitHub, Inc. (GitHub Pages)</td><td>Hébergement des pages du site</td><td>États-Unis</td><td>Clauses contractuelles types de la Commission européenne, prévues par l'accord de traitement des données du prestataire</td></tr>
+<tr><td>Stripe Payments Europe, Ltd</td><td>Paiement, factures</td><td>Irlande (UE), avec transferts possibles</td><td>Clauses contractuelles types de la Commission européenne, prévues par l'accord de traitement des données du prestataire</td></tr>
+<tr><td>Hostinger International Ltd</td><td>Nom de domaine, messagerie contact@jaltio.fr, serveur d'envoi des e-mails et d'automatisation</td><td>Chypre (UE) <span class="todo">[À VÉRIFIER : pays du serveur d'automatisation]</span></td><td>Sans objet si UE</td></tr>
+<tr><td>Google (Google Sheets)</td><td>Tableau de la liste d'attente</td><td>Irlande (UE), avec transferts possibles</td><td>Clauses contractuelles types de la Commission européenne, prévues par l'accord de traitement des données du prestataire</td></tr>
 </table></div>
 
 <h2>Stockage dans votre navigateur et cookies</h2>
