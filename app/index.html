@@ -1014,7 +1014,7 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
   <div class="gate-box" role="dialog" aria-modal="true" aria-labelledby="gate-title">
     <svg class="logo" width="52" height="52" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg>
     <h1 id="gate-title">Bienvenue sur <span data-brand>Jaltio</span></h1>
-    <p class="hint" style="margin-top:0">Connectez-vous avec votre e-mail et votre mot de passe. Première visite ? Choisissez-les maintenant : votre compte est créé en quelques secondes.</p>
+    <p class="hint" style="margin-top:0">Connectez-vous avec l'e-mail et le mot de passe choisis à votre inscription. Pas encore de compte ? Il se crée juste après l'abonnement.</p>
     <div id="gate-otp" hidden>
       <p class="hint" id="otp-txt" style="margin-top:0"></p>
       <label for="otp-in">Code de validation (6 chiffres)</label>
@@ -1024,7 +1024,7 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
     </div>
     <div id="gate-slot"></div>
     <p class="hint gate-plans"><a href="/?accueil">Découvrir Jaltio</a> · Pas encore abonné ? <a href="/forfaits/">Voir les forfaits</a> · <a href="/cgv.html">CGV</a> · <a href="/confidentialite.html">Confidentialité</a></p>
-    <p class="hint gate-forgot">Mot de passe oublié : vos données sont chiffrées avec lui, personne ne peut le réinitialiser. Créez un nouveau compte avec une autre adresse e-mail.</p>
+    <p class="hint gate-forgot">Mot de passe oublié : vos données sont chiffrées avec lui, personne ne peut le réinitialiser. Pour repartir de zéro, rouvrez le lien de votre e-mail de bienvenue Jaltio, puis créez un compte avec une autre adresse e-mail.</p>
   </div>
 </div>
 <div class="app">
@@ -1042,9 +1042,10 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
 
   <div class="step" id="step-key" hidden>
     <h2><span class="num">!</span> Première utilisation</h2>
-    <p class="hint" style="margin-top:0">Saisissez le code d'accès fourni par Maxence. Il reste enregistré sur cet appareil uniquement.</p>
+    <p class="hint" style="margin-top:0">Aucun abonnement actif n'est enregistré sur cet appareil. Si vous venez de payer, ouvrez le lien reçu par e-mail après le paiement. Sinon, choisissez un forfait sur la page Tarifs.</p>
+    <p class="hint"><a href="/forfaits/">Voir les forfaits</a></p>
     <label for="key-first">Code d'accès</label>
-    <input type="text" id="key-first" placeholder="ex. prenom-ab12" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <input type="text" id="key-first" placeholder="ex. jal-ab12-cd34" autocomplete="off" autocapitalize="off" spellcheck="false">
     <div class="row" style="margin-top:8px"><button class="btn primary" id="btn-key-first">Enregistrer</button></div>
     <div class="status" id="status-key-first"></div>
   </div>
@@ -1251,7 +1252,7 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
 
     <details class="sync-rgpd">
       <summary>Vos données et vos droits</summary>
-      <p><b>Ce qui est enregistré en ligne :</b> un bloc de données chiffré sur votre appareil avec votre mot de passe (parcours, CV, lettres, suivi, objectifs), un identifiant haché dérivé de votre e-mail, et des dates techniques. <span data-brand>Jaltio</span> ne reçoit jamais votre e-mail, votre mot de passe ni le contenu lisible de vos documents.</p>
+      <p><b>Ce qui est enregistré en ligne :</b> un bloc de données chiffré sur votre appareil avec votre mot de passe (parcours, CV, lettres, suivi, objectifs), un identifiant haché dérivé de votre e-mail, et des dates techniques. Le serveur de synchronisation ne reçoit jamais votre e-mail, votre mot de passe ni le contenu lisible de vos documents.</p>
       <p><b>Hébergement :</b> Cloudflare. <b>Durée :</b> tant que votre compte existe ; 6 mois après la fin de votre abonnement, le bloc est supprimé automatiquement, après un e-mail d'avertissement 7 jours avant.</p>
       <p><b>Vos droits :</b> supprimer vos données en ligne à tout moment avec le bouton ci-dessus ; récupérer une copie avec « Exporter mes données » ci-dessous. Pour toute question : contact@jaltio.fr (responsable du service : Maxence Pemjean).</p>
     </details>
@@ -2143,12 +2144,12 @@ async function callClaude(body, key){
   let data = null; try{ data = await res.json(); }catch(e){}
   if(!res.ok){
     const m = (data && data.error && data.error.message) || "";
-    if(res.status === 401){ settings.apiKey = ""; saveSettings(); renderSettings(); throw new Error(_t("Code d'accès refusé. Saisissez-le à nouveau dans l'encadré « Première utilisation », ou demandez-en un nouveau à Maxence.")); }
-    if(res.status === 403) throw new Error(_t("Cette clé n'a pas l'autorisation. Prévenez Maxence."));
+    if(res.status === 401){ settings.apiKey = ""; saveSettings(); renderSettings(); throw new Error(_t("Aucun abonnement actif n'est lié à ce compte. Pour continuer à créer des documents, choisissez un forfait sur la page Tarifs. Si c'est une erreur, écrivez à contact@jaltio.fr.")); }
+    if(res.status === 403) throw new Error(_t("Accès refusé par le service. Écrivez à contact@jaltio.fr."));
     if(res.status === 402) throw new Error(m || _t("Limite mensuelle atteinte. Le compteur repart à zéro le 1er du mois prochain."));
     if(res.status === 429) throw new Error(_t("Trop de demandes d'un coup. Patientez une minute et réessayez."));
     if(res.status === 529 || res.status >= 500) throw new Error(_t("Le service Claude est surchargé. Réessayez dans quelques minutes."));
-    if(/credit|balance|billing/i.test(m)) throw new Error(_t("Le crédit est épuisé. Prévenez Maxence pour qu'il recharge le compte."));
+    if(/credit|balance|billing/i.test(m)) throw new Error(_t("Le service de rédaction est momentanément indisponible. Réessayez dans quelques minutes ; si cela continue, écrivez à contact@jaltio.fr."));
     throw new Error(_t("Erreur ") + res.status + (m ? " : " + m : ""));
   }
   return data;
@@ -5010,6 +5011,12 @@ async function syncStart(){
     const id = await syncAccountId(mail);
     const meta = await syncCall("meta", { id });
     if(!meta.exists){
+      // Pas de compte et pas de code d'abonné sur cet appareil : le compte se crée après l'abonnement (lien du mail de bienvenue)
+      if(!settings.apiKey && !$("#sync-code").value.trim()){
+        $("#sync-new").hidden = true;
+        status("#sync-msg", "err", _t("Aucun compte n'existe avec cette adresse. Vérifiez-la. Pour créer un compte, abonnez-vous d'abord depuis la page Tarifs ; si vous venez de vous abonner, ouvrez le lien reçu par e-mail après le paiement."));
+        return;
+      }
       if($("#sync-new").hidden){
         $("#sync-new").hidden = false; $("#sync-code-box").hidden = !!settings.apiKey; $("#sync-pw2").focus();
         status("#sync-msg", "info", _t("Nouveau compte : retapez le mot de passe et cochez la case pour le créer."));

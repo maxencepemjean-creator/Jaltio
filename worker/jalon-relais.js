@@ -1,4 +1,4 @@
-// Relais Jaltio (Cloudflare Worker)
+// Relais Jaltio (Cloudflare Worker) — version du 29/10/2026 (décompte des générations : seulement si un CV est produit)
 //
 // 1) Relais Claude : garde la clé Anthropic côté serveur ; le navigateur n'envoie qu'un code d'accès
 //    (code testeur du secret CODES, ou code d'abonné créé automatiquement après un paiement Stripe).
@@ -227,6 +227,18 @@ async function synchro(request, env, origin, chemin) {
 }
 
 /* ---------- Relais Claude ---------- */
+// true si la réponse finale contient un CV (objet JSON avec « cv ») : texte après le dernier résultat d'outil
+function produitUnCV(rep) {
+  const blocs = Array.isArray(rep && rep.content) ? rep.content : [];
+  let dernier = -1;
+  blocs.forEach((b, i) => { if (b && /_tool_result$/.test(String(b.type || ""))) dernier = i; });
+  const t = blocs.slice(dernier + 1).filter(b => b && b.type === "text").map(b => String(b.text || "")).join("");
+  const a = t.indexOf("{"), z = t.lastIndexOf("}");
+  if (a < 0 || z <= a) return false;
+  try { const o = JSON.parse(t.slice(a, z + 1)); return !!(o && o.offre_lue !== false && o.cv && typeof o.cv === "object"); }
+  catch (e) { return false; }
+}
+
 async function relais(request, env, origin) {
   if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
 
@@ -262,7 +274,8 @@ async function relais(request, env, origin) {
   }
 
   // Quota mensuel de l'offre
-  const generation = body.max_tokens > SEUIL_GENERATION, mois = moisCourant(), quota = QUOTAS[acces.offre];
+  let generation = body.max_tokens > SEUIL_GENERATION;
+  const mois = moisCourant(), quota = QUOTAS[acces.offre];
   if (env.DB && quota) {
     const u = await env.DB.prepare("SELECT generations, autres FROM conso WHERE code_h = ?1 AND mois = ?2").bind(h, mois).first();
     if (generation && u && u.generations >= quota.generations)
@@ -285,7 +298,11 @@ async function relais(request, env, origin) {
   // Consommation réelle (jetons, recherches web) par code et par mois : sert au quota et au calcul du coût
   if (env.DB && res.ok) {
     try {
-      const u = (JSON.parse(texte) || {}).usage || {};
+      const rep = JSON.parse(texte) || {};
+      const u = rep.usage || {};
+      // Une génération n'est décomptée que si un CV a réellement été produit : une pause de l'outil web (pause_turn,
+      // la suite est décomptée) ou une annonce illisible depuis son lien (« offre_lue » : false) passent en « autres ».
+      if (generation && (rep.stop_reason === "pause_turn" || !produitUnCV(rep))) generation = false;
       const entree = (u.input_tokens || 0) + (u.cache_creation_input_tokens || 0) + (u.cache_read_input_tokens || 0);
       const recherches = (u.server_tool_use && u.server_tool_use.web_search_requests) || 0;
       await env.DB.prepare(
