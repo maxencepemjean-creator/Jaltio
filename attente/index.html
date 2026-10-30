@@ -120,7 +120,7 @@ footer a{color:inherit}
   var f = document.getElementById("f"), go = document.getElementById("go"), msg = document.getElementById("msg");
 
   /* Après l'ouverture (31/10/2026 9 h, Paris) : si le paiement réel est branché, la liste d'attente n'a plus lieu d'être,
-     on envoie vers les tarifs ; sinon on garde le formulaire, sans date dépassée. */
+     on envoie vers l'accueil ; sinon on garde le formulaire, sans date dépassée. */
   if (Date.now() >= Date.parse("2026-10-31T09:00:00+01:00")) {
     var setTxt = function(id, v){ var e = document.getElementById(id); if (e) e.textContent = v; };
     setTxt("tag-date", "Ouverture imminente");
@@ -128,7 +128,7 @@ footer a{color:inherit}
     setTxt("merci-quand", "dès l'ouverture");
     fetch("/inscription/", { cache: "no-cache" }).then(function(r){ return r.text(); }).then(function(h){
       var m = h.match(/LIEN_PAIEMENT\s*=\s*"([^"]+)"/);
-      if (m && m[1].indexOf("/test_") === -1 && /^https:\/\/buy\.stripe\.com\//.test(m[1])) location.replace("/forfaits/" + location.search);
+      if (m && m[1].indexOf("/test_") === -1 && /^https:\/\/buy\.stripe\.com\//.test(m[1])) location.replace("/" + location.search);
     }).catch(function(){});
   }
 
