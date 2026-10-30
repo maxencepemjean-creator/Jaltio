@@ -14,8 +14,10 @@
 <link rel="stylesheet" href="/pages.css">
 <script src="/anim.js"></script>
 <style>
-.tarif{max-width:620px;margin:6px auto 0;text-align:left}
-.tarif h1{font-size:40px;margin:12px 0 12px}
+.tete{max-width:760px;margin:6px 0 26px}
+.tete h1{font-size:42px;margin:12px 0 12px}
+.tete .lead{margin:0}
+.tarif{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;align-items:stretch}
 .offre{background:#fff;border:2px solid var(--brand);border-radius:22px;padding:26px 24px 22px;box-shadow:var(--float);position:relative}
 .offre .nom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 16px}
 .offre .nom h2{margin:0;font-size:22px}
@@ -32,18 +34,21 @@
 .inclus svg{flex:none;margin-top:3px}
 .offre .btn{font-size:17px;padding:15px}
 .sous-btn{text-align:center;font-size:13.5px;color:var(--muted);margin:10px 0 0}
-.rassure{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:48px 0 0}
-.rassure div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}
-.rassure h3{margin:0 0 4px;font-size:16px;color:var(--brand)}
-.rassure p{margin:0;font-size:14.5px;color:var(--muted)}
-.faq{max-width:760px;margin:44px auto 0}
-.faq h2{text-align:center;margin:0 0 14px}
+.rassure{display:grid;grid-template-rows:repeat(3,1fr);gap:14px}
+.rassure div{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px 22px;display:flex;flex-direction:column;justify-content:center}
+.rassure h3{margin:0 0 6px;font-size:17px;color:var(--brand)}
+.rassure p{margin:0;font-size:15px;color:var(--muted)}
+.faq{max-width:none;margin:48px 0 0;display:grid;grid-template-columns:1fr 1fr;column-gap:14px;align-items:start}
+.faq h2{grid-column:1/-1;text-align:left;margin:0 0 14px}
 .bientot{text-align:center;font-size:14px;color:var(--muted);margin:30px 0 0}
 .legal-line{font-size:13px;color:var(--muted);margin:22px auto 0;text-align:center;max-width:760px}
 .already{text-align:center;margin:18px 0 0;font-size:15px}
 @media (max-width:860px){
-  .tarif h1{font-size:32px}
-  .rassure{grid-template-columns:1fr;max-width:520px;margin-left:auto;margin-right:auto}
+  .tete h1{font-size:32px}
+  .tarif{grid-template-columns:1fr;max-width:560px;margin:0 auto}
+  .tete{max-width:560px;margin-left:auto;margin-right:auto}
+  .rassure{grid-template-rows:none}
+  .faq{grid-template-columns:1fr;max-width:560px;margin-left:auto;margin-right:auto}
 }
 @media (max-width:400px){.prix .gros{font-size:46px}.offre{padding:22px 18px 20px}}
 </style>
@@ -58,12 +63,12 @@
 </header>
 <main>
 <div class="wrap">
-  <div class="tarif">
-    <div>
+  <div class="tete">
       <span class="tag">Accès anticipé jusqu'au 23 novembre 2026</span>
       <h1>Un CV taillé pour chaque offre. Un seul abonnement.</h1>
       <p class="lead">Collez le lien d'une offre : Jaltio réécrit votre CV et votre lettre à partir de votre vrai parcours, puis vous aide à suivre vos candidatures.</p>
-
+  </div>
+  <div class="tarif">
       <section class="offre" aria-labelledby="p-ess">
         <div class="nom"><h2 id="p-ess">Jaltio Essentiel</h2><span class="badge">Ouvert</span></div>
         <p class="prix"><span class="gros">6,49 €</span><span class="quand">le 1<sup>er</sup> mois</span></p>
@@ -78,14 +83,12 @@
         <a class="btn" href="/inscription/?offre=essentiel">Commencer à 6,49 €</a>
         <p class="sous-btn">Résiliable à tout moment depuis le site.</p>
       </section>
-    </div>
-
-  </div>
 
   <div class="rassure">
     <div><h3>Sans engagement</h3><p>Vous résiliez depuis votre espace, sans appel ni courrier. Le mois commencé reste dû.</p></div>
     <div><h3>Votre parcours, pas un autre</h3><p>Jaltio part de votre CV. Il reformule et met en avant, il n'ajoute pas d'expérience que vous n'avez pas.</p></div>
     <div><h3>Vos données protégées</h3><p>Documents chiffrés, supprimés six mois après la fin de l'abonnement, ou tout de suite si vous le demandez.</p></div>
+  </div>
   </div>
 
   <section class="faq" aria-labelledby="faq-t">
