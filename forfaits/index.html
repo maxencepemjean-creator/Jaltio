@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="/pages.css">
 <script src="/anim.js"></script>
 <style>
-.tarif{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:40px;align-items:center;margin-top:6px}
+.tarif{max-width:620px;margin:6px auto 0;text-align:left}
 .tarif h1{font-size:40px;margin:12px 0 12px}
 .offre{background:#fff;border:2px solid var(--brand);border-radius:22px;padding:26px 24px 22px;box-shadow:var(--float);position:relative}
 .offre .nom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 16px}
@@ -32,14 +32,6 @@
 .inclus svg{flex:none;margin-top:3px}
 .offre .btn{font-size:17px;padding:15px}
 .sous-btn{text-align:center;font-size:13.5px;color:var(--muted);margin:10px 0 0}
-.preuve{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.preuve figure{margin:0;position:relative;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(58,35,64,.12);aspect-ratio:900/1060}
-.preuve figure:last-child{transform:translateY(18px)}
-.preuve img{display:block;width:100%;height:auto}
-.preuve figcaption{position:absolute;left:8px;bottom:8px;font-size:12.5px;font-weight:700;color:#fff;border-radius:999px;padding:4px 10px}
-.preuve .av{background:var(--danger)}
-.preuve .ap{background:var(--ok)}
-.preuve-note{font-size:12.5px;color:var(--muted);margin:30px 0 0;text-align:center}
 .rassure{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:48px 0 0}
 .rassure div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}
 .rassure h3{margin:0 0 4px;font-size:16px;color:var(--brand)}
@@ -50,7 +42,6 @@
 .legal-line{font-size:13px;color:var(--muted);margin:22px auto 0;text-align:center;max-width:760px}
 .already{text-align:center;margin:18px 0 0;font-size:15px}
 @media (max-width:860px){
-  .tarif{grid-template-columns:1fr;gap:28px;max-width:520px;margin-left:auto;margin-right:auto}
   .tarif h1{font-size:32px}
   .rassure{grid-template-columns:1fr;max-width:520px;margin-left:auto;margin-right:auto}
 }
@@ -89,13 +80,6 @@
       </section>
     </div>
 
-    <div class="rv" style="--d:120ms">
-      <div class="preuve">
-        <figure><img src="/assets/cv-avant.webp" width="900" height="1273" alt="CV d'origine : un bloc de texte sans mise en forme"><figcaption class="av">Avant</figcaption></figure>
-        <figure><img src="/assets/cv-apres.webp" width="900" height="1273" alt="Le même parcours mis en forme par Jaltio pour une offre d'aide-soignante"><figcaption class="ap">Après Jaltio</figcaption></figure>
-      </div>
-      <p class="preuve-note">Même parcours, rendu réel de Jaltio. Personne fictive.</p>
-    </div>
   </div>
 
   <div class="rassure">
