@@ -1014,7 +1014,7 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
   <div class="gate-box" role="dialog" aria-modal="true" aria-labelledby="gate-title">
     <svg class="logo" width="52" height="52" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg>
     <h1 id="gate-title">Bienvenue sur <span data-brand>Jaltio</span></h1>
-    <p class="hint" style="margin-top:0">Connectez-vous avec l'e-mail et le mot de passe choisis à votre inscription. Pas encore de compte ? Il se crée juste après l'abonnement.</p>
+    <p class="hint" style="margin-top:0">Connectez-vous avec l'e-mail et le mot de passe choisis à votre inscription. Pas encore de compte ? Créez-en un gratuitement (offre Free) ou abonnez-vous depuis la page Tarifs.</p>
     <div id="gate-otp" hidden>
       <p class="hint" id="otp-txt" style="margin-top:0"></p>
       <label for="otp-in">Code de validation (6 chiffres)</label>
@@ -1136,7 +1136,7 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
     <p class="or">ou</p>
     <label for="offre">Texte de l'annonce</label>
     <textarea id="offre" rows="5" placeholder="Copiez tout le texte de l'annonce (intitulé, missions, profil recherché…) et collez-le ici."></textarea>
-    <label class="check"><input type="checkbox" id="opt-lettre" checked> Rédiger aussi la lettre de motivation</label>
+    <label class="check"><input type="checkbox" id="opt-lettre" checked> <span id="opt-lettre-txt">Rédiger aussi la lettre de motivation</span></label>
     <div class="doc-lang-row"><label for="doc-lang">Langue du CV et de la lettre</label>
     <select id="doc-lang" data-noi18n><option value="fr">Français</option><option value="en">English</option><option value="es">Español</option><option value="ru">Русский</option></select></div>
     <button class="btn primary big gen-btn" id="btn-generate">Créer mon CV adapté</button>
@@ -2301,7 +2301,7 @@ $("#btn-generate").addEventListener("click", async () => {
   const parcours = $("#profile-parcours").value.trim();
   const url = $("#offre-url").value.trim();
   const offre = $("#offre").value.trim();
-  const wantLettre = $("#opt-lettre").checked;
+  const wantLettre = $("#opt-lettre").checked && !isFree();
   if(!settings.apiKey){ status("#status-gen", "err", _t("Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation ».")); $("#step-key").hidden = false; return; }
   if(parcours.length < 80){ status("#status-gen", "err", _t("Votre parcours est trop court. Déposez votre ancien CV ou décrivez vos expériences.")); $("#profile-parcours").focus(); return; }
   if(url && !URL_RE.test(url)){ status("#status-gen", "err", _t("Le lien de l'annonce doit commencer par https://")); $("#offre-url").focus(); return; }
@@ -2324,6 +2324,7 @@ $("#btn-generate").addEventListener("click", async () => {
     storeResult(p, out);
     setMStep("cv"); if(isM()) window.scrollTo({ top:0, behavior:"smooth" });
     maybeShowHelp();
+    if(isFree()) aboStatut();
     $("#remarques").value = "";
     status("#status-gen", "ok", _t("C'est prêt ! Relisez le CV à droite. Corrigez directement dans le document, ou expliquez ce qui ne va pas ci-dessous."));
   }catch(e){
@@ -2359,10 +2360,12 @@ function restoreLettreFrame(oldHtml){
 $("#btn-regen").addEventListener("click", async () => {
   const rq = $("#remarques").value.trim();
   if(rq.length < 4){ status("#status-gen", "err", _t("Expliquez ce que vous voulez changer.")); $("#remarques").focus(); return; }
+  if(cible() !== "cv" && freeBlock()) return;
   stopDictation();
   if(await doRegen(cible(), rq)) $("#remarques").value = "";
 });
 async function doRegen(target, rq){
+  if(target !== "cv" && freeBlock()) return false;
   const h = history.find(x => x.id === currentHistId);
   if(!h){ status("#status-gen", "err", _t("Générez d'abord un CV.")); return false; }
   validateEdits(true); // les retouches à la main deviennent la base de travail, et Claude les mémorise
@@ -3473,6 +3476,7 @@ function chatContext(){
 let chatBusy = false;
 async function sendChat(text){
   text = str(text); if(!text || chatBusy) return;
+  if(freeBlock()) return;
   if(!settings.apiKey){ $("#step-key").hidden = false; alert(_t("Enregistrez d'abord la clé d'accès (encadré « Première utilisation »).")); return; }
   const list = chatList(); list.push({ role:"user", text }); saveChat(); renderChat();
   stopDictation(); $("#chat-input").value = ""; growChat(); chatBusy = true; $("#chat-send").disabled = true;
@@ -3495,6 +3499,7 @@ async function sendChat(text){
 }
 
 function openChat(open){
+  if(open && freeBlock()) return;
   if(!open && document.body.classList.contains("chat-open")) ghostOut($("#chat"), "slide");
   document.body.classList.toggle("chat-open", open);
   if(typeof syncTabbar === "function") setTimeout(syncTabbar, 0);
@@ -3643,6 +3648,7 @@ function renderFiche(){
   box.appendChild(all);
 }
 async function draftMessage(inp, btn){
+  if(freeBlock()) return;
   const h = curHist();
   if(!settings.apiKey){ alert(_t("Enregistrez d'abord la clé d'accès.")); return; }
   if(!h){ alert(_t("Créez d'abord un CV et une lettre pour cette candidature.")); return; }
@@ -3757,6 +3763,7 @@ $("#ap-share").addEventListener("click", async () => {
 
 /* Contact de l'entreprise : uniquement ce que l'employeur publie pour recevoir des candidatures (annonce, page carrières officielle) */
 $("#ap-find").addEventListener("click", async () => {
+  if(freeBlock()) return;
   const h = curHist(), box = $("#ap-contact"), b = $("#ap-find");
   if(!settings.apiKey){ box.hidden = false; box.textContent = _t("Enregistrez d'abord la clé d'accès."); return; }
   if(!h){ box.hidden = false; box.textContent = _t("Créez d'abord un CV et une lettre pour cette candidature."); return; }
@@ -4610,6 +4617,7 @@ const PREP_SYSTEM = "Tu es un coach emploi français, chaleureux et franc. Tu pr
   "Réponds UNIQUEMENT avec un objet JSON valide : {\"atouts\": [3 à 4 atouts réels du candidat pour CE poste], \"points_a_preparer\": [2 à 4 points faibles ou questions gênantes probables, avec comment y répondre honnêtement], " +
   "\"questions\": [{\"question\": \"question probable du recruteur\", \"conseil\": \"comment y répondre en 1 à 2 phrases, avec un exemple tiré du CV\"} — 6 à 8 questions], \"a_demander\": [2 à 3 questions pertinentes à poser au recruteur]}.";
 async function prepareInterview(G, latest, b, st){
+  if(freeBlock()) return;
   if(!settings.apiKey){ st.className = "status err"; st.textContent = _t("Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation »."); return; }
   b.disabled = true; st.className = "status info"; st.textContent = BRAND.name + _t(" prépare votre entretien, comptez 20 à 40 secondes.");
   try{
@@ -5085,6 +5093,25 @@ async function syncStart(){
 /* ----- Mon abonnement : état et résiliation sur le site (CGV, article 9) ----- */
 const dateLongue = ms => new Date(ms).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
 const aboCode = () => (settings.apiKey && !/^sk-ant-/.test(settings.apiKey)) ? settings.apiKey.trim() : "";
+/* Offre Free : 10 CV au total, sans lettre, coach ni aide à la candidature (le relais l'impose aussi) */
+const isFree = () => store.get("offre", "") === "free";
+function freeUi(){
+  const f = isFree(), o = $("#opt-lettre");
+  if(f){ o.checked = false; o.disabled = true; $("#opt-lettre-txt").textContent = _t("Lettre de motivation : incluse dans Jaltio Essentiel"); }
+  else if(o.disabled){ o.disabled = false; o.checked = true; $("#opt-lettre-txt").textContent = _t("Rédiger aussi la lettre de motivation"); }
+  // Corrections : en Free, seul le CV (les choix « La lettre » et « Les deux » sont masqués)
+  document.querySelectorAll('input[name="cible"]').forEach(r => { if(r.value !== "cv") r.closest("label").style.display = f ? "none" : ""; if(f) r.checked = r.value === "cv"; });
+  if(!f && !document.querySelector('input[name="cible"]:checked')){ const b = document.querySelector('input[name="cible"][value="both"]'); if(b) b.checked = true; }
+  $("#btn-regen").textContent = regenLabel();
+}
+function freeBlock(){
+  if(!isFree()) return false;
+  openSyncDlg({ title:_t("Inclus dans Jaltio Essentiel"),
+    text:_t("La lettre de motivation, le coach et l'aide à la candidature ne font pas partie de l'offre Free. Jaltio Essentiel les inclut, avec 50 CV par mois."),
+    buttons:[{ label:_t("Voir l'offre Essentiel"), fn: () => { location.href = "/forfaits/"; } },
+             { label:_t("Plus tard"), cls:"alt", cancel:true, fn: () => {} }] });
+  return true;
+}
 async function aboCall(route){
   const res = await fetch(RELAIS.replace(/\/+$/, "") + "/stripe/" + route, { method:"POST", headers:{ "content-type":"application/json", "x-jalon-code":aboCode() }, body:"{}" });
   let d = null; try{ d = await res.json(); }catch(e){}
@@ -5100,6 +5127,8 @@ async function aboStatut(){
   if(!aboCode()){ aboRender(_t("Aucun abonnement n'est enregistré sur cet appareil. Connectez-vous avec votre compte, ou choisissez un forfait."), false, true); return; }
   try{
     const d = await aboCall("statut");
+    store.set("offre", str(d.offre)); freeUi();
+    if(d.offre === "free"){ aboRender(_t("Jaltio Free : ") + (d.cv_utilises || 0) + _t(" CV utilisés sur ") + (d.cv_total || 10) + _t(" (corrections comprises). Lettre de motivation, coach et préparation d'entretien : inclus dans Jaltio Essentiel."), false, true, true); return; }
     if(d.offre === "offert") aboRender(_t("Accès offert : Jaltio sans limite mensuelle, aucun prélèvement."), d.actif && !d.resiliation_prevue, false, true);
     else if(d.offre === "testeur") aboRender(_t("Accès testeur : aucun abonnement payant n'est lié à ce compte."), false, false);
     else if(d.actif && d.resiliation_prevue) aboRender(_t("Résiliation enregistrée. Votre accès Jaltio Essentiel continue jusqu'au ") + dateLongue(d.fin) + _t(", sans nouveau prélèvement."), false, false);
@@ -5334,7 +5363,7 @@ setTimeout(async () => {
 }, 1500);
 const firstVisit = !store.get("tourSeen", false) && !history.length && !profiles.some(p => str(p.parcours).length >= 80);
 
-purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); setSyncUi(); scalePreview(); syncLangUi();
+purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); setSyncUi(); scalePreview(); syncLangUi(); freeUi();
 applyMobile();
 setView(str((prof() || {}).parcours).length < 80 ? "profile" : store.get("view", "create"));
 showGate();
@@ -5344,10 +5373,11 @@ if(new URLSearchParams(location.search).has("resilier")){
   setTimeout(() => { try{ $("#step-abo").scrollIntoView({ behavior:"smooth", block:"start" }); }catch(e){} }, 400);
   if(!$("#gate").hidden) status("#sync-msg", "info", _t("Connectez-vous pour gérer ou résilier votre abonnement."));
 }
-/* Retour de paiement Stripe (jaltio.fr/?paye=cs_…) : code à 6 chiffres reçu par mail, puis création du compte */
+/* Retour de paiement Stripe (jaltio.fr/?paye=cs_…) ou inscription Free (?paye=fr_…) : code à 6 chiffres reçu par mail, puis création du compte */
 (async () => {
   const sess = new URLSearchParams(location.search).get("paye") || "";
-  if(!/^cs_(test|live)_[A-Za-z0-9]{10,200}$/.test(sess)) return;
+  const free = /^fr_[A-Za-z0-9]{24}$/.test(sess);
+  if(!free && !/^cs_(test|live)_[A-Za-z0-9]{10,200}$/.test(sess)) return;
   const base = RELAIS.replace(/\/+$/, "");
   const post = async (chemin, corps) => {
     const res = await fetch(base + chemin, { method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify(corps) });
@@ -5362,7 +5392,7 @@ if(new URLSearchParams(location.search).has("resilier")){
   $("#gate-title").textContent = _t("Confirmez votre adresse e-mail");
   [".gate-box > .hint", ".gate-plans", ".gate-forgot"].forEach(q => document.querySelectorAll(q).forEach(n => { n.style.display = "none"; }));
   $("#gate-slot").hidden = true; $("#gate-otp").hidden = false;
-  $("#otp-txt").textContent = _t("Paiement reçu, merci ! Vérification en cours…");
+  $("#otp-txt").textContent = free ? _t("Vérification…") : _t("Paiement reçu, merci ! Vérification en cours…");
   let email = "";
   for(let i = 0; i < 8; i++){
     try{
@@ -5373,15 +5403,23 @@ if(new URLSearchParams(location.search).has("resilier")){
     await new Promise(r => setTimeout(r, 4000));
   }
   $("#otp-txt").textContent = _t("Nous venons d'envoyer un code à 6 chiffres à ") + (email || _t("votre adresse e-mail")) + _t(", avec vos conditions générales et la politique de confidentialité. Saisissez-le ici. Pensez à regarder dans les courriers indésirables.");
+  if(free) $("#otp-txt").textContent += " " + _t("L'offre Free comprend 10 CV au total, sans paiement.");
   setTimeout(() => { try{ $("#otp-in").focus(); }catch(e){} }, 60);
   const fini = code => {
-    settings.apiKey = code; saveSettings(); renderSettings(); aboStatut();
+    // Un compte déjà abonné ne repasse jamais sur l'offre Free
+    if(free && aboCode() && ["essentiel", "offert", "testeur"].includes(store.get("offre", ""))){
+      try{ window.history.replaceState(null, "", location.pathname); }catch(e){}
+      $("#gate-otp").hidden = true; $("#gate").hidden = true; document.body.classList.remove("gate-open");
+      status("#sync-msg", "info", _t("Ce compte a déjà un abonnement Jaltio : l'offre Free n'a pas été activée."));
+      return;
+    }
+    settings.apiKey = code; saveSettings(); renderSettings(); store.set("offre", free ? "free" : ""); freeUi(); aboStatut();
     try{ window.history.replaceState(null, "", location.pathname); }catch(e){}
     $("#gate-otp").hidden = true;
     if(dejaConnecte){
       syncDirty();
       $("#gate").hidden = true; document.body.classList.remove("gate-open");
-      status("#sync-msg", "ok", _t("Abonnement activé sur votre compte."));
+      status("#sync-msg", "ok", free ? _t("Offre Free activée sur votre compte.") : _t("Abonnement activé sur votre compte."));
       return;
     }
     $("#gate-title").textContent = _t("Créez votre compte");

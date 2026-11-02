@@ -1,4 +1,4 @@
-// Relais Jaltio (Cloudflare Worker) — version du 29/10/2026 (décompte des générations : seulement si un CV est produit)
+// Relais Jaltio (Cloudflare Worker) — version du 02/11/2026 (offre Free : inscription sans paiement, 10 CV à vie)
 //
 // 1) Relais Claude : garde la clé Anthropic côté serveur ; le navigateur n'envoie qu'un code d'accès
 //    (code testeur du secret CODES, ou code d'abonné créé automatiquement après un paiement Stripe).
@@ -23,6 +23,8 @@
 //            Lien de paiement : redirection après paiement vers https://jaltio.fr/?paye={CHECKOUT_SESSION_ID}
 //   Déclencheur planifié (Settings > Triggers > Cron) : « 0 3 * * * » (chaque nuit : avertissements et suppressions à 6 mois)
 //   Base D1 : exécuter une fois worker/migration-2026-10-25.sql (colonnes fin, averti, accepte, code_h)
+//   Base D1 : exécuter une fois worker/migration-2026-11-02.sql (table gratuits : offre Free)
+//   (facultatif) MAILS_FREE_WEBHOOK = adresse du workflow n8n des e-mails Free ; par défaut MAILS_FREE_DEFAUT ci-dessous
 
 const ORIGINES = ["https://maxencepemjean-creator.github.io", "https://jaltio.fr", "https://www.jaltio.fr"];
 const MODELES = ["claude-sonnet-5-5"];
@@ -33,6 +35,8 @@ const CONSERVATION_JOURS = 400;        // comptes sans abonnement (codes testeur
 const APRES_FIN_JOURS = 183;           // comptes d'abonnés : supprimés 6 mois après la fin de l'abonnement
 const PREAVIS_JOURS = 7;               // e-mail d'avertissement envoyé 7 jours avant la suppression
 const MAILS_DEFAUT = "https://n8n.srv1136752.hstgr.cloud/webhook/jaltio-mails";
+const MAILS_FREE_DEFAUT = "https://n8n.srv1136752.hstgr.cloud/webhook/jaltio-mails-free";
+const FREE_INACTIF_JOURS = 365;        // comptes Free : données en ligne supprimées après 12 mois sans connexion
 const LIMITES = {                      // [nombre max, fenêtre en secondes]
   ip:       [90, 60],                  // toutes routes /sync, par adresse (hachée)
   compte:   [30, 60],                  // toutes routes /sync, par identifiant
@@ -45,14 +49,21 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
   otp_ip:   [30, 3600],                // essais de code de validation, par adresse (hachée)
   otp:      [8, 3600],                 // essais de code de validation, par paiement
   renvoi:   [3, 3600],                 // renvois du mail de validation, par paiement
+  free_ip:  [5, 86400],                // inscriptions Free (nouvelles adresses), par adresse IP (hachée) et par jour
+  free_ip_h:[6, 3600],                 // demandes d'inscription Free (nouvelles ou déjà connues), par adresse IP et par heure
+  free_jour:[200, 86400],              // inscriptions Free nouvelles, tous visiteurs confondus, par jour (garde-fou de coût)
 };
 
 // Quotas mensuels par offre (mois calendaire). Les codes testeurs (secret CODES) n'ont pas de quota mensuel.
 // « generations » = création ou régénération d'un CV et d'une lettre (requêtes à plus de SEUIL_GENERATION jetons max) ;
 // « autres » = petits appels (lecture d'offre, coach, analyse du parcours…) : garde-fou de coût.
+// Offre Free : quota « à vie » (vie: true) — 10 CV au total, régénérations comprises ; pas de lettre, ni coach.
 const QUOTAS = {
   essentiel: { generations: 50, autres: 300 },
+  free:      { generations: 10, autres: 30, vie: true },
 };
+// Ajouté au prompt système des appels Free : jamais de lettre de motivation (fonction réservée aux abonnés)
+const CONSIGNE_FREE = "\n\nOFFRE GRATUITE : ne rédige JAMAIS de lettre de motivation, quelle que soit la demande. Mets toujours \"lettre\": null.";
 const SEUIL_GENERATION = 8000;
 const OFFRE_PAR_DEFAUT = "essentiel";  // offre attribuée à un paiement (une seule offre en vente pour l'instant)
 // Accès offert (proches, testeurs) : abonnement Stripe pris avec un code promo du coupon COUPON_OFFERT (100 %, à vie).
@@ -277,11 +288,25 @@ async function relais(request, env, origin) {
   let generation = body.max_tokens > SEUIL_GENERATION;
   const mois = moisCourant(), quota = QUOTAS[acces.offre];
   if (env.DB && quota) {
-    const u = await env.DB.prepare("SELECT generations, autres FROM conso WHERE code_h = ?1 AND mois = ?2").bind(h, mois).first();
-    if (generation && u && u.generations >= quota.generations)
-      return erreur(402, "Vous avez utilisé vos " + quota.generations + " générations de CV de ce mois. Le compteur repart à zéro le 1er du mois prochain.", origin, { quota: true });
-    if (!generation && u && u.autres >= quota.autres)
-      return erreur(402, "Limite mensuelle d'utilisation atteinte. Le compteur repart à zéro le 1er du mois prochain.", origin, { quota: true });
+    const u = quota.vie
+      ? await env.DB.prepare("SELECT COALESCE(SUM(generations), 0) AS generations, COALESCE(SUM(autres), 0) AS autres FROM conso WHERE code_h = ?1").bind(h).first()
+      : await env.DB.prepare("SELECT generations, autres FROM conso WHERE code_h = ?1 AND mois = ?2").bind(h, mois).first();
+    if (quota.vie) {
+      if (generation && u && u.generations >= quota.generations)
+        return erreur(402, "Vous avez utilisé vos " + quota.generations + " CV de l'offre Free. Passez à Jaltio Essentiel pour continuer : jaltio.fr/forfaits/", origin, { quota: true, free: true });
+      if (!generation && u && u.autres >= quota.autres)
+        return erreur(402, "Limite de l'offre Free atteinte. Passez à Jaltio Essentiel pour continuer : jaltio.fr/forfaits/", origin, { quota: true, free: true });
+    } else {
+      if (generation && u && u.generations >= quota.generations)
+        return erreur(402, "Vous avez utilisé vos " + quota.generations + " générations de CV de ce mois. Le compteur repart à zéro le 1er du mois prochain.", origin, { quota: true });
+      if (!generation && u && u.autres >= quota.autres)
+        return erreur(402, "Limite mensuelle d'utilisation atteinte. Le compteur repart à zéro le 1er du mois prochain.", origin, { quota: true });
+    }
+  }
+  if (acces.offre === "free") {      // pas de lettre de motivation en Free, ni de prompt système libre
+    if (typeof body.system === "string") body.system += CONSIGNE_FREE;
+    else if (Array.isArray(body.system)) body.system = body.system.concat([{ type: "text", text: CONSIGNE_FREE.trim() }]);
+    else body.system = CONSIGNE_FREE.trim();
   }
 
   const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -356,10 +381,10 @@ async function enregistrerSession(env, s) {
 // Envoie un e-mail client via le workflow n8n « [JLT] 05 » : bienvenue (code + CGV et politique en PDF),
 // resiliation (date d'effet), avertissement (suppression dans 7 jours). Renvoie true si l'envoi a réussi.
 const dateFr = ms => new Date(ms).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" });
-async function envoyerMail(env, donnees) {
+async function envoyerMail(env, donnees, url) {
   if (!env.MAIL_SECRET || !donnees || !donnees.email) return false;
   try {
-    const r = await fetch(env.MAILS_WEBHOOK || MAILS_DEFAUT, {
+    const r = await fetch(url || env.MAILS_WEBHOOK || MAILS_DEFAUT, {
       method: "POST",
       headers: { "content-type": "application/json", "x-jaltio-secret": env.MAIL_SECRET },
       body: JSON.stringify(donnees),
@@ -368,6 +393,7 @@ async function envoyerMail(env, donnees) {
     return r.ok;
   } catch (e) { return false; }
 }
+const envoyerMailFree = (env, donnees) => envoyerMail(env, donnees, env.MAILS_FREE_WEBHOOK || MAILS_FREE_DEFAUT);
 
 // Code de validation à 6 chiffres envoyé par mail après le paiement : calculé à partir de la session (rien à stocker).
 // Le code d'accès « jal-… » reste interne : il n'est remis à l'appli qu'après saisie de ce code.
@@ -375,8 +401,9 @@ async function codeValidation(env, session) {
   const h = await hmacHex(String(env.STRIPE_WEBHOOK_SECRET || env.MAIL_SECRET || "") + "|validation", "otp|" + session);
   return String(parseInt(h.slice(0, 12), 16) % 1000000).padStart(6, "0");
 }
-const mailBienvenue = async (env, session, email) =>
-  envoyerMail(env, { type: "bienvenue", email, code: await codeValidation(env, session), lien: "https://jaltio.fr/?paye=" + session });
+const mailBienvenue = async (env, session, email) => estFree(session)
+  ? envoyerMailFree(env, { type: "bienvenue_free", email, code: await codeValidation(env, session), lien: "https://jaltio.fr/?paye=" + session })
+  : envoyerMail(env, { type: "bienvenue", email, code: await codeValidation(env, session), lien: "https://jaltio.fr/?paye=" + session });
 
 // Envoie le mail de bienvenue (code de validation + CGV et politique) une seule fois par paiement. Renvoie false si l'envoi a échoué.
 async function envoyerCode(env, session, email) {
@@ -430,6 +457,10 @@ async function statutAbonnement(request, env, origin) {
   if (a.err) return a.err;
   if (a.testeur) return reponse({ offre: "testeur", actif: true }, 200, origin);
   const r = a.row;
+  if (r.offre === "free") {
+    const u = await env.DB.prepare("SELECT COALESCE(SUM(generations), 0) AS g FROM conso WHERE code_h = ?1").bind(await sha256hex("code|" + r.code)).first();
+    return reponse({ offre: "free", actif: r.actif === 1, cv_utilises: (u && u.g) || 0, cv_total: QUOTAS.free.generations }, 200, origin);
+  }
   return reponse({ offre: r.offre, actif: r.actif === 1, fin: r.fin || null, resiliation_prevue: r.actif === 1 && !!r.fin }, 200, origin);
 }
 
@@ -439,6 +470,7 @@ async function resilierAbonnement(request, env, origin, ctx) {
   if (a.err) return a.err;
   if (a.testeur) return erreur(400, "Ce code de test n'est lié à aucun abonnement payant.", origin);
   const r = a.row;
+  if (r.offre === "free") return erreur(400, "L'offre Free est gratuite : il n'y a aucun abonnement à résilier. Pour effacer vos données, utilisez « Supprimer mes données en ligne » dans Mon profil.", origin);
   if (!env.STRIPE_KEY || !r.abonnement) return erreur(503, "La résiliation en ligne n'est pas disponible pour l'instant. Écrivez à contact@jaltio.fr.", origin);
   if (r.actif !== 1) return reponse({ deja: true, fin: r.fin || null, actif: false }, 200, origin);
   if (r.fin) return reponse({ deja: true, fin: r.fin, actif: true }, 200, origin);
@@ -469,12 +501,19 @@ async function lireSession(env, session) {
 // de validation par mail et renvoie l'adresse masquée. Ne renvoie JAMAIS le code d'accès.
 async function codeApresPaiement(request, env, origin, ctx) {
   if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
-  if (!env.DB || !env.STRIPE_KEY) return erreur(503, "Le paiement n'est pas encore configuré côté serveur.", origin);
+  if (!env.DB) return erreur(503, "Le service n'est pas encore configuré côté serveur.", origin);
   const ip = await sha256hex("ip|" + (request.headers.get("CF-Connecting-IP") || "?"));
-  if (!(await sous_limite(env, "pay:" + ip, LIMITES.paiement))) return erreur(429, "Trop de demandes. Patientez une minute.", origin);
   let b; try { b = await request.json(); } catch (e) { return erreur(400, "Requête illisible.", origin); }
   const session = String((b && b.session) || "");
+  if (estFree(session)) {                     // inscription Free : pas de Stripe, le mail est déjà parti à l'inscription
+    if (!(await sous_limite(env, "pay:" + ip, LIMITES.paiement))) return erreur(429, "Trop de demandes. Patientez une minute.", origin);
+    const g = await env.DB.prepare("SELECT email FROM gratuits WHERE session = ?1").bind(session).first();
+    if (!g) return erreur(404, "Inscription introuvable. Recommencez depuis jaltio.fr/inscription/?offre=free", origin);
+    return reponse({ email: masquer(g.email || ""), free: true }, 200, origin);
+  }
   if (!/^cs_(test|live)_[A-Za-z0-9]{10,200}$/.test(session)) return erreur(400, "Référence de paiement invalide.", origin);
+  if (!env.STRIPE_KEY) return erreur(503, "Le paiement n'est pas encore configuré côté serveur.", origin);
+  if (!(await sous_limite(env, "pay:" + ip, LIMITES.paiement))) return erreur(429, "Trop de demandes. Patientez une minute.", origin);
 
   const l = await lireSession(env, session);
   if (l.statut === 404) return erreur(404, "Paiement introuvable.", origin);
@@ -489,27 +528,93 @@ async function codeApresPaiement(request, env, origin, ctx) {
 // Saisie du code de validation reçu par mail ({ session, otp }) → code d'accès ; ou renvoi du mail ({ session, renvoyer: true })
 async function validerPaiement(request, env, origin) {
   if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
-  if (!env.DB || !env.STRIPE_KEY) return erreur(503, "Le paiement n'est pas encore configuré côté serveur.", origin);
+  if (!env.DB) return erreur(503, "Le service n'est pas encore configuré côté serveur.", origin);
   const ip = await sha256hex("ip|" + (request.headers.get("CF-Connecting-IP") || "?"));
   if (!(await sous_limite(env, "otpip:" + ip, LIMITES.otp_ip))) return erreur(429, "Trop d'essais. Patientez une heure.", origin);
   let b; try { b = await request.json(); } catch (e) { return erreur(400, "Requête illisible.", origin); }
   const session = String((b && b.session) || "");
-  if (!/^cs_(test|live)_[A-Za-z0-9]{10,200}$/.test(session)) return erreur(400, "Référence de paiement invalide.", origin);
+  if (!estFree(session) && !/^cs_(test|live)_[A-Za-z0-9]{10,200}$/.test(session)) return erreur(400, "Référence de paiement invalide.", origin);
   const row = await env.DB.prepare("SELECT code FROM abonnes WHERE session = ?1").bind(session).first();
   if (!row) return erreur(409, "Le paiement n'est pas encore confirmé. Réessayez dans une minute.", origin, { attente: true });
 
   if (b.renvoyer === true) {
     if (!(await sous_limite(env, "renvoi:" + session, LIMITES.renvoi))) return erreur(429, "Le code a déjà été renvoyé plusieurs fois. Vérifiez vos courriers indésirables, ou réessayez dans une heure.", origin);
-    const l = await lireSession(env, session);
-    if (l.statut !== 200) return erreur(502, "Stripe ne répond pas. Réessayez dans une minute.", origin);
-    if (!(await mailBienvenue(env, session, emailSession(l.s)))) return erreur(502, "Envoi du mail impossible pour l'instant. Réessayez dans quelques minutes.", origin);
-    return reponse({ envoye: true, email: masquer(emailSession(l.s)) }, 200, origin);
+    let email = "";
+    if (estFree(session)) {
+      const g = await env.DB.prepare("SELECT email FROM gratuits WHERE session = ?1").bind(session).first();
+      email = (g && g.email) || "";
+    } else {
+      const l = await lireSession(env, session);
+      if (l.statut !== 200) return erreur(502, "Stripe ne répond pas. Réessayez dans une minute.", origin);
+      email = emailSession(l.s);
+    }
+    if (!email || !(await mailBienvenue(env, session, email))) return erreur(502, "Envoi du mail impossible pour l'instant. Réessayez dans quelques minutes.", origin);
+    return reponse({ envoye: true, email: masquer(email) }, 200, origin);
   }
 
   if (!(await sous_limite(env, "otp:" + session, LIMITES.otp))) return erreur(429, "Trop d'essais. Demandez un nouvel envoi dans une heure, ou écrivez à contact@jaltio.fr.", origin);
   const otp = String(b.otp || "").replace(/\D/g, "");
   if (otp.length !== 6 || !egal(otp, await codeValidation(env, session))) return erreur(401, "Code incorrect. Vérifiez les 6 chiffres reçus par mail.", origin);
   return reponse({ code: row.code }, 200, origin);
+}
+
+/* ---------- Offre Free : inscription sans paiement ---------- */
+// Session interne « fr_… » (24 caractères aléatoires) : sert au lien du mail et au code à 6 chiffres, comme une session Stripe.
+const estFree = s => /^fr_[A-Za-z0-9]{24}$/.test(String(s || ""));
+function nouvelleSessionFree() {
+  const alpha = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789", r = crypto.getRandomValues(new Uint8Array(24));
+  return "fr_" + [...r].map(x => alpha[x % alpha.length]).join("");
+}
+// Adresses jetables les plus courantes (liste courte, à compléter si des abus apparaissent)
+const JETABLES = new Set(("yopmail.com yopmail.fr yopmail.net cool.fr.nf jetable.fr.nf courriel.fr.nf moncourrier.fr.nf monemail.fr.nf monmail.fr.nf " +
+  "mailinator.com guerrillamail.com guerrillamail.net guerrillamail.org guerrillamailblock.com sharklasers.com grr.la spam4.me " +
+  "10minutemail.com 10minutemail.net 20minutemail.com temp-mail.org tempmail.com tempmail.net tempmailo.com tempr.email " +
+  "throwawaymail.com trashmail.com trashmail.net trashmail.de mailnesia.com maildrop.cc dispostable.com getnada.com nada.email " +
+  "mohmal.com emailondeck.com fakeinbox.com mintemail.com mytemp.email tmail.ws tmpmail.org tmpmail.net mail.tm " +
+  "jetable.org jetable.com spambox.us spamgourmet.com mailcatch.com burnermail.io emailfake.com fakemail.net " +
+  "inboxkitten.com mailpoof.com discard.email luxusmail.org minuteinbox.com moakt.com tempinbox.com 33mail.com").split(" "));
+// Adresse normalisée pour repérer les doublons : « prenom+jaltio@x » = « prenom@x » ; points ignorés chez Gmail
+function emailCanon(m) {
+  let [u, d] = m.split("@");
+  u = u.split("+")[0];
+  if (d === "gmail.com" || d === "googlemail.com") { d = "gmail.com"; u = u.replace(/\./g, ""); }
+  return u + "@" + d;
+}
+// { email, accepte } → crée le compte Free (une fois par adresse) et envoie le code à 6 chiffres ; renvoie { session, email masqué }.
+// Adresse déjà inscrite en Free : renvoie le même compte (nouvel appareil, mail perdu) avec un nouvel envoi du code.
+async function inscriptionFree(request, env, origin, ctx) {
+  if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
+  if (!env.DB) return erreur(503, "Le service n'est pas encore configuré côté serveur.", origin);
+  const ip = await sha256hex("ip|" + (request.headers.get("CF-Connecting-IP") || "?"));
+  if (!(await sous_limite(env, "frh:" + ip, LIMITES.free_ip_h))) return erreur(429, "Trop de demandes depuis votre connexion. Réessayez dans une heure.", origin);
+  let b; try { b = await request.json(); } catch (e) { return erreur(400, "Requête illisible.", origin); }
+  const email = String((b && b.email) || "").trim().toLowerCase();
+  if (email.length > 120 || !/^[a-z0-9._%+-]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/.test(email)) return erreur(400, "Cette adresse e-mail ne semble pas valide.", origin);
+  const domaine = email.split("@")[1];
+  if (JETABLES.has(domaine)) return erreur(400, "Les adresses e-mail temporaires ne sont pas acceptées. Utilisez votre adresse habituelle.", origin);
+  const accepte = /^[A-Za-z0-9_-]{1,200}$/.test(String((b && b.accepte) || "")) ? b.accepte : null;
+  if (!accepte) return erreur(400, "Acceptez les conditions générales et la politique de confidentialité pour continuer.", origin);
+  const emailH = await sha256hex("free|" + emailCanon(email));
+
+  let g = await env.DB.prepare("SELECT session FROM gratuits WHERE email_h = ?1").bind(emailH).first();
+  if (g) {                                       // déjà inscrit : renvoi du code (limité par compte)
+    if (!(await sous_limite(env, "renvoi:" + g.session, LIMITES.renvoi)))
+      return erreur(429, "Le code a déjà été envoyé plusieurs fois. Vérifiez vos courriers indésirables, ou réessayez dans une heure.", origin);
+    await env.DB.prepare("UPDATE gratuits SET email = ?1 WHERE email_h = ?2").bind(email, emailH).run();
+  } else {
+    if (!(await sous_limite(env, "fr:" + ip, LIMITES.free_ip))) return erreur(429, "Trop d'inscriptions depuis votre connexion aujourd'hui. Réessayez demain.", origin);
+    if (!(await sous_limite(env, "frjour", LIMITES.free_jour))) return erreur(503, "Les inscriptions gratuites sont complètes pour aujourd'hui. Réessayez demain, ou choisissez l'offre Essentiel.", origin);
+    const session = nouvelleSessionFree(), t = maintenant();
+    const r = await env.DB.prepare("INSERT INTO gratuits (email_h, session, email, cree) VALUES (?1, ?2, ?3, ?4) ON CONFLICT(email_h) DO NOTHING")
+      .bind(emailH, session, email, t).run();
+    if (r.meta && r.meta.changes === 1)
+      await env.DB.prepare("INSERT INTO abonnes (code, session, offre, actif, cree, envoye, accepte) VALUES (?1, ?2, 'free', 1, ?3, 1, ?4)")
+        .bind(nouveauCode(), session, t, accepte).run();
+    g = await env.DB.prepare("SELECT session FROM gratuits WHERE email_h = ?1").bind(emailH).first();
+  }
+  if (!g) return erreur(500, "Inscription impossible pour l'instant. Réessayez dans un instant.", origin);
+  if (!(await mailBienvenue(env, g.session, email))) return erreur(502, "Envoi du mail impossible pour l'instant. Réessayez dans quelques minutes.", origin);
+  return reponse({ session: g.session, email: masquer(email) }, 200, origin);
 }
 
 // Webhook Stripe (signature vérifiée) : enregistre les paiements et coupe les codes des abonnements terminés
@@ -560,6 +665,7 @@ export default {
     if (!ORIGINES.includes(origin)) return erreur(403, "Origine non autorisée.", "null");
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(origin) });
     try {
+      if (chemin === "/free/inscription") return await inscriptionFree(request, env, origin, ctx);
       if (chemin === "/stripe/code") return await codeApresPaiement(request, env, origin, ctx);
       if (chemin === "/stripe/valider") return await validerPaiement(request, env, origin);
       if (chemin === "/stripe/statut") return await statutAbonnement(request, env, origin);
@@ -598,9 +704,23 @@ export default {
       await env.DB.prepare("DELETE FROM sync WHERE code_h = ?1").bind(await sha256hex("code|" + r.code)).run();
       await env.DB.prepare("UPDATE abonnes SET averti = -1 WHERE code = ?1").bind(r.code).run();   // -1 = données supprimées
     }
+    // 3 bis. Offre Free : données en ligne supprimées après 12 mois sans connexion ; l'adresse e-mail est effacée
+    //        (seule son empreinte reste, pour qu'une même adresse ne récupère pas un nouveau quota gratuit)
+    try {
+      const vieux = await env.DB.prepare(
+        "SELECT a.code, g.email_h FROM abonnes a JOIN gratuits g ON g.session = a.session WHERE a.offre = 'free' AND g.email IS NOT NULL AND a.cree < ?1 LIMIT 200"
+      ).bind(t - FREE_INACTIF_JOURS * 864e5).all();
+      for (const r of (vieux.results || [])) {
+        const ch = await sha256hex("code|" + r.code);
+        const actif = await env.DB.prepare("SELECT 1 FROM sync WHERE code_h = ?1 AND accessed >= ?2 LIMIT 1").bind(ch, t - FREE_INACTIF_JOURS * 864e5).first();
+        if (actif) continue;
+        await env.DB.prepare("DELETE FROM sync WHERE code_h = ?1").bind(ch).run();
+        await env.DB.prepare("UPDATE gratuits SET email = NULL WHERE email_h = ?1").bind(r.email_h).run();
+      }
+    } catch (e) {}
     // 3. Comptes non liés à un abonnement (codes testeurs) : 400 jours sans connexion
     await env.DB.prepare("DELETE FROM sync WHERE code_h IS NULL AND accessed < ?1").bind(t - CONSERVATION_JOURS * 864e5).run();
     await env.DB.prepare("DELETE FROM rate WHERE exp < ?1").bind(Math.floor(Date.now() / 1000)).run();
-    try { await env.DB.prepare("DELETE FROM conso WHERE mois < ?1").bind(new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 7)).run(); } catch (e) {}
+    try { await env.DB.prepare("DELETE FROM conso WHERE mois < ?1 AND offre != 'free'").bind(new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 7)).run(); } catch (e) {}
   },
 };

@@ -25,10 +25,10 @@ CREATE TABLE IF NOT EXISTS rate (
 -- Abonnés payants : un code d'accès par paiement Stripe (créé automatiquement par le Worker)
 CREATE TABLE IF NOT EXISTS abonnes (
   code       TEXT PRIMARY KEY,      -- code d'accès donné à l'acheteur, ex. jal-7k2m-p9xq
-  session    TEXT UNIQUE NOT NULL,  -- session de paiement Stripe (cs_...)
+  session    TEXT UNIQUE NOT NULL,  -- session de paiement Stripe (cs_...) ou inscription Free (fr_...)
   client     TEXT,                  -- client Stripe (cus_...)
   abonnement TEXT,                  -- abonnement Stripe (sub_...)
-  offre      TEXT NOT NULL,         -- essentiel (pro plus tard)
+  offre      TEXT NOT NULL,         -- essentiel, offert, free (pro plus tard)
   actif      INTEGER NOT NULL,      -- 1 = abonnement en cours, 0 = terminé
   cree       INTEGER NOT NULL,      -- date de création (ms)
   envoye     INTEGER NOT NULL DEFAULT 0,  -- 1 = code envoyé par e-mail
@@ -52,3 +52,12 @@ CREATE TABLE IF NOT EXISTS conso (
   recherches  INTEGER NOT NULL,     -- recherches web facturées
   PRIMARY KEY (code_h, mois)
 );
+
+-- Offre Free : une inscription par adresse e-mail (créée par le Worker, route /free/inscription)
+CREATE TABLE IF NOT EXISTS gratuits (
+  email_h TEXT PRIMARY KEY,        -- SHA-256 de l'adresse normalisée (une seule offre Free par adresse)
+  session TEXT UNIQUE NOT NULL,    -- référence interne fr_… (lien du mail, code à 6 chiffres) ; le code d'accès est dans abonnes
+  email   TEXT,                    -- adresse pour l'envoi du code ; effacée après 12 mois sans connexion
+  cree    INTEGER NOT NULL         -- date d'inscription (ms)
+);
+-- Base créée avant le 02/11/2026 : exécuter une fois worker/migration-2026-11-02.sql

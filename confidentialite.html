@@ -16,14 +16,14 @@
 <header class="top">
   <a class="brand" href="/"><svg width="36" height="36" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg><span class="name">Jaltio</span></a>
   <nav class="mainnav" aria-label="Menu principal"><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav>
-  <div class="top-cta"><a class="top-link" href="/app/">Se connecter</a><a class="top-link solid" href="/inscription/?offre=essentiel">S'inscrire</a></div>
+  <div class="top-cta"><a class="top-link" href="/app/">Se connecter</a><a class="top-link solid" href="/forfaits/">S'inscrire</a></div>
   <details class="menu"><summary aria-label="Ouvrir le menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A2340" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
-    <div class="menu-pop"><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><hr><a href="/app/">Se connecter</a><a href="/inscription/?offre=essentiel">S'inscrire</a></div></details>
+    <div class="menu-pop"><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><hr><a href="/app/">Se connecter</a><a href="/forfaits/">S'inscrire</a></div></details>
 </header>
 <main>
 <article class="wrap narrow doc" id="doc">
 <h1>Politique de confidentialité</h1>
-<p class="version">Version du 30 octobre 2026</p>
+<p class="version">Version du 2 novembre 2026</p>
 <div class="doc-actions"><a href="/legal/jaltio-confidentialite.pdf" download>Télécharger en PDF</a><a href="/cgv.html">Conditions générales</a><a href="/mentions-legales.html">Mentions légales</a></div>
 
 <p>Cette page explique quelles données Jaltio traite, pourquoi, combien de temps et avec quels prestataires, conformément au Règlement général sur la protection des données (RGPD) et à la loi Informatique et Libertés.</p>
@@ -35,7 +35,7 @@
 <li>Vos documents enregistrés (CV, lettres, candidatures) sont chiffrés dans votre navigateur : nous ne pouvons pas les lire.</li>
 <li>Pour générer un document, son contenu est envoyé en clair à Claude, l'IA de la société américaine Anthropic, aux États-Unis.</li>
 <li>Nous ne vendons pas vos données et n'utilisons ni publicité ciblée ni outil de mesure d'audience.</li>
-<li>Vous pouvez supprimer vos données à tout moment depuis l'application. Sinon, elles sont supprimées 6 mois après la fin de votre abonnement.</li>
+<li>Vous pouvez supprimer vos données à tout moment depuis l'application. Sinon, elles sont supprimées 6 mois après la fin de votre abonnement (offre Free : après 12 mois sans connexion).</li>
 </ol>
 
 <h2>Ce que nous pouvons lire, et ce que nous ne pouvons pas lire</h2>
@@ -43,7 +43,7 @@
 <tr><th>Donnée</th><th>Qui peut la lire</th></tr>
 <tr><td>Vos documents enregistrés : parcours, CV, lettres, candidatures, photo éventuelle</td><td><b>Vous seul.</b> Ils sont chiffrés dans votre navigateur (AES-GCM) avec une clé tirée de votre mot de passe, avant tout envoi. Ils sont aussi gardés dans votre navigateur.</td></tr>
 <tr><td>Votre mot de passe</td><td><b>Personne.</b> Il ne quitte jamais votre navigateur.</td></tr>
-<tr><td>Votre e-mail sur nos serveurs</td><td>Nous ne le stockons pas en clair : votre compte est identifié par une empreinte de l'e-mail (SHA-256). Cette empreinte reste une donnée personnelle.</td></tr>
+<tr><td>Votre e-mail sur nos serveurs</td><td>Votre compte est identifié par une empreinte de l'e-mail (SHA-256), qui reste une donnée personnelle. Pour l'offre Free seulement, l'adresse est aussi gardée en clair pour vous envoyer le code de validation.</td></tr>
 <tr><td><b>Ce que vous envoyez pour une génération</b> : CV, offre, demandes au coach</td><td><b>Transmis en clair</b> à notre relais technique (Cloudflare), puis à Anthropic, le temps du traitement. Notre relais n'enregistre pas ce contenu.</td></tr>
 <tr><td>Votre e-mail et vos données de paiement</td><td>Stripe (paiement). Nous voyons votre nom et votre e-mail dans notre espace Stripe, jamais vos numéros de carte.</td></tr>
 </table></div>
@@ -52,14 +52,15 @@
 <h2>Quelles données, pourquoi, et pendant combien de temps</h2>
 <div class="table-wrap"><table>
 <tr><th>Traitement</th><th>Données</th><th>Base légale (RGPD)</th><th>Durée de conservation</th></tr>
-<tr><td>Votre compte et vos documents enregistrés</td><td>Empreinte de l'e-mail, documents chiffrés, lien technique avec votre abonnement</td><td>Exécution du contrat</td><td>Jusqu'à leur suppression par vous. Sinon, <b>6 mois après la fin de votre abonnement</b>, avec un e-mail d'avertissement 7 jours avant. Comptes de test sans abonnement : 400 jours sans connexion.</td></tr>
+<tr><td>Votre compte et vos documents enregistrés</td><td>Empreinte de l'e-mail, documents chiffrés, lien technique avec votre abonnement</td><td>Exécution du contrat</td><td>Jusqu'à leur suppression par vous. Sinon, <b>6 mois après la fin de votre abonnement</b>, avec un e-mail d'avertissement 7 jours avant. Offre Free : 12 mois sans connexion. Comptes de test sans abonnement : 400 jours sans connexion.</td></tr>
 <tr><td>Génération de CV et de lettres, coach</td><td>Contenu de votre CV, de l'offre et de vos demandes</td><td>Exécution du contrat</td><td>Le temps du traitement chez nous ; chez Anthropic, voir la section suivante</td></tr>
 <tr><td>Données de santé ou de handicap que vous choisissez de garder dans votre CV</td><td>Par exemple une reconnaissance de travailleur handicapé (RQTH)</td><td>Votre consentement explicite (art. 9.2.a), donné dans l'application</td><td>Comme votre compte. Retrait possible à tout moment en les supprimant de votre parcours</td></tr>
 <tr><td>Abonnement et accès</td><td>Code d'accès, identifiants Stripe (session, client, abonnement), offre, statut, date de fin, versions des conditions acceptées et date d'acceptation</td><td>Exécution du contrat ; preuve du contrat</td><td>Durée de l'abonnement, puis 5 ans pour la preuve en cas de litige</td></tr>
+<tr><td>Inscription à l'offre Free</td><td>Adresse e-mail (en clair, pour vous envoyer le code de validation et les e-mails liés au compte), empreinte de l'adresse, date d'inscription, versions des conditions acceptées</td><td>Exécution du contrat ; intérêt légitime pour l'empreinte (une seule offre Free par adresse, éviter les abus)</td><td>L'adresse est effacée après 12 mois sans connexion ou sur simple demande ; l'empreinte est conservée tant que l'offre Free existe</td></tr>
 <tr><td>Paiement</td><td>Nom, e-mail, données de carte (chez Stripe)</td><td>Exécution du contrat</td><td>Selon la politique de Stripe</td></tr>
 <tr><td>Factures et comptabilité</td><td>Nom, e-mail, montants, dates</td><td>Obligation légale</td><td>10 ans (article L123-22 du Code de commerce)</td></tr>
 <tr><td>E-mails liés à l'abonnement (code de validation et documents contractuels, confirmation de résiliation, avertissement avant suppression)</td><td>E-mail, code de validation, dates</td><td>Exécution du contrat</td><td>L'e-mail est lu chez Stripe au moment de l'envoi, sans être stocké dans notre base ; copie dans la messagerie contact@jaltio.fr</td></tr>
-<tr><td>Limites mensuelles et suivi des coûts</td><td>Nombre de générations, volume traité, recherches, liés à l'empreinte du code</td><td>Intérêt légitime (faire respecter les limites, maîtriser les coûts)</td><td>24 mois</td></tr>
+<tr><td>Limites mensuelles et suivi des coûts</td><td>Nombre de générations, volume traité, recherches, liés à l'empreinte du code</td><td>Intérêt légitime (faire respecter les limites, maîtriser les coûts)</td><td>24 mois ; offre Free : tant que l'empreinte de l'adresse est conservée (la limite de 10 CV vaut pour toute la durée de l'offre)</td></tr>
 <tr><td>Questions et réclamations</td><td>E-mail, contenu de vos messages</td><td>Intérêt légitime (vous répondre)</td><td>3 ans après le dernier échange</td></tr>
 <tr><td>Liste d'attente et nouvelles de Jaltio</td><td>E-mail, prénom et nom s'ils sont indiqués, provenance (réseau social), date d'inscription</td><td>Consentement (inscription sur jaltio.fr/attente)</td><td>Jusqu'à votre désinscription, ou 3 ans sans interaction</td></tr>
 <tr><td>Sécurité du site</td><td>Adresse IP, données techniques de connexion</td><td>Intérêt légitime (sécurité)</td><td>Selon les politiques de GitHub et de Cloudflare</td></tr>
@@ -95,7 +96,7 @@
 <ul>
 <li>Chiffrement de vos documents dans votre navigateur avant tout envoi, et connexions chiffrées (HTTPS).</li>
 <li>Clé d'accès à l'IA gardée côté serveur, jamais dans le site.</li>
-<li>Aucun e-mail stocké en clair dans notre base d'abonnements.</li>
+<li>Aucun e-mail d'abonné payant stocké en clair dans notre base (offre Free : seulement l'adresse nécessaire à l'envoi des e-mails, effacée après 12 mois sans connexion).</li>
 </ul>
 <p>En cas de violation de données présentant un risque pour vous, nous prévenons la CNIL dans les 72 heures et vous informons si le risque est élevé (articles 33 et 34 du RGPD).</p>
 

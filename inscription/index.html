@@ -45,13 +45,14 @@
 
   <!-- Étape 1 : compte -->
   <section class="etape on" id="e1" aria-labelledby="t1">
-    <p class="step-n">Étape 1 sur 4 · Jaltio Essentiel</p>
+    <p class="step-n">Étape 1 sur 4 · <span id="nom-offre">Jaltio Essentiel</span></p>
     <h1 id="t1">Créer votre compte</h1>
     <div class="card">
       <form id="f1" novalidate>
         <label for="email">Votre adresse e-mail</label>
         <input type="email" id="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120" required>
-        <p class="hint">Elle servira d'identifiant. Après le paiement, vous recevrez à cette adresse un code de validation à 6 chiffres, puis vous choisirez votre mot de passe.</p>
+        <p class="hint" id="h1-ess">Elle servira d'identifiant. Après le paiement, vous recevrez à cette adresse un code de validation à 6 chiffres, puis vous choisirez votre mot de passe.</p>
+        <p class="hint" id="h1-free" hidden>Elle servira d'identifiant. Vous recevrez à cette adresse un code de validation à 6 chiffres, puis vous choisirez votre mot de passe. Aucune carte bancaire n'est demandée. Les adresses e-mail temporaires ne sont pas acceptées.</p>
         <p class="msg" id="m1" role="alert"></p>
         <button class="btn" type="submit" style="margin-top:16px">Continuer</button>
       </form>
@@ -85,7 +86,19 @@
   <section class="etape" id="e4" aria-labelledby="t4">
     <p class="step-n">Étape 4 sur 4</p>
     <h1 id="t4">Confirmer votre inscription</h1>
-    <div class="card">
+    <div class="card" id="c4-free" hidden>
+      <ul class="recap">
+        <li><span>Offre</span><span>Jaltio Free</span></li>
+        <li><span>Prix</span><span>Gratuit, sans carte bancaire</span></li>
+        <li><span>Inclus</span><span>10 CV au total, corrections comprises</span></li>
+        <li><span>E-mail</span><span id="r-mail-free"></span></li>
+      </ul>
+      <p class="hint">L'offre Free ne comprend ni la lettre de motivation, ni le coach, ni la préparation d'entretien. Vous pourrez passer à Jaltio Essentiel à tout moment depuis la page Tarifs.</p>
+      <p class="hint">Vous recevez par e-mail un code de validation à 6 chiffres, avec <b>les conditions générales et la politique de confidentialité en pièces jointes</b>.</p>
+      <p class="msg" id="m4-free" role="alert"></p>
+      <button class="btn" type="button" id="creer-free" style="margin-top:16px">Créer mon compte gratuit</button>
+    </div>
+    <div class="card" id="c4-ess">
       <ul class="recap">
         <li><span>Offre</span><span>Jaltio Essentiel</span></li>
         <li id="r-promo"><span>Premier mois (accès anticipé)</span><span>6,49 €</span></li>
@@ -109,10 +122,13 @@
 </footer>
 <script>
 (function(){
+  /* Relais Jaltio : inscription à l'offre Free (sans paiement) */
+  var RELAIS = "https://jalon-relais.jalon-emploi.workers.dev";
+  var FREE = new URLSearchParams(location.search).get("offre") === "free";
   /* Lien de paiement Stripe de l'offre Essentiel. À remplacer par le lien « live » (https://buy.stripe.com/…) au lancement. */
   var LIEN_PAIEMENT = "https://buy.stripe.com/dRmcN52t20WSdSu18ndwc00";
   /* Versions des documents acceptés (à changer quand les documents changent) : enregistrées avec le paiement */
-  var VERSION_CGV = "20261028", VERSION_CONF = "20261030";
+  var VERSION_CGV = "20261102", VERSION_CONF = "20261102";
   /* Code promo Stripe de l'accès anticipé (1er mois à 6,49 €), appliqué automatiquement jusqu'au 23/11/2026 inclus (heure de Paris) */
   var CODE_PROMO = "ANTICIPE", FIN_PROMO = Date.parse("2026-11-24T00:00:00+01:00");
 
@@ -134,7 +150,7 @@
     window.scrollTo(0, 0);
     if(n === 2) charger("/cgv.html", "#l-cgv", "#h-cgv", "#ok-cgv");
     if(n === 3) charger("/confidentialite.html", "#l-conf", "#h-conf", "#ok-conf");
-    if(n === 4){ $("#r-mail").textContent = email; if(Date.now() >= FIN_PROMO) $("#r-promo").remove(); }
+    if(n === 4){ $("#r-mail").textContent = email; $("#r-mail-free").textContent = email; if(Date.now() >= FIN_PROMO && $("#r-promo")) $("#r-promo").remove(); }
   }
   document.querySelectorAll("[data-back]").forEach(function(b){ b.addEventListener("click", function(){ montrer(etape - 1); }); });
 
@@ -184,8 +200,31 @@
     location.href = u;
   });
 
-  if(new URLSearchParams(location.search).get("offre") && new URLSearchParams(location.search).get("offre") !== "essentiel"){
-    var m = $("#m1"); m.textContent = "Cette offre n'est pas encore disponible. Seule l'offre Essentiel est ouverte pour l'instant."; m.className = "msg info";
+  /* Offre Free : même parcours (e-mail, CGV, politique), sans paiement ; le code à 6 chiffres arrive par e-mail */
+  if(FREE){
+    document.title = "Inscription gratuite — Jaltio";
+    $("#nom-offre").textContent = "Jaltio Free"; $("#h1-ess").hidden = true; $("#h1-free").hidden = false;
+    $("#c4-ess").hidden = true; $("#c4-free").hidden = false;
+    $("#t4").textContent = "Créer votre compte gratuit";
+  }
+  $("#creer-free").addEventListener("click", function(){
+    if(!email || !$("#ok-cgv").checked || !$("#ok-conf").checked){ montrer(email ? 2 : 1); return; }
+    var b = $("#creer-free"), m = $("#m4-free");
+    var ref = "cgv" + VERSION_CGV + "_conf" + VERSION_CONF + "_" + Date.now();
+    b.disabled = true; b.textContent = "Création du compte…"; m.className = "msg";
+    fetch(RELAIS + "/free/inscription", { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify({ email: email, accepte: ref }) })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ return { ok:r.ok, d:d }; }); })
+      .then(function(x){
+        if(x.ok && x.d.session){ store("jaltio_inscription", JSON.stringify({ email: email, ref: ref, offre: "free" })); location.href = "/app/?paye=" + encodeURIComponent(x.d.session); return; }
+        m.textContent = (x.d.error && x.d.error.message) || "Inscription impossible pour l'instant. Réessayez dans quelques minutes."; m.className = "msg err";
+        b.disabled = false; b.textContent = "Créer mon compte gratuit";
+      })
+      .catch(function(){ m.textContent = "Connexion impossible. Vérifiez votre réseau et réessayez."; m.className = "msg err"; b.disabled = false; b.textContent = "Créer mon compte gratuit"; });
+  });
+
+  var offreDemandee = new URLSearchParams(location.search).get("offre");
+  if(offreDemandee && offreDemandee !== "essentiel" && offreDemandee !== "free"){
+    var m = $("#m1"); m.textContent = "Cette offre n'est pas encore disponible. Seules les offres Free et Essentiel sont ouvertes pour l'instant."; m.className = "msg info";
   }
   window.addEventListener("pageshow", function(){ $("#payer").disabled = false; $("#payer").textContent = "Payer avec Stripe"; });
 })();

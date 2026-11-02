@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="only light">
 <title>Tarifs — Jaltio</title>
-<meta name="description" content="Jaltio Essentiel : CV et lettre de motivation adaptés à chaque offre d'emploi, coach et suivi des candidatures. 1er mois à 6,49 €, puis 13,99 € par mois, sans engagement.">
+<meta name="description" content="Jaltio Free : 10 CV adaptés à l'offre, gratuits et sans carte bancaire. Jaltio Essentiel : CV, lettres, coach et suivi des candidatures, 1er mois à 6,49 €, puis 13,99 € par mois, sans engagement.">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -17,7 +17,12 @@
 .tete{max-width:760px;margin:6px 0 26px}
 .tete h1{font-size:42px;margin:12px 0 12px}
 .tete .lead{margin:0}
-.tarif{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;align-items:stretch}
+.tarif{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:22px;align-items:stretch}
+.offre.free{border:1px solid var(--line);box-shadow:none;display:flex;flex-direction:column}
+.offre.free .prix .gros{color:var(--ink)}
+.offre.free .inclus{flex:1}
+.inclus li.non{color:var(--muted)}
+.inclus li.non b{font-weight:600}
 .offre{background:#fff;border:2px solid var(--brand);border-radius:22px;padding:26px 24px 22px;box-shadow:var(--float);position:relative}
 .offre .nom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 16px}
 .offre .nom h2{margin:0;font-size:22px}
@@ -34,7 +39,7 @@
 .inclus svg{flex:none;margin-top:3px}
 .offre .btn{font-size:17px;padding:15px}
 .sous-btn{text-align:center;font-size:13.5px;color:var(--muted);margin:10px 0 0}
-.rassure{display:grid;grid-template-rows:repeat(3,1fr);gap:14px}
+.rassure{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}
 .rassure div{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px 22px;display:flex;flex-direction:column;justify-content:center}
 .rassure h3{margin:0 0 6px;font-size:17px;color:var(--brand)}
 .rassure p{margin:0;font-size:15px;color:var(--muted)}
@@ -47,7 +52,7 @@
   .tete h1{font-size:32px}
   .tarif{grid-template-columns:1fr;max-width:560px;margin:0 auto}
   .tete{max-width:560px;margin-left:auto;margin-right:auto}
-  .rassure{grid-template-rows:none}
+  .rassure{grid-template-columns:1fr;max-width:560px;margin-left:auto;margin-right:auto}
   .faq{grid-template-columns:1fr;max-width:560px;margin-left:auto;margin-right:auto}
 }
 @media (max-width:400px){.prix .gros{font-size:46px}.offre{padding:22px 18px 20px}}
@@ -57,20 +62,36 @@
 <header class="top">
   <a class="brand" href="/"><svg width="36" height="36" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg><span class="name">Jaltio</span></a>
   <nav class="mainnav" aria-label="Menu principal"><a href="/">Accueil</a><a href="/forfaits/" aria-current="page">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav>
-  <div class="top-cta"><a class="top-link" href="/app/">Se connecter</a><a class="top-link solid" href="/inscription/?offre=essentiel">S'inscrire</a></div>
+  <div class="top-cta"><a class="top-link" href="/app/">Se connecter</a><a class="top-link solid" href="/forfaits/">S'inscrire</a></div>
   <details class="menu"><summary aria-label="Ouvrir le menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A2340" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
-    <div class="menu-pop"><a href="/">Accueil</a><a href="/forfaits/" aria-current="page">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><hr><a href="/app/">Se connecter</a><a href="/inscription/?offre=essentiel">S'inscrire</a></div></details>
+    <div class="menu-pop"><a href="/">Accueil</a><a href="/forfaits/" aria-current="page">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><hr><a href="/app/">Se connecter</a><a href="/forfaits/">S'inscrire</a></div></details>
 </header>
 <main>
 <div class="wrap">
   <div class="tete">
       <span class="tag">Accès anticipé jusqu'au 23 novembre 2026</span>
-      <h1>Un CV taillé pour chaque offre. Un seul abonnement.</h1>
+      <h1>Un CV taillé pour chaque offre. Essayez gratuitement.</h1>
       <p class="lead">Collez le lien d'une offre : Jaltio réécrit votre CV et votre lettre à partir de votre vrai parcours, puis vous aide à suivre vos candidatures.</p>
   </div>
   <div class="tarif">
+      <section class="offre free" aria-labelledby="p-free">
+        <div class="nom"><h2 id="p-free">Jaltio Free</h2><span class="badge">Sans carte bancaire</span></div>
+        <p class="prix"><span class="gros">0 €</span><span class="quand">pour essayer</span></p>
+        <p class="ensuite"><b>10 CV au total</b>, sans abonnement.</p>
+        <p class="cond">Pas de prélèvement, pas de date limite.</p>
+        <ul class="inclus">
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>10 CV adaptés à l'offre</b><small>Au total, pas par mois. Chaque correction compte. Une génération ratée ne compte pas.</small></span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Le suivi de vos candidatures</b></span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Vos documents chiffrés</b>, sur tous vos appareils</span></li>
+          <li class="non"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A8A9C" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg><span><b>Lettre de motivation</b><small>Incluse dans Essentiel.</small></span></li>
+          <li class="non"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A8A9C" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg><span><b>Coach emploi et préparation d'entretien</b><small>Inclus dans Essentiel.</small></span></li>
+        </ul>
+        <a class="btn alt" href="/inscription/?offre=free">Essayer gratuitement</a>
+        <p class="sous-btn">Un compte Free par adresse e-mail.</p>
+      </section>
+
       <section class="offre" aria-labelledby="p-ess">
-        <div class="nom"><h2 id="p-ess">Jaltio Essentiel</h2><span class="badge">Ouvert</span></div>
+        <div class="nom"><h2 id="p-ess">Jaltio Essentiel</h2><span class="badge">Le plus complet</span></div>
         <p class="prix"><span class="gros">6,49 €</span><span class="quand">le 1<sup>er</sup> mois</span></p>
         <p class="ensuite">puis <b>13,99 € par mois</b>, sans engagement.</p>
         <p class="cond">Tarif réservé aux abonnements pris jusqu'au 23 novembre 2026, appliqué automatiquement au paiement.</p>
@@ -83,24 +104,26 @@
         <a class="btn" href="/inscription/?offre=essentiel">Commencer à 6,49 €</a>
         <p class="sous-btn">Résiliable à tout moment depuis le site.</p>
       </section>
+  </div>
 
   <div class="rassure">
     <div><h3>Sans engagement</h3><p>Vous résiliez depuis votre espace, sans appel ni courrier. Le mois commencé reste dû.</p></div>
     <div><h3>Votre parcours, pas un autre</h3><p>Jaltio part de votre CV. Il reformule et met en avant, il n'ajoute pas d'expérience que vous n'avez pas.</p></div>
-    <div><h3>Vos données protégées</h3><p>Documents chiffrés, supprimés six mois après la fin de l'abonnement, ou tout de suite si vous le demandez.</p></div>
-  </div>
+    <div><h3>Vos données protégées</h3><p>Documents chiffrés, supprimés six mois après la fin de l'abonnement (douze mois sans connexion en Free), ou tout de suite si vous le demandez.</p></div>
   </div>
 
   <section class="faq" aria-labelledby="faq-t">
-    <h2 id="faq-t">Questions avant de payer</h2>
+    <h2 id="faq-t">Questions avant de choisir</h2>
+    <details><summary>L'offre Free est-elle vraiment gratuite ?</summary><div><p>Oui. Aucune carte bancaire n'est demandée et rien ne sera prélevé. Vous avez 10 CV au total, corrections comprises ; ensuite, vous passez à Essentiel si vous voulez continuer.</p></div></details>
+    <details><summary>Puis-je passer de Free à Essentiel ?</summary><div><p>Oui. Connecté à votre compte, abonnez-vous depuis cette page avec la même adresse e-mail : vos CV et candidatures restent sur votre compte.</p></div></details>
     <details><summary>Que se passe-t-il après le premier mois ?</summary><div><p>L'abonnement continue à 13,99 € par mois, prélevé à la même date chaque mois. Vous pouvez résilier avant le renouvellement depuis le site.</p></div></details>
     <details><summary>Comment obtenir le tarif à 6,49 € ?</summary><div><p>Rien à faire : le code d'accès anticipé est ajouté automatiquement au paiement pour tout abonnement pris jusqu'au 23 novembre 2026.</p></div></details>
     <details><summary>Que se passe-t-il si j'atteins 50 générations ?</summary><div><p>La création de CV est en pause jusqu'au 1<sup>er</sup> du mois suivant : les compteurs repartent à zéro le 1<sup>er</sup> de chaque mois. Une génération ratée (offre illisible, erreur) n'est pas comptée.</p></div></details>
     <details><summary>Qui rédige les documents ?</summary><div><p>Claude, une IA de la société américaine Anthropic, à partir des informations de votre CV. Relisez toujours avant d'envoyer.</p></div></details>
   </section>
 
-  <p class="legal-line">Prix TTC, TVA non applicable (article 293 B du CGI). En vous abonnant, vous acceptez les <a href="/cgv.html">conditions générales</a> et la <a href="/confidentialite.html">politique de confidentialité</a>.</p>
-  <p class="already">Déjà abonné ? <a href="/app/">Se connecter</a></p>
+  <p class="legal-line">Prix TTC, TVA non applicable (article 293 B du CGI). En créant un compte, vous acceptez les <a href="/cgv.html">conditions générales</a> et la <a href="/confidentialite.html">politique de confidentialité</a>.</p>
+  <p class="already">Déjà un compte ? <a href="/app/">Se connecter</a></p>
 </div>
 </main>
 <footer class="foot">
