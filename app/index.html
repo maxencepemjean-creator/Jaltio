@@ -1130,12 +1130,27 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
 
   <div class="step" data-v="create" id="step-offre" data-mkeep>
     <h2><span class="num">1</span> L'offre d'emploi</h2>
+    <div class="seg" role="radiogroup" aria-label="Type de candidature" style="margin-bottom:12px">
+      <label><input type="radio" name="mode-cand" value="annonce" checked><span>J'ai une annonce</span></label>
+      <label><input type="radio" name="mode-cand" value="spont"><span>Candidature spontanée</span></label>
+    </div>
+    <div id="bloc-spont" hidden>
+      <label for="sp-entreprise">Nom de l'entreprise</label>
+      <input type="text" id="sp-entreprise" placeholder="Ex. : Leroy Merlin, Clinique du Parc, Mairie de Saintes…">
+      <label for="sp-poste">Poste visé</label>
+      <input type="text" id="sp-poste" placeholder="Ex. : Assistante administrative, Vendeur conseil…">
+      <label for="sp-site">Site de l'entreprise (facultatif)</label>
+      <input type="text" id="sp-site" inputmode="url" placeholder="https://www.entreprise.fr">
+      <p class="hint">Sans annonce, le CV met en avant ce qu'on attend habituellement pour ce poste. Avec le site, la lettre parle aussi de l'entreprise elle-même.</p>
+    </div>
+    <div id="bloc-annonce">
     <label for="offre-url">Lien de l'annonce</label>
     <input type="text" id="offre-url" inputmode="url" placeholder="https://www.hellowork.com/fr-fr/emplois/…">
     <p class="hint">LinkedIn et Indeed bloquent souvent la lecture : collez alors le texte ci-dessous.</p>
     <p class="or">ou</p>
     <label for="offre">Texte de l'annonce</label>
     <textarea id="offre" rows="5" placeholder="Copiez tout le texte de l'annonce (intitulé, missions, profil recherché…) et collez-le ici."></textarea>
+    </div>
     <label class="check"><input type="checkbox" id="opt-lettre" checked> <span id="opt-lettre-txt">Rédiger aussi la lettre de motivation</span></label>
     <div class="doc-lang-row"><label for="doc-lang">Langue du CV et de la lettre</label>
     <select id="doc-lang" data-noi18n><option value="fr">Français</option><option value="en">English</option><option value="es">Español</option><option value="ru">Русский</option></select></div>
@@ -1764,7 +1779,7 @@ $("#profile-parcours").addEventListener("input", saveProfileFields);
 $("#profile-select").addEventListener("change", e => { if(!e.target.value) return; currentProfileId = e.target.value; saveProfiles(); renderProfiles(); showEmpty(); });
 $("#btn-new-profile").addEventListener("click", () => {
   const p = { id:uid(), name:"", parcours:"", photo:"" }; profiles.push(p); currentProfileId = p.id; saveProfiles(); renderProfiles(); showEmpty();
-  $("#offre").value = ""; $("#offre-url").value = ""; $("#profile-name").focus();
+  $("#offre").value = ""; $("#offre-url").value = ""; clearSpont(); $("#profile-name").focus();
 });
 $("#btn-del-profile").addEventListener("click", () => {
   const p = prof();
@@ -2185,6 +2200,15 @@ LETTRE DE MOTIVATION (uniquement si demandée)
 - Ne commence pas par « Madame, Monsieur » (ajouté automatiquement). Termine par la formule de politesse complète.
 - Ton professionnel, sincère, concret. Aucune information inventée sur le candidat. Sur l'entreprise, n'utilise que ce que dit l'offre.
 
+CANDIDATURE SPONTANÉE (si la demande contient <candidature_spontanee> au lieu d'une annonce)
+- Il n'y a pas d'annonce : la cible est le poste visé dans l'entreprise nommée. Adapte le CV aux missions et compétences habituellement attendues pour ce poste en France, sans jamais inventer d'exigence propre à l'entreprise.
+- Si le site de l'entreprise est donné, lis sa page avec web_fetch (une ou deux pages au plus : accueil, « qui sommes-nous », recrutement). Sinon, ou si le site est illisible, fais une recherche web_search sur l'entreprise. N'utilise sur l'entreprise QUE des faits lus sur son site ou dans ces résultats (activité, secteur, valeurs, implantation). Si tu ne trouves rien de fiable, reste général sur l'entreprise : n'invente rien.
+- Ne réponds JAMAIS {"offre_lue": false} dans ce cas : un site illisible n'empêche pas de rédiger. Mets "offre_lue": true.
+- "offre_resume" commence par « Candidature spontanée — » puis : poste visé, entreprise, ce que fait l'entreprise d'après ce que tu as lu (ou « activité non vérifiée »), et les compétences habituelles du poste.
+- "score_adequation" : adéquation du parcours avec les exigences habituelles du poste. "alertes" : compétences ou diplômes souvent demandés pour ce poste absents du parcours, ou conseil pour la démarche spontanée.
+- Lettre : (1) pourquoi cette entreprise précisément (faits vérifiés seulement), (2) ce que le candidat peut apporter sur ce poste, avec des faits du parcours, (3) proposition de rencontre même sans poste ouvert, (4) formule de politesse. "objet" = « Candidature spontanée — poste de … ». Jamais « suite à votre annonce ».
+- "candidature.email" : adresse de recrutement ou de contact trouvée sur le site, sinon chaîne vide. "candidature.reference" : chaîne vide.
+
 OUTILS
 - Si l'annonce est donnée sous forme de lien, lis-la avec l'outil web_fetch. Si la page est inaccessible, demande une connexion, ou ne contient pas d'annonce d'emploi, N'INVENTE PAS l'annonce : réponds seulement {"offre_lue": false, "raison": "explication courte"}.
 - Si l'outil web_search est disponible et que l'entreprise est nommée, fais UNE recherche pour trouver les couleurs de son logo ou de sa charte graphique. Renvoie en hexadécimal dans "couleur_entreprise" la couleur de marque la plus foncée et la plus saturée, lisible avec du texte blanc dessus (si le logo est jaune, blanc ou très clair, prends sa deuxième couleur). Si l'annonce vient d'une agence d'intérim ou d'un cabinet, cherche l'entreprise qui recrute vraiment si elle est nommée, sinon l'agence. En cas de doute, chaîne vide. Ne cite jamais ces recherches dans le CV.
@@ -2250,7 +2274,7 @@ async function runClaude(messages, tools){
   let last = -1; blocks.forEach((b, i) => { if(/_tool_result$/.test(b.type)) last = i; });
   const text = blocks.slice(last + 1).filter(b => b.type === "text").map(b => b.text).join("");
   let out; try{ out = parseJSON(text); }catch(e){ throw new Error(_t("La réponse n'a pas pu être lue. Cliquez à nouveau sur le bouton.")); }
-  if(out.offre_lue === false) throw new Error(_t("Impossible de lire l'annonce à partir du lien") + (out.raison ? " (" + str(out.raison) + ")" : "") + ". Copiez-collez le texte de l'annonce dans le cadre prévu.");
+  if(out.offre_lue === false && !/<candidature_spontanee>/.test(JSON.stringify(messages[0].content))) throw new Error(_t("Impossible de lire l'annonce à partir du lien") + (out.raison ? " (" + str(out.raison) + ")" : "") + ". Copiez-collez le texte de l'annonce dans le cadre prévu.");
   if(!out.cv) throw new Error(_t("La réponse est incomplète. Réessayez."));
   return out;
 }
@@ -2295,32 +2319,48 @@ function regenLabel(){
 }
 document.querySelectorAll('input[name="cible"]').forEach(r => r.addEventListener("change", () => { $("#btn-regen").textContent = regenLabel(); }));
 const URL_RE = /^https?:\/\/\S+$/i;
+/* Candidature spontanée : pas d'annonce, juste l'entreprise, le poste et éventuellement le site */
+const modeCand = () => (document.querySelector('input[name="mode-cand"]:checked') || {}).value || "annonce";
+function applyModeCand(){ const sp = modeCand() === "spont"; $("#bloc-spont").hidden = !sp; $("#bloc-annonce").hidden = sp; }
+function clearSpont(){ ["#sp-entreprise", "#sp-poste", "#sp-site"].forEach(id => { $(id).value = ""; }); }
+document.querySelectorAll('input[name="mode-cand"]').forEach(r => r.addEventListener("change", applyModeCand));
 
 $("#btn-generate").addEventListener("click", async () => {
   const p = prof();
   const parcours = $("#profile-parcours").value.trim();
-  const url = $("#offre-url").value.trim();
-  const offre = $("#offre").value.trim();
+  const spont = modeCand() === "spont";
+  const spEnt = $("#sp-entreprise").value.trim(), spPoste = $("#sp-poste").value.trim();
+  let spSite = $("#sp-site").value.trim();
+  if(spont && spSite && !/^https?:\/\//i.test(spSite)) spSite = "https://" + spSite;
+  const url = spont ? spSite : $("#offre-url").value.trim();
+  const offre = spont ? "" : $("#offre").value.trim();
   const wantLettre = $("#opt-lettre").checked && !isFree();
   if(!settings.apiKey){ status("#status-gen", "err", _t("Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation ».")); $("#step-key").hidden = false; return; }
   if(parcours.length < 80){ status("#status-gen", "err", _t("Votre parcours est trop court. Déposez votre ancien CV ou décrivez vos expériences.")); $("#profile-parcours").focus(); return; }
-  if(url && !URL_RE.test(url)){ status("#status-gen", "err", _t("Le lien de l'annonce doit commencer par https://")); $("#offre-url").focus(); return; }
-  if(!url && offre.length < 80){ status("#status-gen", "err", _t("Indiquez le lien de l'annonce ou collez son texte complet.")); $("#offre-url").focus(); return; }
+  if(spont && spEnt.length < 2){ status("#status-gen", "err", _t("Indiquez le nom de l'entreprise.")); $("#sp-entreprise").focus(); return; }
+  if(spont && spPoste.length < 2){ status("#status-gen", "err", _t("Indiquez le poste visé.")); $("#sp-poste").focus(); return; }
+  if(spont && spSite && !URL_RE.test(spSite)){ status("#status-gen", "err", _t("Le site de l'entreprise doit être une adresse web (https://…).")); $("#sp-site").focus(); return; }
+  if(!spont && url && !URL_RE.test(url)){ status("#status-gen", "err", _t("Le lien de l'annonce doit commencer par https://")); $("#offre-url").focus(); return; }
+  if(!spont && !url && offre.length < 80){ status("#status-gen", "err", _t("Indiquez le lien de l'annonce ou collez son texte complet.")); $("#offre-url").focus(); return; }
 
   busy(true, "gen");
-  status("#status-gen", "info", (url && offre.length < 80 ? _t("Lecture de l'annonce puis rédaction") : _t("Rédaction en cours")) + _t(", comptez 30 à 90 secondes. Ne fermez pas la page."));
+  status("#status-gen", "info", (spont ? _t("Recherche sur l'entreprise puis rédaction") : url && offre.length < 80 ? _t("Lecture de l'annonce puis rédaction") : _t("Rédaction en cours")) + _t(", comptez 30 à 90 secondes. Ne fermez pas la page."));
   try{
-    const offreBloc = offre.length >= 80 ? offre + (url ? "\n(Lien de l'annonce, inutile de le lire : " + url + ")" : "")
+    const offreBloc = spont ? "" : offre.length >= 80 ? offre + (url ? "\n(Lien de l'annonce, inutile de le lire : " + url + ")" : "")
       : "L'annonce est à lire à cette adresse : " + url;
-    const userMsg = "<parcours_du_candidat>\n" + (p.name ? "Nom : " + p.name + "\n" : "") + parcours + "\n</parcours_du_candidat>\n\n<offre_d_emploi>\n" + offreBloc + "\n</offre_d_emploi>\n\n" + retouchesBlock(p) + resultatsBlock(p) +
+    const userMsg = "<parcours_du_candidat>\n" + (p.name ? "Nom : " + p.name + "\n" : "") + parcours + "\n</parcours_du_candidat>\n\n" +
+      (spont ? "<candidature_spontanee>\nEntreprise : " + spEnt + "\nPoste visé : " + spPoste + "\n" + (spSite ? "Site de l'entreprise : " + spSite + "\n" : "Site de l'entreprise : non fourni\n") + "Aucune annonce : applique les règles CANDIDATURE SPONTANÉE.\n</candidature_spontanee>\n\n"
+             : "<offre_d_emploi>\n" + offreBloc + "\n</offre_d_emploi>\n\n") + retouchesBlock(p) + resultatsBlock(p) +
       (wantLettre ? "Rédige le CV ET la lettre de motivation." : "Rédige uniquement le CV ; mets \"lettre\": null.");
     const tools = [];
-    if(offre.length < 80) tools.push({ type:"web_fetch_20250910", name:"web_fetch", max_uses:3, max_content_tokens:20000 });
+    if(spont ? !!spSite : offre.length < 80) tools.push({ type:"web_fetch_20250910", name:"web_fetch", max_uses:3, max_content_tokens:20000 });
     tools.push({ type:"web_search_20250305", name:"web_search", max_uses:2 });
     const docLang = $("#doc-lang").value || "fr";
     const out = await runClaude([{ role:"user", content: langBlock(docLang) + userMsg }], tools);
     out._lang = docLang;
+    if(spont){ out.offre_lue = true; if(!str(out.entreprise)) out.entreprise = spEnt; if(!str(out.poste_vise)) out.poste_vise = spPoste; }
     out._userMsg = { parcours, wantLettre, url };
+    if(spont) out._userMsg.spont = { entreprise:spEnt, poste:spPoste, site:spSite };
     storeResult(p, out);
     setMStep("cv"); if(isM()) window.scrollTo({ top:0, behavior:"smooth" });
     maybeShowHelp();
@@ -2388,7 +2428,7 @@ async function doRegen(target, rq){
   status("#status-gen", "info", BRAND.name + " applique vos remarques, comptez 20 à 60 secondes.");
   try{
     const userMsg = "<parcours_du_candidat>\n" + parcours + "\n</parcours_du_candidat>\n\n<offre_d_emploi>\n" + (str(h.data.offre_resume) || h.poste + " — " + h.entreprise) +
-      "\n</offre_d_emploi>\n\n<version_precedente>\n" + JSON.stringify(prev) + "\n</version_precedente>\n\n" +
+      "\n</offre_d_emploi>\n\n" + (h.data._userMsg && h.data._userMsg.spont ? "C'est une candidature spontanée (pas d'annonce) : applique les règles CANDIDATURE SPONTANÉE.\n\n" : "") + "<version_precedente>\n" + JSON.stringify(prev) + "\n</version_precedente>\n\n" +
       (cvActuel ? "<cv_tel_que_retouche_par_le_candidat>\n" + cvActuel + "\n</cv_tel_que_retouche_par_le_candidat>\nCe texte reflète les corrections faites à la main par le candidat sur son CV : elles priment sur \"cv\" de version_precedente. Intègre-les dans le JSON et conserve-les.\n\n" : "") +
       (lettreActuelle ? "La lettre de version_precedente contient déjà les corrections faites à la main par le candidat : conserve-les, sauf si ses remarques demandent de les changer.\n\n" : "") +
       retouchesBlock(p) + "<remarques_du_candidat>\n" + rq +
@@ -2406,6 +2446,7 @@ async function doRegen(target, rq){
     else if(hadLettre) keep.lettreFrame = h.lettreHtml;
     if(target === "lettre"){ out.cv = h.data.cv; out.alertes = h.data.alertes; out.score_adequation = h.data.score_adequation; keep.cvHtml = h.cvHtml; }
     out._userMsg = { parcours, wantLettre, url:(h.data._userMsg && h.data._userMsg.url) || "" };
+    if(h.data._userMsg && h.data._userMsg.spont) out._userMsg.spont = h.data._userMsg.spont;
     storeResult(p, out, keep);
     const nh = curHist(); if(nh){ if(h.apply) nh.apply = h.apply; if(h.fiche) nh.fiche = h.fiche; saveHistory(); }
     if(target === "lettre") showTab("lettre");
@@ -3968,7 +4009,7 @@ $("#m-fix").addEventListener("click", () => {
   const fb = $("#feedback-box"); fb.hidden = false;
   setTimeout(() => { fb.scrollIntoView({ behavior:"smooth", block:"start" }); $("#remarques").focus(); }, 60);
 });
-$("#m-new").addEventListener("click", () => { $("#offre").value = ""; $("#offre-url").value = ""; showEmpty(); setMStep("offre"); window.scrollTo({ top:0 }); });
+$("#m-new").addEventListener("click", () => { $("#offre").value = ""; $("#offre-url").value = ""; clearSpont(); showEmpty(); setMStep("offre"); window.scrollTo({ top:0 }); });
 
 
 /* ===================== Aide « Comment modifier mon CV ? » ===================== */
@@ -4508,7 +4549,7 @@ function renderFicheView(){
   head.appendChild(meta);
   const act = el("div", "fv-actions");
   if(latest.manual){
-    act.appendChild(btn(_t("Créer un CV pour cette offre"), "primary", () => { setView("create"); if(url) $("#offre-url").value = url; $("#offre").focus(); }));
+    act.appendChild(btn(_t("Créer un CV pour cette offre"), "primary", () => { setView("create"); const ra = document.querySelector('input[name="mode-cand"][value="annonce"]'); if(ra){ ra.checked = true; applyModeCand(); } if(url) $("#offre-url").value = url; $("#offre").focus(); }));
   } else {
     act.appendChild(btn(_t("Préparer ma candidature"), "primary", () => { openHist(latest); openApply(); }));
   }
