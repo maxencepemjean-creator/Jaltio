@@ -60,9 +60,9 @@ textarea{resize:vertical;min-height:120px}
 .or{text-align:center;color:var(--muted);font-size:12.5px;margin:8px 0 0}
 #feedback-box{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
 .seg{display:flex;border:1px solid #d1d5db;border-radius:8px;overflow:hidden;margin-bottom:4px}
-.seg label{flex:1;margin:0;font-weight:500;font-size:14px;text-align:center;cursor:pointer}
+.seg label{flex:1;display:flex;margin:0;font-weight:500;font-size:14px;text-align:center;cursor:pointer}
 .seg input{position:absolute;opacity:0;pointer-events:none}
-.seg span{display:block;padding:8px 6px;border-left:1px solid #d1d5db}
+.seg span{flex:1;display:flex;align-items:center;justify-content:center;padding:8px 6px;border-left:1px solid #d1d5db}
 .seg label:first-child span{border-left:0}
 .seg input:checked + span{background:var(--brand);color:#fff}
 .seg input:focus-visible + span{outline:2px solid var(--brand);outline-offset:-3px}
@@ -96,6 +96,13 @@ details summary{cursor:pointer;font-weight:600}
 .edit-hint{font-size:13px;color:var(--muted);margin:0 0 10px}
 .page-holder{--s:1;width:calc(210mm * var(--s));overflow:hidden;margin:0 auto 20px}
 .page-holder .page{transform:scale(var(--s));transform-origin:top left}
+#preview{overflow-x:auto}
+.zoom{display:inline-flex;align-items:center;gap:6px;margin-left:12px;font-size:13px;color:var(--muted)}
+.zoom input{width:110px;accent-color:var(--brand)}
+.zoom .btn{min-width:30px;padding:2px 8px}
+#zoom-val{min-width:44px;text-align:right;font-size:13px;color:var(--muted)}
+body.m .zoom{display:none}
+@media print{.zoom{display:none!important}}
 
 /* ---------- PAGE A4 ---------- */
 .page{width:210mm;height:297mm;background:#fff;color:#1f2937;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.12);position:relative;font-size:var(--fs,10.5pt);line-height:1.38;font-family:Inter,Arial,sans-serif;--accent:#1f4e79;outline:none}
@@ -334,7 +341,7 @@ body.pdf-busy, body.pdf-busy .btn{cursor:progress}
 @media (max-width:700px){ .chip-add{flex-wrap:wrap} .chip-add[data-k=langues] .pv-search{flex:1 1 100%} .chip-add select{max-width:none;flex:1 1 55%} .pv-sugg li{padding:12px} }
 @media (max-width:700px){ .pv-form{grid-template-columns:1fr} .pv-list li .pv-t{padding-right:0} .pv-list li .pv-edit{position:static;align-self:flex-start;margin-top:6px} .pv-list li{display:flex;flex-direction:column} }
 
-/* ===== Suivi : « À faire » + jalons ===== */
+/* ===== Suivi : « À faire » + jalons ===== */
 .apps-hello h2{font-family:var(--display);font-size:24px;color:var(--brand);margin:0}
 .apps-hello p{margin:2px 0 14px;color:var(--muted)}
 .todo-box{background:var(--brand);color:#fff;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
@@ -426,7 +433,7 @@ body.pdf-busy, body.pdf-busy .btn{cursor:progress}
 .validate.show{display:inline-flex}
 .validate .btn{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:600;border-radius:999px}
 
-/* Barre flottante : outils de mise en forme (fond blanc) collés à « Enregistrer mes retouches » (fond vert) */
+/* Barre flottante : outils de mise en forme (fond blanc) collés à « Enregistrer mes retouches » (fond vert) */
 .edit-bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:51;display:none;align-items:stretch;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.22);animation:savepop .25s ease-out;max-width:calc(100vw - 24px)}
 .edit-bar.show{display:flex}
 .eb-tools{display:flex;align-items:center;gap:3px;background:#fff;border:1px solid var(--line);border-right:0;border-radius:999px 0 0 999px;padding:6px 8px 6px 12px}
@@ -543,7 +550,7 @@ body.m .save-fab{border-radius:999px}
 .recent-list b{font-size:14.5px}
 .recent-list span{font-size:13px;color:var(--muted)}
 
-/* Grande fenêtre « Versions précédentes » : liste à gauche, aperçu du CV ou de la lettre à droite */
+/* Grande fenêtre « Versions précédentes » : liste à gauche, aperçu du CV ou de la lettre à droite */
 .ver-body{flex:1;min-height:0;display:grid;grid-template-columns:340px minmax(0,1fr)}
 .ver-list-col{padding:16px 18px;border-right:1px solid var(--line);overflow:auto;background:#FBF4EC}
 .ver-intro{margin:0 0 12px}
@@ -565,7 +572,7 @@ body.m .save-fab{border-radius:999px}
 .ver-page-box .page{transform:scale(var(--s));transform-origin:top left;box-shadow:none}
 @media (max-width:800px){.ver-body{grid-template-columns:1fr;grid-template-rows:auto 1fr}.ver-list-col{max-height:34vh;border-right:0;border-bottom:1px solid var(--line)}}
 
-/* Fenêtre d'aide « Comment modifier mon CV ? » (affichée une fois, puis via le lien près du CV) */
+/* Fenêtre d'aide « Comment modifier mon CV ? » (affichée une fois, puis via le lien près du CV) */
 .overlay.hlp{z-index:110;padding:16px}
 .hlp-box{background:#fff;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:100%;max-width:440px;max-height:100%;overflow:auto;padding:22px 22px 20px;text-align:center}
 .hlp-box h2{margin:0 0 12px;font-size:21px;color:var(--brand)}
@@ -599,7 +606,7 @@ body.m .save-fab{border-radius:999px}
 }
 @media print{ .overlay.hlp{display:none!important} }
 
-/* Bulle « Demande à Claude ! » */
+/* Bulle « Demande à Claude ! » */
 .fab{position:fixed;right:22px;bottom:22px;width:62px;height:62px;border-radius:50%;border:0;background:var(--brand);color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(31,78,121,.35);display:grid;place-items:center;z-index:50;transition:transform .15s}
 .fab:hover{transform:scale(1.06)}
 .fab:focus-visible{outline:3px solid #93c5fd;outline-offset:3px}
@@ -654,7 +661,7 @@ body.chat-open .app{grid-template-columns:380px 1fr 380px}
 .btn.apply-btn{width:100%;padding:13px;font-size:16px;background:var(--ok);border-color:var(--ok);color:#fff;font-weight:700}
 .btn.apply-btn:hover{filter:brightness(1.08)}
 
-/* Fenêtre « Préparer ma candidature » */
+/* Fenêtre « Préparer ma candidature » */
 .overlay{position:fixed;inset:0;background:rgba(17,24,39,.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:2.5vh 2.5vw}
 .overlay[hidden]{display:none}
 .dialog{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
@@ -854,7 +861,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 .composer button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
 .chat-foot{padding:2px 20px 14px}
 .chat-foot .hint{font-size:12px}
-/* ---------- Modèle « Bandeau » : bandeau sombre, colonne teintée jusqu'en bas ---------- */
+/* ---------- Modèle « Bandeau » : bandeau sombre, colonne teintée jusqu'en bas ---------- */
 .cv.tpl-bandeau{grid-template-columns:70mm 1fr;grid-template-rows:auto 1fr;grid-template-areas:"head head" "side main";height:297mm;font-family:Lato,Carlito,Calibri,Arial,sans-serif;color:#1d2433;line-height:1.42}
 .cv.tpl-bandeau .cv-head{background:var(--dark);color:#fff;padding:9mm 12mm 8mm 12mm}
 .cv.tpl-bandeau .cv-head h1{font-size:2.7em;font-weight:900;line-height:1.05;letter-spacing:-.005em;color:#fff}
@@ -952,7 +959,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   .panel [data-v]:not(.panel-foot),
   #fiche-view:not([hidden]), #profil-view:not([hidden]),
   #tabs:not([hidden]), #alertes:not([hidden]), #empty:not([hidden]), #edit-hint:not([hidden]), #help-link:not([hidden]){animation:mo-in 240ms ease-out}
-  body.m .preview{animation:mo-in 240ms ease-out}                 /* téléphone : passage « offre → CV » */
+  body.m .preview{animation:mo-in 240ms ease-out}                 /* téléphone : passage « offre → CV » */
   .m-cv-actions{animation:mo-in 220ms ease-out}
   /* Sous-onglets CV / Lettre et apparition du CV généré : le CV reste lisible tout de suite (départ à 35 %) */
   @keyframes mo-in-soft-b{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -965,7 +972,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
   body.mo-run #hist > li:nth-child(3), body.mo-run .board > :nth-child(3), body.mo-run #fiche-view > .fv-card:nth-of-type(3), body.mo-run #profil-view > .fv-card:nth-of-type(3), body.mo-sub #fiche-view > .fv-card:nth-of-type(3){animation-delay:50ms}
   body.mo-run #hist > li:nth-child(4), body.mo-run .board > :nth-child(4), body.mo-run #fiche-view > .fv-card:nth-of-type(4), body.mo-run #profil-view > .fv-card:nth-of-type(4), body.mo-sub #fiche-view > .fv-card:nth-of-type(4){animation-delay:75ms}
   body.mo-run #hist > li:nth-child(n+5), body.mo-run #fiche-view > .fv-card:nth-of-type(n+5), body.mo-run #profil-view > .fv-card:nth-of-type(n+5), body.mo-sub #fiche-view > .fv-card:nth-of-type(n+5){animation-delay:100ms}
-  /* Barres d'onglets : l'onglet choisi « se pose » */
+  /* Barres d'onglets : l'onglet choisi « se pose » */
   .view-tab[aria-selected="true"], .tabbar button[aria-selected="true"] svg, .fv-seg button[aria-selected="true"]{animation:mo-tab 180ms ease-out}
   /* Coach */
   body.chat-open .chat{animation:mo-slide 220ms ease-out}
@@ -1159,9 +1166,9 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
     <div id="feedback-box" hidden>
       <label>Que voulez-vous corriger ?</label>
       <div class="seg" role="radiogroup" aria-label="Document à corriger">
-        <label><input type="radio" name="cible" value="cv"><span>Le CV</span></label>
+        <label><input type="radio" name="cible" value="cv" checked><span>Le CV</span></label>
         <label><input type="radio" name="cible" value="lettre"><span>La lettre</span></label>
-        <label><input type="radio" name="cible" value="both" checked><span>Les deux</span></label>
+        <label><input type="radio" name="cible" value="both"><span>Les deux</span></label>
       </div>
       <label for="remarques">Qu'est-ce qui ne vous plaît pas ?</label>
       <textarea id="remarques" rows="3" style="min-height:80px" placeholder="Ex. : accroche trop longue, mettre en avant mon expérience de vendeuse, lettre moins formelle, retirer les centres d'intérêt…"></textarea>
@@ -1269,7 +1276,7 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
       <summary>Vos données et vos droits</summary>
       <p><b>Ce qui est enregistré en ligne :</b> un bloc de données chiffré sur votre appareil avec votre mot de passe (parcours, CV, lettres, suivi, objectifs), un identifiant haché dérivé de votre e-mail, et des dates techniques. Le serveur de synchronisation ne reçoit jamais votre e-mail, votre mot de passe ni le contenu lisible de vos documents.</p>
       <p><b>Hébergement :</b> Cloudflare. <b>Durée :</b> tant que votre compte existe ; 6 mois après la fin de votre abonnement, le bloc est supprimé automatiquement, après un e-mail d'avertissement 7 jours avant.</p>
-      <p><b>Vos droits :</b> supprimer vos données en ligne à tout moment avec le bouton ci-dessus ; récupérer une copie avec « Exporter mes données » ci-dessous. Pour toute question : contact@jaltio.fr (responsable du service : Maxence Pemjean).</p>
+      <p><b>Vos droits :</b> supprimer vos données en ligne à tout moment avec le bouton ci-dessus ; récupérer une copie avec « Exporter mes données » ci-dessous. Pour toute question : contact@jaltio.fr (responsable du service : Maxence Pemjean).</p>
     </details>
 
     <p class="hint tour-again"><button class="link sync-link" id="btn-tour" type="button">Revoir la visite guidée du site</button></p>
@@ -1296,6 +1303,7 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
     <span class="versions" id="versions"><button class="btn small" id="v-prev" type="button" aria-label="Version précédente">‹</button><span id="v-label"></span><button class="btn small" id="v-next" type="button" aria-label="Version suivante">›</button></span>
     <span class="spacer"></span>
     <span id="score" style="font-size:14px;color:var(--muted)"></span>
+    <span class="zoom" id="zoom" title="Zoom : aussi au trackpad en pinçant, ou Ctrl + molette"><button class="btn small" id="zoom-out" type="button" aria-label="Dézoomer">−</button><input type="range" id="zoom-range" min="50" max="200" step="5" value="100" aria-label="Zoom du document"><button class="btn small" id="zoom-in" type="button" aria-label="Zoomer">+</button><button class="link" id="zoom-val" type="button" title="Revenir à 100 %">100 %</button></span>
   </div>
   <div class="alertes app-ui" id="alertes" hidden></div>
   <div class="m-cv-actions app-ui" id="m-cv-actions">
@@ -1456,7 +1464,7 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
     </header>
     <div class="ver-body">
       <section class="ver-list-col">
-        <p class="hint ver-intro">Chaque correction par <span data-brand>Jaltio</span> crée une nouvelle version. Chaque fois que vous cliquez sur « Enregistrer mes retouches », la version d'avant est aussi gardée. Cliquez sur une version pour la voir.</p>
+        <p class="hint ver-intro">Chaque correction par <span data-brand>Jaltio</span> crée une nouvelle version. Chaque fois que vous cliquez sur « Enregistrer mes retouches », la version d'avant est aussi gardée. Cliquez sur une version pour la voir.</p>
         <div class="ver-list" id="ver-list" role="listbox" aria-label="Versions"></div>
       </section>
       <section class="ver-view-col">
@@ -1495,12 +1503,12 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
             <div><div class="ap-label">CV <button class="btn small ap-zoom" type="button" data-zoom="cv">Agrandir</button></div><div class="ap-holder" id="ap-h-cv"></div></div>
             <div><div class="ap-label">Lettre de motivation <button class="btn small ap-zoom" type="button" data-zoom="lettre">Agrandir</button></div><div class="ap-holder" id="ap-h-l"></div></div>
           </div>
-          <div class="ap-empty" id="ap-nogen" hidden>Aucun CV créé pour cette candidature. Créez-en un, ou choisissez « Mes propres fichiers ».</div>
+          <div class="ap-empty" id="ap-nogen" hidden>Aucun CV créé pour cette candidature. Créez-en un, ou choisissez « Mes propres fichiers ».</div>
           <div class="row" id="ap-pdfs">
             <button class="btn primary" id="ap-pdf-cv" type="button">Télécharger le CV (PDF)</button>
             <button class="btn primary" id="ap-pdf-l" type="button">Télécharger la lettre (PDF)</button>
           </div>
-          <p class="hint">Enregistrez les deux PDF dans un dossier « Candidatures » : c'est ce que vous joindrez sur le site ou à l'e-mail.</p>
+          <p class="hint">Enregistrez les deux PDF dans un dossier « Candidatures » : c'est ce que vous joindrez sur le site ou à l'e-mail.</p>
         </div>
         <div id="ap-own" hidden>
           <div class="drop" id="ap-drop" tabindex="0" role="button"><b>Déposez votre CV et votre lettre ici</b><br>ou cliquez pour les choisir (PDF ou Word)</div>
@@ -1623,7 +1631,7 @@ const ICON = {
 /* ---------- Stockage local ---------- */
 /* Données qui voyagent d'un appareil à l'autre (jamais le code d'accès, ni la vue, ni les réglages propres à l'appareil) */
 const SYNC_KEYS = ["profiles", "currentProfile", "history", "pins", "suivi", "goal", "settings"];
-let syncSt = null, syncApplying = false, syncTimer = 0;   // état de la synchro (voir « Synchronisation entre appareils »)
+let syncSt = null, syncApplying = false, syncTimer = 0;   // état de la synchro (voir « Synchronisation entre appareils »)
 let syncBusy = false, syncPending = false, syncRetry = 0, syncPostponed = 0, syncDlgOpen = false, syncTouched = false, syncLastTry = 0;
 const store = {
   get(k, d){ try{ const v = localStorage.getItem("cvx_"+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
@@ -1783,7 +1791,7 @@ $("#btn-new-profile").addEventListener("click", () => {
 });
 $("#btn-del-profile").addEventListener("click", () => {
   const p = prof();
-  if(!confirm(_t("Supprimer le profil « ") + (p.name || _t("sans nom")) + _t(" » et ses CV ?"))) return;
+  if(!confirm(_t("Supprimer le profil « ") + (p.name || _t("sans nom")) + _t(" » et ses CV ?"))) return;
   profiles = profiles.filter(x => x.id !== p.id);
   history = history.filter(h => h.profileId !== p.id); saveHistory();
   currentProfileId = profiles[0].id; saveProfiles(); renderProfiles(); showEmpty();
@@ -1962,10 +1970,10 @@ const IMG_RE = /\.(jpe?g|png|webp)$/i, OK_RE = /\.(pdf|docx|txt|md|jpe?g|png|web
 function badFormatHtml(names){
   const n = names.map(x => x.toLowerCase());
   let tip = "";
-  if(n.some(x => x.endsWith(".doc"))) tip += _t("<p><b>Ancien fichier Word (.doc) :</b> ouvrez-le dans Word, puis « Fichier › Enregistrer sous » et choisissez « Document Word (.docx) » ou « PDF ».</p>");
+  if(n.some(x => x.endsWith(".doc"))) tip += _t("<p><b>Ancien fichier Word (.doc) :</b> ouvrez-le dans Word, puis « Fichier › Enregistrer sous » et choisissez « Document Word (.docx) » ou « PDF ».</p>");
   if(n.some(x => /\.(heic|heif)$/.test(x))) tip += _t("<p><b>Photo d'iPhone (.heic) :</b> faites plutôt une capture d'écran de la photo, ou envoyez-vous la photo par e-mail : elle arrivera en .jpg.</p>");
-  if(n.some(x => /\.(odt|pages|rtf)$/.test(x))) tip += _t("<p><b>Autre traitement de texte :</b> enregistrez le fichier en PDF (« Exporter en PDF »).</p>");
-  return "<p>" + (names.length > 1 ? _t("Ces fichiers ne peuvent pas être lus : ") : _t("Ce fichier ne peut pas être lu : ")) + names.map(x => "« " + escHtml(x) + " »").join(", ") + ".</p>" +
+  if(n.some(x => /\.(odt|pages|rtf)$/.test(x))) tip += _t("<p><b>Autre traitement de texte :</b> enregistrez le fichier en PDF (« Exporter en PDF »).</p>");
+  return "<p>" + (names.length > 1 ? _t("Ces fichiers ne peuvent pas être lus : ") : _t("Ce fichier ne peut pas être lu : ")) + names.map(x => "« " + escHtml(x) + " »").join(", ") + ".</p>" +
     _t("<p>Formats acceptés :</p>") + FORMATS_HTML + tip;
 }
 /* Photo ou capture d'écran d'un CV : réduite puis lue par Claude (plusieurs pages possibles) */
@@ -1978,7 +1986,7 @@ function imageToJpeg(f, max){
       const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", 0.85).split(",")[1]);
     };
-    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error(_t("L'image « ") + f.name + _t(" » n'a pas pu être ouverte. Essayez une capture d'écran en .png ou .jpg."))); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error(_t("L'image « ") + f.name + _t(" » n'a pas pu être ouverte. Essayez une capture d'écran en .png ou .jpg."))); };
     img.src = url;
   });
 }
@@ -2006,7 +2014,7 @@ async function handleFiles(files){
   files = files.filter(f => !imgs.includes(f));
   if(imgs.length){
     const kind = await askBox({ title: imgs.length > 1 ? _t("Ces images sont…") : _t("Cette image est…"),
-      html:"<p>" + imgs.map(f => "« " + escHtml(f.name) + " »").join(", ") + "</p>",
+      html:"<p>" + imgs.map(f => "« " + escHtml(f.name) + " »").join(", ") + "</p>",
       buttons:[{ label: imgs.length > 1 ? _t("Les pages de mon CV") : _t("Une photo de mon CV"), cls:"primary", value:"cv" }, { label:_t("Ma photo pour le CV"), value:"photo" }, { label:_t("Annuler"), cls:"alt", value:null }] });
     if(kind === "photo") await setPhotoFromFile(imgs[0]);
     else if(kind === "cv"){
@@ -2016,7 +2024,7 @@ async function handleFiles(files){
         const txt = await imagesViaClaude(imgs);
         if(txt.length < 40) throw new Error(_t("Aucun texte trouvé sur cette image. Prenez la photo bien à plat, avec une bonne lumière."));
         const pp = prof();
-        if(!(str(pp.parcours).length >= 80 && !confirm(_t("Remplacer votre CV enregistré par « ") + imgs[0].name + " » ?"))) setParcours(txt, _t("la photo du CV « ") + imgs[0].name + " »");
+        if(!(str(pp.parcours).length >= 80 && !confirm(_t("Remplacer votre CV enregistré par « ") + imgs[0].name + " » ?"))) setParcours(txt, _t("la photo du CV « ") + imgs[0].name + " »");
       }catch(e){ status("#pc-status", "err", e.message || _t("Cette image n'a pas pu être lue.")); }
       finally{ drop.innerHTML = DROP_HTML; }
     }
@@ -2026,8 +2034,8 @@ async function handleFiles(files){
 async function handleDocFiles(files){
   for(const f of files){
     const name = f.name.toLowerCase();
-    drop.innerHTML = _t("<b>Lecture de « ") + f.name.replace(/[<>&"]/g, "") + " »…</b>";
-    status("#pc-status", "info", _t("Lecture de « ") + f.name + " »…");
+    drop.innerHTML = _t("<b>Lecture de « ") + f.name.replace(/[<>&"]/g, "") + " »…</b>";
+    status("#pc-status", "info", _t("Lecture de « ") + f.name + " »…");
     try{
       const buf = await f.arrayBuffer();
       let txt = "";
@@ -2044,8 +2052,8 @@ async function handleDocFiles(files){
       else throw new Error(_t("Format non pris en charge : utilisez un PDF, un .docx ou un fichier texte."));
       if(txt.length < 40) throw new Error(_t("Aucun texte trouvé dans ce fichier. Copiez-collez votre parcours à la main."));
       const pp = prof();
-      if(str(pp.parcours).length >= 80 && !confirm(_t("Remplacer votre CV enregistré par « ") + f.name + " » ?")) continue;
-      setParcours(txt, _t("le CV « ") + f.name + " »");
+      if(str(pp.parcours).length >= 80 && !confirm(_t("Remplacer votre CV enregistré par « ") + f.name + " » ?")) continue;
+      setParcours(txt, _t("le CV « ") + f.name + " »");
     }catch(e){
       status("#pc-status", "err", e.message && e.message.length > 12 ? e.message : _t("Ce fichier n'a pas pu être lu. Essayez un autre fichier, ou écrivez votre parcours."));
     }finally{ drop.innerHTML = DROP_HTML; }
@@ -2092,7 +2100,7 @@ async function findCompanyColor(){
   try{
     const body = { model:settings.model, max_tokens:1500,
       tools:[{ type:"web_search_20250305", name:"web_search", max_uses:2 }],
-      messages:[{ role:"user", content:"Trouve les couleurs du logo ou de la charte graphique de l'entreprise « " + str(h.entreprise) + " » (offre d'emploi : " + str(h.poste) + (h.data && h.data.cv && h.data.cv.contact && h.data.cv.contact.ville ? ", région " + str(h.data.cv.contact.ville) : "") + "). Réponds UNIQUEMENT par une ligne de 1 à 3 codes hexadécimaux #RRGGBB séparés par des espaces, la couleur principale en premier. Si tu ne trouves rien de fiable, réponds RIEN." }] };
+      messages:[{ role:"user", content:"Trouve les couleurs du logo ou de la charte graphique de l'entreprise « " + str(h.entreprise) + " » (offre d'emploi : " + str(h.poste) + (h.data && h.data.cv && h.data.cv.contact && h.data.cv.contact.ville ? ", région " + str(h.data.cv.contact.ville) : "") + "). Réponds UNIQUEMENT par une ligne de 1 à 3 codes hexadécimaux #RRGGBB séparés par des espaces, la couleur principale en premier. Si tu ne trouves rien de fiable, réponds RIEN." }] };
     let data;
     for(let i = 0; i < 3; i++){
       data = await callClaude(body, settings.apiKey); addCost(data.usage);
@@ -2144,7 +2152,7 @@ $("#btn-key-first").addEventListener("click", async () => {
 
 /* ---------- Appel à l'API Claude ---------- */
 // Relais Cloudflare : la vraie clé reste sur le serveur, le navigateur n'envoie qu'un code d'accès.
-// Toutes les requêtes passent par le relais. Une clé API « sk-ant-… » n'est jamais acceptée dans le navigateur.
+// Toutes les requêtes passent par le relais. Une clé API « sk-ant-… » n'est jamais acceptée dans le navigateur.
 const RELAIS = "https://jalon-relais.jalon-emploi.workers.dev/";
 async function callClaude(body, key){
   let res;
@@ -2181,32 +2189,32 @@ Ta mission : à partir du parcours réel d'un candidat et d'une offre d'emploi, 
 RÈGLES ABSOLUES
 1. N'invente RIEN. Aucun poste, employeur, date, diplôme, certification, chiffre, outil, langue ou compétence qui ne figure pas, au moins implicitement, dans le parcours. Si l'offre exige un élément absent du parcours, ne l'ajoute pas : signale-le dans "alertes".
 2. Adapte, reformule, réordonne : mets en avant ce qui correspond à l'offre, résume ou supprime ce qui est hors sujet. Reprends le vocabulaire exact de l'offre quand il décrit une réalité du parcours (les logiciels de tri des recruteurs cherchent ces mots-clés).
-3. Le CV tient sur UNE page : 5 expériences au maximum, choisies parmi les plus pertinentes pour l'offre et TOUJOURS classées de la plus récente à la plus ancienne (ordre antichronologique strict, même si une expérience ancienne est plus pertinente), 2 à 4 puces par expérience, chaque puce fait une ligne ou deux, sans point final, et commence par un nom d'action (« Réalisation des soins… », « Gestion de… », « Accueil de… »), jamais par un participe passé suivi d'un complément (pas de « Réalisée les soins », « Assuré la caisse »). Seule exception : une forme passive, accordée avec le genre du candidat (« Formée au… », « Reconnu par… »). Quand le parcours donne un volume, une durée, une fréquence ou un résultat, mets-le dans la puce. Regroupe ou abrège les expériences anciennes ou sans rapport.
-4. Accroche : 2 à 3 phrases à la première personne implicite, qui relient le parcours au poste visé. Aucun pronom personnel : ni « je », « me », « m' », « mon », « ma », ni « il », « elle ». Utilise des phrases nominales ou au participe (« Secrétaire médicale formée à… », « Habituée à… »). Pas de clichés creux (« dynamique et motivé »).
-5. Titre du CV = intitulé du poste visé, éventuellement complété (ex. « Conseiller clientèle — 3 ans d'expérience en relation client »), seulement si c'est vrai.
-6. Français impeccable, typographie française. Dates au format « 2021 – 2023 » ou « Depuis 2024 ».
-7. Compétences : 4 à 7 éléments, les plus pertinents pour l'offre d'abord. Chaque élément au format « **Domaine :** détails concrets tirés du parcours » (ex. « **Soins d'hygiène :** toilettes, levers, couchers, prévention des escarres »).
-8. Phrase clé (champ "phrase_cle") : UNE phrase de 70 à 130 caractères, placée sous le nom, qui résume l'argument le plus fort du candidat pour ce poste, avec un chiffre réel s'il existe dans le parcours (ex. « 7 ans auprès de personnes âgées dépendantes, dont 4 en EHPAD de 80 lits. »). Sans pronom personnel.
-9. Expériences : pour les 1 ou 2 plus importantes, "contexte" = une phrase qui situe le poste (structure, public, équipe, périmètre). Pour les autres, chaîne vide. N'écris jamais le nom propre d'un établissement (restaurant, magasin, entreprise) : décris-le (« Brasserie », « Supermarché »). Aucun détail anecdotique ou peu professionnel (pourboires, ambiance, vie privée). Les petites expériences sans rapport avec l'offre ne prennent pas de bloc : regroupe-les dans "autres_experiences" en une ligne (« Autres expériences : … »), ou chaîne vide.
-10. Mise en valeur : entoure de ** uniquement des chiffres et des résultats mesurables (« **28 résidents** », « **4 ans de conduite sans accident** »), jamais un mot seul ni une notion sans chiffre (pas de « **seule** », « **matin / après-midi** »), 3 à 7 fois dans tout le CV, seulement dans "phrase_cle", "contexte", "points" et "competences". Jamais une puce entière en gras.
-11. "certifications" : habilitations, permis spéciaux, CACES, AFGSU, cartes professionnelles, au format « **Intitulé** — précision, année ». Liste vide s'il n'y en a pas. Ne les répète pas dans "competences".
+3. Le CV tient sur UNE page : 5 expériences au maximum, choisies parmi les plus pertinentes pour l'offre et TOUJOURS classées de la plus récente à la plus ancienne (ordre antichronologique strict, même si une expérience ancienne est plus pertinente), 2 à 4 puces par expérience, chaque puce fait une ligne ou deux, sans point final, et commence par un nom d'action (« Réalisation des soins… », « Gestion de… », « Accueil de… »), jamais par un participe passé suivi d'un complément (pas de « Réalisée les soins », « Assuré la caisse »). Seule exception : une forme passive, accordée avec le genre du candidat (« Formée au… », « Reconnu par… »). Quand le parcours donne un volume, une durée, une fréquence ou un résultat, mets-le dans la puce. Regroupe ou abrège les expériences anciennes ou sans rapport.
+4. Accroche : 2 à 3 phrases à la première personne implicite, qui relient le parcours au poste visé. Aucun pronom personnel : ni « je », « me », « m' », « mon », « ma », ni « il », « elle ». Utilise des phrases nominales ou au participe (« Secrétaire médicale formée à… », « Habituée à… »). Pas de clichés creux (« dynamique et motivé »).
+5. Titre du CV = intitulé du poste visé, éventuellement complété (ex. « Conseiller clientèle — 3 ans d'expérience en relation client »), seulement si c'est vrai.
+6. Français impeccable, typographie française. Dates au format « 2021 – 2023 » ou « Depuis 2024 ».
+7. Compétences : 4 à 7 éléments, les plus pertinents pour l'offre d'abord. Chaque élément au format « **Domaine :** détails concrets tirés du parcours » (ex. « **Soins d'hygiène :** toilettes, levers, couchers, prévention des escarres »).
+8. Phrase clé (champ "phrase_cle") : UNE phrase de 70 à 130 caractères, placée sous le nom, qui résume l'argument le plus fort du candidat pour ce poste, avec un chiffre réel s'il existe dans le parcours (ex. « 7 ans auprès de personnes âgées dépendantes, dont 4 en EHPAD de 80 lits. »). Sans pronom personnel.
+9. Expériences : pour les 1 ou 2 plus importantes, "contexte" = une phrase qui situe le poste (structure, public, équipe, périmètre). Pour les autres, chaîne vide. N'écris jamais le nom propre d'un établissement (restaurant, magasin, entreprise) : décris-le (« Brasserie », « Supermarché »). Aucun détail anecdotique ou peu professionnel (pourboires, ambiance, vie privée). Les petites expériences sans rapport avec l'offre ne prennent pas de bloc : regroupe-les dans "autres_experiences" en une ligne (« Autres expériences : … »), ou chaîne vide.
+10. Mise en valeur : entoure de ** uniquement des chiffres et des résultats mesurables (« **28 résidents** », « **4 ans de conduite sans accident** »), jamais un mot seul ni une notion sans chiffre (pas de « **seule** », « **matin / après-midi** »), 3 à 7 fois dans tout le CV, seulement dans "phrase_cle", "contexte", "points" et "competences". Jamais une puce entière en gras.
+11. "certifications" : habilitations, permis spéciaux, CACES, AFGSU, cartes professionnelles, au format « **Intitulé** — précision, année ». Liste vide s'il n'y en a pas. Ne les répète pas dans "competences".
 12. Remplis la page sans la dépasser : plus le parcours est riche, plus tu détailles les expériences liées à l'offre (jusqu'à 5 puces pour l'expérience principale).
 13. N'indique jamais d'âge, de situation familiale ni de nationalité, sauf si le candidat l'a écrit.
-14. Chaque fait reste rattaché à l'expérience où il a eu lieu. Ne déplace jamais un chiffre, une qualité ou un résultat d'un poste vers un autre, ni vers une formule qui couvre tout le parcours (« phrase_cle », accroche, titre) s'il ne concerne qu'un seul poste : dans ce cas, nomme le poste concerné (« jamais absente en 3 ans comme caissière »).
-15. Pas de tournure elliptique ou bizarre : chaque formule doit se comprendre seule, sans deviner ce qu'elle sous-entend (pas de « sans absence », « zéro retard », « 100 % fiable »). Écris la phrase complète ou supprime l'idée.
+14. Chaque fait reste rattaché à l'expérience où il a eu lieu. Ne déplace jamais un chiffre, une qualité ou un résultat d'un poste vers un autre, ni vers une formule qui couvre tout le parcours (« phrase_cle », accroche, titre) s'il ne concerne qu'un seul poste : dans ce cas, nomme le poste concerné (« jamais absente en 3 ans comme caissière »).
+15. Pas de tournure elliptique ou bizarre : chaque formule doit se comprendre seule, sans deviner ce qu'elle sous-entend (pas de « sans absence », « zéro retard », « 100 % fiable »). Écris la phrase complète ou supprime l'idée.
 
 LETTRE DE MOTIVATION (uniquement si demandée)
 - 3 à 4 paragraphes, 250 à 350 mots au total : (1) pourquoi cette entreprise et ce poste, (2) ce que le candidat apporte, avec des faits tirés du parcours, (3) disponibilité et demande d'entretien, (4) formule de politesse.
-- Ne commence pas par « Madame, Monsieur » (ajouté automatiquement). Termine par la formule de politesse complète.
+- Ne commence pas par « Madame, Monsieur » (ajouté automatiquement). Termine par la formule de politesse complète.
 - Ton professionnel, sincère, concret. Aucune information inventée sur le candidat. Sur l'entreprise, n'utilise que ce que dit l'offre.
 
 CANDIDATURE SPONTANÉE (si la demande contient <candidature_spontanee> au lieu d'une annonce)
 - Il n'y a pas d'annonce : la cible est le poste visé dans l'entreprise nommée. Adapte le CV aux missions et compétences habituellement attendues pour ce poste en France, sans jamais inventer d'exigence propre à l'entreprise.
-- Si le site de l'entreprise est donné, lis sa page avec web_fetch (une ou deux pages au plus : accueil, « qui sommes-nous », recrutement). Sinon, ou si le site est illisible, fais une recherche web_search sur l'entreprise. N'utilise sur l'entreprise QUE des faits lus sur son site ou dans ces résultats (activité, secteur, valeurs, implantation). Si tu ne trouves rien de fiable, reste général sur l'entreprise : n'invente rien.
+- Si le site de l'entreprise est donné, lis sa page avec web_fetch (une ou deux pages au plus : accueil, « qui sommes-nous », recrutement). Sinon, ou si le site est illisible, fais une recherche web_search sur l'entreprise. N'utilise sur l'entreprise QUE des faits lus sur son site ou dans ces résultats (activité, secteur, valeurs, implantation). Si tu ne trouves rien de fiable, reste général sur l'entreprise : n'invente rien.
 - Ne réponds JAMAIS {"offre_lue": false} dans ce cas : un site illisible n'empêche pas de rédiger. Mets "offre_lue": true.
-- "offre_resume" commence par « Candidature spontanée — » puis : poste visé, entreprise, ce que fait l'entreprise d'après ce que tu as lu (ou « activité non vérifiée »), et les compétences habituelles du poste.
+- "offre_resume" commence par « Candidature spontanée — » puis : poste visé, entreprise, ce que fait l'entreprise d'après ce que tu as lu (ou « activité non vérifiée »), et les compétences habituelles du poste.
 - "score_adequation" : adéquation du parcours avec les exigences habituelles du poste. "alertes" : compétences ou diplômes souvent demandés pour ce poste absents du parcours, ou conseil pour la démarche spontanée.
-- Lettre : (1) pourquoi cette entreprise précisément (faits vérifiés seulement), (2) ce que le candidat peut apporter sur ce poste, avec des faits du parcours, (3) proposition de rencontre même sans poste ouvert, (4) formule de politesse. "objet" = « Candidature spontanée — poste de … ». Jamais « suite à votre annonce ».
+- Lettre : (1) pourquoi cette entreprise précisément (faits vérifiés seulement), (2) ce que le candidat peut apporter sur ce poste, avec des faits du parcours, (3) proposition de rencontre même sans poste ouvert, (4) formule de politesse. "objet" = « Candidature spontanée — poste de … ». Jamais « suite à votre annonce ».
 - "candidature.email" : adresse de recrutement ou de contact trouvée sur le site, sinon chaîne vide. "candidature.reference" : chaîne vide.
 
 OUTILS
@@ -2225,7 +2233,7 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans texte avant ni après, sans 
   "entreprise_adresse": "adresse ou ville de l'entreprise si présente dans l'offre, sinon chaîne vide",
   "score_adequation": nombre de 0 à 100 (adéquation réelle parcours/offre, sois honnête),
   "alertes": ["exigences de l'offre absentes du parcours, ou conseils pour l'entretien — 0 à 4 éléments courts"],
-  "message_court": "message de candidature de 400 à 600 caractères, à la première personne, pour la case « message au recruteur » des sites d'emploi ; reprend l'essentiel de la lettre (ou du CV s'il n'y a pas de lettre), sans « Madame, Monsieur » ni signature",
+  "message_court": "message de candidature de 400 à 600 caractères, à la première personne, pour la case « message au recruteur » des sites d'emploi ; reprend l'essentiel de la lettre (ou du CV s'il n'y a pas de lettre), sans « Madame, Monsieur » ni signature",
   "candidature": { "email": "adresse e-mail pour postuler si l'annonce en donne une, sinon chaîne vide", "reference": "référence de l'offre si elle existe, sinon chaîne vide" },
   "cv": {
     "nom": "Prénom Nom",
@@ -2335,7 +2343,7 @@ $("#btn-generate").addEventListener("click", async () => {
   const url = spont ? spSite : $("#offre-url").value.trim();
   const offre = spont ? "" : $("#offre").value.trim();
   const wantLettre = $("#opt-lettre").checked && !isFree();
-  if(!settings.apiKey){ status("#status-gen", "err", _t("Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation ».")); $("#step-key").hidden = false; return; }
+  if(!settings.apiKey){ status("#status-gen", "err", _t("Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation ».")); $("#step-key").hidden = false; return; }
   if(parcours.length < 80){ status("#status-gen", "err", _t("Votre parcours est trop court. Déposez votre ancien CV ou décrivez vos expériences.")); $("#profile-parcours").focus(); return; }
   if(spont && spEnt.length < 2){ status("#status-gen", "err", _t("Indiquez le nom de l'entreprise.")); $("#sp-entreprise").focus(); return; }
   if(spont && spPoste.length < 2){ status("#status-gen", "err", _t("Indiquez le poste visé.")); $("#sp-poste").focus(); return; }
@@ -2567,7 +2575,7 @@ function renderAll(out, html){
   $("#empty").hidden = true; $("#tabs").hidden = false; $("#step-dl").hidden = false; $("#edit-hint").hidden = false; $("#help-link").hidden = false; $("#feedback-box").hidden = false;
   $("#btn-regen").textContent = regenLabel();
   renderSettings(); applyLook(); showTab("cv"); refreshValidate(); refreshVersions(); refreshUndo();
-  moReplay($("#holder-cv"));   // CV régénéré ou rouvert : il « se pose » sans jamais être masqué
+  moReplay($("#holder-cv"));   // CV régénéré ou rouvert : il « se pose » sans jamais être masqué
   if(document.body.classList.contains("chat-open")) renderChat();
 }
 
@@ -2633,13 +2641,35 @@ function showTab(t){
   activeTab = t;
   document.querySelectorAll("#tabs .tab").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
   $("#holder-cv").hidden = t !== "cv"; $("#holder-lettre").hidden = t !== "lettre";
+  // Correction par défaut = le document affiché (« Les deux » seulement si la personne le choisit) : une seule génération
+  const rc = document.querySelector('input[name="cible"][value="' + (t === "lettre" ? "lettre" : "cv") + '"]');
+  if(rc && !rc.checked){ rc.checked = true; $("#btn-regen").textContent = regenLabel(); }
   scalePreview(); fitVisible();
 }
 document.querySelectorAll("#tabs .tab").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+/* Zoom du CV et de la lettre : curseur, boutons, pincement au trackpad (Ctrl + molette) et gestes Safari */
+$("#zoom-range").addEventListener("input", e => setZoom(e.target.value / 100));
+$("#zoom-in").addEventListener("click", () => setZoom(zoomDoc + .1));
+$("#zoom-out").addEventListener("click", () => setZoom(zoomDoc - .1));
+$("#zoom-val").addEventListener("click", () => setZoom(1));
+$("#preview").addEventListener("wheel", e => {
+  if(!e.ctrlKey || isM() || !document.querySelector("#preview > .page-holder:not([hidden])")) return;
+  e.preventDefault(); setZoom(zoomDoc * Math.exp(-e.deltaY * .01));
+}, { passive:false });
+let gestZ = 1;
+$("#preview").addEventListener("gesturestart", e => { e.preventDefault(); gestZ = zoomDoc; });
+$("#preview").addEventListener("gesturechange", e => { e.preventDefault(); if(!isM()) setZoom(gestZ * e.scale); });
 
+let zoomDoc = (() => { try{ const z = parseFloat(localStorage.getItem("cvx_zoom")); return z >= .5 && z <= 2 ? z : 1; }catch(e){ return 1; } })();
+function setZoom(z){
+  zoomDoc = Math.round(Math.min(2, Math.max(.5, z)) * 100) / 100;
+  try{ localStorage.setItem("cvx_zoom", String(zoomDoc)); }catch(e){}
+  $("#zoom-range").value = Math.round(zoomDoc * 100); $("#zoom-val").textContent = Math.round(zoomDoc * 100) + " %";
+  scalePreview();
+}
 function scalePreview(){
   const w = $("#preview").clientWidth - 40;
-  const s = Math.min(1, w / 794);
+  const s = Math.min(1, w / 794) * (isM() ? 1 : zoomDoc);
   document.querySelectorAll(".page-holder").forEach(h => { h.style.setProperty("--s", s); h.style.height = (1123 * s) + "px"; });
 }
 window.addEventListener("resize", scalePreview);
@@ -2773,7 +2803,7 @@ function renderBoard(groups){
   $("#apps-hello-s").textContent = !groups.length ? _t("Créez un CV ou ajoutez une candidature pour démarrer votre suivi.") : todo.length ? (todo.length === 1 ? _t("1 chose à faire aujourd'hui.") : todo.length + _t(" choses à faire aujourd'hui.")) : _t("Rien d'urgent aujourd'hui.");
   const box = $("#todo-box"); box.innerHTML = ""; box.hidden = !groups.length;
   box.appendChild(el("b", "", _t("À faire aujourd'hui")));
-  if(!todo.length){ box.appendChild(el("p", "todo-none", _t("Tout est à jour. Une nouvelle offre vous intéresse ? Créez un CV adapté dans l'onglet « Créer »."))); }
+  if(!todo.length){ box.appendChild(el("p", "todo-none", _t("Tout est à jour. Une nouvelle offre vous intéresse ? Créez un CV adapté dans l'onglet « Créer »."))); }
   todo.slice(0, 5).forEach(t => {
     const it = el("div", "todo-item"), tx = el("div", "tx");
     tx.appendChild(el("b", "", t.title)); tx.appendChild(el("span", "", t.sub)); it.appendChild(tx);
@@ -2806,7 +2836,7 @@ function openGroup(G, sub){
   renderFicheView();
   if(window.innerWidth < 900) $("#fiche-view").scrollIntoView({ behavior:"smooth", block:"start" });
 }
-/* Mes CV récents, dans l'onglet Créer : on retrouve un ancien CV sans passer par « Mes candidatures » */
+/* Mes CV récents, dans l'onglet Créer : on retrouve un ancien CV sans passer par « Mes candidatures » */
 const fmtShort = t => { const d = new Date(t); return d.toLocaleDateString(LOCALE, { day:"numeric", month:"short" }) + t_at() + d.toLocaleTimeString(LOCALE, { hour:"2-digit", minute:"2-digit" }); };
 /* Suppression d'une candidature (toutes ses versions, son suivi, ses notes) : même effet depuis Créer et Mes candidatures */
 async function deleteGroup(G){
@@ -2814,7 +2844,7 @@ async function deleteGroup(G){
   const name = escHtml((G.versions[0].poste || _t("Poste")) + (latest.entreprise ? " · " + latest.entreprise : ""));
   const sent = !!appliedOf(G);
   const ok = await askBox({ title:_t("Supprimer ce CV ?"),
-    html:"<p><b>" + name + "</b>" + (n > 1 ? " (" + n + " versions)" : "") + "</p><p>" + _t("Le CV, la lettre et toutes leurs versions seront supprimés, dans « Créer » comme dans « Mes candidatures ». C'est définitif.") + "</p>" +
+    html:"<p><b>" + name + "</b>" + (n > 1 ? " (" + n + " versions)" : "") + "</p><p>" + _t("Le CV, la lettre et toutes leurs versions seront supprimés, dans « Créer » comme dans « Mes candidatures ». C'est définitif.") + "</p>" +
       (sent ? "<p><b>" + _t("Cette candidature a déjà été envoyée :") + "</b> " + _t("son suivi (date d'envoi, relance, entretien, notes) sera perdu et elle disparaîtra du récapitulatif de vos démarches.") + "</p>" : ""),
     buttons:[{ label:_t("Supprimer"), cls:"danger", value:true }, { label:_t("Annuler"), cls:"alt", value:false }] });
   if(!ok) return;
@@ -2964,12 +2994,12 @@ function doPrint(){
   if(inAppBrowser() || typeof window.print !== "function"){
     printDone();
     try{ navigator.clipboard.writeText(location.href); }catch(e){}
-    alert(_t("Cette fenêtre (ouverte depuis une application) ne permet pas de créer le PDF.\n\nOuvrez Jaltio dans Safari ou Chrome : touchez « ⋯ » puis « Ouvrir dans le navigateur ». Le lien a été copié, vous pouvez aussi le coller dans Safari ou Chrome."));
+    alert(_t("Cette fenêtre (ouverte depuis une application) ne permet pas de créer le PDF.\n\nOuvrez Jaltio dans Safari ou Chrome : touchez « ⋯ » puis « Ouvrir dans le navigateur ». Le lien a été copié, vous pouvez aussi le coller dans Safari ou Chrome."));
     return;
   }
   /* Appel direct dans le clic : sur iPhone, un print() différé (setTimeout) peut être ignoré */
   window.print();
-  /* Filet si « afterprint » n'arrive jamais (certains mobiles) */
+  /* Filet si « afterprint » n'arrive jamais (certains mobiles) */
   setTimeout(() => { if(printTitleOld !== null){ document.title = printTitleOld; printTitleOld = null; } }, 60000);
 }
 /* Téléchargement direct du CV ou de la lettre en PDF, toujours sur UNE page A4 (plus de fenêtre d'impression).
@@ -3023,7 +3053,7 @@ async function downloadPDF(which){
     wrap.appendChild(c); document.body.appendChild(wrap);
     /* Mise en page recalculée sur la copie : même si l'aperçu est caché, le PDF tient sur une page */
     if(which === "cv") fitCV(c); else fitPage(c, 11, 9.5);
-    /* La photo (recadrée en rond ou carré) passe en fond d'image : html2canvas ne gère pas « object-fit » */
+    /* La photo (recadrée en rond ou carré) passe en fond d'image : html2canvas ne gère pas « object-fit » */
     c.querySelectorAll("img.photo").forEach(im => {
       const d = document.createElement("div"); d.className = im.className; const cs = getComputedStyle(im);
       d.style.cssText = "background:url(" + JSON.stringify(im.src) + ") center/cover no-repeat;width:" + cs.width + ";height:" + cs.height;
@@ -3116,7 +3146,7 @@ function snapDiffText(h, sn){
     if(sn.lettre && h.lettreHtml) linesDiff(lettreLines(snapHtml(sn.lettre)), lettreLines(h.lettreHtml)).forEach(add);
   }catch(e){}
   const cutShort = x => x.length > 120 ? x.slice(0, 120) + "…" : x;
-  const quote = arr => "« " + arr.slice(0, 2).map(cutShort).join(" » ; « ") + " »" + (arr.length > 2 ? " (et " + (arr.length - 2) + " autre" + (arr.length > 3 ? "s" : "") + ")" : "");
+  const quote = arr => "« " + arr.slice(0, 2).map(cutShort).join(" » ; « ") + " »" + (arr.length > 2 ? " (et " + (arr.length - 2) + " autre" + (arr.length > 3 ? "s" : "") + ")" : "");
   const out = [];
   if(back.length) out.push(_t("Vous retrouveriez : ") + quote(back));
   if(gone.length) out.push(_t("Vous perdriez : ") + quote(gone));
@@ -3137,7 +3167,7 @@ function restoreSnap(sn){
   const l = lettreFromHtml(h.lettreHtml); if(l) h.data.lettre = Object.assign({}, h.data.lettre, l);
   h.baseCvHtml = h.cvHtml; h.baseLettreHtml = h.lettreHtml; h.dirty = false; h.touched = Date.now();
   saveHistory(); refreshValidate(); refreshUndo(); fitVisible();
-  status("#status-gen", "ok", _t("Version du ") + fmtSnapWhen(sn.t) + _t(" retrouvée. Votre version précédente reste disponible dans « Revenir à une version précédente »."));
+  status("#status-gen", "ok", _t("Version du ") + fmtSnapWhen(sn.t) + _t(" retrouvée. Votre version précédente reste disponible dans « Revenir à une version précédente »."));
 }
 
 /* ---------- Grande fenêtre des versions ---------- */
@@ -3455,8 +3485,8 @@ const CHAT_SYSTEM = `Tu es ${BRAND.name}, un coach emploi virtuel (une intellige
 - Sois honnête : si quelque chose est faible, dis-le clairement et propose mieux. Pas de compliments gratuits.
 - Appuie-toi sur le contexte fourni (parcours, annonce, CV et lettre tels qu'ils sont à l'écran). N'invente jamais d'expérience, de diplôme ni de compétence.
 - Photo : juge seulement le cadrage, la lumière, le fond, la netteté, la tenue et l'expression au regard du poste visé. Ne commente jamais le physique, l'âge apparent ou l'origine.
-- Tu ne modifies pas les documents toi-même. Quand une amélioration est convenue, rappelle en une phrase que le candidat peut cliquer sur « Au CV », « À la lettre » ou « Aux deux » sous la discussion pour l'appliquer.
-- Mise en forme : paragraphes courts, listes avec « - », gras avec **…** avec parcimonie. Pas de titres, pas de tableaux.
+- Tu ne modifies pas les documents toi-même. Quand une amélioration est convenue, rappelle en une phrase que le candidat peut cliquer sur « Au CV », « À la lettre » ou « Aux deux » sous la discussion pour l'appliquer.
+- Mise en forme : paragraphes courts, listes avec « - », gras avec **…** avec parcimonie. Pas de titres, pas de tableaux.
 - Si on te demande qui tu es, dis clairement que tu es une intelligence artificielle, jamais une personne.`;
 
 function chatList(){
@@ -3518,7 +3548,7 @@ let chatBusy = false;
 async function sendChat(text){
   text = str(text); if(!text || chatBusy) return;
   if(freeBlock()) return;
-  if(!settings.apiKey){ $("#step-key").hidden = false; alert(_t("Enregistrez d'abord la clé d'accès (encadré « Première utilisation »).")); return; }
+  if(!settings.apiKey){ $("#step-key").hidden = false; alert(_t("Enregistrez d'abord la clé d'accès (encadré « Première utilisation »).")); return; }
   const list = chatList(); list.push({ role:"user", text }); saveChat(); renderChat();
   stopDictation(); $("#chat-input").value = ""; growChat(); chatBusy = true; $("#chat-send").disabled = true;
   const wait = el("div", "msg wait", BRAND.name + _t(" réfléchit…")); $("#chat-msgs").appendChild(wait); $("#chat-msgs").scrollTop = 1e9;
@@ -3672,7 +3702,7 @@ function renderFiche(){
     const line = el("div", "row");
     const inp = el(f.k === "message" ? "textarea" : "input"); inp.id = id; if(f.k !== "message") inp.type = "text";
     inp.value = f.value;
-    if(f.k === "message") inp.placeholder = _t("Quelques lignes pour la case « message » des sites. Cliquez sur « Rédiger » pour que ") + BRAND.name + _t(" l'écrive à partir de votre lettre.");
+    if(f.k === "message") inp.placeholder = _t("Quelques lignes pour la case « message » des sites. Cliquez sur « Rédiger » pour que ") + BRAND.name + _t(" l'écrive à partir de votre lettre.");
     inp.addEventListener("input", debounce(() => saveFicheValue(f.k, f.personal, inp.value), 400));
     line.appendChild(inp);
     const cp = el("button", "btn small copy", _t("Copier")); cp.type = "button";
@@ -3698,10 +3728,10 @@ async function draftMessage(inp, btn){
   btn.disabled = true; const old = btn.textContent; btn.textContent = BRAND.name + _t(" écrit…");
   try{
     const data = await callClaude({ model:settings.model, max_tokens:2000,
-      system:"Tu rédiges des messages de candidature courts, en " + LANG_FR[(h && h.data && h.data._lang) || "fr"] + ", pour la case « message au recruteur » des sites d'emploi.",
+      system:"Tu rédiges des messages de candidature courts, en " + LANG_FR[(h && h.data && h.data._lang) || "fr"] + ", pour la case « message au recruteur » des sites d'emploi.",
       messages:[{ role:"user", content:"Poste visé : " + h.poste + (h.entreprise ? " chez " + h.entreprise : "") + "\n\n" +
         (l ? "<lettre>\n" + l.paragraphes.join("\n\n") + "\n</lettre>\n\n" : "") + "<cv>\n" + cvTxt + "\n</cv>\n\n" + retouchesBlock(prof()) +
-        "Rédige un message de 400 à 600 caractères, à la première personne, professionnel et sincère, qui donne envie d'ouvrir le CV. Pas de « Madame, Monsieur », pas de signature, pas d'objet. N'invente rien. Réponds uniquement par le message." }] }, settings.apiKey);
+        "Rédige un message de 400 à 600 caractères, à la première personne, professionnel et sincère, qui donne envie d'ouvrir le CV. Pas de « Madame, Monsieur », pas de signature, pas d'objet. N'invente rien. Réponds uniquement par le message." }] }, settings.apiKey);
     addCost(data.usage);
     const msg = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim();
     if(msg){ inp.value = msg; saveFicheValue("message", 0, msg); btn.textContent = _t("Réécrire avec ") + BRAND.name; btn.disabled = false; return; }
@@ -3785,9 +3815,9 @@ function refreshShare(){
   const own = (document.querySelector('input[name="ap-src"]:checked') || {}).value === "own";
   const ok = own && canShareFiles();
   $("#ap-share").hidden = !ok;
-  $("#ap-mail-hint").textContent = ok ? _t("« Envoyer avec mes fichiers » ouvre le menu de partage : choisissez votre messagerie, vos fichiers sont déjà joints. L'adresse du recruteur est copiée : collez-la dans « À ».")
+  $("#ap-mail-hint").textContent = ok ? _t("« Envoyer avec mes fichiers » ouvre le menu de partage : choisissez votre messagerie, vos fichiers sont déjà joints. L'adresse du recruteur est copiée : collez-la dans « À ».")
     : own ? _t("L'e-mail s'ouvre déjà rédigé dans votre messagerie : il reste à joindre le CV et la lettre en PDF, puis à envoyer.")
-    : _t("L'e-mail s'ouvre déjà rédigé dans votre messagerie : il reste à joindre le CV et la lettre en PDF, puis à envoyer. Astuce : téléchargez vos PDF puis ajoutez-les dans « Mes propres fichiers » pour les joindre automatiquement.");
+    : _t("L'e-mail s'ouvre déjà rédigé dans votre messagerie : il reste à joindre le CV et la lettre en PDF, puis à envoyer. Astuce : téléchargez vos PDF puis ajoutez-les dans « Mes propres fichiers » pour les joindre automatiquement.");
 }
 function mailParts(){
   const h = curHist(), f = ficheFields(), g = k => (f.find(x => x.k === k) || {}).value || "";
@@ -3799,7 +3829,7 @@ $("#ap-share").addEventListener("click", async () => {
   const to = $("#ap-email").value.trim(), m = mailParts();
   if(to) try{ await navigator.clipboard.writeText(to); }catch(e){}
   try{ await navigator.share({ files: shareFiles(), title: m.subject, text: (to ? to + "\n\n" : "") + m.subject + "\n\n" + m.body }); }
-  catch(e){ if(e && e.name !== "AbortError") alert(_t("Le partage n'a pas fonctionné sur cet appareil. Utilisez « Préparer l'e-mail » puis joignez vos fichiers.")); }
+  catch(e){ if(e && e.name !== "AbortError") alert(_t("Le partage n'a pas fonctionné sur cet appareil. Utilisez « Préparer l'e-mail » puis joignez vos fichiers.")); }
 });
 
 /* Contact de l'entreprise : uniquement ce que l'employeur publie pour recevoir des candidatures (annonce, page carrières officielle) */
@@ -3860,7 +3890,7 @@ $("#ap-mail").addEventListener("click", () => {
 function renderApplied(){
   const box = $("#ap-applied"); box.innerHTML = "";
   const h = curHist();
-  if(!h){ box.appendChild(el("p", "hint", _t("Le suivi « J'ai postulé » est disponible pour les candidatures créées ici."))); return; }
+  if(!h){ box.appendChild(el("p", "hint", _t("Le suivi « J'ai postulé » est disponible pour les candidatures créées ici."))); return; }
   const G = groupsFor(h.profileId).find(g => g.id === groupOf(h));
   const applied = appliedOf(G), relance = relanceOf(G);
   if(!applied){
@@ -4012,7 +4042,7 @@ $("#m-fix").addEventListener("click", () => {
 $("#m-new").addEventListener("click", () => { $("#offre").value = ""; $("#offre-url").value = ""; clearSpont(); showEmpty(); setMStep("offre"); window.scrollTo({ top:0 }); });
 
 
-/* ===================== Aide « Comment modifier mon CV ? » ===================== */
+/* ===================== Aide « Comment modifier mon CV ? » ===================== */
 /* Affichée une seule fois par appareil, après la première génération réussie ; ensuite via le lien près du CV */
 const HELP_CURSOR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 2l15 9-6.5 1.6L9 19z" fill="#2A1A2F" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>';
 let helpReturnFocus = null;
@@ -4022,8 +4052,8 @@ function fillHelp(){
     ? '<span class="hd-fix"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg>' + _t("Je veux changer quelque chose") + '</span>'
     : '<div class="hd-page"><div class="hd-bar"></div><div class="hd-line w80"></div><div class="hd-line hd-edit w60"><span class="hd-caret"></span></div><div class="hd-line w90"></div><div class="hd-line w70"></div><div class="hd-cursor">' + HELP_CURSOR + '<span class="hd-ring"></span></div></div>';
   $("#help-desc").textContent = m
-    ? _t("Quelque chose ne vous plaît pas ? Touchez « Je veux changer quelque chose » et dites-le, à l'écrit ou à la voix.")
-    : _t("Vous pouvez modifier votre CV directement : cliquez sur n'importe quel texte et écrivez. Pensez ensuite à « Enregistrer mes retouches ».");
+    ? _t("Quelque chose ne vous plaît pas ? Touchez « Je veux changer quelque chose » et dites-le, à l'écrit ou à la voix.")
+    : _t("Vous pouvez modifier votre CV directement : cliquez sur n'importe quel texte et écrivez. Pensez ensuite à « Enregistrer mes retouches ».");
 }
 function helpFocusables(){ return [...$("#help").querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")].filter(n => !n.disabled && !n.hidden); }
 function openHelp(){
@@ -4156,7 +4186,7 @@ $("#pc-reset").addEventListener("click", () => {
 /* Lecture du CV par l'IA */
 const RESUME_SCHEMA = "{\"nom\":\"\",\"titre\":\"métier principal en quelques mots\",\"ville\":\"\",\"telephone\":\"\",\"email\":\"\",\"permis\":\"\",\"experiences\":[{\"poste\":\"\",\"entreprise\":\"\",\"lieu\":\"\",\"dates\":\"\",\"contrat\":\"CDI, CDD, Intérim, Stage, Alternance, Apprentissage, Saisonnier, Job étudiant, Indépendant, Bénévolat ou Service civique, seulement si le CV le dit, sinon vide\",\"missions\":[\"tâches et résultats, tels qu'écrits\"]}],\"formations\":[{\"diplome\":\"\",\"etablissement\":\"\",\"dates\":\"\"}],\"competences\":[\"compétences courtes\"],\"langues\":[\"Anglais — courant\"],\"certifications\":[\"CACES, habilitations, cartes pro (pas le permis B)\"],\"interets\":[\"\"]}";
 const RESUME_SYSTEM = "Tu lis le parcours d'un candidat (texte extrait de son CV, parfois en vrac) et tu le ranges fidèlement dans une fiche. N'invente rien, ne reformule pas les intitulés, garde toutes les missions décrites. " +
-  "Si le texte contient une section « Précisions et corrections du candidat », elle prime sur le reste. Expériences de la plus récente à la plus ancienne. Chaîne ou liste vide si inconnu. " +
+  "Si le texte contient une section « Précisions et corrections du candidat », elle prime sur le reste. Expériences de la plus récente à la plus ancienne. Chaîne ou liste vide si inconnu. " +
   "Réponds UNIQUEMENT avec un objet JSON valide de cette forme : " + RESUME_SCHEMA;
 const RESUME_UPDATE_SYSTEM = "Tu tiens à jour la fiche CV d'un candidat. On te donne la fiche actuelle (JSON) et une demande du candidat (ajout, correction, suppression). Applique UNIQUEMENT ce qu'il demande, garde tout le reste à l'identique, n'invente rien. " +
   "Réponds UNIQUEMENT avec la fiche complète mise à jour, objet JSON valide de cette forme : " + RESUME_SCHEMA;
@@ -4256,7 +4286,7 @@ function chipSearch(k, list, onAdd){
     v = capFirst(v);
     if(!hasWord(v)){ warn.textContent = _t("Écrivez un mot complet."); warn.hidden = false; return; }
     if(k === "langues"){ v = v.replace(/\s*[—-].*$/, ""); v = v + " — " + (lvl.value === "Langue maternelle" ? _t("langue maternelle") : lvl.value.charAt(0).toLowerCase() + lvl.value.slice(1)); }
-    if(already(list, v)){ warn.textContent = "« " + v + _t(" » est déjà dans votre fiche."); warn.hidden = false; return; }
+    if(already(list, v)){ warn.textContent = "« " + v + _t(" » est déjà dans votre fiche."); warn.hidden = false; return; }
     onAdd(v);
   };
   const show = () => {
@@ -4267,7 +4297,7 @@ function chipSearch(k, list, onAdd){
     ul.innerHTML = "";
     if(!opts.length){ close(); return; }
     opts.forEach((o, i) => { const li = el("li", o.free ? "free" : ""); li.id = lid + "-" + i; li.setAttribute("role", "option");
-      li.textContent = o.free ? _t("Ajouter « ") + capFirst(o.v) + _t(" » tel quel") : o.v;
+      li.textContent = o.free ? _t("Ajouter « ") + capFirst(o.v) + _t(" » tel quel") : o.v;
       if(o.free && opts.length === 1) li.appendChild(el("small", "", _t("Pas dans la liste : vérifiez l'orthographe.")));
       li.addEventListener("mousedown", e => e.preventDefault()); li.addEventListener("click", () => choose(o.v)); ul.appendChild(li); });
     act = opts[0].free ? -1 : 0; ul.hidden = false; inp.setAttribute("aria-expanded", "true"); placeList(); paint();
@@ -4333,7 +4363,7 @@ function contratField(form, value){
 }
 /* Missions écrites avec ses mots : Jaltio comprend le contexte du poste et les reformule pour le CV */
 const MISSIONS_SYSTEM = "Tu aides un candidat à décrire une expérience pour son CV. Il écrit avec ses mots, parfois en vrac, comme à l'oral, avec des fautes, éventuellement dans une autre langue. " +
-  "Comprends ce qu'il faisait dans le contexte du poste (intitulé, type de contrat, entreprise), puis réécris-le en missions de CV, en français : une mission par ligne, 2 à 6 lignes, chacune d'une ligne ou deux, sans point final, commençant par un nom d'action (« Mise en rayon… », « Accueil et conseil… », « Gestion de… »), avec le vocabulaire des offres d'emploi du métier. " +
+  "Comprends ce qu'il faisait dans le contexte du poste (intitulé, type de contrat, entreprise), puis réécris-le en missions de CV, en français : une mission par ligne, 2 à 6 lignes, chacune d'une ligne ou deux, sans point final, commençant par un nom d'action (« Mise en rayon… », « Accueil et conseil… », « Gestion de… »), avec le vocabulaire des offres d'emploi du métier. " +
   "Garde tous les faits qu'il donne (chiffres, volumes, fréquences, outils, logiciels, publics, résultats) et rien d'autre : n'invente aucune tâche, aucun chiffre, aucun outil, aucune responsabilité, et n'exagère pas son niveau. Regroupe ce qui se répète, retire le hors-sujet et ce qui n'est pas professionnel. " +
   "Si le texte est déjà une liste de missions propres, corrige seulement l'orthographe et la forme. Réponds UNIQUEMENT en JSON : {\"missions\":[\"...\"]}";
 function missionsReformBox(form, ta, ctx, initial){
@@ -4355,7 +4385,7 @@ function missionsReformBox(form, ta, ctx, initial){
       const xs = arr(r && r.missions).map(s => str(s).replace(/^[-•*]\s*/, "").replace(/\.\s*$/, "")).filter(Boolean);
       if(!xs.length) throw new Error("vide");
       before = ta.value; ta.value = xs.join("\n"); reformed = true; undo.hidden = false;
-      msg.textContent = fromSave ? _t("Voici vos missions reformulées. Vérifiez-les, corrigez si besoin, puis cliquez à nouveau sur « Enregistrer ».")
+      msg.textContent = fromSave ? _t("Voici vos missions reformulées. Vérifiez-les, corrigez si besoin, puis cliquez à nouveau sur « Enregistrer ».")
         : _t("Missions reformulées. Vérifiez-les et corrigez si besoin avant d'enregistrer.");
     }catch(e){ reformed = true; msg.textContent = _t("La reformulation n'a pas fonctionné. Votre texte est conservé : vous pouvez l'enregistrer tel quel ou réessayer."); }
     busy = false; b.disabled = false;
@@ -4387,14 +4417,14 @@ function renderProfilView(){
   }
   if(!r){
     const c = card(_t("Votre CV est enregistré"), "pv-ok");
-    c.appendChild(el("p", "", !settings.apiKey ? _t("Votre CV est bien pris en compte. Saisissez votre code d'accès (encadré « Première utilisation ») pour le voir rangé en fiche.")
+    c.appendChild(el("p", "", !settings.apiKey ? _t("Votre CV est bien pris en compte. Saisissez votre code d'accès (encadré « Première utilisation ») pour le voir rangé en fiche.")
       : p.resumeErr ? _t("La fiche n'a pas pu être préparée, mais votre CV est bien pris en compte : vous pouvez créer vos CV adaptés.") : _t("Votre CV est bien pris en compte.")));
     if(settings.apiKey) c.appendChild(btn(_t("Ranger mon CV en fiche"), "small", () => analyzeParcours(p)));
     box.appendChild(c); return;
   }
   if(analyzing !== p.id){
     const ok = card(_t("Votre CV a bien été pris en compte"), "pv-ok");
-    ok.appendChild(el("p", "", _t("Vérifiez chaque bloc : le bouton « Modifier » corrige une information, les boutons « + Ajouter » complètent votre fiche. Tout est enregistré et servira à vos prochains CV.")));
+    ok.appendChild(el("p", "", _t("Vérifiez chaque bloc : le bouton « Modifier » corrige une information, les boutons « + Ajouter » complètent votre fiche. Tout est enregistré et servira à vos prochains CV.")));
     const m = manques(r);
     if(m.length){ const ul = el("ul", "pv-miss"); m.forEach(t => ul.appendChild(el("li", "", t))); ok.appendChild(el("b", "", _t("À compléter si possible :"))); ok.appendChild(ul); }
     box.appendChild(ok);
@@ -4473,9 +4503,9 @@ function renderProfilView(){
     }, _t("Aucune formation pour l'instant."));
 
   /* Compétences, langues, certifications, centres d'intérêt : pastilles + recherche */
-  const HELP = { competences:_t("Tapez quelques lettres et choisissez dans la liste. Préférez des savoir-faire précis (« Encaissement », « Excel avancé ») aux mots vagues."),
+  const HELP = { competences:_t("Tapez quelques lettres et choisissez dans la liste. Préférez des savoir-faire précis (« Encaissement », « Excel avancé ») aux mots vagues."),
     langues:_t("Choisissez la langue, puis votre niveau."), certifications:_t("Permis, CACES, habilitations, secourisme, titres et cartes professionnelles."),
-    interets:_t("Soyez précis : « Course à pied (semi-marathon) » parle plus qu'« Sport ».") };
+    interets:_t("Soyez précis : « Course à pied (semi-marathon) » parle plus qu'« Sport ».") };
   Object.keys(LISTS).forEach(k => {
     if(!Array.isArray(r[k])) r[k] = [];
     const c = card(_t(LISTS[k]));
@@ -4483,7 +4513,7 @@ function renderProfilView(){
     const d = el("div", "chips");
     r[k].forEach((t, i) => {
       const s = el("span", moNewChip === k && i === r[k].length - 1 ? "mo-pop" : "", str(t));
-      const x = el("button", "x", "×"); x.type = "button"; x.setAttribute("aria-label", _t("Retirer « ") + str(t) + " »");
+      const x = el("button", "x", "×"); x.type = "button"; x.setAttribute("aria-label", _t("Retirer « ") + str(t) + " »");
       x.addEventListener("click", () => { r[k].splice(i, 1); syncParcours(p); renderProfilView(); });
       s.appendChild(x); d.appendChild(s);
     });
@@ -4659,7 +4689,7 @@ const PREP_SYSTEM = "Tu es un coach emploi français, chaleureux et franc. Tu pr
   "\"questions\": [{\"question\": \"question probable du recruteur\", \"conseil\": \"comment y répondre en 1 à 2 phrases, avec un exemple tiré du CV\"} — 6 à 8 questions], \"a_demander\": [2 à 3 questions pertinentes à poser au recruteur]}.";
 async function prepareInterview(G, latest, b, st){
   if(freeBlock()) return;
-  if(!settings.apiKey){ st.className = "status err"; st.textContent = _t("Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation »."); return; }
+  if(!settings.apiKey){ st.className = "status err"; st.textContent = _t("Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation »."); return; }
   b.disabled = true; st.className = "status info"; st.textContent = BRAND.name + _t(" prépare votre entretien, comptez 20 à 40 secondes.");
   try{
     const d = latest.data || {}, cvTxt = cvTextFromHtml(latest.cvHtml || "");
@@ -5140,7 +5170,7 @@ function freeUi(){
   const f = isFree(), o = $("#opt-lettre");
   if(f){ o.checked = false; o.disabled = true; $("#opt-lettre-txt").textContent = _t("Lettre de motivation : incluse dans Jaltio Essentiel"); }
   else if(o.disabled){ o.disabled = false; o.checked = true; $("#opt-lettre-txt").textContent = _t("Rédiger aussi la lettre de motivation"); }
-  // Corrections : en Free, seul le CV (les choix « La lettre » et « Les deux » sont masqués)
+  // Corrections : en Free, seul le CV (les choix « La lettre » et « Les deux » sont masqués)
   document.querySelectorAll('input[name="cible"]').forEach(r => { if(r.value !== "cv") r.closest("label").style.display = f ? "none" : ""; if(f) r.checked = r.value === "cv"; });
   if(!f && !document.querySelector('input[name="cible"]:checked')){ const b = document.querySelector('input[name="cible"][value="both"]'); if(b) b.checked = true; }
   $("#btn-regen").textContent = regenLabel();
@@ -5259,19 +5289,19 @@ setInterval(() => { if(syncSt && document.visibilityState === "visible" && !sync
   });
   if(changed) saveHistory();
 })();
-/* ---------- Visite guidée (première visite, puis « Revoir la visite guidée » dans Mon profil) ---------- */
+/* ---------- Visite guidée (première visite, puis « Revoir la visite guidée » dans Mon profil) ---------- */
 const TOUR = [
   { title:_t("Bienvenue sur ") + BRAND.name, text:"<p>" + BRAND.name + _t(" adapte votre CV et votre lettre de motivation à chaque offre d'emploi, puis vous aide à suivre vos candidatures jusqu'à l'entretien.</p><p>Petite visite : moins d'une minute.</p><p class=\"hint\" style=\"margin:0\">") + BRAND.name + _t(" est une intelligence artificielle : relisez toujours vos documents avant de les envoyer.</p>") },
   { view:"create", target:[".views", "#tabbar"], title:_t("Les onglets"),
     text:_t("<ul><li><b>Créer</b> : un CV et une lettre pour une offre.</li><li><b>Mes candidatures</b> : le suivi de vos envois.</li><li><b>Mon profil</b> : votre parcours et vos réglages.</li></ul>"),
     mtext:_t("<p>En bas de l'écran :</p><ul><li><b>Créer</b> : un CV et une lettre pour une offre.</li><li><b>Candidatures</b> : le suivi de vos envois.</li><li><b>Coach</b> : vos questions.</li><li><b>Profil</b> : votre parcours.</li></ul>") },
-  { view:"create", target:["#step-key"], title:_t("Votre code d'accès"), text:_t("<p>Saisissez ici le code d'accès qu'on vous a donné, puis « Enregistrer ». Il reste sur cet appareil.</p>") },
+  { view:"create", target:["#step-key"], title:_t("Votre code d'accès"), text:_t("<p>Saisissez ici le code d'accès qu'on vous a donné, puis « Enregistrer ». Il reste sur cet appareil.</p>") },
   { view:"profile", target:["#step-parcours"], title:_t("Votre parcours"), text:_t("<p>Tout commence ici. Importez votre CV actuel (PDF, Word ou une simple photo), ou racontez votre parcours à l'écrit ou à voix haute.</p><p>") + BRAND.name + _t(" n'invente rien : il part uniquement de ce que vous lui donnez.</p>") },
-  { view:"create", target:["#step-offre"], title:_t("L'offre d'emploi"), text:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b> (Hellowork, France Travail, Indeed…) ou son <b>texte</b>, puis cliquez sur <b>« Créer mon CV adapté »</b>.</p><p>Comptez 30 secondes à 1 minute.</p>"), mtext:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b> ou son <b>texte</b>, puis touchez <b>« Créer mon CV adapté »</b> (30 secondes à 1 minute).</p><p>Votre CV s'affiche ensuite : touchez <b>« Je veux changer quelque chose »</b> pour le faire corriger, à l'écrit ou à la voix, ou <b>« C'est parfait, je l'envoie »</b>.</p>") },
-  { view:"create", target:["#preview"], desktop:true, sample:true, title:_t("Votre CV et votre lettre"), text:_t("<ul><li>Pour corriger un mot, <b>cliquez directement dans le texte</b>. Une barre apparaît en bas pour la police, la taille et la couleur.</li><li>Cliquez ensuite sur <b>« Enregistrer mes retouches »</b>.</li><li>Pour un changement plus important, écrivez ce qui ne va pas dans « Que voulez-vous corriger ? ».</li><li>Les anciennes versions restent dans « Revenir à une version précédente ».</li></ul>") },
-  { view:"apps", target:[".views [data-view=apps]", "#tabbar [data-tab=apps]"], title:_t("Mes candidatures"), text:_t("<p>Chaque CV créé y est rangé. Vous indiquez quand vous l'avez envoyé : ") + BRAND.name + _t(" vous rappelle de relancer au bout d'une semaine, vous aide à préparer l'entretien, et peut imprimer le récapitulatif de vos démarches pour France Travail.</p><p>Vos derniers CV se retrouvent aussi dans « Mes CV récents », dans l'onglet Créer.</p>") },
-  { view:"create", target:["#fab", "#tabbar [data-tab=coach]"], title:_t("Votre coach"), text:_t("<p>Posez-lui toutes vos questions : « mon accroche est-elle bonne ? », « que répondre si on me demande mes défauts ? ». Il peut appliquer ses conseils à votre CV ou à votre lettre en un clic.</p>") },
-  { view:"create", target:["#btn-apply"], desktop:true, title:_t("Prêt à postuler ?"), text:_t("<p>Quand le CV vous plaît, <b>« Préparer ma candidature »</b> regroupe la dernière relecture, les PDF à télécharger et le message à envoyer au recruteur.</p>") },
+  { view:"create", target:["#step-offre"], title:_t("L'offre d'emploi"), text:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b> (Hellowork, France Travail, Indeed…) ou son <b>texte</b>, puis cliquez sur <b>« Créer mon CV adapté »</b>.</p><p>Comptez 30 secondes à 1 minute.</p>"), mtext:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b> ou son <b>texte</b>, puis touchez <b>« Créer mon CV adapté »</b> (30 secondes à 1 minute).</p><p>Votre CV s'affiche ensuite : touchez <b>« Je veux changer quelque chose »</b> pour le faire corriger, à l'écrit ou à la voix, ou <b>« C'est parfait, je l'envoie »</b>.</p>") },
+  { view:"create", target:["#preview"], desktop:true, sample:true, title:_t("Votre CV et votre lettre"), text:_t("<ul><li>Pour corriger un mot, <b>cliquez directement dans le texte</b>. Une barre apparaît en bas pour la police, la taille et la couleur.</li><li>Cliquez ensuite sur <b>« Enregistrer mes retouches »</b>.</li><li>Pour un changement plus important, écrivez ce qui ne va pas dans « Que voulez-vous corriger ? ».</li><li>Les anciennes versions restent dans « Revenir à une version précédente ».</li></ul>") },
+  { view:"apps", target:[".views [data-view=apps]", "#tabbar [data-tab=apps]"], title:_t("Mes candidatures"), text:_t("<p>Chaque CV créé y est rangé. Vous indiquez quand vous l'avez envoyé : ") + BRAND.name + _t(" vous rappelle de relancer au bout d'une semaine, vous aide à préparer l'entretien, et peut imprimer le récapitulatif de vos démarches pour France Travail.</p><p>Vos derniers CV se retrouvent aussi dans « Mes CV récents », dans l'onglet Créer.</p>") },
+  { view:"create", target:["#fab", "#tabbar [data-tab=coach]"], title:_t("Votre coach"), text:_t("<p>Posez-lui toutes vos questions : « mon accroche est-elle bonne ? », « que répondre si on me demande mes défauts ? ». Il peut appliquer ses conseils à votre CV ou à votre lettre en un clic.</p>") },
+  { view:"create", target:["#btn-apply"], desktop:true, title:_t("Prêt à postuler ?"), text:_t("<p>Quand le CV vous plaît, <b>« Préparer ma candidature »</b> regroupe la dernière relecture, les PDF à télécharger et le message à envoyer au recruteur.</p>") },
   { title:_t("C'est parti !"), text:_t("<p>Commencez par <b>Mon profil</b> pour donner votre parcours. Ensuite, une offre, un clic, et votre CV est prêt.</p><p class=\"hint\" style=\"margin:0\">Vous pouvez revoir cette visite à tout moment depuis Mon profil.</p>"), last:true }
 ];
 let tourI = -1, tourList = [], tourBack = null;
@@ -5316,7 +5346,7 @@ function showTourStep(i, dir){
   const st = tourList[i];
   $("#tour-step").textContent = _t("Étape ") + (i + 1) + _t(" sur ") + tourList.length;
   $("#tour-title").textContent = st.title;
-  $("#tour-text").innerHTML = ((isM() && st.mtext) || st.text).replace(/« /g, "«\u00a0").replace(/ »/g, "\u00a0»").replace(/ ([?!:;])/g, "\u00a0$1");
+  $("#tour-text").innerHTML = ((isM() && st.mtext) || st.text).replace(/« /g, "«\u00a0").replace(/ »/g, "\u00a0»").replace(/ ([?!:;])/g, "\u00a0$1");
   tourSample(!!st.sample);
   $("#tour-prev").hidden = i === 0;
   $("#tour-next").textContent = st.last ? _t("Commencer") : i === 0 ? _t("C'est parti") : _t("Suivant");
