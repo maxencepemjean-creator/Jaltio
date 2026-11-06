@@ -2559,7 +2559,7 @@ function renderAlertes(out){
     const ul = el("ul"); items.forEach(t => ul.appendChild(el("li", "", str(t)))); a.appendChild(ul); a.hidden = false;
   } else a.hidden = true;
   const sc = Number(out.score_adequation);
-  $("#score").textContent = isFinite(sc) && sc > 0 ? _t("Adéquation avec l'offre : ") + Math.round(sc) + " %" : "";
+  $("#score").textContent = isFinite(sc) && sc > 0 ? (out._userMsg && out._userMsg.spont ? _t("Adéquation avec le poste : ") : _t("Adéquation avec l'offre : ")) + Math.round(sc) + " %" : "";
 }
 
 function renderAll(out, html){
