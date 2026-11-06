@@ -2167,7 +2167,8 @@ async function callClaude(body, key){
   let data = null; try{ data = await res.json(); }catch(e){}
   if(!res.ok){
     const m = (data && data.error && data.error.message) || "";
-    if(res.status === 401){ settings.apiKey = ""; saveSettings(); renderSettings(); throw new Error(_t("Aucun abonnement actif n'est lié à ce compte. Pour continuer à créer des documents, choisissez un forfait sur la page Tarifs. Si c'est une erreur, écrivez à contact@jaltio.fr.")); }
+    if(res.status === 401){ const nk = await recoverCode(key); if(nk) return callClaude(body, nk);
+      settings.apiKey = ""; saveSettings(); renderSettings(); throw new Error(_t("Aucun abonnement actif n'est lié à ce compte. Pour continuer à créer des documents, choisissez un forfait sur la page Tarifs. Si c'est une erreur, écrivez à contact@jaltio.fr.")); }
     if(res.status === 403) throw new Error(_t("Accès refusé par le service. Écrivez à contact@jaltio.fr."));
     if(res.status === 402) throw new Error(m || _t("Limite mensuelle atteinte. Le compteur repart à zéro le 1er du mois prochain."));
     if(res.status === 429) throw new Error(_t("Trop de demandes d'un coup. Patientez une minute et réessayez."));
@@ -2176,6 +2177,26 @@ async function callClaude(body, key){
     throw new Error(_t("Erreur ") + res.status + (m ? " : " + m : ""));
   }
   return data;
+}
+/* Code d'accès périmé ou absent sur cet appareil (ex. ancien abonnement resté dans Safari) :
+   on reprend celui du compte synchronisé, seulement s'il est actif */
+let recovering = null;
+function recoverCode(bad){
+  if(typeof syncSt === "undefined" || !syncSt || !syncSt.key) return Promise.resolve("");
+  if(recovering) return recovering;
+  recovering = (async () => {
+    try{
+      const { payload } = await syncPull(); const c = payload && payload.data && payload.data.accessCode;
+      if(typeof c !== "string" || !c.trim() || c === bad) return "";
+      const r = await fetch(RELAIS.replace(/\/+$/, "") + "/stripe/statut", { method:"POST", headers:{ "content-type":"application/json", "x-jalon-code":c }, body:"{}" });
+      const d = r.ok ? await r.json().catch(() => null) : null;
+      if(!d || !d.actif) return "";
+      settings.apiKey = c; saveSettings(); renderSettings(); setTimeout(() => { try{ aboStatut(); }catch(e){} }, 0);
+      return c;
+    }catch(e){ return ""; }
+    finally{ setTimeout(() => { recovering = null; }, 0); }
+  })();
+  return recovering;
 }
 async function testKey(k){
   if(!k) return { ok:false, msg:_t("Aucune clé saisie.") };
@@ -2343,7 +2364,7 @@ $("#btn-generate").addEventListener("click", async () => {
   const url = spont ? spSite : $("#offre-url").value.trim();
   const offre = spont ? "" : $("#offre").value.trim();
   const wantLettre = $("#opt-lettre").checked && !isFree();
-  if(!settings.apiKey){ status("#status-gen", "err", _t("Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation ».")); $("#step-key").hidden = false; return; }
+  if(!settings.apiKey && !(await recoverCode(""))){ status("#status-gen", "err", _t("Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation ».")); $("#step-key").hidden = false; return; }
   if(parcours.length < 80){ status("#status-gen", "err", _t("Votre parcours est trop court. Déposez votre ancien CV ou décrivez vos expériences.")); $("#profile-parcours").focus(); return; }
   if(spont && spEnt.length < 2){ status("#status-gen", "err", _t("Indiquez le nom de l'entreprise.")); $("#sp-entreprise").focus(); return; }
   if(spont && spPoste.length < 2){ status("#status-gen", "err", _t("Indiquez le poste visé.")); $("#sp-poste").focus(); return; }
@@ -5198,6 +5219,8 @@ async function aboStatut(){
   if(!aboCode()){ aboRender(_t("Aucun abonnement n'est enregistré sur cet appareil. Connectez-vous avec votre compte, ou choisissez un forfait."), false, true); return; }
   try{
     const d = await aboCall("statut");
+    if(!d.actif && await recoverCode(aboCode())) return;      // un autre code, actif, est enregistré sur le compte synchronisé
+    if(d.actif && syncSt) syncPull().then(({ payload }) => { if(payload && payload.data && payload.data.accessCode !== aboCode()) syncDirty(); }).catch(() => {});   // le compte en ligne garde le code qui marche
     store.set("offre", str(d.offre)); freeUi();
     if(d.offre === "free"){ aboRender(_t("Jaltio Free : ") + (d.cv_utilises || 0) + _t(" CV utilisés sur ") + (d.cv_total || 10) + _t(" (corrections comprises). Lettre de motivation, coach et préparation d'entretien : inclus dans Jaltio Essentiel."), false, true, true); return; }
     if(d.offre === "offert") aboRender(_t("Accès offert : Jaltio sans limite mensuelle, aucun prélèvement."), d.actif && !d.resiliation_prevue, false, true);
@@ -5206,6 +5229,7 @@ async function aboStatut(){
     else if(d.actif) aboRender(_t("Jaltio Essentiel : abonnement actif, renouvelé automatiquement chaque mois."), true, false);
     else aboRender(_t("Abonnement terminé") + (d.fin ? _t(" depuis le ") + dateLongue(d.fin) : "") + _t(". Vos documents restent consultables 6 mois, puis sont supprimés."), false, true);
   }catch(e){
+    if((e.status === 404 || e.status === 401) && await recoverCode(aboCode())) return;
     aboRender(e.status === 404 || e.status === 401 ? _t("Aucun abonnement ne correspond au code de ce compte. Écrivez à contact@jaltio.fr si c'est une erreur.") : _t("Impossible de vérifier votre abonnement pour l'instant. Réessayez plus tard."), false, e.status === 404);
   }
 }
