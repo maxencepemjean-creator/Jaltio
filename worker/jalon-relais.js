@@ -147,6 +147,24 @@ async function lire(env, cle, fenetre) {
 }
 async function sous_limite(env, cle, [max, fenetre]) { return (await compter(env, cle, fenetre)) <= max; }
 
+/* ---------- Abonnement rattaché au compte ----------
+   Un code actif envoyé par un appareil connecté lie l'abonnement au compte (id = SHA-256 de l'e-mail).
+   Tout appareil qui se connecte au compte récupère ensuite le bon code : plus de code périmé coincé dans un navigateur. */
+async function lierCompte(env, compte, code) {
+  try {
+    if (!compte || !/^jal-[a-z0-9]{4}-[a-z0-9]{4}$/.test(code || "")) return;
+    await env.DB.prepare("UPDATE abonnes SET compte = ?1 WHERE code = ?2 AND actif = 1 AND compte IS NULL").bind(compte, code).run();
+  } catch (e) {}                              // colonne absente (migration du 06/11 pas encore faite) : on ignore
+}
+async function codeDuCompte(env, compte) {
+  try {
+    const r = await env.DB.prepare(
+      "SELECT code FROM abonnes WHERE compte = ?1 AND actif = 1 ORDER BY CASE offre WHEN 'offert' THEN 0 WHEN 'pro' THEN 1 WHEN 'essentiel' THEN 2 ELSE 3 END, cree DESC LIMIT 1"
+    ).bind(compte).first();
+    return r ? r.code : null;
+  } catch (e) { return null; }
+}
+
 /* ---------- Synchronisation ---------- */
 async function verifierAuth(env, id, auth, row) {
   const [max, fenetre] = LIMITES.echecs;
@@ -188,7 +206,9 @@ async function synchro(request, env, origin, chemin) {
     if (a === "bloque") return erreur(429, "Trop d'essais. Réessayez dans 15 minutes.", origin);
     if (a !== "ok") return erreur(401, "Identifiant ou mot de passe incorrect.", origin);
     await env.DB.prepare("UPDATE sync SET accessed = ?1 WHERE id = ?2").bind(maintenant(), b.id).run();
-    return reponse({ salt: row.salt, iv: row.iv, ct: row.ct, version: row.version, updated: row.updated }, 200, origin);
+    await lierCompte(env, b.id, (request.headers.get("x-jalon-code") || "").trim());
+    const code = await codeDuCompte(env, b.id);
+    return reponse({ salt: row.salt, iv: row.iv, ct: row.ct, version: row.version, updated: row.updated, code }, 200, origin);
   }
 
   if (chemin === "/sync/put") {
@@ -207,6 +227,7 @@ async function synchro(request, env, origin, chemin) {
         "INSERT INTO sync (id, auth, salt, iv, ct, version, updated, accessed, size, code_h) VALUES (?1, ?2, ?3, ?4, ?5, 1, ?6, ?6, ?7, ?8) ON CONFLICT(id) DO NOTHING"
       ).bind(b.id, await sha256hex(b.auth), b.salt, b.iv, b.ct, t, b.ct.length, await codeAbonneH(env, code)).run();
       if (!r.meta || r.meta.changes !== 1) return erreur(409, "Ce compte vient d'être créé ailleurs.", origin, { conflict: true });
+      await lierCompte(env, b.id, code);
       return reponse({ version: 1, updated: t }, 200, origin);
     }
 
@@ -222,6 +243,7 @@ async function synchro(request, env, origin, chemin) {
     // Lien entre le compte et l'abonnement (pour la suppression 6 mois après la fin) : posé dès que le site envoie un code d'abonné
     const ch = await codeAbonneH(env, (request.headers.get("x-jalon-code") || "").trim());
     if (ch && row.code_h !== ch) await env.DB.prepare("UPDATE sync SET code_h = ?1 WHERE id = ?2").bind(ch, b.id).run();
+    await lierCompte(env, b.id, (request.headers.get("x-jalon-code") || "").trim());
     return reponse({ version: row.version + 1, updated: t }, 200, origin);
   }
 
