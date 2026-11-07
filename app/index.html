@@ -1717,7 +1717,10 @@ function randomLook(avoid){
   const list = pool.length ? pool : PALETTES;
   return presetLook(list[Math.floor(Math.random() * list.length)]);
 }
-const PRICES = { "claude-sonnet-5-5":[2,10], "claude-opus-5-5":[4,20] }; // $ par million de tokens (entrée, sortie)
+const PRICES = { "claude-sonnet-5-5":[2,10], "claude-haiku-5-5":[0.1,0.5], "claude-opus-5-5":[4,20] }; // $ par million de tokens (entrée, sortie)
+/* Petits appels simples (test du code, couleurs de l'entreprise, coordonnées du recruteur) : Haiku 5.5, environ 20 fois moins cher.
+   Le CV, la lettre, le coach et la préparation d'entretien restent sur Sonnet. Si Haiku refuse une requête (400), elle repart sur Sonnet. */
+const MODELE_LEGER = "claude-haiku-5-5", MODELE_PRINCIPAL = "claude-sonnet-5-5";
 
 let settings = Object.assign({ apiKey:"", model:"claude-sonnet-5-5", tpl:"moderne", color:COLORS[0], useCompany:true, cost:0 }, store.get("settings", {}));
 let profiles = store.get("profiles", []);
@@ -2099,7 +2102,7 @@ async function findCompanyColor(){
   const btn = $("#btn-company-color"); btn.disabled = true; const old = btn.textContent; btn.textContent = _t("Recherche en cours…");
   status("#status-color", "", "");
   try{
-    const body = { model:settings.model, max_tokens:1500,
+    const body = { model:MODELE_LEGER, max_tokens:1500,
       tools:[{ type:"web_search_20250305", name:"web_search", max_uses:2 }],
       messages:[{ role:"user", content:"Trouve les couleurs du logo ou de la charte graphique de l'entreprise « " + str(h.entreprise) + " » (offre d'emploi : " + str(h.poste) + (h.data && h.data.cv && h.data.cv.contact && h.data.cv.contact.ville ? ", région " + str(h.data.cv.contact.ville) : "") + "). Réponds UNIQUEMENT par une ligne de 1 à 3 codes hexadécimaux #RRGGBB séparés par des espaces, la couleur principale en premier. Si tu ne trouves rien de fiable, réponds RIEN." }] };
     let data;
@@ -2170,6 +2173,7 @@ async function callClaude(body, key){
     const m = (data && data.error && data.error.message) || "";
     if(res.status === 401){ const nk = await recoverCode(key); if(nk) return callClaude(body, nk);
       settings.apiKey = ""; saveSettings(); renderSettings(); throw new Error(_t("Aucun abonnement actif n'est lié à ce compte. Pour continuer à créer des documents, choisissez un forfait sur la page Tarifs. Si c'est une erreur, écrivez à contact@jaltio.fr.")); }
+    if(res.status === 400 && body.model === MODELE_LEGER) return callClaude(Object.assign({}, body, { model:MODELE_PRINCIPAL }), key);
     if(res.status === 403) throw new Error(_t("Accès refusé par le service. Écrivez à contact@jaltio.fr."));
     if(res.status === 402) throw new Error(m || _t("Limite mensuelle atteinte. Le compteur repart à zéro le 1er du mois prochain."));
     if(res.status === 429) throw new Error(_t("Trop de demandes d'un coup. Patientez une minute et réessayez."));
@@ -2208,7 +2212,7 @@ function recoverCode(bad){
 }
 async function testKey(k){
   if(!k) return { ok:false, msg:_t("Aucune clé saisie.") };
-  try{ await callClaude({ model:settings.model, max_tokens:16, messages:[{ role:"user", content:"Réponds OK." }] }, k); return { ok:true }; }
+  try{ await callClaude({ model:MODELE_LEGER, max_tokens:16, messages:[{ role:"user", content:"Réponds OK." }] }, k); return { ok:true }; }
   catch(e){ return { ok:false, msg:e.message }; }
 }
 
@@ -2423,7 +2427,8 @@ $("#btn-generate").addEventListener("click", async () => {
       (wantLettre ? "Rédige le CV ET la lettre de motivation." : "Rédige uniquement le CV ; mets \"lettre\": null.");
     const tools = [];
     if(spont ? !!spSite : offre.length < 80) tools.push({ type:"web_fetch_20250910", name:"web_fetch", max_uses:3, max_content_tokens:20000 });
-    tools.push({ type:"web_search_20250305", name:"web_search", max_uses:2 });
+    // Une seule recherche web pour un CV sur annonce (couleurs) ; deux en candidature spontanée (l'entreprise et ses couleurs)
+    tools.push({ type:"web_search_20250305", name:"web_search", max_uses: spont ? 2 : 1 });
     const docLang = $("#doc-lang").value || "fr";
     const out = await runClaude([{ role:"user", content: langBlock(docLang) + userMsg }], tools);
     out._lang = docLang;
@@ -3915,7 +3920,7 @@ $("#ap-find").addEventListener("click", async () => {
       "Réponds UNIQUEMENT avec un objet JSON valide : {\"email\":\"\",\"formulaire\":\"\",\"telephone\":\"\",\"personne\":\"\",\"source\":\"\",\"note\":\"une phrase courte pour le candidat\"}. Rien de fiable : champs vides, et la note l'explique." + uiLangLine();
     const tools = [{ type:"web_search_20250305", name:"web_search", max_uses:2 }];
     if(URL_RE.test(url)) tools.unshift({ type:"web_fetch_20250910", name:"web_fetch", max_uses:3, max_content_tokens:20000 });
-    const body = { model:settings.model, max_tokens:1500, tools, messages:[{ role:"user", content: prompt }] };
+    const body = { model:MODELE_LEGER, max_tokens:1500, tools, messages:[{ role:"user", content: prompt }] };
     let data;
     for(let i = 0; i < 3; i++){
       data = await callClaude(body, settings.apiKey); addCost(data.usage);
@@ -5216,7 +5221,7 @@ async function syncStart(){
 /* ----- Mon abonnement : état et résiliation sur le site (CGV, article 9) ----- */
 const dateLongue = ms => new Date(ms).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
 const aboCode = () => (settings.apiKey && !/^sk-ant-/.test(settings.apiKey)) ? settings.apiKey.trim() : "";
-/* Offre Free : 10 CV au total, sans lettre, coach ni aide à la candidature (le relais l'impose aussi) */
+/* Offre Free : 5 CV au total (10 pour les comptes créés avant le 07/11/2026), sans lettre, coach ni aide à la candidature (le relais l'impose aussi) */
 const isFree = () => store.get("offre", "") === "free";
 function freeUi(){
   const f = isFree(), o = $("#opt-lettre");
@@ -5230,7 +5235,7 @@ function freeUi(){
 function freeBlock(){
   if(!isFree()) return false;
   openSyncDlg({ title:_t("Inclus dans Jaltio Essentiel"),
-    text:_t("La lettre de motivation, le coach et l'aide à la candidature ne font pas partie de l'offre Free. Jaltio Essentiel les inclut, avec 50 CV par mois."),
+    text:_t("La lettre de motivation, le coach et l'aide à la candidature ne font pas partie de l'offre Free. Jaltio Essentiel les inclut, avec 30 CV par mois."),
     buttons:[{ label:_t("Voir l'offre Essentiel"), fn: () => { location.href = "/forfaits/"; } },
              { label:_t("Plus tard"), cls:"alt", cancel:true, fn: () => {} }] });
   return true;
@@ -5528,7 +5533,7 @@ if(new URLSearchParams(location.search).has("resilier")){
     await new Promise(r => setTimeout(r, 4000));
   }
   $("#otp-txt").textContent = _t("Nous venons d'envoyer un code à 6 chiffres à ") + (email || _t("votre adresse e-mail")) + _t(", avec vos conditions générales et la politique de confidentialité. Saisissez-le ici. Pensez à regarder dans les courriers indésirables.");
-  if(free) $("#otp-txt").textContent += " " + _t("L'offre Free comprend 10 CV au total, sans paiement.");
+  if(free) $("#otp-txt").textContent += " " + _t("L'offre Free comprend 5 CV au total, sans paiement.");
   setTimeout(() => { try{ $("#otp-in").focus(); }catch(e){} }, 60);
   const fini = code => {
     // Un compte déjà abonné ne repasse jamais sur l'offre Free

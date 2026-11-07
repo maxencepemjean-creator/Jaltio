@@ -1,4 +1,4 @@
-// Relais Jaltio (Cloudflare Worker) — version du 02/11/2026 (offre Free : inscription sans paiement, 10 CV à vie)
+// Relais Jaltio (Cloudflare Worker) — version du 07/11/2026 (quotas revus, Haiku 5.5 pour les petits appels, mise en cache)
 //
 // 1) Relais Claude : garde la clé Anthropic côté serveur ; le navigateur n'envoie qu'un code d'accès
 //    (code testeur du secret CODES, ou code d'abonné créé automatiquement après un paiement Stripe).
@@ -27,7 +27,10 @@
 //   (facultatif) MAILS_FREE_WEBHOOK = adresse du workflow n8n des e-mails Free ; par défaut MAILS_FREE_DEFAUT ci-dessous
 
 const ORIGINES = ["https://maxencepemjean-creator.github.io", "https://jaltio.fr", "https://www.jaltio.fr"];
-const MODELES = ["claude-sonnet-5-5"];
+const MODELES = ["claude-sonnet-5-5", "claude-haiku-5-5"];
+// Poids de coût par rapport à Sonnet 5.5 (2 $ / 10 $ par M jetons) : Haiku 5.5 = 0,10 $ / 0,50 $, soit 5 %.
+// La table conso enregistre des « jetons équivalent Sonnet » : coût en $ = (tokens_in × 2 + tokens_out × 10) / 1e6 + recherches × 0,01.
+const POIDS_MODELE = { "claude-sonnet-5-5": 1, "claude-haiku-5-5": 0.05 };
 const MAX_TOKENS = 16000;
 
 const MAX_BODY = 1900000;              // octets : requête de synchro complète (D1 limite une ligne à 2 Mo)
@@ -51,17 +54,25 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
   renvoi:   [3, 3600],                 // renvois du mail de validation, par paiement
   free_ip:  [5, 86400],                // inscriptions Free (nouvelles adresses), par adresse IP (hachée) et par jour
   free_ip_h:[6, 3600],                 // demandes d'inscription Free (nouvelles ou déjà connues), par adresse IP et par heure
-  free_jour:[200, 86400],              // inscriptions Free nouvelles, tous visiteurs confondus, par jour (garde-fou de coût)
+  free_jour:[20, 86400],               // inscriptions Free nouvelles, tous visiteurs confondus, par jour (garde-fou de coût ; 200 avant le 07/11)
 };
 
 // Quotas mensuels par offre (mois calendaire). Les codes testeurs (secret CODES) n'ont pas de quota mensuel.
 // « generations » = création ou régénération d'un CV et d'une lettre (requêtes à plus de SEUIL_GENERATION jetons max) ;
 // « autres » = petits appels (lecture d'offre, coach, analyse du parcours…) : garde-fou de coût.
-// Offre Free : quota « à vie » (vie: true) — 10 CV au total, régénérations comprises ; pas de lettre, ni coach.
+// Offre Free : quota « à vie » (vie: true) — 5 CV au total, régénérations comprises ; pas de lettre, ni coach.
+// Quotas revus le 07/11/2026 (analyse des coûts) : Essentiel 50 + 300 → 30 + 100 ; Free 10 + 30 → 5 + 15.
+// Pro et Ultra ne sont pas encore en vente : leurs quotas sont prêts pour l'ouverture.
 const QUOTAS = {
-  essentiel: { generations: 50, autres: 300 },
-  free:      { generations: 10, autres: 30, vie: true },
+  essentiel: { generations: 30, autres: 100 },
+  pro:       { generations: 60, autres: 150 },
+  ultra:     { generations: 120, autres: 300 },
+  free:      { generations: 5, autres: 15, vie: true },
 };
+// Comptes Free créés avant le changement : ils gardent 10 CV + 30 demandes (CGV art. 4 bis : préavis de 30 jours).
+const FREE_ANCIEN = { generations: 10, autres: 30, vie: true };
+const FREE_CHANGEMENT = Date.parse("2026-11-07T11:00:00+01:00");
+const quotaDe = acces => (acces.offre === "free" && Number(acces.cree) && Number(acces.cree) < FREE_CHANGEMENT) ? FREE_ANCIEN : QUOTAS[acces.offre];
 // Ajouté au prompt système des appels Free : jamais de lettre de motivation (fonction réservée aux abonnés)
 const CONSIGNE_FREE = "\n\nOFFRE GRATUITE : ne rédige JAMAIS de lettre de motivation, quelle que soit la demande. Mets toujours \"lettre\": null.";
 const SEUIL_GENERATION = 8000;
@@ -116,13 +127,13 @@ function nouveauCode() {               // ex. « jal-7k2m-p9xq » (sans 0/o/1/l 
   const c = [...r].map(x => alpha[x % alpha.length]).join("");
   return "jal-" + c.slice(0, 4) + "-" + c.slice(4);
 }
-async function verifierCode(env, code) {      // renvoie { offre } si le code est valable, sinon null
+async function verifierCode(env, code) {      // renvoie { offre, cree } si le code est valable, sinon null
   if (!code) return null;
   const codes = String(env.CODES || "").split(",").map(c => c.trim()).filter(Boolean);
   if (codes.includes(code)) return { offre: "testeur" };
   if (!env.DB || !/^jal-[a-z0-9]{4}-[a-z0-9]{4}$/.test(code)) return null;
-  const row = await env.DB.prepare("SELECT offre, actif FROM abonnes WHERE code = ?1").bind(code).first();
-  return row && row.actif === 1 ? { offre: row.offre } : null;
+  const row = await env.DB.prepare("SELECT offre, actif, cree FROM abonnes WHERE code = ?1").bind(code).first();
+  return row && row.actif === 1 ? { offre: row.offre, cree: row.cree } : null;
 }
 
 // Empreinte d'un code d'abonné (table abonnes, actif ou non) ; null pour un code testeur ou inconnu
@@ -297,6 +308,7 @@ async function relais(request, env, origin) {
   // On ne transmet que les champs attendus ; seuls les outils de lecture d'annonce et de recherche web sont autorisés.
   const body = { model: recu.model, messages: recu.messages, max_tokens: Math.min(Number(recu.max_tokens) || 1024, MAX_TOKENS) };
   if (typeof recu.system === "string" || Array.isArray(recu.system)) body.system = recu.system;
+  const poids = POIDS_MODELE[body.model] || 1;
   if (Array.isArray(recu.tools)) {
     const tools = [];
     const fetchTool = recu.tools.find(t => t && t.type === "web_fetch_20250910" && t.name === "web_fetch");
@@ -308,7 +320,7 @@ async function relais(request, env, origin) {
 
   // Quota mensuel de l'offre
   let generation = body.max_tokens > SEUIL_GENERATION;
-  const mois = moisCourant(), quota = QUOTAS[acces.offre];
+  const mois = moisCourant(), quota = quotaDe(acces);
   if (env.DB && quota) {
     const u = quota.vie
       ? await env.DB.prepare("SELECT COALESCE(SUM(generations), 0) AS generations, COALESCE(SUM(autres), 0) AS autres FROM conso WHERE code_h = ?1").bind(h).first()
@@ -330,6 +342,15 @@ async function relais(request, env, origin) {
     else if (Array.isArray(body.system)) body.system = body.system.concat([{ type: "text", text: CONSIGNE_FREE.trim() }]);
     else body.system = CONSIGNE_FREE.trim();
   }
+  // Mise en cache (07/11/2026) : le prompt système est identique pour tous les utilisateurs, on le garde 5 min
+  // (relecture à 10 % du prix). Pour les conversations, les pauses d'outil web et les appels avec outils,
+  // la mise en cache automatique garde aussi le début de l'échange (annonce lue, parcours) d'un passage à l'autre.
+  if (typeof body.system === "string" && body.system) body.system = [{ type: "text", text: body.system }];
+  if (Array.isArray(body.system) && body.system.length) {
+    const dernier = body.system[body.system.length - 1];
+    if (dernier && dernier.type === "text") body.system[body.system.length - 1] = { ...dernier, cache_control: { type: "ephemeral" } };
+  }
+  if (body.tools || body.messages.length > 1) body.cache_control = { type: "ephemeral" };
 
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -350,13 +371,14 @@ async function relais(request, env, origin) {
       // Une génération n'est décomptée que si un CV a réellement été produit : une pause de l'outil web (pause_turn,
       // la suite est décomptée) ou une annonce illisible depuis son lien (« offre_lue » : false) passent en « autres ».
       if (generation && (rep.stop_reason === "pause_turn" || !produitUnCV(rep))) generation = false;
-      const entree = (u.input_tokens || 0) + (u.cache_creation_input_tokens || 0) + (u.cache_read_input_tokens || 0);
+      // Jetons pondérés par leur prix (écriture en cache × 1,25, lecture × 0,1, Haiku × 0,05) : équivalent Sonnet
+      const entree = Math.round(((u.input_tokens || 0) + 1.25 * (u.cache_creation_input_tokens || 0) + 0.1 * (u.cache_read_input_tokens || 0)) * poids);
       const recherches = (u.server_tool_use && u.server_tool_use.web_search_requests) || 0;
       await env.DB.prepare(
         "INSERT INTO conso (code_h, mois, offre, generations, autres, tokens_in, tokens_out, recherches) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8) " +
         "ON CONFLICT(code_h, mois) DO UPDATE SET generations = generations + excluded.generations, autres = autres + excluded.autres, " +
         "tokens_in = tokens_in + excluded.tokens_in, tokens_out = tokens_out + excluded.tokens_out, recherches = recherches + excluded.recherches"
-      ).bind(h, mois, acces.offre, generation ? 1 : 0, generation ? 0 : 1, entree, u.output_tokens || 0, recherches).run();
+      ).bind(h, mois, acces.offre, generation ? 1 : 0, generation ? 0 : 1, entree, Math.round((u.output_tokens || 0) * poids), recherches).run();
     } catch (e) { /* le comptage ne doit jamais bloquer la réponse */ }
   }
 
@@ -468,7 +490,7 @@ async function abonnementDuCode(request, env, origin) {
   const codes = String(env.CODES || "").split(",").map(c => c.trim()).filter(Boolean);
   if (code && codes.includes(code)) return { testeur: true };
   if (!/^jal-[a-z0-9]{4}-[a-z0-9]{4}$/.test(code)) return { err: erreur(401, "Code d'accès manquant ou invalide.", origin) };
-  const row = await env.DB.prepare("SELECT code, client, abonnement, offre, actif, fin FROM abonnes WHERE code = ?1").bind(code).first();
+  const row = await env.DB.prepare("SELECT code, client, abonnement, offre, actif, fin, cree FROM abonnes WHERE code = ?1").bind(code).first();
   if (!row) return { err: erreur(404, "Aucun abonnement ne correspond à ce code.", origin) };
   return { row };
 }
@@ -481,7 +503,7 @@ async function statutAbonnement(request, env, origin) {
   const r = a.row;
   if (r.offre === "free") {
     const u = await env.DB.prepare("SELECT COALESCE(SUM(generations), 0) AS g FROM conso WHERE code_h = ?1").bind(await sha256hex("code|" + r.code)).first();
-    return reponse({ offre: "free", actif: r.actif === 1, cv_utilises: (u && u.g) || 0, cv_total: QUOTAS.free.generations }, 200, origin);
+    return reponse({ offre: "free", actif: r.actif === 1, cv_utilises: (u && u.g) || 0, cv_total: quotaDe(r).generations }, 200, origin);
   }
   return reponse({ offre: r.offre, actif: r.actif === 1, fin: r.fin || null, resiliation_prevue: r.actif === 1 && !!r.fin }, 200, origin);
 }
