@@ -128,7 +128,7 @@
   /* Lien de paiement Stripe de l'offre Essentiel. À remplacer par le lien « live » (https://buy.stripe.com/…) au lancement. */
   var LIEN_PAIEMENT = "https://buy.stripe.com/dRmcN52t20WSdSu18ndwc00";
   /* Versions des documents acceptés (à changer quand les documents changent) : enregistrées avec le paiement */
-  var VERSION_CGV = "20261107", VERSION_CONF = "20261107";
+  var VERSION_CGV = "20261107", VERSION_CONF = "20261107b";
   /* Code promo Stripe de l'accès anticipé (1er mois à 6,49 €), appliqué automatiquement jusqu'au 23/11/2026 inclus (heure de Paris) */
   var CODE_PROMO = "ANTICIPE", FIN_PROMO = Date.parse("2026-11-24T00:00:00+01:00");
 
@@ -229,5 +229,6 @@
   window.addEventListener("pageshow", function(){ $("#payer").disabled = false; $("#payer").textContent = "Payer avec Stripe"; });
 })();
 </script>
+<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "dcd19a490f414e60909bf61deaae5385"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
