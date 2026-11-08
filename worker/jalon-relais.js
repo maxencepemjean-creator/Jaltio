@@ -63,10 +63,11 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
 // Offre Free : quota « à vie » (vie: true) — 5 CV au total, régénérations comprises ; pas de lettre, ni coach.
 // Quotas revus le 07/11/2026 (analyse des coûts) : Essentiel 50 + 300 → 30 + 100 ; Free 10 + 30 → 5 + 15.
 // Pro et Ultra ne sont pas encore en vente : leurs quotas sont prêts pour l'ouverture.
+// 08/11/2026 : Pro 60 + 150 → 45 + 120, Ultra 120 + 300 → 90 + 200 (rentables à quota plein avec 20 % de commission ambassadrice).
 const QUOTAS = {
   essentiel: { generations: 30, autres: 100 },
-  pro:       { generations: 60, autres: 150 },
-  ultra:     { generations: 120, autres: 300 },
+  pro:       { generations: 45, autres: 120 },
+  ultra:     { generations: 90, autres: 200 },
   free:      { generations: 5, autres: 15, vie: true },
 };
 // Comptes Free créés avant le changement : ils gardent 10 CV + 30 demandes (CGV art. 4 bis : préavis de 30 jours).
