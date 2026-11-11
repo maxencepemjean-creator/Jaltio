@@ -91,6 +91,60 @@
 .demo-win.s-done .demo-chip{opacity:1;transform:none}
 .demo-note{font-size:12.5px;color:var(--muted);text-align:center;margin:10px 0 0}
 .band{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+/* ===== Accueil plein écran (11/11/2026) ===== */
+.section.wide{max-width:1240px;padding-left:24px;padding-right:24px}
+.hero{max-width:1240px;grid-template-columns:1fr 1.1fr;gap:56px;padding:40px 24px 64px}
+.hero h1{font-size:clamp(36px,4.6vw,60px)}
+.duo{height:600px}
+.full{background:var(--brand);color:#fff}
+.full .kicker{color:var(--accent)}
+.full h2{color:#fff}
+.at-grid{display:grid;grid-template-columns:minmax(260px,1fr) minmax(0,2.4fr);gap:28px;align-items:start;margin-top:22px}
+.at-tabs{display:flex;flex-direction:column;gap:8px}
+.at-tabs button{all:unset;box-sizing:border-box;display:block;cursor:pointer;border-radius:16px;padding:14px 16px;border:1px solid rgba(255,255,255,.14);color:#E9DCEB}
+.at-tabs button:hover{background:rgba(255,255,255,.06)}
+.at-tabs button[aria-selected="true"]{background:#fff;color:var(--ink);border-color:#fff}
+.at-tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.at-tabs b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.at-tabs button[aria-selected="true"] b{color:#8A5A08}
+.at-tabs .tt{display:block;font-family:var(--display);font-weight:700;font-size:18px}
+.at-tabs .td{display:none;font-size:14.5px;margin-top:6px;color:var(--muted)}
+.at-tabs button[aria-selected="true"] .td{display:block}
+.at-shot{margin:0;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.at-bar{display:flex;align-items:center;gap:7px;padding:10px 14px;background:#FCF8F3;border-bottom:1px solid var(--line)}
+.at-bar span{width:10px;height:10px;border-radius:50%;background:#E5D8CB}
+.at-bar em{font-style:normal;font-size:12px;color:var(--muted);margin-left:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.at-shot img{display:block;width:100%;height:auto}
+.at-shot figcaption{font-size:12.5px;color:var(--muted);padding:8px 14px;background:#fff;border-top:1px solid var(--line)}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+.vs-col{border-radius:20px;padding:24px 26px}
+.vs-col h3{font-family:var(--display);font-size:22px;margin:0 0 14px}
+.vs-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.vs-col li{display:flex;gap:10px;align-items:flex-start;font-size:15.5px}
+.vs-col li svg{flex:none;margin-top:2px}
+.vs-col.sans{background:#fff;border:1px solid var(--line);color:var(--muted)}
+.vs-col.sans h3{color:var(--muted)}
+.vs-col.sans svg{color:#B9A9AE}
+.vs-col.avec{background:var(--brand);color:#fff}
+.vs-col.avec h3{color:#fff}
+.vs-col.avec svg{color:var(--accent)}
+.fold > summary{display:none}
+.faq-home .faq{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin-top:18px;align-items:start}
+.faq-home details{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 18px}
+.faq-home summary{cursor:pointer;font-weight:700;color:var(--brand);font-size:16px}
+.faq-home details p{margin:10px 0 0;color:var(--muted);font-size:15px}
+.faq-more{margin:14px 0 0;font-weight:600}
+.honest-mini p{max-width:1000px}
+@media (max-width:860px){
+  .duo{height:420px}
+  .at-grid{grid-template-columns:1fr}
+  .at-tabs{flex-direction:row;overflow-x:auto;gap:8px;padding-bottom:4px}
+  .at-tabs button{flex:none;width:min(78vw,280px)}
+  .vs,.faq-home .faq{grid-template-columns:1fr}
+  .fold > summary{display:block;cursor:pointer;margin-top:16px;border:1px solid var(--line);background:#fff;border-radius:12px;padding:13px 16px;font-weight:700;color:var(--brand);text-align:center;list-style:none}
+  .fold > summary::-webkit-details-marker{display:none}
+  .fold[open] > summary{display:none}
+}
 .steps-mini{display:flex;flex-wrap:wrap;gap:10px;padding:0;margin:4px 0 22px}
 .steps-mini li{list-style:none;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 16px 8px 8px;font-size:15px}
 .steps-mini b{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--brand);font-weight:800;flex:none}
@@ -164,10 +218,11 @@
     </div>
   </section>
 
-  <section class="section" id="demo">
+  <section class="section wide" id="demo">
     <p class="kicker">Comment ça marche</p>
     <h2 style="margin-top:0">Collez une annonce, Jaltio fait le reste</h2>
     <ol class="steps-mini"><li><b>1</b>Déposez votre CV actuel, ou racontez votre parcours</li><li><b>2</b>Collez le lien de l'annonce</li><li><b>3</b>Relisez le CV et la lettre, téléchargez en PDF</li></ol>
+    <details class="fold" open><summary>Voir la démonstration</summary>
     <div class="demo-win" role="img" aria-label="Démonstration : un lien d'annonce est collé, Jaltio lit l'offre, rédige le CV et la lettre, puis le CV mis en forme apparaît.">
       <div class="demo-bar" aria-hidden="true"><span></span><span></span><span></span><em>jaltio.fr</em></div>
       <div class="demo-body" aria-hidden="true">
@@ -192,9 +247,36 @@
       </div>
     </div>
     <p class="demo-note">Démonstration accélérée. Personne et offre fictives.</p>
+    </details>
   </section>
 
-  <section class="section">
+  <section class="full app-tour">
+    <div class="section wide">
+      <p class="kicker">L'appli</p>
+      <h2 style="margin-top:0">Votre recherche d'emploi, rangée au même endroit</h2>
+      <div class="at-grid">
+        <div class="at-tabs" role="tablist" aria-label="Écrans de l'appli"><button type="button" role="tab" id="ta-accueil" aria-controls="tp-app" aria-selected="true" data-img="/assets/appli-accueil.webp" data-alt="Écran Accueil de l'appli Jaltio, exemple fictif"><b>Accueil</b><span class="tt">Vos priorités du jour</span><span class="td">Les relances à faire, vos entretiens à venir et votre objectif de la semaine, dès l'ouverture.</span></button><button type="button" role="tab" id="ta-candidatures" aria-controls="tp-app" aria-selected="false" data-img="/assets/appli-candidatures.webp" data-alt="Écran Candidatures de l'appli Jaltio, exemple fictif"><b>Candidatures</b><span class="tt">Toutes vos candidatures d'un coup d'œil</span><span class="td">Rangées par étape : à envoyer, envoyées, entretien, terminées. Un récapitulatif de vos démarches à présenter à France Travail en un clic.</span></button><button type="button" role="tab" id="ta-coach" aria-controls="tp-app" aria-selected="false" data-img="/assets/appli-coach.webp" data-alt="Écran Coach de l'appli Jaltio, exemple fictif"><b>Coach</b><span class="tt">Un coach qui connaît votre parcours</span><span class="td">Préparez un entretien, demandez quoi répondre, faites relire un message. Il voit votre CV, la lettre et l'annonce.</span></button><button type="button" role="tab" id="ta-offres" aria-controls="tp-app" aria-selected="false" data-img="/assets/appli-offres.webp" data-alt="Écran Offres de l'appli Jaltio, exemple fictif"><b>Offres</b><span class="tt">Des offres près de chez vous</span><span class="td">Cherchez par métier et par ville, puis créez le CV adapté à l'offre choisie en un clic.</span></button></div>
+        <figure class="at-shot" id="tp-app" role="tabpanel" aria-labelledby="ta-accueil">
+          <div class="at-bar" aria-hidden="true"><span></span><span></span><span></span><em>jaltio.fr/app</em></div>
+          <img src="/assets/appli-accueil.webp" width="1600" height="1000" alt="Écran Accueil de l'appli Jaltio, exemple fictif" loading="lazy">
+          <figcaption>Exemple fictif : Benjamin, préparateur de commandes.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section wide">
+    <p class="kicker">La différence</p>
+    <h2 style="margin-top:0">Chercher un emploi, sans Jaltio et avec</h2>
+    <details class="fold" open><summary>Voir la comparaison</summary>
+    <div class="vs">
+      <div class="vs-col sans"><h3>Sans Jaltio</h3><ul><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span>Le même CV envoyé partout</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span>Une lettre à réécrire à chaque fois</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span>Une mise en page bricolée</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span>Des candidatures éparpillées entre mails, sites et papier</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span>Des relances oubliées</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span>L'entretien préparé seul</span></li></ul></div>
+      <div class="vs-col avec"><h3>Avec Jaltio</h3><ul><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Un CV adapté à chaque offre, avec les mots de l'annonce quand ils décrivent ce que vous avez vraiment fait</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>La lettre rédigée à partir de votre parcours, prête à envoyer ou à retoucher</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Une page propre, lisible par les logiciels de tri des recruteurs</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Tout au même endroit, de l'offre jusqu'à l'entretien</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Jaltio vous dit quand relancer, avec le message prêt</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Un coach pour vous entraîner aux questions du recruteur</span></li></ul></div>
+    </div>
+    </details>
+  </section>
+
+  <section class="section wide">
     <p class="kicker">Ce que fait Jaltio</p>
     <h2 style="margin-top:0">Tout ce qu'il faut pour candidater sérieusement</h2>
     <div class="feats">
@@ -207,8 +289,15 @@
     </div>
   </section>
 
+  <section class="section wide faq-home">
+    <p class="kicker">Questions fréquentes</p>
+    <h2 style="margin-top:0">Avant de vous lancer</h2>
+    <div class="faq"><details><summary>L'IA invente-t-elle des choses ?</summary><p>Non. Jaltio n'utilise que votre parcours : aucun diplôme, poste ou compétence n'est ajouté. Si l'offre demande quelque chose qui vous manque, il vous le signale. Une IA peut se tromper : relisez toujours vos documents avant de les envoyer.</p></details><details><summary>Que deviennent mes données ?</summary><p>Vos documents sont chiffrés sur votre appareil avec votre mot de passe avant d'être enregistrés : nous ne pouvons pas les lire. Pour rédiger, votre CV et l'offre sont envoyés à Anthropic (États-Unis) le temps du traitement. Vous pouvez tout exporter ou tout supprimer à tout moment. Détails dans la <a href="/confidentialite.html">politique de confidentialité</a>.</p></details><details><summary>Free ou Essentiel : quelle différence ?</summary><p>Free sert à essayer : 5 CV au total, le suivi des candidatures et la recherche d'offres, sans lettre ni coach. Essentiel ajoute la lettre de motivation, le coach et la préparation d'entretien, avec 30 CV et lettres par mois. Les prix sont sur la page <a href="/forfaits/">Tarifs</a>.</p></details><details><summary>Je peux arrêter quand je veux ?</summary><p>Oui. L'abonnement est sans engagement et se résilie depuis le site ; la résiliation prend effet à la fin du mois payé. Vous avez aussi 14 jours après votre achat pour changer d'avis, avec un remboursement intégral.</p></details><details><summary>Pourquoi Jaltio plutôt qu'une IA généraliste ?</summary><p>Avec une IA généraliste, il faut tout refaire à chaque offre : recopier son parcours, coller l'annonce, écrire la consigne, puis remettre en page. Jaltio garde votre parcours, lit l'annonce, sort directement un CV d'une page en PDF aux couleurs de l'entreprise, et range la candidature avec son suivi et ses relances.</p></details></div>
+    <p class="faq-more"><a href="/faq/">Toutes les questions</a></p>
+  </section>
+
   <section class="band">
-    <div class="section honest-mini">
+    <div class="section wide honest-mini">
       <p><b>Rédigé par une IA, relu par vous.</b> Jaltio s'appuie sur Claude, l'IA de la société américaine Anthropic : votre CV et l'offre y sont envoyés le temps de la rédaction. Elle peut se tromper, relisez toujours vos documents. Vos documents enregistrés sont chiffrés, vous pouvez tout exporter ou supprimer. <a href="/confidentialite.html">Politique de confidentialité</a></p>
     </div>
   </section>
@@ -247,6 +336,19 @@
     visible = es[0].isIntersecting;
     if(visible && !enCours) jouer();
   }, { threshold: 0.35 }).observe(w);
+})();
+</script>
+<script>
+/* Onglets « L'appli » et blocs repliés sur téléphone */
+(function(){
+  var tabs = document.querySelectorAll(".at-tabs button"), img = document.querySelector(".at-shot img"), pan = document.getElementById("tp-app");
+  tabs.forEach(function(b, i){
+    b.addEventListener("click", function(){ tabs.forEach(function(x){ x.setAttribute("aria-selected", x === b ? "true" : "false"); x.tabIndex = x === b ? 0 : -1; }); img.src = b.dataset.img; img.alt = b.dataset.alt; pan.setAttribute("aria-labelledby", b.id); });
+    b.addEventListener("keydown", function(e){ var k = e.key === "ArrowDown" || e.key === "ArrowRight" ? 1 : e.key === "ArrowUp" || e.key === "ArrowLeft" ? -1 : 0; if(!k) return; e.preventDefault(); var n = tabs[(i + k + tabs.length) % tabs.length]; n.focus(); n.click(); });
+    b.tabIndex = i ? -1 : 0;
+  });
+  ["accueil","candidatures","coach","offres"].forEach(function(n){ var p = new Image(); p.src = "/assets/appli-" + n + ".webp"; });
+  if(window.matchMedia && window.matchMedia("(max-width:860px)").matches) document.querySelectorAll("details.fold").forEach(function(d){ d.open = false; });
 })();
 </script>
 <footer class="foot">
