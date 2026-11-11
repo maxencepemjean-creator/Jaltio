@@ -15,10 +15,9 @@ Le nom de la marque se change à un seul endroit : la constante `BRAND` au débu
 
 ## Langues
 
-- **Langue du site** (Mon profil) : français par défaut ; anglais, espagnol, russe via `lang/en.js`, `lang/es.js`, `lang/ru.js`. Seul le fichier de la langue choisie est chargé.
-- **Langue des CV et lettres** : réglage par profil, modifiable pour chaque offre (onglet Créer). Indépendante de la langue du site (ex. site en russe, CV en français).
-- Le coach, les alertes, le résumé de l'offre et la préparation d'entretien sont rédigés dans la langue du site ; le CV, la lettre, le message et les e-mails au recruteur dans la langue du document. Le récapitulatif pour France Travail reste en français.
-- **Ajouter un texte affiché** : l'écrire en français dans `index.html` entouré de `_t("…")` (inutile pour le texte écrit directement dans le HTML), puis ajouter la même clé française avec sa traduction dans les trois fichiers `lang/*.js`. Sans traduction, le texte s'affiche en français.
+- Le site et les CV sont en **français**. Les fichiers anglais et espagnol ont été retirés le 11/11/2026.
+- **Russe** (`lang/ru.js`) : proposé seulement aux comptes listés dans `LANG_RU_COMPTES` (empreinte SHA-256 de « jalon-sync-v1|e-mail », jamais l'e-mail en clair). Le réglage apparaît alors dans Mon compte, avec la langue des CV (français ou russe).
+- **Ajouter un texte affiché** : l'écrire en français dans `index.html` entouré de `_t("…")`, puis ajouter la traduction dans `lang/ru.js`. Sans traduction, le texte s'affiche en français.
 
 ## Ce que fait le site
 
