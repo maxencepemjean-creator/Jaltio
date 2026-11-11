@@ -1172,6 +1172,8 @@ body[data-cstep="options"] #step-offre .c-in{display:none!important}
 body[data-cstep="done"] #step-offre .c-in,body[data-cstep="done"] #step-offre .c-opt:not(.c-done){display:none!important}
 body.m .c-prog,body.m .c-num,body.m .step h2.c-title{display:none}
 #recent-box{display:none!important}
+body[data-offre="free"] .rail-it[data-coach]::after{content:"Essentiel";margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.02em;background:#3A2340;color:#F2A93B;border-radius:999px;padding:2px 7px}
+body[data-offre="free"] .tabbar button[data-tab="coach"]::after{content:"";position:absolute;top:4px;left:calc(50% + 8px);width:14px;height:14px;background:no-repeat center/14px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E5872' stroke-width='2.4' stroke-linecap='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E")}
 body[data-view="create"]:not([data-cstep="done"]) .panel-foot{display:none!important}
 </style>
 </head>
@@ -5749,6 +5751,7 @@ const aboCode = () => (settings.apiKey && !/^sk-ant-/.test(settings.apiKey)) ? s
 const isFree = () => store.get("offre", "") === "free";
 function freeUi(){
   const f = isFree(), o = $("#opt-lettre");
+  document.body.dataset.offre = f ? "free" : "";
   if(f){ o.checked = false; o.disabled = true; $("#opt-lettre-txt").textContent = _t("Lettre de motivation : incluse dans Jaltio Essentiel"); }
   else if(o.disabled){ o.disabled = false; o.checked = true; $("#opt-lettre-txt").textContent = _t("Rédiger aussi la lettre de motivation"); }
   // Corrections : en Free, seul le CV (les choix « La lettre » et « Les deux » sont masqués)

@@ -91,6 +91,14 @@
 .demo-win.s-done .demo-chip{opacity:1;transform:none}
 .demo-note{font-size:12.5px;color:var(--muted);text-align:center;margin:10px 0 0}
 .band{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.steps-mini{display:flex;flex-wrap:wrap;gap:10px;padding:0;margin:4px 0 22px}
+.steps-mini li{list-style:none;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 16px 8px 8px;font-size:15px}
+.steps-mini b{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--brand);font-weight:800;flex:none}
+.honest-mini p{margin:0;max-width:880px;font-size:15px;color:var(--muted)}
+.honest-mini b{color:var(--brand)}
+.cta-final{text-align:center}
+.cta-final h2{margin:0 0 18px}
+.cta-final .cta-row{justify-content:center}
 .steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px;counter-reset:n}
 .steps3 li{list-style:none;background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:20px}
 .steps3 li::before{counter-increment:n;content:counter(n);display:inline-flex;width:32px;height:32px;border-radius:50%;background:var(--brand);color:#fff;font-weight:700;align-items:center;justify-content:center;margin-bottom:10px}
@@ -127,9 +135,9 @@
 <header class="top">
   <a class="brand" href="/"><svg width="36" height="36" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg><span class="name">Jaltio</span></a>
   <nav class="mainnav" aria-label="Menu principal"><a href="/" aria-current="page">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav>
-  <div class="top-cta"><a class="top-link" href="/app/">Se connecter</a><a class="top-link solid" href="/forfaits/">S'inscrire</a></div>
+  <div class="top-cta"><a class="top-link" href="/app/">Se connecter</a><a class="top-link solid" href="/inscription/?offre=free">Essayer gratuitement</a></div>
   <details class="menu"><summary aria-label="Ouvrir le menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A2340" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
-    <div class="menu-pop"><a href="/" aria-current="page">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><hr><a href="/app/">Se connecter</a><a href="/forfaits/">S'inscrire</a></div></details>
+    <div class="menu-pop"><a href="/" aria-current="page">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><hr><a href="/app/">Se connecter</a><a href="/inscription/?offre=free">Essayer gratuitement</a></div></details>
 </header>
 <main>
   <section class="hero">
@@ -156,21 +164,10 @@
     </div>
   </section>
 
-  <section class="band">
-    <div class="section">
-      <p class="kicker">Comment ça marche</p>
-      <h2 style="margin-top:0">Trois étapes, et votre candidature est prête</h2>
-      <ol class="steps3" style="padding:0">
-        <li><b>Votre parcours</b><p>Déposez votre CV actuel (PDF ou Word), ou racontez votre parcours par écrit ou à voix haute. Jaltio le range en fiche, que vous vérifiez.</p></li>
-        <li><b>L'offre</b><p>Collez le lien de l'annonce, ou son texte. Jaltio lit l'offre et repère ce que le recruteur attend.</p></li>
-        <li><b>CV et lettre</b><p>Vous recevez un CV d'une page et une lettre adaptés au poste. Corrigez un mot, demandez une autre version, puis téléchargez en PDF.</p></li>
-      </ol>
-    </div>
-  </section>
-
   <section class="section" id="demo">
-    <p class="kicker">Démonstration</p>
-    <h2 style="margin-top:0">Voyez Jaltio à l'œuvre</h2>
+    <p class="kicker">Comment ça marche</p>
+    <h2 style="margin-top:0">Collez une annonce, Jaltio fait le reste</h2>
+    <ol class="steps-mini"><li><b>1</b>Déposez votre CV actuel, ou racontez votre parcours</li><li><b>2</b>Collez le lien de l'annonce</li><li><b>3</b>Relisez le CV et la lettre, téléchargez en PDF</li></ol>
     <div class="demo-win" role="img" aria-label="Démonstration : un lien d'annonce est collé, Jaltio lit l'offre, rédige le CV et la lettre, puis le CV mis en forme apparaît.">
       <div class="demo-bar" aria-hidden="true"><span></span><span></span><span></span><em>jaltio.fr</em></div>
       <div class="demo-body" aria-hidden="true">
@@ -211,19 +208,14 @@
   </section>
 
   <section class="band">
-    <div class="section honest">
-      <div>
-        <p class="kicker">En toute transparence</p>
-        <h2 style="margin-top:0">Rédigé par une IA, relu par vous</h2>
-        <p>Jaltio s'appuie sur Claude, l'intelligence artificielle de la société américaine Anthropic. Elle rédige vite et bien, mais elle peut se tromper : relisez toujours vos documents avant de les envoyer.</p>
-      </div>
-      <ul>
-        <li>Pour rédiger, votre CV et l'offre sont envoyés à Anthropic, aux États-Unis, le temps du traitement.</li>
-        <li>Vos documents enregistrés sont chiffrés : nous ne pouvons pas les lire.</li>
-        <li>Vous pouvez tout exporter ou tout supprimer à tout moment, depuis votre profil.</li>
-        <li>Les détails sont dans la <a href="/confidentialite.html">politique de confidentialité</a>.</li>
-      </ul>
+    <div class="section honest-mini">
+      <p><b>Rédigé par une IA, relu par vous.</b> Jaltio s'appuie sur Claude, l'IA de la société américaine Anthropic : votre CV et l'offre y sont envoyés le temps de la rédaction. Elle peut se tromper, relisez toujours vos documents. Vos documents enregistrés sont chiffrés, vous pouvez tout exporter ou supprimer. <a href="/confidentialite.html">Politique de confidentialité</a></p>
     </div>
+  </section>
+
+  <section class="section cta-final">
+    <h2>Votre prochain CV, adapté à l'offre, dans 5 minutes.</h2>
+    <div class="cta-row"><a class="btn" href="/inscription/?offre=free">Essayer gratuitement</a><a class="btn alt" href="/forfaits/">Voir les tarifs</a></div>
   </section>
 
 </main>
