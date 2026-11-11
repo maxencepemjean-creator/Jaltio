@@ -210,7 +210,7 @@ body[data-view="offres"] [data-v]:not([data-v~="offres"]),
 body[data-view="parcours"] [data-v]:not([data-v~="parcours"]),
 body[data-view="compte"] [data-v]:not([data-v~="compte"]){display:none!important}
 @media screen{
-  body[data-view="apps"] #preview > :not(#fiche-view):not(.page-holder){display:none!important}
+  body[data-view="apps"] #preview > :not(#fiche-view):not(.page-holder):not(#fv-back):not(#apps-board){display:none!important}
   body[data-view="apps"][data-sub="suivi"] #preview > .page-holder,
   body[data-view="apps"]:not([data-has-doc]) #preview > .page-holder{display:none!important}
   body:not([data-view="apps"]) #fiche-view{display:none!important}
@@ -1043,24 +1043,39 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
 .step h2.view-title,.view-title{font-family:var(--display);font-weight:800;font-size:28px;line-height:1.15;margin:0 0 14px;display:block}
 body[data-view="home"] .app,body[data-view="offres"] .app,body[data-view="compte"] .app{grid-template-columns:1fr}
 body[data-view="home"] .preview,body[data-view="offres"] .preview,body[data-view="compte"] .preview{display:none!important}
-body[data-view="home"] .panel,body[data-view="offres"] .panel,body[data-view="compte"] .panel{position:static;max-height:none;border:0!important;box-shadow:none!important;border-radius:0!important;background:transparent!important;max-width:1000px;width:100%;margin:0 auto;padding:32px 40px}
+body[data-view="home"] .panel,body[data-view="offres"] .panel,body[data-view="compte"] .panel{position:static;max-height:none;border:0!important;box-shadow:none!important;border-radius:0!important;background:transparent!important;max-width:1180px;width:100%;margin:0 auto;padding:28px 40px 40px}
 body[data-view="home"] .panel .step,body[data-view="compte"] .panel .step,body[data-view="offres"] .panel .step{background:#fff}
 .home-step{border:0!important;background:transparent!important;padding:0!important}
-.home-head{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+.home-head{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin-bottom:22px}
+.home-head .apps-hello p#apps-hello-s{margin:4px 0 0}
 .home-head .apps-hello{margin:0}
 .home-head .apps-hello h2{font-family:var(--display);font-weight:800;font-size:36px;margin:0;line-height:1.1}
 .home-date{color:var(--muted);margin:0 0 2px;font-size:14px}
 .home-actions{display:flex;gap:10px;flex-wrap:wrap}
 .home-actions .btn{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 18px}
-.home-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:start}
-.home-grid .todo-box{margin:0;padding:20px}
-.home-side{display:flex;flex-direction:column;gap:18px}
-.home-side .goal{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin:0}
-.home-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.home-stats div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}
+.home-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:16px;align-items:start}
+.home-main,.home-side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.home-main .todo-box{margin:0}
+.home-grid .goal{margin:0;border-radius:20px}
+.home-recent{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px 20px}
+.hr-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.hr-head h3{margin:0;font-size:17px;font-family:var(--display);color:var(--brand)}
+.hr-scroll{overflow-x:auto}
+.home-recent table{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
+.home-recent th{text-align:left;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:8px 10px}
+.home-recent td{padding:11px 10px;border-top:1px solid var(--line)}
+.home-recent tbody tr{cursor:pointer}
+.home-recent tbody tr:hover td{background:#FBF6F0}
+.home-recent td:first-child{font-weight:600}
+.home-recent td button{all:unset;cursor:pointer}
+.home-recent td button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.rail-sync{padding:0 8px 6px}
+.rail-sync .sync-pill{color:#CDB9CF}
+.home-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.home-stats div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px}
 .home-stats b{display:block;font-family:var(--display);font-weight:800;font-size:28px;line-height:1.1}
 .home-stats span{font-size:13px;color:var(--muted)}
-@media (max-width:900px){.home-grid{grid-template-columns:1fr}}
+@media (max-width:900px){.home-grid{grid-template-columns:1fr}.home-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.home-stats div{padding:10px 8px;border-radius:14px}.home-stats b{font-size:22px}.home-stats span{font-size:11.5px;display:block;line-height:1.2}.home-recent{display:none!important}}
 @media (min-width:901px){
   .rail{display:flex;flex-direction:column;gap:4px;position:fixed;top:0;bottom:0;left:0;width:232px;box-sizing:border-box;background:#2A1A2F;color:#FFF8F0;padding:16px 12px;z-index:80;transition:transform .2s ease,box-shadow .2s ease}
   .rail-top{display:flex;align-items:center;justify-content:space-between;padding:0 4px 16px}
@@ -1089,9 +1104,50 @@ body[data-view="home"] .panel .step,body[data-view="compte"] .panel .step,body[d
   .m-acc svg{width:22px;height:22px}
   body[data-view="home"] .panel,body[data-view="offres"] .panel,body[data-view="compte"] .panel{padding:16px}
   .home-head .apps-hello h2{font-size:30px}
-  .home-actions{width:100%;flex-direction:column}.home-actions .btn{width:100%;justify-content:center}
+  .home-actions{width:100%;flex-direction:column-reverse}.home-actions .btn{width:100%;justify-content:center}
 }
 @media (prefers-reduced-motion:reduce){.rail{transition:none}}
+
+/* ===== Candidatures : liste ou tableau, fiche plein écran (lot 2) ===== */
+#fv-back,#apps-board{display:none}
+.apps-mode{display:none;background:var(--lilas);border-radius:12px;padding:3px;margin-left:auto}
+.apps-mode button{border:0;background:transparent;border-radius:9px;min-height:34px;padding:0 12px;font:600 13px Inter,Arial,sans-serif;color:var(--muted);cursor:pointer}
+.apps-mode button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(42,26,47,.12)}
+.fv-back{margin:0 0 12px}
+.fv-back .btn{display:inline-flex;align-items:center;gap:6px}
+.ab-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin:0 0 16px}
+.ab-head h2{font-family:var(--display);font-weight:800;font-size:30px;margin:0;color:var(--brand)}
+.ab-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.ab-tools .apps-mode{display:inline-flex;margin:0}
+.ab-cols{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:14px;overflow-x:auto;padding-bottom:8px}
+.ab-col{background:#F6EEE6;border-radius:18px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:420px;transition:background .15s}
+.ab-col.over{background:#EFE2F2;outline:2px dashed var(--brand);outline-offset:-4px}
+.ab-col h3{display:flex;justify-content:space-between;align-items:center;margin:4px 6px 4px;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:#4A3A4D}
+.ab-card{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;cursor:grab;font:inherit;color:var(--ink)}
+.ab-card:hover{border-color:#D9C6B3}
+.ab-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ab-card.hot{border:2px solid var(--accent);padding:11px}
+.ab-card b{display:block;font-size:14.5px}
+.ab-card span.co{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.ab-card .pill{margin-top:8px}
+.ab-card.dragging{opacity:.45}
+.ab-empty{font-size:13px;color:var(--muted);text-align:center;padding:14px 6px}
+.ab-hint{font-size:12.5px;color:var(--muted);margin:10px 0 0}
+@media (min-width:901px){
+  .apps-mode{display:inline-flex}
+  body[data-view="apps"][data-appsmode="board"]:not([data-open]) .app,body[data-view="apps"][data-open] .app{grid-template-columns:minmax(0,1fr)}
+  body[data-view="apps"][data-appsmode="board"]:not([data-open]) .panel,body[data-view="apps"][data-open] .panel{display:none}
+  body[data-view="apps"][data-appsmode="board"]:not([data-open]) #preview > :not(#apps-board){display:none!important}
+  body[data-view="apps"][data-appsmode="board"]:not([data-open]) #apps-board{display:block}
+  body[data-view="apps"][data-open] #fv-back{display:block}
+  body[data-view="apps"][data-appsmode="board"]:not([data-open]) .preview,body[data-view="apps"][data-open] .preview{padding:28px 32px 40px}
+  body.rail-off[data-view="apps"][data-appsmode="board"]:not([data-open]) .preview,body.rail-off[data-view="apps"][data-open] .preview{padding-top:70px}
+}
+@media (max-width:900px){
+  body[data-view="apps"][data-open] .panel{display:none}
+  body[data-view="apps"][data-open] #fv-back{display:block}
+  body[data-view="apps"]:not([data-open]) .preview{display:none}
+}
 </style>
 </head>
 <body>
@@ -1119,6 +1175,7 @@ body[data-view="home"] .panel .step,body[data-view="compte"] .panel .step,body[d
   <button class="rail-it" type="button" data-goto="apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg><span>Candidatures</span><span class="badge" id="rail-badge" hidden></span></button>
   <button class="rail-it" type="button" data-coach><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span>Coach</span></button>
   <button class="rail-it" type="button" data-goto="parcours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><span>Mon parcours</span></button>
+  <div class="rail-sync"><button class="sync-pill app-ui" id="sync-pill" type="button" data-goto="compte" hidden><span class="sync-dot" aria-hidden="true"></span><span id="sync-pill-txt"></span></button></div>
   <button class="rail-it rail-acc" type="button" data-goto="compte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Mon compte</span></button>
 </nav>
 <div class="rail-edge app-ui" id="rail-edge" aria-hidden="true"></div>
@@ -1129,7 +1186,6 @@ body[data-view="home"] .panel .step,body[data-view="compte"] .panel .step,body[d
 <aside class="panel app-ui">
   <div class="brand"><svg class="logo" width="40" height="40" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg><span class="name" data-brand>Jaltio</span><button class="m-acc" type="button" data-goto="compte" aria-label="Mon compte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></button></div>
   <p class="sub" data-brand-sig>Chaque étape, jusqu'au poste.</p>
-  <button class="sync-pill app-ui" id="sync-pill" type="button" data-goto="compte" hidden><span class="sync-dot" aria-hidden="true"></span><span id="sync-pill-txt"></span></button>
   <nav class="views" role="tablist" aria-label="Sections de Jaltio" hidden>
     <button class="view-tab" role="tab" type="button" data-view="create" aria-selected="true">Créer</button>
     <button class="view-tab" role="tab" type="button" data-view="apps" aria-selected="false">Mes candidatures <span class="badge" id="nav-badge" hidden></span></button>
@@ -1229,12 +1285,18 @@ body[data-view="home"] .panel .step,body[data-view="compte"] .panel .step,body[d
     <div class="home-head">
       <div class="apps-hello"><p class="home-date" id="home-date"></p><h2 id="apps-hello-t">Bonjour</h2><p id="apps-hello-s"></p></div>
       <div class="home-actions">
-        <button class="btn primary" type="button" data-newcv><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nouveau CV</button>
         <button class="btn" type="button" data-goto="offres"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Chercher une offre</button>
+        <button class="btn primary" type="button" data-newcv><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nouveau CV</button>
       </div>
     </div>
     <div class="home-grid">
-      <div class="todo-box" id="todo-box"></div>
+      <div class="home-main">
+        <div class="todo-box" id="todo-box"></div>
+        <section class="home-recent" id="home-recent" hidden>
+          <div class="hr-head"><h3>Dernières candidatures</h3><button class="link" type="button" data-goto="apps">Tout voir</button></div>
+          <div class="hr-scroll"><table><thead><tr><th>Poste</th><th>Entreprise</th><th>Statut</th><th>Dernière étape</th></tr></thead><tbody id="home-recent-rows"></tbody></table></div>
+        </section>
+      </div>
       <div class="home-side">
         <div class="home-stats" id="home-stats"></div>
         <div class="goal" id="goal"></div>
@@ -1343,7 +1405,7 @@ body[data-view="home"] .panel .step,body[data-view="compte"] .panel .step,body[d
   </div>
 
   <div class="step" data-v="apps">
-    <div class="apps-head"><b>Mes candidatures</b><button class="btn" id="btn-add-app" type="button" aria-expanded="false">+ Ajouter</button></div>
+    <div class="apps-head"><b>Mes candidatures</b><span class="apps-mode d-flex" role="group" aria-label="Affichage"><button type="button" data-appsmode="list" aria-pressed="true">Liste</button><button type="button" data-appsmode="board" aria-pressed="false">Tableau</button></span><button class="btn" id="btn-add-app" type="button" aria-expanded="false">+ Ajouter</button></div>
     <form class="add-form" id="add-form" hidden>
       <p class="hint" style="margin:0">Une candidature faite sans <span data-brand>Jaltio</span> (spontanée, en magasin, sur un autre site) : ajoutez-la pour que votre suivi soit complet.</p>
       <label for="add-poste">Poste</label><input type="text" id="add-poste" placeholder="Ex. : Caissière" required>
@@ -1431,6 +1493,8 @@ body[data-view="home"] .panel .step,body[data-view="compte"] .panel .step,body[d
 
 <!-- ================= APERÇU ================= -->
 <section class="preview" id="preview">
+  <div class="fv-back app-ui" id="fv-back"><button class="btn small" type="button" id="fv-back-btn"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Mes candidatures</button></div>
+  <div class="apps-board app-ui" id="apps-board"></div>
   <div class="tabs app-ui" id="tabs" hidden>
     <button class="tab on" data-tab="cv">CV</button>
     <button class="tab" data-tab="lettre" id="tab-lettre">Lettre de motivation</button>
@@ -3131,6 +3195,77 @@ function openGroup(G, sub){
   renderFicheView();
   if(window.innerWidth < 900) $("#fiche-view").scrollIntoView({ behavior:"smooth", block:"start" });
 }
+
+/* ===================== Candidatures : tableau (ordinateur) et fiche plein écran ===================== */
+const appsMode = () => isM() ? "list" : (store.get("appsMode", "list") === "board" ? "board" : "list");
+function syncAppsMode(){
+  const m = appsMode(); document.body.dataset.appsmode = m;
+  document.querySelectorAll("[data-appsmode]").forEach(b => { if(b.tagName === "BUTTON") b.setAttribute("aria-pressed", b.dataset.appsmode === m ? "true" : "false"); });
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("button[data-appsmode]"); if(!b) return;
+  store.set("appsMode", b.dataset.appsmode); delete document.body.dataset.open; syncAppsMode(); renderAppsBoard();
+});
+function ouvrirFiche(G, sub){
+  openGroup(G, sub);
+  if(isM() || appsMode() === "board") document.body.dataset.open = "1";
+  window.scrollTo({ top:0 });
+  requestAnimationFrame(() => { try{ scalePreview(); fitVisible(); }catch(e){} });
+}
+$("#fv-back-btn").addEventListener("click", () => { delete document.body.dataset.open; syncAppsMode(); renderHistory(); window.scrollTo({ top:0 }); });
+const AB_COLS = [["todo", _t("À envoyer")], ["sent", _t("Envoyées")], ["itw", _t("Entretien")], ["closed", _t("Terminées")]];
+function colOf(G){ const s = statusOf(G); return s === "relance" ? "sent" : s; }
+function deplacer(G, col){
+  if(colOf(G) === col) return;
+  const L = G.versions[G.versions.length - 1], S = suiviOf(G.id), now = Date.now();
+  if(col === "todo"){ G.versions.forEach(v => { delete v.applied; delete v.relance; delete v.interview; }); delete S.result; }
+  if(col === "sent"){ if(!appliedOf(G)) L.applied = now; G.versions.forEach(v => { delete v.interview; }); delete S.result; }
+  if(col === "itw"){ if(!appliedOf(G)) L.applied = now; if(!interviewOf(G)) L.interview = now; if(S.result && S.result !== "offre") delete S.result; }
+  if(col === "closed" && !S.result) S.result = appliedOf(G) ? "sansreponse" : "abandon";
+  saveSuivi(); touchGroup(G); renderHistory();
+}
+function renderAppsBoard(){
+  const box = $("#apps-board"); if(!box) return;
+  syncAppsMode();
+  if(appsMode() !== "board" || document.body.dataset.view !== "apps") return;
+  box.innerHTML = "";
+  const groups = groupsFor(currentProfileId);
+  const head = el("div", "ab-head"); head.appendChild(el("h2", "", _t("Mes candidatures")));
+  const tools = el("div", "ab-tools");
+  const mode = el("span", "apps-mode"); mode.setAttribute("role", "group"); mode.setAttribute("aria-label", _t("Affichage"));
+  [["list", _t("Liste")], ["board", _t("Tableau")]].forEach(([k, l]) => { const b = el("button", "", l); b.type = "button"; b.dataset.appsmode = k; b.setAttribute("aria-pressed", k === "board" ? "true" : "false"); mode.appendChild(b); });
+  tools.appendChild(mode);
+  const add = btn(_t("+ Ajouter"), "", () => { store.set("appsMode", "list"); syncAppsMode(); toggleAdd(true); }); tools.appendChild(add);
+  if(groups.some(G => appliedOf(G))){ const r = btn(_t("Récap de mes démarches (PDF)"), "", () => $("#btn-recap").click()); tools.appendChild(r); }
+  head.appendChild(tools); box.appendChild(head);
+  const cols = el("div", "ab-cols");
+  AB_COLS.forEach(([k, label]) => {
+    const list = groups.filter(G => colOf(G) === k);
+    const c = el("section", "ab-col"); c.dataset.col = k; c.setAttribute("aria-label", label);
+    const h = el("h3"); h.appendChild(el("span", "", label)); h.appendChild(el("span", "", String(list.length))); c.appendChild(h);
+    if(!list.length) c.appendChild(el("p", "ab-empty", k === "todo" ? _t("Les CV créés et pas encore envoyés arrivent ici.") : _t("Glissez une carte ici.")));
+    list.forEach(G => {
+      const v = G.versions[G.versions.length - 1], st = statusOf(G), S = suivi[G.id] || {};
+      const card_ = el("button", "ab-card" + (st === "relance" ? " hot" : "")); card_.type = "button"; card_.draggable = true;
+      card_.appendChild(el("b", "", G.versions[0].poste || _t("Poste")));
+      const a = appliedOf(G);
+      card_.appendChild(el("span", "co", (v.entreprise || "") + (a ? (v.entreprise ? " · " : "") + new Date(a).toLocaleDateString(LOCALE, { day:"numeric", month:"short" }) : "")));
+      if(st === "relance") card_.appendChild(el("span", "pill relance", _t("À relancer")));
+      else if(S.result) card_.appendChild(el("span", "pill " + st, RESULTS[S.result]));
+      else if(S.itwAt){ const t = new Date(S.itwAt); if(!isNaN(t)) card_.appendChild(el("span", "pill itw", t.toLocaleDateString(LOCALE, { weekday:"short", day:"numeric", month:"short" }))); }
+      card_.addEventListener("click", () => ouvrirFiche(G, v.manual ? "suivi" : "cv"));
+      card_.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", G.id); e.dataTransfer.effectAllowed = "move"; card_.classList.add("dragging"); });
+      card_.addEventListener("dragend", () => card_.classList.remove("dragging"));
+      c.appendChild(card_);
+    });
+    c.addEventListener("dragover", e => { e.preventDefault(); c.classList.add("over"); });
+    c.addEventListener("dragleave", () => c.classList.remove("over"));
+    c.addEventListener("drop", e => { e.preventDefault(); c.classList.remove("over"); const id = e.dataTransfer.getData("text/plain"); const G = groupsFor(currentProfileId).find(g => g.id === id); if(G) deplacer(G, k); });
+    cols.appendChild(c);
+  });
+  box.appendChild(cols);
+  box.appendChild(el("p", "ab-hint", _t("Glissez une carte d'une colonne à l'autre pour changer son statut. Cliquez dessus pour ouvrir le CV, la lettre et le suivi.")));
+}
 /* Mes CV récents, dans l'onglet Créer : on retrouve un ancien CV sans passer par « Mes candidatures » */
 const fmtShort = t => { const d = new Date(t); return d.toLocaleDateString(LOCALE, { day:"numeric", month:"short" }) + t_at() + d.toLocaleTimeString(LOCALE, { hour:"2-digit", minute:"2-digit" }); };
 /* Suppression d'une candidature (toutes ses versions, son suivi, ses notes) : même effet depuis Créer et Mes candidatures */
@@ -3178,6 +3313,7 @@ function renderHistory(){
   const ul = $("#hist"); ul.innerHTML = "";
   const all = groupsFor(currentProfileId), cur = curHist();
   renderBoard(all);
+  if(typeof renderAppsBoard === "function") renderAppsBoard();
   $("#hist-empty").hidden = all.length > 0;
   $("#hist-rule").hidden = !all.length;
   all.forEach(G => {
@@ -3198,7 +3334,7 @@ function renderHistory(){
       c.addEventListener("click", e => { e.stopPropagation(); downloadIcs(G); });
       li.appendChild(c);
     }
-    const open = () => openGroup(G, (document.body.dataset.sub === "suivi" || latest.manual) ? "suivi" : (document.body.dataset.sub || "cv"));
+    const open = () => ouvrirFiche(G, (document.body.dataset.sub === "suivi" || latest.manual) ? "suivi" : (document.body.dataset.sub || "cv"));
     li.addEventListener("click", open);
     li.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); open(); } });
     ul.appendChild(li);
@@ -4268,6 +4404,7 @@ const VUES = ["home", "offres", "apps", "create", "parcours", "compte"];
 function setView(v){
   if(v === "profile") v = "parcours";
   if(!VUES.includes(v)) v = "home";
+  delete document.body.dataset.open;
   if(v !== document.body.dataset.view) moRun("mo-run");
   const cur = curHist();
   if(v !== "apps" && cur && cur.manual) showEmpty();
@@ -4316,8 +4453,22 @@ function renderHome(){
   const groups = groupsFor(currentProfileId);
   const sent = groups.filter(G => appliedOf(G)).length, itw = groups.filter(G => interviewOf(G) || (suivi[G.id] || {}).itwAt).length, rel = groups.filter(G => statusOf(G) === "relance").length;
   box.innerHTML = "";
-  [[sent, sent > 1 ? _t("envoyées") : _t("envoyée")], [itw, itw > 1 ? _t("entretiens") : _t("entretien")], [rel, _t("à relancer")]].forEach(([n, l]) => { const c = el("div"); c.appendChild(el("b", "", String(n))); c.appendChild(el("span", "", l)); box.appendChild(c); });
+  const rep = groups.filter(G => { const r = (suivi[G.id] || {}).result; return interviewOf(G) || r === "refus" || r === "offre"; }).length;
+  [[sent, sent > 1 ? _t("envoyées") : _t("envoyée")], [rel, _t("à relancer")], [itw, itw > 1 ? _t("entretiens") : _t("entretien")], [rep, rep > 1 ? _t("réponses") : _t("réponse")]].forEach(([n, l]) => { const c = el("div"); c.appendChild(el("b", "", String(n))); c.appendChild(el("span", "", l)); box.appendChild(c); });
   box.hidden = !groups.length;
+  const rec = $("#home-recent"), rows = $("#home-recent-rows"); if(!rec || !rows) return;
+  rows.innerHTML = ""; rec.hidden = !groups.length;
+  const lastOf = G => Math.max(...G.versions.map(v => v.date || 0), appliedOf(G) || 0, relanceOf(G) || 0, interviewOf(G) || 0);
+  const LBL = { todo:_t("À envoyer"), sent:_t("Envoyée"), relance:_t("À relancer"), itw:_t("Entretien"), closed:_t("Terminée") };
+  groups.slice().sort((a, b) => lastOf(b) - lastOf(a)).slice(0, 6).forEach(G => {
+    const v = G.versions[G.versions.length - 1], st = statusOf(G), S = suivi[G.id] || {};
+    const tr = document.createElement("tr"), open = () => { setView("apps"); ouvrirFiche(G, v.manual ? "suivi" : "cv"); };
+    const t1 = document.createElement("td"), b = el("button", "", G.versions[0].poste || _t("Poste")); b.type = "button"; b.addEventListener("click", e => { e.stopPropagation(); open(); }); t1.appendChild(b); tr.appendChild(t1);
+    tr.appendChild(el("td", "", v.entreprise || "—"));
+    const t3 = document.createElement("td"); t3.appendChild(el("span", "pill " + st, S.result ? RESULTS[S.result] : LBL[st])); tr.appendChild(t3);
+    tr.appendChild(el("td", "", fmtDay(lastOf(G))));
+    tr.addEventListener("click", open); rows.appendChild(tr);
+  });
 }
 function updateForWho(){
   const p = prof() || {};
