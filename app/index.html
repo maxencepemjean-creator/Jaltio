@@ -1148,6 +1148,31 @@ body[data-view="home"] .panel .step,body[data-view="compte"] .panel .step,body[d
   body[data-view="apps"][data-open] #fv-back{display:block}
   body[data-view="apps"]:not([data-open]) .preview{display:none}
 }
+
+/* ===== Nouveau CV en 3 étapes (lot 3) ===== */
+.c-prog{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0 0 10px}
+.c-prog span{height:5px;border-radius:3px;background:#EADFD6}
+.c-prog span.on{background:var(--accent)}
+.c-num{margin:0;font-size:12.5px;color:var(--muted);font-weight:600}
+.step h2.c-title{font-family:var(--display);font-weight:800;font-size:24px;margin:2px 0 14px;display:block}
+.c-next{width:100%;margin-top:14px}
+.c-sum{display:flex;align-items:center;gap:12px;background:var(--ok-soft);border-radius:14px;padding:12px 14px;margin:0 0 12px}
+.c-sum .ck{width:32px;height:32px;border-radius:16px;background:#fff;color:var(--ok);display:grid;place-items:center;flex:none}
+.c-sum .tx{flex:1;min-width:0}
+.c-sum b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-sum span{display:block;font-size:12.5px;color:var(--muted)}
+.c-lock{display:flex;align-items:center;gap:12px;background:#FAF5F0;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:6px 0 12px}
+.c-lock > div{flex:1}
+.c-lock b{display:flex;align-items:center;gap:6px;font-size:14.5px;color:#5B4D5E}
+.c-lock span{display:block;font-size:12.5px;color:var(--muted)}
+.c-quota{background:var(--lilas);border-radius:12px;padding:10px 12px;font-size:13.5px;margin:4px 0 12px}
+.c-back{display:block;margin:10px auto 0}
+body[data-cstep="offre"] #step-offre .c-opt,body[data-cstep="offre"] #step-offre .c-done{display:none!important}
+body[data-cstep="options"] #step-offre .c-in{display:none!important}
+body[data-cstep="done"] #step-offre .c-in,body[data-cstep="done"] #step-offre .c-opt:not(.c-done){display:none!important}
+body.m .c-prog,body.m .c-num,body.m .step h2.c-title{display:none}
+#recent-box{display:none!important}
+body[data-view="create"]:not([data-cstep="done"]) .panel-foot{display:none!important}
 </style>
 </head>
 <body>
@@ -1333,12 +1358,14 @@ body[data-view="home"] .panel .step,body[data-view="compte"] .panel .step,body[d
   </div>
 
   <div class="step" data-v="create" id="step-offre" data-mkeep>
-    <h2><span class="num">1</span> L'offre d'emploi</h2>
-    <div class="seg" role="radiogroup" aria-label="Type de candidature" style="margin-bottom:12px">
+    <div class="c-prog" id="c-prog" aria-hidden="true"><span></span><span></span><span></span></div>
+    <p class="c-num" id="c-num">Étape 1 sur 3</p>
+    <h2 class="c-title" id="c-title">Pour quelle offre ?</h2>
+    <div class="seg c-in" role="radiogroup" aria-label="Type de candidature" style="margin-bottom:12px">
       <label><input type="radio" name="mode-cand" value="annonce" checked><span>J'ai une annonce</span></label>
       <label><input type="radio" name="mode-cand" value="spont"><span>Candidature spontanée</span></label>
     </div>
-    <div id="bloc-spont" hidden>
+    <div id="bloc-spont" class="c-in" hidden>
       <label for="sp-entreprise">Nom de l'entreprise</label>
       <input type="text" id="sp-entreprise" placeholder="Ex. : Leroy Merlin, Clinique du Parc, Mairie de Saintes…">
       <label for="sp-poste">Poste visé</label>
@@ -1347,7 +1374,7 @@ body[data-view="home"] .panel .step,body[data-view="compte"] .panel .step,body[d
       <input type="text" id="sp-site" inputmode="url" placeholder="https://www.entreprise.fr">
       <p class="hint">Sans annonce, le CV met en avant ce qu'on attend habituellement pour ce poste. Avec le site, la lettre parle aussi de l'entreprise elle-même.</p>
     </div>
-    <div id="bloc-annonce">
+    <div id="bloc-annonce" class="c-in">
     <label for="offre-url">Lien de l'annonce</label>
     <input type="text" id="offre-url" inputmode="url" placeholder="https://www.hellowork.com/fr-fr/emplois/…">
     <p class="hint">LinkedIn et Indeed bloquent souvent la lecture : collez alors le texte ci-dessous.</p>
@@ -1355,10 +1382,18 @@ body[data-view="home"] .panel .step,body[data-view="compte"] .panel .step,body[d
     <label for="offre">Texte de l'annonce</label>
     <textarea id="offre" rows="5" placeholder="Copiez tout le texte de l'annonce (intitulé, missions, profil recherché…) et collez-le ici."></textarea>
     </div>
-    <label class="check"><input type="checkbox" id="opt-lettre" checked> <span id="opt-lettre-txt">Rédiger aussi la lettre de motivation</span></label>
-    <div class="doc-lang-row" hidden><label for="doc-lang">Langue du CV et de la lettre</label>
+    <button class="btn primary big c-in c-next" id="btn-cnext" type="button">Continuer</button>
+    <div class="c-sum c-opt c-done" id="c-sum"></div>
+    <label class="check c-opt" id="opt-lettre-row"><input type="checkbox" id="opt-lettre" checked> <span id="opt-lettre-txt">Rédiger aussi la lettre de motivation</span></label>
+    <div class="c-lock c-opt" id="c-lock" hidden>
+      <div><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Lettre de motivation</b><span>Incluse dans Jaltio Essentiel.</span></div>
+      <button class="btn small" type="button" id="c-lock-btn">Découvrir</button>
+    </div>
+    <div class="doc-lang-row c-opt" hidden><label for="doc-lang">Langue du CV et de la lettre</label>
     <select id="doc-lang" data-noi18n><option value="fr">Français</option><option value="ru">Русский</option></select></div>
-    <button class="btn primary big gen-btn" id="btn-generate">Créer mon CV adapté</button>
+    <p class="c-quota c-opt" id="c-quota" hidden></p>
+    <button class="btn primary big gen-btn c-opt" id="btn-generate">Créer mon CV adapté</button>
+    <button class="link c-opt c-back" id="btn-cback" type="button">Modifier l'offre</button>
     <div class="status" id="status-gen"></div>
     <button class="link" id="btn-force-new" type="button" hidden>Créer quand même un nouveau CV</button>
     <div id="feedback-box" hidden>
@@ -4507,7 +4542,52 @@ $("#profile-parcours").addEventListener("input", updateForWho);
 /* ===================== Téléphone ===================== */
 const mql = window.matchMedia("(max-width:700px)");
 const isM = () => mql.matches;
-function setMStep(s){ document.body.dataset.mstep = s; if(s !== "cv") delete document.body.dataset.mfix; renderMSteps(); requestAnimationFrame(() => { try{ scalePreview(); fitVisible(); }catch(e){} }); }
+
+/* ===================== Nouveau CV : 1. l'offre  2. vérifier et lancer  3. relecture ===================== */
+let aboDernier = null;
+function setCStep(c){
+  document.body.dataset.cstep = c;
+  const i = c === "offre" ? 0 : c === "options" ? 1 : 2;
+  document.querySelectorAll("#c-prog span").forEach((x, k) => x.classList.toggle("on", k <= i));
+  $("#c-num").textContent = _t("Étape ") + (i + 1) + _t(" sur 3");
+  $("#c-title").textContent = [_t("Pour quelle offre ?"), _t("Vérifiez et lancez"), _t("Votre CV est prêt")][i];
+  if(c === "options") renderCOptions();
+  if(c === "done") renderCSum();
+}
+function renderCSum(){
+  const box = $("#c-sum"); box.innerHTML = "";
+  const ck = el("span", "ck"); ck.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>';
+  box.appendChild(ck);
+  const tx = el("div", "tx");
+  if(document.body.dataset.cstep === "done" && curHist()){ const h = curHist(); tx.appendChild(el("b", "", h.poste || _t("Poste"))); tx.appendChild(el("span", "", h.entreprise || _t("CV adapté à l'offre"))); }
+  else if(modeCand() === "spont"){ tx.appendChild(el("b", "", $("#sp-poste").value.trim())); tx.appendChild(el("span", "", _t("Candidature spontanée · ") + $("#sp-entreprise").value.trim())); }
+  else {
+    const u = $("#offre-url").value.trim(), t = $("#offre").value.trim();
+    let host = ""; try{ host = u ? new URL(u).hostname.replace(/^www\./, "") : ""; }catch(e){ host = u; }
+    tx.appendChild(el("b", "", t ? t.split("\n").map(x => x.trim()).filter(Boolean)[0].slice(0, 90) : host));
+    tx.appendChild(el("span", "", t ? _t("Texte de l'annonce collé") : _t("Lien de l'annonce")));
+  }
+  box.appendChild(tx);
+  if(document.body.dataset.cstep !== "done"){ const m = el("button", "btn small", _t("Modifier")); m.type = "button"; m.addEventListener("click", () => setCStep("offre")); box.appendChild(m); }
+  else { const n = el("button", "btn small", _t("Nouveau CV")); n.type = "button"; n.dataset.newcv = ""; box.appendChild(n); }
+}
+function renderCOptions(){
+  renderCSum();
+  const f = isFree();
+  $("#opt-lettre-row").hidden = f; $("#c-lock").hidden = !f;
+  const q = $("#c-quota"), d = aboDernier;
+  if(d && d.cv_total){ const r = Math.max(0, (d.cv_total || 0) - (d.cv_utilises || 0)); q.textContent = _t("Il vous reste ") + r + _t(" CV sur ") + d.cv_total + (d.offre === "free" ? _t(" (offre Free).") : _t(" ce mois-ci.")); q.hidden = false; }
+  else q.hidden = true;
+}
+$("#btn-cnext").addEventListener("click", () => {
+  if(modeCand() === "spont"){
+    if(!$("#sp-entreprise").value.trim() || !$("#sp-poste").value.trim()){ status("#status-gen", "err", _t("Indiquez l'entreprise et le poste visé.")); return; }
+  } else if(!$("#offre-url").value.trim() && $("#offre").value.trim().length < 40){ status("#status-gen", "err", _t("Collez le lien de l'annonce ou son texte.")); $("#offre-url").focus(); return; }
+  status("#status-gen", "", ""); setCStep("options"); window.scrollTo({ top:0 });
+});
+$("#btn-cback").addEventListener("click", () => setCStep("offre"));
+$("#c-lock-btn").addEventListener("click", () => freeBlock());
+function setMStep(s){ setCStep(s === "cv" ? "done" : "offre"); document.body.dataset.mstep = s; if(s !== "cv") delete document.body.dataset.mfix; renderMSteps(); requestAnimationFrame(() => { try{ scalePreview(); fitVisible(); }catch(e){} }); }
 function renderMSteps(){
   const box = $("#m-steps"); if(!box) return;
   const hasParcours = str((prof() || {}).parcours).length >= 80;
@@ -5698,7 +5778,7 @@ async function aboStatut(){
   if(!RELAIS){ aboRender(_t("La gestion de l'abonnement n'est pas disponible pour l'instant."), false, false); return; }
   if(!aboCode()){ aboRender(_t("Aucun abonnement n'est enregistré sur cet appareil. Connectez-vous avec votre compte, ou choisissez un forfait."), false, true); return; }
   try{
-    const d = await aboCall("statut");
+    const d = await aboCall("statut"); aboDernier = d;
     if(!d.actif && await recoverCode(aboCode())) return;      // un autre code, actif, est enregistré sur le compte synchronisé
     store.set("offre", str(d.offre)); freeUi();
     if(d.offre === "free"){ aboRender(_t("Jaltio Free : ") + (d.cv_utilises || 0) + _t(" CV utilisés sur ") + (d.cv_total || 10) + _t(" (corrections comprises). Lettre de motivation, coach et préparation d'entretien : inclus dans Jaltio Essentiel."), false, true, true); return; }
