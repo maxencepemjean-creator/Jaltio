@@ -734,6 +734,23 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 .status.ok{background:var(--ok-soft);color:var(--ok)}
 .status{border-radius:12px}
 .seg{border-color:#E2D3C3;border-radius:999px}
+.seg3 span{font-size:13.5px;padding:8px 4px;line-height:1.2}
+#bloc-cherche .of-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:10px}
+#bloc-cherche #of-go{margin-top:12px;width:100%}
+.of-list{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.of-item{background:#fff;border:1px solid #E2D3C3;border-radius:16px;padding:14px 16px}
+.of-item h3{font-family:var(--display);font-size:16px;line-height:1.25;color:var(--brand);margin:0 0 4px}
+.of-item .of-co{font-size:14px;font-weight:600;color:var(--ink);margin:0}
+.of-item .of-meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--muted);margin:4px 0 8px}
+.of-item .of-ext{font-size:13.5px;line-height:1.45;color:#4A3650;margin:0 0 10px}
+.of-item .of-act{display:flex;flex-wrap:wrap;gap:8px}
+.of-item .of-act .btn{font-size:13.5px;padding:7px 14px;text-decoration:none}
+.of-item.choisie{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand)}
+.of-lieux{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+#of-plus{margin-top:12px;width:100%}
+.of-src{margin-top:10px}
+.of-src a{color:var(--brand);font-weight:600}
+.of-cache{display:none!important}
 .seg span{border-color:#E2D3C3}
 .seg input:checked + span{background:var(--brand)}
 .swatch.on{box-shadow:0 0 0 2px var(--brand)}
@@ -1137,9 +1154,34 @@ body.gate-open .tabbar, body.gate-open .fab{display:none}
 
   <div class="step" data-v="create" id="step-offre" data-mkeep>
     <h2><span class="num">1</span> L'offre d'emploi</h2>
-    <div class="seg" role="radiogroup" aria-label="Type de candidature" style="margin-bottom:12px">
+    <div class="seg seg3" role="radiogroup" aria-label="Type de candidature" style="margin-bottom:12px">
       <label><input type="radio" name="mode-cand" value="annonce" checked><span>J'ai une annonce</span></label>
+      <label><input type="radio" name="mode-cand" value="cherche"><span>Chercher une offre</span></label>
       <label><input type="radio" name="mode-cand" value="spont"><span>Candidature spontanée</span></label>
+    </div>
+    <div id="bloc-cherche" hidden>
+      <form id="of-form" novalidate>
+        <label for="of-mots">Métier ou mots-clés</label>
+        <input type="search" id="of-mots" maxlength="100" placeholder="Ex. : vendeuse, cariste, assistante comptable…" autocomplete="off">
+        <div class="of-row">
+          <div><label for="of-lieu">Ville ou code postal</label>
+          <input type="search" id="of-lieu" maxlength="80" placeholder="Ex. : Saintes, 17100" autocomplete="off"></div>
+          <div><label for="of-rayon">Autour de</label>
+          <select id="of-rayon"><option value="10">10 km</option><option value="20" selected>20 km</option><option value="30">30 km</option><option value="50">50 km</option><option value="100">100 km</option></select></div>
+        </div>
+        <div class="of-row">
+          <div><label for="of-contrat">Contrat</label>
+          <select id="of-contrat"><option value="">Tous</option><option value="p">CDI</option><option value="t">CDD</option><option value="c">Intérim, mission</option><option value="i">Stage</option></select></div>
+          <div><label for="of-tri">Trier par</label>
+          <select id="of-tri"><option value="pertinence">Pertinence</option><option value="date">Les plus récentes</option></select></div>
+        </div>
+        <button class="btn primary" id="of-go" type="submit">Rechercher</button>
+      </form>
+      <div class="status" id="of-status"></div>
+      <div id="of-lieux" class="of-lieux" hidden></div>
+      <ol class="of-list" id="of-list" aria-live="polite"></ol>
+      <button class="btn" id="of-plus" type="button" hidden>Voir plus d'offres</button>
+      <p class="hint of-src" id="of-src" hidden>Offres fournies par <a href="https://www.optioncarriere.com" target="_blank" rel="noopener">Optioncarrière</a>. En ouvrant une offre, vous quittez <span data-brand>Jaltio</span> : vérifiez-la avant de postuler.</p>
     </div>
     <div id="bloc-spont" hidden>
       <label for="sp-entreprise">Nom de l'entreprise</label>
@@ -2382,9 +2424,98 @@ let forceNew = false;
 $("#btn-force-new").addEventListener("click", () => { forceNew = true; $("#btn-force-new").hidden = true; $("#btn-generate").click(); });
 /* Candidature spontanée : pas d'annonce, juste l'entreprise, le poste et éventuellement le site */
 const modeCand = () => (document.querySelector('input[name="mode-cand"]:checked') || {}).value || "annonce";
-function applyModeCand(){ const sp = modeCand() === "spont"; $("#bloc-spont").hidden = !sp; $("#bloc-annonce").hidden = sp; }
+function applyModeCand(){ const m = modeCand(); $("#bloc-spont").hidden = m !== "spont"; $("#bloc-annonce").hidden = m !== "annonce"; $("#bloc-cherche").hidden = m !== "cherche"; const gen = $("#btn-generate"); if(gen) gen.hidden = m === "cherche";
+  const ol = $("#opt-lettre") && $("#opt-lettre").closest("label"); if(ol) ol.classList.toggle("of-cache", m === "cherche");
+  const dl = document.querySelector(".doc-lang-row"); if(dl) dl.classList.toggle("of-cache", m === "cherche"); }
 function clearSpont(){ ["#sp-entreprise", "#sp-poste", "#sp-site"].forEach(id => { $(id).value = ""; }); }
 document.querySelectorAll('input[name="mode-cand"]').forEach(r => r.addEventListener("change", applyModeCand));
+
+/* Recherche d'offres (Careerjet / Optioncarrière, via le relais puis n8n). Aucune IA : ne consomme pas le quota. */
+const OF = { page:1, pages:0, q:null, vus:new Set() };
+function ofAge(iso){
+  const t = Date.parse(iso); if(!t) return "";
+  const j = Math.floor((Date.now() - t) / 864e5);
+  if(j <= 0) return _t("Aujourd'hui");
+  if(j === 1) return _t("Hier");
+  if(j < 31) return (_t("Il y a ") + j + _t(" jours")).trim();
+  return _t("Publiée le ") + new Date(t).toLocaleDateString(LOCALE, { day:"numeric", month:"long" });
+}
+function ofChoisir(o, li){
+  document.querySelectorAll(".of-item.choisie").forEach(x => x.classList.remove("choisie"));
+  li.classList.add("choisie");
+  const ra = document.querySelector('input[name="mode-cand"][value="annonce"]'); if(ra){ ra.checked = true; applyModeCand(); }
+  $("#offre-url").value = o.url;
+  $("#offre").value = "";
+  // Optioncarrière bloque la lecture automatique de ses pages : le texte complet vient de l'onglet ouvert par l'utilisateur.
+  status("#status-gen", "info", _t("Offre choisie : ") + o.titre + (o.entreprise ? " · " + o.entreprise : "") + _t(". Elle s'est ouverte dans un nouvel onglet : copiez tout le texte de l'annonce, collez-le dans le cadre « Texte de l'annonce » ci-dessus, puis cliquez sur « Créer mon CV adapté »."));
+  const t = $("#offre"); if(t){ t.scrollIntoView({ behavior:"smooth", block:"center" }); setTimeout(() => { try{ t.focus({ preventScroll:true }); }catch(e){} }, 400); }
+}
+function ofCarte(o){
+  const li = el("li", "of-item");
+  li.appendChild(el("h3", "", o.titre || _t("Offre sans titre")));
+  if(o.entreprise) li.appendChild(el("p", "of-co", o.entreprise));
+  const meta = el("div", "of-meta");
+  if(o.lieu) meta.appendChild(el("span", "", o.lieu));
+  if(o.salaire) meta.appendChild(el("span", "", o.salaire));
+  const age = ofAge(o.date); if(age) meta.appendChild(el("span", "", age));
+  li.appendChild(meta);
+  if(o.extrait) li.appendChild(el("p", "of-ext", o.extrait.length > 260 ? o.extrait.slice(0, 260).replace(/\s+\S*$/, "") + "…" : o.extrait));
+  const act = el("div", "of-act");
+  // Les deux boutons sont de vrais liens ouverts par l'utilisateur : Careerjet rémunère au clic, jamais d'ouverture automatique.
+  const voir = el("a", "btn", _t("Voir l'offre ↗")); voir.href = o.url; voir.target = "_blank"; voir.rel = "noopener";
+  const creer = el("a", "btn primary", _t("Créer mon CV pour cette offre")); creer.href = o.url; creer.target = "_blank"; creer.rel = "noopener";
+  creer.addEventListener("click", () => ofChoisir(o, li));
+  act.appendChild(creer); act.appendChild(voir);
+  li.appendChild(act);
+  return li;
+}
+async function ofChercher(suite){
+  const code = aboCode();
+  if(!code && !(await recoverCode(""))){ status("#of-status", "err", _t("Connectez-vous à votre compte pour chercher des offres.")); return; }
+  if(!suite){
+    const q = { mots:$("#of-mots").value.trim(), lieu:$("#of-lieu").value.trim(), rayon:$("#of-rayon").value, contrat:$("#of-contrat").value, tri:$("#of-tri").value };
+    if(!q.mots && !q.lieu){ status("#of-status", "err", _t("Indiquez un métier, des mots-clés ou une ville.")); $("#of-mots").focus(); return; }
+    OF.q = q; OF.page = 1; OF.pages = 0; OF.vus = new Set();
+    $("#of-list").innerHTML = ""; $("#of-lieux").hidden = true; $("#of-lieux").innerHTML = "";
+  } else OF.page++;
+  $("#of-go").disabled = true; $("#of-plus").hidden = true;
+  status("#of-status", "info", _t("Recherche des offres…"));
+  let r = null, res;
+  const appel = async () => {
+    try{
+      res = await fetch(RELAIS.replace(/\/+$/, "") + "/offres/recherche", { method:"POST", headers:{ "content-type":"application/json", "x-jalon-code":aboCode() }, body:JSON.stringify({ ...OF.q, page:OF.page }) });
+      r = await res.json().catch(() => null);
+    }catch(e){ res = null; r = null; }
+  };
+  await appel();
+  if(res && res.status === 401 && (await recoverCode(aboCode()))) await appel();   // code périmé sur cet appareil : on reprend celui du compte
+  $("#of-go").disabled = false;
+  if(!res || !res.ok || !r){
+    if(suite) OF.page--;
+    const msg = r && r.error && r.error.message;
+    status("#of-status", "err", res && res.status === 401 ? _t("Votre accès n'est plus actif. Reconnectez-vous ou vérifiez votre abonnement.") : msg ? _t(msg) : _t("La recherche n'a pas abouti. Vérifiez votre connexion et réessayez."));
+    if(suite && OF.page < OF.pages) $("#of-plus").hidden = false;
+    return;
+  }
+  if(Array.isArray(r.lieux) && r.lieux.length){
+    const box = $("#of-lieux"); box.innerHTML = "";
+    box.appendChild(el("p", "hint", _t("Plusieurs lieux correspondent. Lequel ?")));
+    r.lieux.forEach(l => box.appendChild(btn(l, "small", () => { $("#of-lieu").value = l; ofChercher(false); })));
+    box.hidden = false;
+    status("#of-status", "", "");
+    return;
+  }
+  OF.pages = r.pages || 0;
+  const list = $("#of-list");
+  let ajout = 0;
+  r.offres.forEach(o => { const k = (o.titre + "|" + o.entreprise).toLowerCase(); if(OF.vus.has(k)) return; OF.vus.add(k); list.appendChild(ofCarte(o)); ajout++; });
+  if(!suite && ajout === 0){ status("#of-status", "err", _t("Aucune offre trouvée. Essayez un autre intitulé, un rayon plus grand ou moins de mots-clés.")); return; }
+  status("#of-status", "ok", (r.total > 0 ? r.total + _t(" offres trouvées") : list.children.length + _t(" offres")) + (OF.pages > 1 ? _t(" · page ") + OF.page + _t(" sur ") + OF.pages : ""));
+  $("#of-plus").hidden = !(OF.page < OF.pages && OF.page < 10);
+  $("#of-src").hidden = false;
+}
+$("#of-form").addEventListener("submit", e => { e.preventDefault(); ofChercher(false); });
+$("#of-plus").addEventListener("click", () => ofChercher(true));
 
 $("#btn-generate").addEventListener("click", async () => {
   const p = prof();

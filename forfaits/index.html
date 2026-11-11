@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="only light">
 <title>Tarifs — Jaltio</title>
-<meta name="description" content="Jaltio Free : 5 CV adaptés à l'offre, gratuits et sans carte bancaire. Jaltio Essentiel : CV, lettres, coach et suivi des candidatures, 13,99 € par mois, sans engagement. Bientôt : Jaltio Pro et Ultra.">
+<meta name="description" content="Jaltio Free : 5 CV adaptés à l'offre, gratuits et sans carte bancaire. Jaltio Essentiel : CV, lettres, coach et suivi des candidatures, 13,99 € par mois, sans engagement. Bientôt : Jaltio Pro.">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -49,7 +49,7 @@
 .bientot-zone{margin-top:34px}
 .bientot-zone>h2{font-size:24px;margin:0 0 6px}
 .bientot-zone>p{margin:0 0 16px;color:var(--muted);font-size:15px}
-.bientot-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.bientot-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;max-width:560px}
 .offre.venir{border:1px dashed #C9B8CC;box-shadow:none;display:flex;flex-direction:column}
 .offre.venir .inclus{flex:1;margin-bottom:18px}
 .offre.venir .prix .gros{font-size:40px;color:var(--ink)}
@@ -99,6 +99,7 @@
         <p class="cond">Pas de prélèvement, pas de date limite.</p>
         <ul class="inclus">
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>5 CV adaptés à l'offre</b><small>Au total, pas par mois. Chaque correction compte. Une génération ratée ne compte pas.</small></span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>La recherche d'offres d'emploi</b><small>Trouvez une offre près de chez vous et créez le CV qui va avec.</small></span></li>
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Le suivi de vos candidatures</b></span></li>
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Vos documents chiffrés</b>, sur tous vos appareils</span></li>
           <li class="non"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A8A9C" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg><span><b>Lettre de motivation</b><small>Incluse dans Essentiel.</small></span></li>
@@ -118,6 +119,7 @@
         <ul class="inclus">
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>30 CV + lettres par mois</b>, adaptés à l'offre<small>Chaque nouvelle version compte. Une génération ratée ne compte pas.</small></span></li>
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Un coach emploi</b> qui lit les offres avec vous<small>Jusqu'à 100 questions ou lectures d'offre par mois.</small></span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>La recherche d'offres d'emploi</b><small>Trouvez une offre près de chez vous et créez le CV qui va avec.</small></span></li>
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Le suivi de vos candidatures</b>, au même endroit</span></li>
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Vos documents chiffrés</b>, sur tous vos appareils</span></li>
         </ul>
@@ -129,7 +131,7 @@
 
   <div class="bientot-zone">
     <h2>Bientôt</h2>
-    <p>Deux offres pour aller plus vite : laissez votre e-mail, on vous écrit dès l'ouverture. Rien n'est prélevé.</p>
+    <p>Une offre pour aller plus vite : laissez votre e-mail, on vous écrit dès l'ouverture. Rien n'est prélevé.</p>
     <div class="bientot-grid">
       <section class="offre venir" aria-labelledby="p-pro">
         <div class="nom"><h2 id="p-pro">Jaltio Pro</h2><span class="badge soon">Bientôt</span></div>
@@ -138,31 +140,13 @@
         <ul class="inclus">
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>45 CV + lettres par mois</b>, adaptés à l'offre</span></li>
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Un coach emploi</b><small>Jusqu'à 120 questions ou lectures d'offre par mois.</small></span></li>
-          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Des offres choisies pour vous</b><small>Jaltio cherche les offres qui correspondent à votre CV.</small></span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Des alertes d'offres triées selon votre CV</b><small>Par e-mail : les nouvelles offres qui correspondent à votre profil, avec ce qui vous manque pour chacune.</small></span></li>
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Tout ce qu'inclut Essentiel</b></span></li>
         </ul>
         <button class="btn alt js-prevenir" type="button" data-offre="pro" aria-expanded="false" aria-controls="f-pro">Me prévenir</button>
         <form class="prevenir" id="f-pro" data-offre="pro" novalidate>
           <label class="piege" aria-hidden="true">Ne pas remplir <input name="site" tabindex="-1" autocomplete="off"></label>
           <input type="email" name="email" placeholder="Votre adresse e-mail" autocomplete="email" required aria-label="Votre adresse e-mail pour être prévenu de l'ouverture de Jaltio Pro">
-          <button class="btn" type="submit">Prévenez-moi</button>
-        </form>
-        <p class="prevenir-msg" role="status" aria-live="polite"></p>
-      </section>
-      <section class="offre venir" aria-labelledby="p-ultra">
-        <div class="nom"><h2 id="p-ultra">Jaltio Ultra</h2><span class="badge soon">Bientôt</span></div>
-        <p class="prix"><span class="gros">49,99 €</span><span class="quand">par mois</span></p>
-        <p class="cond">Prix prévu, sans engagement. Pas encore disponible.</p>
-        <ul class="inclus">
-          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>90 CV + lettres par mois</b>, adaptés à l'offre</span></li>
-          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Un coach emploi</b><small>Jusqu'à 200 questions ou lectures d'offre par mois.</small></span></li>
-          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Des alertes d'offres</b><small>Vous êtes prévenu dès qu'une nouvelle offre correspond à votre profil.</small></span></li>
-          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F6B45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><b>Tout ce qu'inclut Pro</b></span></li>
-        </ul>
-        <button class="btn alt js-prevenir" type="button" data-offre="ultra" aria-expanded="false" aria-controls="f-ultra">Me prévenir</button>
-        <form class="prevenir" id="f-ultra" data-offre="ultra" novalidate>
-          <label class="piege" aria-hidden="true">Ne pas remplir <input name="site" tabindex="-1" autocomplete="off"></label>
-          <input type="email" name="email" placeholder="Votre adresse e-mail" autocomplete="email" required aria-label="Votre adresse e-mail pour être prévenu de l'ouverture de Jaltio Ultra">
           <button class="btn" type="submit">Prévenez-moi</button>
         </form>
         <p class="prevenir-msg" role="status" aria-live="polite"></p>

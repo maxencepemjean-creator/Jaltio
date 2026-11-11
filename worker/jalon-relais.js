@@ -1,4 +1,4 @@
-// Relais Jaltio (Cloudflare Worker) — version du 07/11/2026 (quotas revus, Haiku 5.5 pour les petits appels, mise en cache)
+// Relais Jaltio (Cloudflare Worker) — version du 11/11/2026 (recherche d'offres Careerjet via n8n)
 //
 // 1) Relais Claude : garde la clé Anthropic côté serveur ; le navigateur n'envoie qu'un code d'accès
 //    (code testeur du secret CODES, ou code d'abonné créé automatiquement après un paiement Stripe).
@@ -24,6 +24,7 @@
 //   Déclencheur planifié (Settings > Triggers > Cron) : « 0 3 * * * » (chaque nuit : avertissements et suppressions à 6 mois)
 //   Base D1 : exécuter une fois worker/migration-2026-10-25.sql (colonnes fin, averti, accepte, code_h)
 //   Base D1 : exécuter une fois worker/migration-2026-11-02.sql (table gratuits : offre Free)
+//   (facultatif) OFFRES_WEBHOOK = adresse du workflow n8n de recherche d'offres ; par défaut OFFRES_DEFAUT ci-dessous
 //   (facultatif) MAILS_FREE_WEBHOOK = adresse du workflow n8n des e-mails Free ; par défaut MAILS_FREE_DEFAUT ci-dessous
 
 const ORIGINES = ["https://maxencepemjean-creator.github.io", "https://jaltio.fr", "https://www.jaltio.fr"];
@@ -39,6 +40,7 @@ const APRES_FIN_JOURS = 183;           // comptes d'abonnés : supprimés 6 mois
 const PREAVIS_JOURS = 7;               // e-mail d'avertissement envoyé 7 jours avant la suppression
 const MAILS_DEFAUT = "https://n8n.srv1136752.hstgr.cloud/webhook/jaltio-mails";
 const MAILS_FREE_DEFAUT = "https://n8n.srv1136752.hstgr.cloud/webhook/jaltio-mails-free";
+const OFFRES_DEFAUT = "https://n8n.srv1136752.hstgr.cloud/webhook/jaltio-offres";   // [JLT] 26 - Recherche d'offres Careerjet
 const FREE_INACTIF_JOURS = 365;        // comptes Free : données en ligne supprimées après 12 mois sans connexion
 const LIMITES = {                      // [nombre max, fenêtre en secondes]
   ip:       [90, 60],                  // toutes routes /sync, par adresse (hachée)
@@ -54,6 +56,8 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
   renvoi:   [3, 3600],                 // renvois du mail de validation, par paiement
   free_ip:  [5, 86400],                // inscriptions Free (nouvelles adresses), par adresse IP (hachée) et par jour
   free_ip_h:[6, 3600],                 // demandes d'inscription Free (nouvelles ou déjà connues), par adresse IP et par heure
+  offres:   [60, 3600],                // recherches d'offres (Careerjet), par code d'accès et par heure
+  offres_ip:[120, 3600],               // recherches d'offres, par adresse IP (hachée) et par heure
   free_jour:[20, 86400],               // inscriptions Free nouvelles, tous visiteurs confondus, par jour (garde-fou de coût ; 200 avant le 07/11)
 };
 
@@ -699,6 +703,52 @@ async function webhookStripe(request, env) {
   return json({ received: true }, 200);
 }
 
+// ── Recherche d'offres d'emploi (Careerjet / Optioncarrière) ────────────────────────────────────────────
+// L'API Careerjet exige une adresse IP serveur fixe : un Worker n'en a pas. Le relais vérifie le code d'accès
+// et les limites, puis transmet la demande au workflow n8n « [JLT] 26 » (VPS à IP fixe déclarée chez Careerjet),
+// avec l'adresse IP et le navigateur de l'utilisateur, exigés par Careerjet à chaque appel.
+// Ouvert à toutes les offres (Free comprise) ; ne consomme aucun quota IA (aucun appel à Claude).
+async function rechercheOffres(request, env, origin) {
+  if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
+  const code = (request.headers.get("x-jalon-code") || "").trim();
+  const acces = await verifierCode(env, code);
+  if (!acces) return erreur(401, "Code d'accès refusé.", origin);
+  if (!env.MAIL_SECRET) return erreur(503, "La recherche d'offres n'est pas encore configurée.", origin);
+  if (Number(request.headers.get("content-length") || 0) > 4000) return erreur(413, "Requête trop volumineuse.", origin);
+
+  const ip = request.headers.get("CF-Connecting-IP") || "";
+  if (env.DB) {
+    const h = await sha256hex("code|" + code), iph = await sha256hex("ip|" + ip);
+    const ok = await sous_limite(env, "of:" + h, LIMITES.offres) && await sous_limite(env, "oi:" + iph, LIMITES.offres_ip);
+    if (!ok) return erreur(429, "Trop de recherches d'offres en peu de temps. Réessayez dans quelques minutes.", origin);
+  }
+
+  let b;
+  try { b = await request.json(); } catch (e) { return erreur(400, "Requête illisible.", origin); }
+  const txt = (v, max) => String(v == null ? "" : v).replace(/[\u0000-\u001f]/g, " ").trim().slice(0, max);
+  const demande = {
+    mots: txt(b && b.mots, 100), lieu: txt(b && b.lieu, 80),
+    rayon: Number(b && b.rayon) || 20, contrat: txt(b && b.contrat, 1), temps: txt(b && b.temps, 1),
+    page: Number(b && b.page) || 1, tri: b && b.tri === "date" ? "date" : "pertinence",
+    user_ip: ip, user_agent: txt(request.headers.get("User-Agent"), 400),
+  };
+  if (!demande.mots && !demande.lieu) return erreur(400, "Indiquez un métier, des mots-clés ou une ville.", origin);
+
+  let res;
+  try {
+    res = await fetch(env.OFFRES_WEBHOOK || OFFRES_DEFAUT, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-jaltio-secret": env.MAIL_SECRET },
+      body: JSON.stringify(demande),
+      signal: AbortSignal.timeout(20000),
+    });
+  } catch (e) { return erreur(502, "La recherche d'offres ne répond pas. Réessayez dans un instant.", origin); }
+  let r = null;
+  try { r = await res.json(); } catch (e) {}
+  if (!res.ok || !r || r.erreur || !Array.isArray(r.offres)) return erreur(502, "La recherche d'offres a échoué. Réessayez dans un instant.", origin);
+  return reponse({ offres: r.offres.slice(0, 20), total: r.total || 0, pages: r.pages || 0, lieux: Array.isArray(r.lieux) ? r.lieux : undefined }, 200, origin);
+}
+
 export default {
   async fetch(request, env, ctx) {
     const chemin = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
@@ -710,6 +760,7 @@ export default {
     if (!ORIGINES.includes(origin)) return erreur(403, "Origine non autorisée.", "null");
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(origin) });
     try {
+      if (chemin === "/offres/recherche") return await rechercheOffres(request, env, origin);
       if (chemin === "/free/inscription") return await inscriptionFree(request, env, origin, ctx);
       if (chemin === "/stripe/code") return await codeApresPaiement(request, env, origin, ctx);
       if (chemin === "/stripe/valider") return await validerPaiement(request, env, origin);
