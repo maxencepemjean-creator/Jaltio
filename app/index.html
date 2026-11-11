@@ -208,7 +208,11 @@ body[data-view="profile"] [data-v]:not([data-v~="profile"]),
 body[data-view="home"] [data-v]:not([data-v~="home"]),
 body[data-view="offres"] [data-v]:not([data-v~="offres"]),
 body[data-view="parcours"] [data-v]:not([data-v~="parcours"]),
-body[data-view="compte"] [data-v]:not([data-v~="compte"]){display:none!important}
+body[data-view="compte"] [data-v]:not([data-v~="compte"]),
+body[data-view="entretiens"] [data-v]:not([data-v~="entretiens"]),
+body[data-view="documents"] [data-v]:not([data-v~="documents"]),
+body[data-view="stats"] [data-v]:not([data-v~="stats"]),
+body[data-view="aide"] [data-v]:not([data-v~="aide"]){display:none!important}
 @media screen{
   body[data-view="apps"] #preview > :not(#fiche-view):not(.page-holder):not(#fv-back):not(#apps-board){display:none!important}
   body[data-view="apps"][data-sub="suivi"] #preview > .page-holder,
@@ -1089,7 +1093,7 @@ body[data-view="home"] .panel .step,body[data-view="compte"] .panel .step,body[d
   .rail-it[aria-current="page"] svg{color:#F2A93B}
   .rail-it .badge{margin-left:auto;background:#F2A93B;color:#2A1A2F;border-radius:999px;font-size:11px;font-weight:700;min-width:20px;height:20px;display:grid;place-items:center;padding:0 5px}
   .rail-acc{margin-top:auto;border-top:1px solid #3A2340;border-radius:0;padding-top:12px;min-height:56px}
-  body:not(.rail-off) .app{margin-left:232px}
+  body:not(.rail-off) .app{margin-left:256px}
   body:not(.rail-off) .chat{left:auto}
   body.rail-off .rail{transform:translateX(-100%)}
   body.rail-off.rail-peek .rail{transform:none;box-shadow:10px 0 32px rgba(42,26,47,.28)}
@@ -1175,6 +1179,122 @@ body.m .c-prog,body.m .c-num,body.m .step h2.c-title{display:none}
 body[data-offre="free"] .rail-it[data-coach]::after{content:"Essentiel";margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.02em;background:#3A2340;color:#F2A93B;border-radius:999px;padding:2px 7px}
 body[data-offre="free"] .tabbar button[data-tab="coach"]::after{content:"";position:absolute;top:4px;left:calc(50% + 8px);width:14px;height:14px;background:no-repeat center/14px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E5872' stroke-width='2.4' stroke-linecap='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E")}
 body[data-view="create"]:not([data-cstep="done"]) .panel-foot{display:none!important}
+
+/* ===== Retouches du 11/11 soir ===== */
+body.vue-large .app{grid-template-columns:minmax(0,1fr)!important}
+body.vue-large .preview{display:none!important}
+body.vue-large .panel{position:static;max-height:none;border:0!important;box-shadow:none!important;border-radius:0!important;background:transparent!important;max-width:1240px;width:100%;margin:0 auto;padding:28px 40px 40px}
+body.vue-large .panel .step:not(.home-step){background:#fff}
+@media (max-width:900px){body.vue-large .panel{padding:16px}}
+.app{min-height:calc(100vh - 74px)}
+#app-legal{text-align:center;margin:0;padding:18px 16px 22px}
+@media (max-width:700px){.app{min-height:calc(100vh - 160px)}}
+.apps-head{flex-wrap:wrap}
+.apps-head > b{flex:1 1 100%}
+.apps-head .apps-mode{margin-left:0}
+#fiche-view{margin-bottom:18px}
+body:not(.rail-off) .rail-open{display:none!important}
+.aide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.aide-c{all:unset;box-sizing:border-box;display:block;cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 20px}
+.aide-c:hover{border-color:#D9C6B3}.aide-c:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.aide-c b{display:block;font-family:var(--display);font-size:18px;color:var(--brand);margin-bottom:4px}
+.aide-c span{color:var(--muted);font-size:14.5px}
+@media (max-width:700px){.aide-grid{grid-template-columns:1fr}}
+@media (min-width:901px){
+  .rail{top:12px;bottom:12px;left:12px;border-radius:24px;box-shadow:0 18px 50px rgba(42,26,47,.22)}
+  body:not(.rail-off) .app,body:not(.rail-off) #app-legal{margin-left:256px}
+  body.rail-off .rail{transform:translateX(calc(-100% - 16px))}
+}
+
+/* Tableau de bord */
+.h-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{all:unset;box-sizing:border-box;display:block;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 16px;min-height:92px}
+button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kpi b{display:block;font-family:var(--display);font-weight:800;font-size:28px;line-height:1.1;color:var(--brand)}
+.kpi span{display:block;font-size:13.5px;color:var(--ink);margin-top:2px}
+.kpi small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.kpi.hot{background:var(--accent-soft);border-color:#F3D7A8}
+.h-row{display:grid;gap:16px;margin-bottom:16px}
+.h-row2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.h-row2 .todo-box{margin:0}
+.h-row3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-items:stretch}
+.hcard{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px 20px;margin:0}
+.hcard h3,.fn h3{margin:0 0 12px;font-size:16px;font-family:var(--display);color:var(--brand)}
+.hcard .hint{margin:8px 0 10px}
+.hc-head{display:flex;justify-content:space-between;align-items:center}
+.hi-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.hi-cal{width:46px;height:50px;border-radius:12px;background:var(--ok-soft);color:var(--ok);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none}
+.hi-cal b{font-size:19px;line-height:1}.hi-cal span{font-size:11.5px;text-transform:uppercase}
+.hi-tx{flex:1;min-width:0}.hi-tx b{display:block;font-size:14.5px}.hi-tx span{display:block;font-size:13px;color:var(--muted)}
+.fn-row{display:grid;grid-template-columns:100px 1fr 28px;gap:10px;align-items:center;margin:7px 0;font-size:13.5px}
+.fn-bar{height:10px;border-radius:5px;background:#F1E8E0;overflow:hidden}.fn-bar i{display:block;height:100%;background:var(--brand);border-radius:5px}
+.fn-n{text-align:right}
+.jg{margin:10px 0}.jg-top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px}
+.jg-bar{height:10px;border-radius:5px;background:#F1E8E0;overflow:hidden}.jg-bar i{display:block;height:100%;background:var(--accent);border-radius:5px}.jg-bar i.haut{background:#D9534F}
+.h-row3 .goal{margin:0;display:flex}
+.pro-lock{position:relative;overflow:hidden;min-height:150px}
+.pl-flou{filter:blur(5px);opacity:.55;pointer-events:none;user-select:none}
+.pl-flou b{display:block;font-family:var(--display);font-size:44px;color:var(--brand)}
+.pl-over{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:18px 20px;background:rgba(255,255,255,.55)}
+.pl-over svg{color:var(--brand)}
+.pl-over b{font-family:var(--display);color:var(--brand);font-size:16px}
+.pl-over span{font-size:13.5px;color:var(--muted)}
+.pl-over .btn{align-self:flex-start;margin-top:6px}
+.pl-ok{color:var(--ok)!important;font-weight:600}
+.h-more{display:none}
+@media (max-width:900px){
+  .h-more{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .h-more button{flex:1 1 calc(50% - 8px);min-height:44px;border:1px solid var(--line);background:#fff;border-radius:12px;font:600 14px Inter,Arial,sans-serif;color:var(--brand);cursor:pointer}
+  .h-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .h-row2,.h-row3{grid-template-columns:1fr}
+}
+/* Entretiens, documents, statistiques */
+.it-h{font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 10px}
+.it-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px 20px;margin-bottom:14px}
+.it-top{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.it-top .hi-cal{width:58px;height:62px}
+.it-top .tx{flex:1;min-width:200px}.it-top .tx b{display:block;font-family:var(--display);font-size:18px;color:var(--brand)}.it-top .tx span{display:block;color:var(--muted);font-size:14px}
+.it-acts{display:flex;gap:8px;flex-wrap:wrap}
+.it-sec{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.it-sec h4{margin:0 0 6px;font-size:14px;color:var(--brand)}
+.it-sec textarea{min-height:90px}
+.it-prep{font-size:14.5px;max-height:none}
+.it-past{opacity:.85}
+.doc-g{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px 18px;margin-bottom:12px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.doc-g .tx{flex:1;min-width:220px}.doc-g .tx b{display:block;font-size:15.5px}.doc-g .tx span{display:block;color:var(--muted);font-size:13.5px}
+.doc-g .docs{display:flex;gap:8px;flex-wrap:wrap}
+.doc-chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:#FCF8F3;cursor:pointer;font:600 13.5px Inter,Arial,sans-serif;color:var(--brand)}
+.doc-chip:hover{border-color:#D9C6B3}
+.st-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.mois{display:flex;align-items:flex-end;gap:10px;height:170px;padding-top:10px}
+.mois div{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.mois i{display:block;width:100%;max-width:46px;background:var(--brand);border-radius:8px 8px 3px 3px;min-height:3px}
+.mois span{font-size:12px;color:var(--muted)}.mois b{font-size:13px}
+/* Suivi : frise */
+.frise-h{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin:6px 0 14px;position:relative}
+.frise-h li{list-style:none;display:flex;flex-direction:column;align-items:center;text-align:center;font-size:12.5px;color:var(--muted);position:relative}
+.frise-h li::before{content:"";position:absolute;top:11px;left:-50%;width:100%;height:3px;background:#EADFD6;z-index:0}
+.frise-h li:first-child::before{display:none}
+.frise-h li.done::before,.frise-h li.now::before{background:var(--ok)}
+.frise-h .pt{width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid #EADFD6;z-index:1;display:grid;place-items:center}
+.frise-h li.done .pt{background:var(--ok);border-color:var(--ok)}
+.frise-h li.done .pt::after{content:"";width:8px;height:5px;border:2.5px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.frise-h li.now .pt{border-color:var(--accent)}
+.frise-h b{display:block;color:var(--ink);margin-top:6px;font-size:13px}
+.frise-h li.now b{color:#8A5A08}
+.fv-next{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#FCF8F3;border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.fv-next p{margin:0;flex:1 1 220px;font-size:14px}
+.fv-sub{margin:16px 0 6px;font-size:14px;color:var(--brand)}
+.fv-next p.warn{color:#8A5A08;font-weight:600}
+.ct-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ct-grid .ct-l{display:flex;gap:6px}.ct-grid .ct-l input{flex:1;min-width:0}
+.ct-grid a.btn{padding:8px 10px;white-space:nowrap}
+@media (max-width:700px){.ct-grid{grid-template-columns:1fr}.frise-h{font-size:11px}.frise-h b{font-size:11.5px}}
+/* Offres */
+.of-act .of-kept{opacity:.75;cursor:default}
+.c-offre{background:#fff;border:2px solid var(--brand);border-radius:16px;padding:14px 16px;margin:0 0 14px}
+.c-offre b{display:block;font-size:15px}.c-offre .co{display:block;color:var(--muted);font-size:13.5px}
+.c-offre ol{margin:10px 0 10px 18px;padding:0;font-size:14px}.c-offre ol li{margin:4px 0}
 </style>
 </head>
 <body>
@@ -1200,8 +1320,11 @@ body[data-view="create"]:not([data-cstep="done"]) .panel-foot{display:none!impor
   <button class="rail-it" type="button" data-goto="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span>Accueil</span></button>
   <button class="rail-it" type="button" data-goto="offres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span>Offres</span></button>
   <button class="rail-it" type="button" data-goto="apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg><span>Candidatures</span><span class="badge" id="rail-badge" hidden></span></button>
-  <button class="rail-it" type="button" data-coach><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span>Coach</span></button>
+  <button class="rail-it" type="button" data-goto="entretiens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg><span>Entretiens</span></button>
+  <button class="rail-it" type="button" data-goto="documents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg><span>Mes documents</span></button>
+  <button class="rail-it" type="button" data-goto="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Statistiques</span></button>
   <button class="rail-it" type="button" data-goto="parcours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><span>Mon parcours</span></button>
+  <button class="rail-it" type="button" data-goto="aide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/></svg><span>Aide et contact</span></button>
   <div class="rail-sync"><button class="sync-pill app-ui" id="sync-pill" type="button" data-goto="compte" hidden><span class="sync-dot" aria-hidden="true"></span><span id="sync-pill-txt"></span></button></div>
   <button class="rail-it rail-acc" type="button" data-goto="compte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Mon compte</span></button>
 </nav>
@@ -1241,6 +1364,7 @@ body[data-view="create"]:not([data-cstep="done"]) .panel-foot{display:none!impor
       <div class="who-actions">
         <button class="link" id="btn-photo-crop" type="button" hidden>Recadrer la photo</button>
         <button class="link" id="btn-photo-del" type="button" hidden>Retirer la photo</button>
+        <label class="check photo-cv" id="photo-cv-row" hidden><input type="checkbox" id="photo-cv"> Photo sur mes CV</label>
         <span class="who-switch" id="who-switch" hidden data-off><label for="profile-select" class="sr-only">Changer de personne</label><select id="profile-select"></select></span>
         <button class="link" id="btn-new-profile" type="button" hidden title="Créer un profil pour une autre personne">+ Autre personne</button>
         <button class="link danger" id="btn-del-profile" type="button" hidden>Supprimer ce profil</button>
@@ -1316,18 +1440,36 @@ body[data-view="create"]:not([data-cstep="done"]) .panel-foot{display:none!impor
         <button class="btn primary" type="button" data-newcv><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nouveau CV</button>
       </div>
     </div>
-    <div class="home-grid">
-      <div class="home-main">
-        <div class="todo-box" id="todo-box"></div>
-        <section class="home-recent" id="home-recent" hidden>
-          <div class="hr-head"><h3>Dernières candidatures</h3><button class="link" type="button" data-goto="apps">Tout voir</button></div>
-          <div class="hr-scroll"><table><thead><tr><th>Poste</th><th>Entreprise</th><th>Statut</th><th>Dernière étape</th></tr></thead><tbody id="home-recent-rows"></tbody></table></div>
-        </section>
-      </div>
-      <div class="home-side">
-        <div class="home-stats" id="home-stats"></div>
-        <div class="goal" id="goal"></div>
-      </div>
+    <div class="h-kpis" id="home-kpis"></div>
+    <div class="h-row h-row2">
+      <div class="todo-box" id="todo-box"></div>
+      <section class="hcard" id="home-itw" hidden></section>
+    </div>
+    <div class="h-row h-row3" id="home-row3">
+      <section class="hcard" id="home-funnel" hidden></section>
+      <section class="hcard" id="home-quota" hidden></section>
+      <div class="goal hcard" id="goal"></div>
+      <section class="hcard" id="home-parcours" hidden></section>
+      <section class="hcard pro-lock" id="home-pro"></section>
+    </div>
+    <section class="home-recent" id="home-recent" hidden>
+      <div class="hr-head"><h3>Dernières candidatures</h3><button class="link" type="button" data-goto="apps">Tout voir</button></div>
+      <div class="hr-scroll"><table><thead><tr><th>Poste</th><th>Entreprise</th><th>Statut</th><th>Dernière étape</th></tr></thead><tbody id="home-recent-rows"></tbody></table></div>
+    </section>
+    <nav class="h-more" aria-label="Autres écrans">
+      <button type="button" data-goto="entretiens">Entretiens</button><button type="button" data-goto="documents">Mes documents</button><button type="button" data-goto="stats">Statistiques</button><button type="button" data-goto="aide">Aide et contact</button>
+    </nav>
+  </div>
+
+  <div class="step home-step" data-v="entretiens" id="step-entretiens"><h2 class="view-title">Entretiens</h2><div id="itw-box"></div></div>
+  <div class="step home-step" data-v="documents" id="step-documents"><h2 class="view-title">Mes documents</h2><div id="docs-box"></div></div>
+  <div class="step home-step" data-v="stats" id="step-stats"><h2 class="view-title">Statistiques</h2><div id="stats-box"></div></div>
+  <div class="step home-step" data-v="aide" id="step-aide"><h2 class="view-title">Aide et contact</h2>
+    <div class="aide-grid">
+      <a class="aide-c" href="/faq/" target="_blank" rel="noopener"><b>Questions fréquentes</b><span>Les réponses aux questions qu'on nous pose le plus.</span></a>
+      <button class="aide-c" type="button" id="aide-tour"><b>Visite guidée</b><span>Revoir la présentation de l'appli, écran par écran.</span></button>
+      <a class="aide-c" href="mailto:contact@jaltio.fr"><b>Écrire à Jaltio</b><span>contact@jaltio.fr : une question, un bug, une idée. Réponse sous 48 h ouvrées.</span></a>
+      <a class="aide-c" href="/contact/" target="_blank" rel="noopener"><b>Page contact</b><span>Toutes nos coordonnées.</span></a>
     </div>
   </div>
 
@@ -1376,6 +1518,7 @@ body[data-view="create"]:not([data-cstep="done"]) .panel-foot{display:none!impor
       <input type="text" id="sp-site" inputmode="url" placeholder="https://www.entreprise.fr">
       <p class="hint">Sans annonce, le CV met en avant ce qu'on attend habituellement pour ce poste. Avec le site, la lettre parle aussi de l'entreprise elle-même.</p>
     </div>
+    <div class="c-offre c-in" id="c-offre" hidden></div>
     <div id="bloc-annonce" class="c-in">
     <label for="offre-url">Lien de l'annonce</label>
     <input type="text" id="offre-url" inputmode="url" placeholder="https://www.hellowork.com/fr-fr/emplois/…">
@@ -1524,7 +1667,6 @@ body[data-view="create"]:not([data-cstep="done"]) .panel-foot{display:none!impor
     <div class="status" id="status-backup"></div>
   </div>
 
-  <p class="hint app-legal"><span data-brand>Jaltio</span> rédige avec Claude, une IA de la société américaine Anthropic. Relisez toujours vos documents.<br><a href="/forfaits/" target="_blank" rel="noopener">Forfaits</a> · <a href="/cgv.html" target="_blank" rel="noopener">CGV</a> · <a href="/confidentialite.html" target="_blank" rel="noopener">Confidentialité</a> · <a href="/mentions-legales.html" target="_blank" rel="noopener">Mentions légales</a> · <a href="/app/?resilier">Résilier</a></p>
   <div class="panel-foot" data-v="create"><button class="btn apply-btn" id="btn-apply" type="button"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg> Préparer ma candidature</button></div>
 </aside>
 
@@ -1593,6 +1735,7 @@ body[data-view="create"]:not([data-cstep="done"]) .panel-foot{display:none!impor
 </aside>
 </div>
 
+<p class="hint app-legal app-ui" id="app-legal"><span data-brand>Jaltio</span> rédige avec Claude, une IA de la société américaine Anthropic. Relisez toujours vos documents.<br><a href="/forfaits/" target="_blank" rel="noopener">Forfaits</a> · <a href="/cgv.html" target="_blank" rel="noopener">CGV</a> · <a href="/confidentialite.html" target="_blank" rel="noopener">Confidentialité</a> · <a href="/mentions-legales.html" target="_blank" rel="noopener">Mentions légales</a> · <a href="/app/?resilier">Résilier</a></p>
 <nav class="tabbar app-ui" id="tabbar" aria-label="Navigation principale">
   <button type="button" data-tab="home" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Accueil</button>
   <button type="button" data-tab="offres" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Offres</button>
@@ -2033,6 +2176,7 @@ function renderProfiles(){
   $("#profile-parcours").value = p.parcours;
   const th = $("#photo-thumb");
   if(p.photo){ th.src = p.photo; th.hidden = false; $("#btn-photo-del").hidden = false; }
+  const pcr = $("#photo-cv-row"); if(pcr){ pcr.hidden = !p.photo; $("#photo-cv").checked = p.photoCv !== false; }
   else { th.hidden = true; th.removeAttribute("src"); $("#btn-photo-del").hidden = true; }
   $("#btn-photo-crop").hidden = !p.photo;
   $("#btn-del-profile").hidden = profiles.length < 2;
@@ -2160,7 +2304,10 @@ async function setPhotoFromFile(f){
 async function cropAndSave(src){
   const p = prof();
   const r = await openCropper(src, p.photoShape || "round"); if(!r) return;
+  const nouvelle = !p.photo;
   p.photo = r.data; p.photoShape = r.shape; p.photoSrc = src; saveProfiles(); renderProfiles();
+  if(nouvelle){ const ok = await askBox({ title:_t("Mettre cette photo sur vos CV ?"), html:"<p>" + _t("La photo n'est pas obligatoire sur un CV en France. Vous pourrez changer d'avis à tout moment dans Mon parcours.") + "</p>", buttons:[{ label:_t("Oui, sur mes CV"), cls:"primary", value:true }, { label:_t("Non, pas sur les CV"), cls:"alt", value:false }] }); p.photoCv = ok !== false; saveProfiles(); renderProfiles(); }
+  if(p.photoCv === false) return;
   const side = currentHistId && $("#page-cv .cv-side");
   if(side){ let im = side.querySelector(".photo"); if(!im){ im = el("img", "photo"); im.alt = ""; side.prepend(im); } im.src = p.photo; im.classList.toggle("sq", r.shape === "square"); saveCurrentEdits(); fitVisible(); }
   // La nouvelle photo et sa forme s'appliquent aussi aux CV déjà créés pour ce profil
@@ -2171,6 +2318,7 @@ async function cropAndSave(src){
   if(cur){ if(cur.baseCvHtml) cur.baseCvHtml = swap(cur.baseCvHtml); (cur.snaps || []).forEach(sn => { sn.cv = swap(sn.cv); }); }
   saveHistory();
 }
+$("#photo-cv").addEventListener("change", e => { const p = prof(); if(!p) return; p.photoCv = e.target.checked; saveProfiles(); status("#pc-status", "ok", e.target.checked ? _t("Votre photo sera ajoutée à vos prochains CV.") : _t("Vos prochains CV seront sans photo.")); });
 $("#btn-photo-crop").addEventListener("click", () => { const p = prof(); if(p.photo) cropAndSave(p.photoSrc || p.photo); });
 
 /* Fenêtre de recadrage : forme (rond ou carré), déplacement à la souris ou au doigt, zoom */
@@ -2659,15 +2807,13 @@ function ofAge(iso){
   return _t("Publiée le ") + new Date(t).toLocaleDateString(LOCALE, { day:"numeric", month:"long" });
 }
 function ofChoisir(o, li){
-  setView("create"); setMStep("offre");
-  document.querySelectorAll(".of-item.choisie").forEach(x => x.classList.remove("choisie"));
-  li.classList.add("choisie");
+  document.querySelectorAll(".of-item.choisie").forEach(x => x.classList.remove("choisie")); if(li) li.classList.add("choisie");
+  if(document.body.classList.contains("chat-open")) openChat(false);
+  $("#offre").value = ""; $("#offre-url").value = ""; clearSpont();
   const ra = document.querySelector('input[name="mode-cand"][value="annonce"]'); if(ra){ ra.checked = true; applyModeCand(); }
-  $("#offre-url").value = o.url;
-  $("#offre").value = "";
-  // Optioncarrière bloque la lecture automatique de ses pages : le texte complet vient de l'onglet ouvert par l'utilisateur.
-  status("#status-gen", "info", _t("Offre choisie : ") + o.titre + (o.entreprise ? " · " + o.entreprise : "") + _t(". Elle s'est ouverte dans un nouvel onglet : copiez tout le texte de l'annonce, collez-le dans le cadre « Texte de l'annonce » ci-dessus, puis cliquez sur « Créer mon CV adapté »."));
-  const t = $("#offre"); if(t){ t.scrollIntoView({ behavior:"smooth", block:"center" }); setTimeout(() => { try{ t.focus({ preventScroll:true }); }catch(e){} }, 400); }
+  showEmpty(); setView("create"); setMStep("offre");
+  OFFRE_CHOISIE = o; renderCOffre(); status("#status-gen", "", "");
+  setTimeout(() => { try{ $("#offre-url").focus(); }catch(e){} }, 80);
 }
 function ofCarte(o){
   const li = el("li", "of-item");
@@ -2678,13 +2824,13 @@ function ofCarte(o){
   if(o.salaire) meta.appendChild(el("span", "", o.salaire));
   const age = ofAge(o.date); if(age) meta.appendChild(el("span", "", age));
   li.appendChild(meta);
-  if(o.extrait) li.appendChild(el("p", "of-ext", o.extrait.length > 260 ? o.extrait.slice(0, 260).replace(/\s+\S*$/, "") + "…" : o.extrait));
+  const ex = extraitPropre(o.extrait); if(ex) li.appendChild(el("p", "of-ext", ex));
   const act = el("div", "of-act");
   // Les deux boutons sont de vrais liens ouverts par l'utilisateur : Careerjet rémunère au clic, jamais d'ouverture automatique.
   const voir = el("a", "btn", _t("Voir l'offre ↗")); voir.href = o.url; voir.target = "_blank"; voir.rel = "noopener";
-  const creer = el("a", "btn primary", _t("Créer mon CV pour cette offre")); creer.href = o.url; creer.target = "_blank"; creer.rel = "noopener";
-  creer.addEventListener("click", () => ofChoisir(o, li));
-  act.appendChild(creer); act.appendChild(voir);
+  const creer = btn(_t("Créer mon CV pour cette offre"), "primary", () => ofChoisir(o, li));
+  const garder = btn(_t("Garder"), "", () => garderOffre(o, garder));
+  act.appendChild(creer); act.appendChild(garder); act.appendChild(voir);
   li.appendChild(act);
   return li;
 }
@@ -2909,7 +3055,7 @@ function renderCV(out){
   if(str(cv.phrase_cle)) head.appendChild(rich("p", "cle", cv.phrase_cle));
 
   const side = el("aside", "cv-side");
-  if(prof().photo){ const im = el("img", "photo" + (prof().photoShape === "square" ? " sq" : "")); im.src = prof().photo; im.alt = ""; side.appendChild(im); }
+  if(prof().photo && prof().photoCv !== false){ const im = el("img", "photo" + (prof().photoShape === "square" ? " sq" : "")); im.src = prof().photo; im.alt = ""; side.appendChild(im); }
   const contacts = [c.adresse, c.ville, c.telephone, c.email, c.linkedin, c.permis].map(plain).filter(Boolean)
     .filter((x, i, a) => a.indexOf(x) === i);
   if(contacts.length){ const s = section(D().contact, "contact-blk"); const ul = el("ul", "list side-contact"); contacts.forEach(x => ul.appendChild(el("li", "", x))); s.appendChild(ul); side.appendChild(s); }
@@ -3328,6 +3474,116 @@ function renderAppsBoard(){
   box.appendChild(cols);
   box.appendChild(el("p", "ab-hint", _t("Glissez une carte d'une colonne à l'autre pour changer son statut. Cliquez dessus pour ouvrir le CV, la lettre et le suivi.")));
 }
+
+/* ===================== Entretiens, Mes documents, Statistiques ===================== */
+function renderEntretiens(){
+  const box = $("#itw-box"); if(!box) return; box.innerHTML = "";
+  const groups = groupsFor(currentProfileId).filter(G => interviewOf(G) || (suivi[G.id] || {}).itwAt);
+  if(!groups.length){ const c = el("div", "it-card"); c.appendChild(el("p", "", _t("Aucun entretien pour l'instant. Quand un recruteur vous en propose un, ouvrez la candidature et indiquez « J'ai obtenu un entretien » : il apparaîtra ici avec sa préparation."))); box.appendChild(c); return; }
+  const tOf = G => new Date((suivi[G.id] || {}).itwAt || 0).getTime() || interviewOf(G);
+  const now = Date.now() - 3 * 3600e3;
+  const avenir = groups.filter(G => tOf(G) >= now && !(suivi[G.id] || {}).result).sort((a, b) => tOf(a) - tOf(b));
+  const passes = groups.filter(G => !avenir.includes(G)).sort((a, b) => tOf(b) - tOf(a));
+  const bloc = (titre, list, past) => {
+    if(!list.length) return;
+    box.appendChild(el("h3", "it-h", titre));
+    list.forEach(G => {
+      const v = G.versions[G.versions.length - 1], S = suiviOf(G.id), t = tOf(G), c = el("div", "it-card" + (past ? " it-past" : ""));
+      const top = el("div", "it-top");
+      const cal = el("div", "hi-cal"); const d = new Date(t);
+      if(S.itwAt){ cal.appendChild(el("b", "", String(d.getDate()))); cal.appendChild(el("span", "", d.toLocaleDateString(LOCALE, { month:"short" }))); } else { cal.appendChild(el("b", "", "?")); cal.appendChild(el("span", "", _t("date"))); }
+      top.appendChild(cal);
+      const tx = el("div", "tx"); tx.appendChild(el("b", "", v.entreprise || G.versions[0].poste));
+      tx.appendChild(el("span", "", G.versions[0].poste + (S.itwAt ? " · " + fmtItw(S.itwAt) : _t(" · date à indiquer dans la fiche"))));
+      if(S.contact) tx.appendChild(el("span", "", _t("Contact : ") + S.contact));
+      top.appendChild(tx);
+      const acts = el("div", "it-acts");
+      acts.appendChild(btn(S.prep ? _t("Revoir la préparation") : _t("Préparer l'entretien"), S.prep ? "small" : "primary small", () => { setView("apps"); ouvrirFiche(G, "suivi"); }));
+      if(S.itwAt) acts.appendChild(btn(_t("Ajouter au calendrier"), "small", () => downloadIcs(G)));
+      top.appendChild(acts); c.appendChild(top);
+      if(S.prep){ const sec = el("div", "it-sec"); sec.appendChild(el("h4", "", _t("Préparation et questions à poser"))); const det = document.createElement("details"); det.appendChild(el("summary", "", _t("Afficher"))); const body = el("div", "it-prep"); try{ body.appendChild(mdLite(S.prep)); }catch(e){ body.textContent = S.prep; } det.appendChild(body); sec.appendChild(det); c.appendChild(sec); }
+      const ns = el("div", "it-sec"); const id = "itn-" + G.id; const lb = el("label", "", past ? _t("Notes après l'entretien") : _t("Mes notes")); lb.htmlFor = id; ns.appendChild(lb);
+      const ta = document.createElement("textarea"); ta.id = id; ta.value = S.notes || ""; ta.placeholder = past ? _t("Ce qui s'est dit, votre ressenti, la prochaine étape…") : _t("Ce que vous voulez dire, les points à vérifier…");
+      ta.addEventListener("input", debounce(() => { S.notes = ta.value; saveSuivi(); touchGroup(G); }, 500)); ns.appendChild(ta); c.appendChild(ns);
+      box.appendChild(c);
+    });
+  };
+  bloc(_t("À venir"), avenir, false); bloc(_t("Passés"), passes, true);
+}
+function renderDocuments(){
+  const box = $("#docs-box"); if(!box) return; box.innerHTML = "";
+  const groups = groupsFor(currentProfileId).filter(G => G.versions.some(v => !v.manual && v.cvHtml));
+  if(!groups.length){ const c = el("div", "it-card"); c.appendChild(el("p", "", _t("Vos CV et lettres apparaîtront ici, rangés par offre, dès votre premier « Nouveau CV »."))); box.appendChild(c); return; }
+  box.appendChild(el("p", "hint", _t("Rangés par offre, du plus récent au plus ancien. Ouvrez un document pour le relire, le corriger ou le télécharger en PDF.")));
+  groups.forEach(G => {
+    const v = G.versions.filter(x => !x.manual).slice(-1)[0], c = el("div", "doc-g");
+    const tx = el("div", "tx"); tx.appendChild(el("b", "", (G.versions[0].poste || _t("Poste")) + (v.entreprise ? " · " + v.entreprise : "")));
+    tx.appendChild(el("span", "", _t("Créé le ") + fmtDay(G.versions[0].date) + (G.versions.length > 1 ? " · " + G.versions.length + _t(" versions") : "") + (appliedOf(G) ? _t(" · envoyé le ") + fmtDay(appliedOf(G)) : "")));
+    c.appendChild(tx);
+    const ds = el("div", "docs");
+    const chip = (label, sub) => { const b = el("button", "doc-chip", label); b.type = "button"; b.addEventListener("click", () => { setView("apps"); ouvrirFiche(G, sub); }); ds.appendChild(b); };
+    chip(_t("CV"), "cv"); if(v.lettreHtml) chip(_t("Lettre"), "lettre");
+    c.appendChild(ds); box.appendChild(c);
+  });
+}
+function renderStats(){
+  const box = $("#stats-box"); if(!box) return; box.innerHTML = "";
+  const groups = groupsFor(currentProfileId);
+  if(!groups.length){ const c = el("div", "it-card"); c.appendChild(el("p", "", _t("Vos statistiques apparaîtront dès vos premières candidatures."))); box.appendChild(c); return; }
+  const K = el("div", "h-kpis");
+  const sent = groups.filter(G => appliedOf(G)).length, serie = serieJours(groups);
+  kpi(K, groups.filter(G => G.versions.some(v => !v.manual)).length, _t("CV créés"));
+  kpi(K, groups.filter(G => G.versions.some(v => v.lettreHtml)).length, _t("lettres rédigées"));
+  kpi(K, sent, _t("candidatures envoyées"));
+  kpi(K, serie, _t("jours d'affilée"), { sub:serie ? _t("série en cours") : _t("revenez demain pour en démarrer une") });
+  box.appendChild(K);
+  const g = el("div", "st-grid");
+  const f = el("section", "hcard"); f.appendChild(entonnoir(groups)); g.appendChild(f);
+  const m = el("section", "hcard"); m.appendChild(el("h3", "", _t("Candidatures envoyées par mois")));
+  const mois = el("div", "mois"), now = new Date(), cols = [];
+  for(let i = 5; i >= 0; i--){ const d = new Date(now.getFullYear(), now.getMonth() - i, 1), e = new Date(now.getFullYear(), now.getMonth() - i + 1, 1); cols.push([d, groups.filter(G => { const a = appliedOf(G); return a >= d.getTime() && a < e.getTime(); }).length]); }
+  const max = Math.max(1, ...cols.map(c => c[1]));
+  cols.forEach(([d, n]) => { const c = el("div"); c.appendChild(el("b", "", String(n))); const i_ = el("i"); i_.style.height = Math.round(n / max * 120) + "px"; c.appendChild(i_); c.appendChild(el("span", "", d.toLocaleDateString(LOCALE, { month:"short" }))); mois.appendChild(c); });
+  m.appendChild(mois); g.appendChild(m);
+  const d = aboDernier;
+  if(d && d.cv_total){ const q = el("section", "hcard"); q.appendChild(el("h3", "", d.offre === "free" ? _t("Votre offre Free") : _t("Votre quota ce mois-ci"))); jauge(q, _t("CV et lettres"), d.cv_utilises || 0, d.cv_total); if(d.autres_total) jauge(q, _t("Coach et lectures d'offre"), d.autres_utilises || 0, d.autres_total); g.appendChild(q); }
+  box.appendChild(g);
+}
+$("#aide-tour").addEventListener("click", () => { try{ startTour(); }catch(e){} });
+
+/* ===================== Offres : extrait propre, garder, créer le CV ===================== */
+const TRACKER_RE = /jobviewtrack|optioncarriere|careerjet/i;
+function extraitPropre(t){
+  let x = str(t).replace(/\s+/g, " ").replace(/\.\.\./g, "…").trim(); if(!x) return "";
+  if(/^[a-zà-ÿ]/.test(x)){ const i = x.search(/[.!?…]\s+[A-ZÀ-Ý]/); x = i > 0 && x.length - i > 60 ? x.slice(i + 2).trim() : "…" + x; }
+  if(!/[.!?]$/.test(x)){ const j = Math.max(x.lastIndexOf(". "), x.lastIndexOf("! "), x.lastIndexOf("? ")); x = j > 60 ? x.slice(0, j + 1) : x.replace(/[\s,;:…-]+$/, "") + "…"; }
+  return x.replace(/\s*…\s*/g, "… ").replace(/… $/, "…").trim();
+}
+let OFFRE_CHOISIE = null;
+function renderCOffre(){
+  const box = $("#c-offre"); if(!box) return; box.innerHTML = ""; box.hidden = !OFFRE_CHOISIE; if(!OFFRE_CHOISIE) return;
+  const o = OFFRE_CHOISIE;
+  box.appendChild(el("b", "", o.titre || _t("Offre choisie")));
+  box.appendChild(el("span", "co", [o.entreprise, o.lieu].filter(Boolean).join(" · ")));
+  const ol = el("ol");
+  const l1 = el("li"); l1.appendChild(document.createTextNode(_t("Ouvrez l'annonce : "))); const a = el("a", "", _t("ouvrir l'offre ↗")); a.href = o.url; a.target = "_blank"; a.rel = "noopener"; l1.appendChild(a); ol.appendChild(l1);
+  ol.appendChild(el("li", "", _t("Copiez l'adresse de la page qui s'ouvre (en haut du navigateur), ou tout le texte de l'annonce.")));
+  ol.appendChild(el("li", "", _t("Collez-la ci-dessous, puis « Continuer ».")));
+  box.appendChild(ol);
+  const x = el("button", "link", _t("Choisir une autre offre")); x.type = "button"; x.addEventListener("click", () => { OFFRE_CHOISIE = null; renderCOffre(); setView("offres"); }); box.appendChild(x);
+}
+function garderOffre(o, b){
+  const p = prof(); if(!p) return;
+  const deja = groupsFor(p.id).some(G => { const v = G.versions[G.versions.length - 1]; return (v.poste || "").toLowerCase() === (o.titre || "").toLowerCase() && (v.entreprise || "").toLowerCase() === (o.entreprise || "").toLowerCase(); });
+  if(!deja){
+    const id = uid();
+    history.unshift({ id, groupId:id, profileId:p.id, date:Date.now(), poste:o.titre || _t("Offre"), entreprise:o.entreprise || "", lieu:o.lieu || "", manual:true, kept:true,
+      data:{ offre_resume:extraitPropre(o.extrait), alertes:[], _userMsg:{ url:o.url } }, cvHtml:"", lettreHtml:"" });
+    saveHistory(); renderHistory();
+  }
+  b.textContent = _t("Gardée ✓"); b.disabled = true; b.classList.add("of-kept");
+  status("#of-status", "ok", _t("Offre gardée dans Candidatures › À envoyer."));
+}
 /* Mes CV récents, dans l'onglet Créer : on retrouve un ancien CV sans passer par « Mes candidatures » */
 const fmtShort = t => { const d = new Date(t); return d.toLocaleDateString(LOCALE, { day:"numeric", month:"short" }) + t_at() + d.toLocaleTimeString(LOCALE, { hour:"2-digit", minute:"2-digit" }); };
 /* Suppression d'une candidature (toutes ses versions, son suivi, ses notes) : même effet depuis Créer et Mes candidatures */
@@ -3384,9 +3640,9 @@ function renderHistory(){
     if(cur && groupOf(cur) === G.id) li.classList.add("on");
     const top = el("div", "card-top"), ti = el("div", "ti");
     ti.appendChild(el("b", "", first.poste || _t("Poste")));
-    ti.appendChild(el("span", "", (latest.entreprise || "") + (latest.manual ? (latest.entreprise ? " · " : "") + _t("ajoutée à la main") : "")));
+    ti.appendChild(el("span", "", (latest.entreprise || "") + (latest.manual ? (latest.entreprise ? " · " : "") + (latest.kept ? _t("offre gardée") : _t("ajoutée à la main")) : "")));
     top.appendChild(ti);
-    top.appendChild(el("span", "pill " + st, S.result ? RESULTS[S.result] : { todo:_t("À envoyer"), sent:_t("Envoyée"), relance:_t("À relancer"), itw:_t("Entretien"), closed:_t("Terminée") }[st]));
+    top.appendChild(el("span", "pill " + st, S.result ? RESULTS[S.result] : (latest.kept && !appliedOf(G)) ? _t("À postuler") : { todo:_t("À envoyer"), sent:_t("Envoyée"), relance:_t("À relancer"), itw:_t("Entretien"), closed:_t("Terminée") }[st]));
     li.appendChild(top);
     const fr = el("div", "frise"); fr.setAttribute("aria-label", _t("Étapes : ") + jalons(G).filter(x => x.cls === "done").map(x => x.label).join(", "));
     jalons(G).forEach(j => { const s = el("div", "st " + j.cls); s.appendChild(el("i")); s.appendChild(document.createTextNode(j.label)); fr.appendChild(s); });
@@ -4462,7 +4718,8 @@ function setSub(s){
   if(h && !h.manual) document.body.dataset.hasDoc = "1"; else delete document.body.dataset.hasDoc;
   if(s === "cv" || s === "lettre"){ showTab(s); refreshValidate(); }
 }
-const VUES = ["home", "offres", "apps", "create", "parcours", "compte"];
+const VUES = ["home", "offres", "apps", "create", "parcours", "compte", "entretiens", "documents", "stats", "aide"];
+const VUES_LARGES = ["home", "offres", "compte", "entretiens", "documents", "stats", "aide"];
 function setView(v){
   if(v === "profile") v = "parcours";
   if(!VUES.includes(v)) v = "home";
@@ -4479,6 +4736,10 @@ function setView(v){
   if(v === "apps"){ renderHistory(); renderFicheView(); updateBackupInfo(); }
   if(v === "parcours"){ updateBackupInfo(); renderParcoursUI(); }
   if(v === "compte") updateBackupInfo();
+  document.body.classList.toggle("vue-large", VUES_LARGES.includes(v));
+  if(v === "entretiens") renderEntretiens();
+  if(v === "documents") renderDocuments();
+  if(v === "stats") renderStats();
   if(v === "home"){ renderHistory(); renderHome(); }
   document.querySelectorAll("#rail [data-goto]").forEach(b => { if(b.dataset.goto === v) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
   if(v === "create"){ refreshValidate(); requestAnimationFrame(() => { try{ scalePreview(); fitVisible(); }catch(e){} }); }
@@ -4492,6 +4753,7 @@ document.addEventListener("click", e => { const g = e.target.closest("[data-goto
 /* Nouveau CV : formulaire vide, étape Offre */
 function nouveauCv(){
   if(document.body.classList.contains("chat-open")) openChat(false);
+  OFFRE_CHOISIE = null; if(typeof renderCOffre === "function") renderCOffre();
   $("#offre").value = ""; $("#offre-url").value = ""; clearSpont();
   const ra = document.querySelector('input[name="mode-cand"][value="annonce"]'); if(ra){ ra.checked = true; applyModeCand(); }
   showEmpty(); setView("create"); setMStep("offre");
@@ -4509,15 +4771,106 @@ $("#rail-edge").addEventListener("mouseenter", () => { if(document.body.classLis
 $("#rail").addEventListener("mouseleave", () => document.body.classList.remove("rail-peek"));
 document.querySelectorAll("#rail [data-coach]").forEach(b => b.addEventListener("click", () => { openChat(!document.body.classList.contains("chat-open")); }));
 /* Accueil : date et chiffres */
+/* ===================== Accueil : tableau de bord ===================== */
+const jourDe = t => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+function serieJours(groups){
+  const jours = new Set();
+  groups.forEach(G => { const S = suivi[G.id] || {}; G.versions.forEach(v => [v.date, v.applied, v.relance, v.interview, v.touched].forEach(t => { if(t) jours.add(jourDe(t)); })); if(S.prepAt) jours.add(jourDe(S.prepAt)); });
+  let j = jourDe(Date.now()); if(!jours.has(j)) j -= DAY;
+  let n = 0; while(jours.has(j)){ n++; j -= DAY; }
+  return n;
+}
+function parcoursManques(){
+  const p = prof() || {}, r = p.resume || {};
+  const m = [];
+  if(!str(r.telephone) && !str(r.email)) m.push(_t("vos coordonnées (téléphone ou e-mail)"));
+  if(!str(r.ville)) m.push(_t("votre ville"));
+  if(!arr(r.experiences).length) m.push(_t("vos expériences"));
+  if(!arr(r.formations).length) m.push(_t("vos diplômes ou formations"));
+  if(arr(r.competences).length < 3) m.push(_t("au moins 3 compétences"));
+  return { pct:Math.round((5 - m.length) / 5 * 100), m };
+}
+const itwAVenir = groups => groups.map(G => ({ G, t:new Date((suivi[G.id] || {}).itwAt || 0).getTime() })).filter(x => x.t > Date.now() - 2 * 3600e3 && !(suivi[x.G.id] || {}).result).sort((a, b) => a.t - b.t);
+const gardees = groups => groups.filter(G => { const v = G.versions[G.versions.length - 1]; return v.manual && v.kept && !appliedOf(G); });
+const sansReponse = groups => groups.filter(G => { const a = appliedOf(G); return a && !interviewOf(G) && !(suivi[G.id] || {}).result && Date.now() - Math.max(a, relanceOf(G)) >= 14 * DAY; });
+function prochaineRelance(groups){
+  const l = groups.filter(G => appliedOf(G) && !relanceOf(G) && !interviewOf(G) && !(suivi[G.id] || {}).result).map(G => ({ G, t:appliedOf(G) + 7 * DAY })).filter(x => x.t > Date.now()).sort((a, b) => a.t - b.t);
+  return l[0] || null;
+}
+function horloge(){
+  const d = $("#home-date"); if(!d) return;
+  const n = new Date(), t = n.toLocaleDateString(LOCALE, { weekday:"long", day:"numeric", month:"long" });
+  d.textContent = t.charAt(0).toUpperCase() + t.slice(1) + " · " + String(n.getHours()).padStart(2, "0") + ":" + String(n.getMinutes()).padStart(2, "0");
+}
+setInterval(() => { if(document.body.dataset.view === "home") horloge(); }, 20000);
+function kpi(box, n, label, opts){
+  const c = el(opts && opts.goto ? "button" : "div", "kpi" + (opts && opts.hot ? " hot" : "")); if(opts && opts.goto){ c.type = "button"; c.dataset.goto = opts.goto; }
+  c.appendChild(el("b", "", String(n))); c.appendChild(el("span", "", label)); if(opts && opts.sub) c.appendChild(el("small", "", opts.sub));
+  box.appendChild(c);
+}
 function renderHome(){
-  const d = $("#home-date"); if(d){ const t = new Date().toLocaleDateString(LOCALE, { weekday:"long", day:"numeric", month:"long" }); d.textContent = t.charAt(0).toUpperCase() + t.slice(1); }
-  const box = $("#home-stats"); if(!box) return;
+  horloge();
   const groups = groupsFor(currentProfileId);
-  const sent = groups.filter(G => appliedOf(G)).length, itw = groups.filter(G => interviewOf(G) || (suivi[G.id] || {}).itwAt).length, rel = groups.filter(G => statusOf(G) === "relance").length;
-  box.innerHTML = "";
+  const sent = groups.filter(G => appliedOf(G)).length;
+  const rel = groups.filter(G => statusOf(G) === "relance").length;
+  const itws = itwAVenir(groups), gard = gardees(groups), sr = sansReponse(groups), serie = serieJours(groups), pr = prochaineRelance(groups);
   const rep = groups.filter(G => { const r = (suivi[G.id] || {}).result; return interviewOf(G) || r === "refus" || r === "offre"; }).length;
-  [[sent, sent > 1 ? _t("envoyées") : _t("envoyée")], [rel, _t("à relancer")], [itw, itw > 1 ? _t("entretiens") : _t("entretien")], [rep, rep > 1 ? _t("réponses") : _t("réponse")]].forEach(([n, l]) => { const c = el("div"); c.appendChild(el("b", "", String(n))); c.appendChild(el("span", "", l)); box.appendChild(c); });
-  box.hidden = !groups.length;
+  /* Cartes chiffrées : seulement celles qui disent quelque chose */
+  const K = $("#home-kpis"); K.innerHTML = "";
+  if(groups.length){
+    kpi(K, sent, sent > 1 ? _t("candidatures envoyées") : _t("candidature envoyée"), { goto:"apps" });
+    if(rel) kpi(K, rel, _t("à relancer"), { hot:true, goto:"apps" });
+    if(itws.length) kpi(K, itws.length, itws.length > 1 ? _t("entretiens à venir") : _t("entretien à venir"), { goto:"entretiens" });
+    if(rep) kpi(K, rep, rep > 1 ? _t("réponses reçues") : _t("réponse reçue"));
+    if(serie >= 2) kpi(K, serie, _t("jours d'affilée"), { sub:_t("Continuez sur votre lancée") });
+    if(gard.length) kpi(K, gard.length, gard.length > 1 ? _t("offres gardées") : _t("offre gardée"), { goto:"apps", sub:_t("sans CV pour l'instant") });
+    if(sr.length) kpi(K, sr.length, _t("sans réponse depuis 14 j"), { goto:"apps", sub:_t("Dernière relance ou à classer") });
+    if(pr) kpi(K, new Date(pr.t).toLocaleDateString(LOCALE, { day:"numeric", month:"short" }), _t("prochaine relance"), { sub:pr.G.versions[pr.G.versions.length - 1].entreprise || pr.G.versions[0].poste });
+  }
+  K.hidden = !groups.length;
+  /* Prochains entretiens */
+  const IT = $("#home-itw"); IT.innerHTML = ""; IT.hidden = !itws.length;
+  if(itws.length){
+    const h = el("div", "hc-head"); h.appendChild(el("h3", "", _t("Prochains entretiens"))); const all = el("button", "link", _t("Tout voir")); all.type = "button"; all.dataset.goto = "entretiens"; h.appendChild(all); IT.appendChild(h);
+    itws.slice(0, 3).forEach(({ G, t }) => {
+      const v = G.versions[G.versions.length - 1], row = el("div", "hi-row");
+      const d = new Date(t), cal = el("div", "hi-cal"); cal.appendChild(el("b", "", String(d.getDate()))); cal.appendChild(el("span", "", d.toLocaleDateString(LOCALE, { month:"short" }))); row.appendChild(cal);
+      const tx = el("div", "hi-tx"); tx.appendChild(el("b", "", v.entreprise || G.versions[0].poste)); tx.appendChild(el("span", "", G.versions[0].poste + " · " + d.toLocaleTimeString(LOCALE, { hour:"2-digit", minute:"2-digit" }))); row.appendChild(tx);
+      row.appendChild(btn(_t("Préparer"), "small", () => { setView("apps"); ouvrirFiche(G, "suivi"); }));
+      IT.appendChild(row);
+    });
+  }
+  /* Entonnoir */
+  const F = $("#home-funnel"); F.innerHTML = ""; F.hidden = groups.length < 2;
+  if(groups.length >= 2) F.appendChild(entonnoir(groups));
+  /* Quota du mois */
+  const Q = $("#home-quota"); Q.innerHTML = ""; const d = aboDernier;
+  Q.hidden = !(d && d.cv_total);
+  if(d && d.cv_total){
+    Q.appendChild(el("h3", "", d.offre === "free" ? _t("Votre offre Free") : _t("Ce mois-ci")));
+    jauge(Q, _t("CV et lettres"), d.cv_utilises || 0, d.cv_total);
+    if(d.autres_total) jauge(Q, _t("Coach et lectures d'offre"), d.autres_utilises || 0, d.autres_total);
+  }
+  /* Parcours incomplet */
+  const P = $("#home-parcours"); P.innerHTML = ""; const pc = parcoursManques();
+  P.hidden = pc.pct >= 100 || str((prof() || {}).parcours).length < 80;
+  if(!P.hidden){
+    P.appendChild(el("h3", "", _t("Parcours complété à ") + pc.pct + " %"));
+    const bar = el("div", "jg-bar"); const f = el("i"); f.style.width = pc.pct + "%"; bar.appendChild(f); P.appendChild(bar);
+    P.appendChild(el("p", "hint", _t("Ajoutez ") + pc.m.join(", ") + _t(" : vos CV seront plus complets.")));
+    const b = btn(_t("Compléter mon parcours"), "small", () => setView("parcours")); P.appendChild(b);
+  }
+  $("#goal").hidden = !groups.length;
+  /* Aperçu Pro, verrouillé */
+  const PR = $("#home-pro"); PR.innerHTML = "";
+  const flou = el("div", "pl-flou"); flou.setAttribute("aria-hidden", "true"); flou.appendChild(el("b", "", "12")); flou.appendChild(el("span", "", _t("offres pour votre CV cette semaine"))); PR.appendChild(flou);
+  const ov = el("div", "pl-over");
+  ov.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  ov.appendChild(el("b", "", _t("Offres pour votre CV")));
+  ov.appendChild(el("span", "", _t("Bientôt dans Jaltio Pro : les offres qui correspondent à votre parcours, chaque jour.")));
+  if(store.get("proPrevenu", false)) ov.appendChild(el("span", "pl-ok", _t("C'est noté : nous vous préviendrons."))); else ov.appendChild(btn(_t("Me prévenir"), "small", () => prevenirPro()));
+  PR.appendChild(ov);
+  /* Dernières candidatures */
   const rec = $("#home-recent"), rows = $("#home-recent-rows"); if(!rec || !rows) return;
   rows.innerHTML = ""; rec.hidden = !groups.length;
   const lastOf = G => Math.max(...G.versions.map(v => v.date || 0), appliedOf(G) || 0, relanceOf(G) || 0, interviewOf(G) || 0);
@@ -4527,11 +4880,34 @@ function renderHome(){
     const tr = document.createElement("tr"), open = () => { setView("apps"); ouvrirFiche(G, v.manual ? "suivi" : "cv"); };
     const t1 = document.createElement("td"), b = el("button", "", G.versions[0].poste || _t("Poste")); b.type = "button"; b.addEventListener("click", e => { e.stopPropagation(); open(); }); t1.appendChild(b); tr.appendChild(t1);
     tr.appendChild(el("td", "", v.entreprise || "—"));
-    const t3 = document.createElement("td"); t3.appendChild(el("span", "pill " + st, S.result ? RESULTS[S.result] : LBL[st])); tr.appendChild(t3);
+    const t3 = document.createElement("td"); t3.appendChild(el("span", "pill " + st, S.result ? RESULTS[S.result] : (v.manual && v.kept && !appliedOf(G)) ? _t("À postuler") : LBL[st])); tr.appendChild(t3);
     tr.appendChild(el("td", "", fmtDay(lastOf(G))));
     tr.addEventListener("click", open); rows.appendChild(tr);
   });
 }
+function jauge(box, label, n, total){
+  const w = el("div", "jg"); const top = el("div", "jg-top"); top.appendChild(el("span", "", label)); top.appendChild(el("b", "", n + " / " + total)); w.appendChild(top);
+  const bar = el("div", "jg-bar"); const f = el("i"); f.style.width = Math.min(100, Math.round(n / total * 100)) + "%"; if(n / total >= .85) f.className = "haut"; bar.appendChild(f); w.appendChild(bar);
+  box.appendChild(w);
+}
+function entonnoir(groups){
+  const w = el("div", "fn");
+  w.appendChild(el("h3", "", _t("Où en sont vos candidatures")));
+  const et = [[_t("CV créés"), groups.filter(G => !G.versions[G.versions.length - 1].manual || appliedOf(G)).length], [_t("Envoyées"), groups.filter(G => appliedOf(G)).length], [_t("Relancées"), groups.filter(G => relanceOf(G)).length], [_t("Entretiens"), groups.filter(G => interviewOf(G) || (suivi[G.id] || {}).itwAt).length], [_t("Offres reçues"), groups.filter(G => (suivi[G.id] || {}).result === "offre").length]];
+  const max = Math.max(1, ...et.map(x => x[1]));
+  et.forEach(([l, n]) => { const r = el("div", "fn-row"); r.appendChild(el("span", "fn-l", l)); const b = el("div", "fn-bar"); const f = el("i"); f.style.width = Math.max(n ? 6 : 0, Math.round(n / max * 100)) + "%"; b.appendChild(f); r.appendChild(b); r.appendChild(el("b", "fn-n", String(n))); w.appendChild(r); });
+  return w;
+}
+const URL_PREVENIR = "https://n8n.srv1136752.hstgr.cloud/webhook/jaltio-prevenir";
+async function prevenirPro(){
+  const r = (prof() || {}).resume || {};
+  const v = await askBox({ title:_t("Jaltio Pro arrive bientôt"), html:"<p>" + _t("Laissez votre e-mail : nous vous écrirons une seule fois, à l'ouverture de Jaltio Pro.") + '</p><label for="pro-mail">' + _t("Votre e-mail") + '</label><input type="email" id="pro-mail" autocomplete="email" value="' + escHtml(str(r.email)) + '">',
+    buttons:[{ label:_t("Me prévenir"), cls:"primary", value:"ok" }, { label:_t("Annuler"), cls:"alt", value:null }] });
+  const mail = str(($("#pro-mail") || {}).value).trim();
+  if(v !== "ok" || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) return;
+  try{ const b = new URLSearchParams(); b.set("email", mail); b.set("offre", "pro"); b.set("site", ""); b.set("source", "appli"); await fetch(URL_PREVENIR, { method:"POST", body:b }); store.set("proPrevenu", true); renderHome(); }catch(e){}
+}
+
 function updateForWho(){
   const p = prof() || {};
   $("#for-who-name").textContent = str(p.name) || "vous";
@@ -4585,6 +4961,7 @@ $("#btn-cnext").addEventListener("click", () => {
   if(modeCand() === "spont"){
     if(!$("#sp-entreprise").value.trim() || !$("#sp-poste").value.trim()){ status("#status-gen", "err", _t("Indiquez l'entreprise et le poste visé.")); return; }
   } else if(!$("#offre-url").value.trim() && $("#offre").value.trim().length < 40){ status("#status-gen", "err", _t("Collez le lien de l'annonce ou son texte.")); $("#offre-url").focus(); return; }
+  else if(TRACKER_RE.test($("#offre-url").value) && $("#offre").value.trim().length < 40){ status("#status-gen", "err", _t("Ce lien d'Optioncarrière ne peut pas être lu. Ouvrez l'annonce, puis collez l'adresse de la page qui s'ouvre ou le texte de l'annonce.")); $("#offre-url").focus(); return; }
   status("#status-gen", "", ""); setCStep("options"); window.scrollTo({ top:0 });
 });
 $("#btn-cback").addEventListener("click", () => setCStep("offre"));
@@ -5167,7 +5544,7 @@ function renderFicheView(){
   head.appendChild(meta);
   const act = el("div", "fv-actions");
   if(latest.manual){
-    act.appendChild(btn(_t("Créer un CV pour cette offre"), "primary", () => { setView("create"); const ra = document.querySelector('input[name="mode-cand"][value="annonce"]'); if(ra){ ra.checked = true; applyModeCand(); } if(url) $("#offre-url").value = url; $("#offre").focus(); }));
+    act.appendChild(btn(_t("Créer un CV pour cette offre"), "primary", () => { if(TRACKER_RE.test(url)){ ofChoisir({ titre:G.versions[0].poste, entreprise:latest.entreprise, lieu:latest.lieu || "", url }, null); return; } setView("create"); const ra = document.querySelector('input[name="mode-cand"][value="annonce"]'); if(ra){ ra.checked = true; applyModeCand(); } if(url) $("#offre-url").value = url; $("#offre").focus(); }));
   } else {
     act.appendChild(btn(_t("Préparer ma candidature"), "primary", () => { openHist(latest); openApply(); }));
   }
@@ -5197,40 +5574,57 @@ function renderFicheView(){
     box.appendChild(c);
   }
 
-  /* Suivi */
+  /* Suivi : frise des étapes, action suivante, entretien, contact, résultat */
   const sv = card(_t("Suivi"));
-  const steps = el("ul", "fv-steps");
-  const line = (done, text, extra) => { const li = el("li", done ? "done" : ""); li.appendChild(el("span", "dot")); li.appendChild(el("span", "", text)); if(extra) extra.forEach(x => li.appendChild(x)); steps.appendChild(li); };
-  line(true, _t("CV créé le ") + fmtDay(G.versions[0].date));
+  const itwT = S.itwAt ? new Date(S.itwAt).getTime() : 0;
+  const E = [[_t("CV créé"), G.versions[0].date], [_t("Envoyée"), applied], [_t("Relancée"), relance], [_t("Entretien"), itw || itwT], [S.result ? RESULTS[S.result] : _t("Résultat"), S.result ? 1 : 0]];
+  let cur = E.findIndex(x => !x[1]); if(applied && (itw || itwT) && !relance && cur === 2) cur = 4;
+  const fr = el("ol", "frise-h");
+  E.forEach(([l, t], i) => { const done = !!t || (i === 2 && (itw || itwT || S.result)); const li = el("li", done && !(i === 2 && !t) ? "done" : i === cur ? "now" : ""); li.appendChild(el("span", "pt")); li.appendChild(el("b", "", i === 2 && !t && (itw || itwT || S.result) ? _t("Sans relance") : l)); if(t && i < 4) li.appendChild(el("span", "", new Date(t).toLocaleDateString(LOCALE, { day:"numeric", month:"short" }))); fr.appendChild(li); });
+  sv.appendChild(fr);
   const setFlag = (k, v) => { latest[k] = v; latest.touched = Date.now(); saveHistory(); renderHistory(); renderFicheView(); };
-  if(applied) line(true, _t("Envoyée le ") + fmtDay(applied), [btn(_t("Annuler"), "small danger", () => { G.versions.forEach(v => { delete v.applied; delete v.relance; delete v.interview; }); saveHistory(); renderHistory(); renderFicheView(); })]);
-  else line(false, _t("Pas encore envoyée"), [btn(_t("J'ai postulé"), "small primary", () => setFlag("applied", Date.now()))]);
-  if(applied && !itw && !S.result){
-    if(relance) line(true, _t("Relance faite le ") + fmtDay(relance));
-    else {
-      const late = Date.now() - applied >= 7 * DAY;
-      const li = [btn(_t("J'ai relancé"), "small", () => setFlag("relance", Date.now()))];
-      line(false, late ? _t("Une semaine sans réponse : c'est le moment de relancer.") : _t("Relance conseillée à partir du ") + fmtDay(applied + 7 * DAY), li);
-      if(late) steps.lastChild.children[1].className = "warn";
-    }
+  const nx = el("div", "fv-next");
+  if(!applied){ nx.appendChild(el("p", "", _t("Envoyez votre candidature, puis indiquez-le ici : Jaltio vous dira quand relancer."))); nx.appendChild(btn(_t("J'ai postulé"), "primary small", () => setFlag("applied", Date.now()))); }
+  else if(!relance && !itw && !S.result){
+    const late = Date.now() - applied >= 7 * DAY;
+    nx.appendChild(el("p", late ? "warn" : "", late ? _t("Une semaine sans réponse : c'est le moment de relancer.") : _t("Relance conseillée à partir du ") + fmtDay(applied + 7 * DAY) + "."));
+    nx.appendChild(btn(_t("J'ai relancé"), late ? "primary small" : "small", () => setFlag("relance", Date.now())));
+    if(!late) nx.appendChild(btn(_t("Me rappeler de relancer"), "small", () => downloadIcs(G, "relance")));
+    nx.appendChild(btn(_t("J'ai obtenu un entretien"), "small", () => setFlag("interview", Date.now())));
   }
-  if(applied) line(!!itw, itw ? _t("Entretien obtenu") : _t("Entretien"), itw ? [] : [btn(_t("J'ai obtenu un entretien"), "small", () => setFlag("interview", Date.now()))]);
-  sv.appendChild(steps);
-
+  else if(!itw && !S.result){ nx.appendChild(el("p", "", _t("Une réponse du recruteur ?"))); nx.appendChild(btn(_t("J'ai obtenu un entretien"), "primary small", () => setFlag("interview", Date.now()))); }
+  else if(!S.result){ nx.appendChild(el("p", "", itwT ? _t("Entretien le ") + fmtItw(S.itwAt) + "." : _t("Indiquez la date de l'entretien ci-dessous."))); if(itwT) nx.appendChild(btn(_t("Ajouter au calendrier"), "small", () => downloadIcs(G))); }
+  else nx.appendChild(el("p", "", _t("Candidature terminée : ") + RESULTS[S.result] + "."));
+  if(applied){ const an = el("button", "link danger", _t("Annuler l'envoi")); an.type = "button"; an.addEventListener("click", () => { G.versions.forEach(v => { delete v.applied; delete v.relance; delete v.interview; }); saveHistory(); renderHistory(); renderFicheView(); }); nx.appendChild(an); }
+  sv.appendChild(nx);
   const grid = el("div", "fv-grid");
-  const field = (id, label, input) => { const w = el("div"); const l = el("label", "", label); l.htmlFor = id; input.id = id; w.appendChild(l); w.appendChild(input); grid.appendChild(w); return input; };
-  if(applied && !relance && !itw && !S.result){ const rb = btn(_t("Me rappeler de relancer"), "small", () => downloadIcs(G, "relance")); const rr = el("div", "row"); rr.appendChild(rb); sv.appendChild(rr); }
+  const field = (id, label, input, into) => { const w = el("div"); const l = el("label", "", label); l.htmlFor = id; input.id = id; w.appendChild(l); w.appendChild(input); (into || grid).appendChild(w); return input; };
   const itwIn = document.createElement("input"); itwIn.type = "datetime-local"; itwIn.value = S.itwAt || "";
   field("fv-itw", _t("Date et heure de l'entretien"), itwIn).addEventListener("change", e => {
     S.itwAt = e.target.value; saveSuivi(); if(e.target.value && !itw){ latest.interview = Date.now(); } touchGroup(G); renderHistory(); renderFicheView();
   });
-  const ctIn = document.createElement("input"); ctIn.type = "text"; ctIn.value = S.contact || ""; ctIn.placeholder = _t("Nom, téléphone ou e-mail du recruteur");
-  field("fv-contact", _t("Contact du recruteur"), ctIn).addEventListener("input", debounce(e => { S.contact = e.target.value; saveSuivi(); }, 400));
   const rs = document.createElement("select");
   Object.keys(RESULTS).forEach(k => { const o = el("option", "", RESULTS[k]); o.value = k; if((S.result || "") === k) o.selected = true; rs.appendChild(o); });
   field("fv-result", _t("Résultat"), rs).addEventListener("change", e => { S.result = e.target.value; saveSuivi(); touchGroup(G); renderHistory(); renderFicheView(); });
   sv.appendChild(grid);
-  if(S.itwAt){ const cr = el("div", "row"); cr.style.marginTop = "10px"; cr.appendChild(btn(_t("Ajouter l'entretien au calendrier"), "small", () => downloadIcs(G))); sv.appendChild(cr); }
+  /* Contact du recruteur : nom, téléphone, e-mail (l'ancien champ unique est réparti une seule fois) */
+  if(S.contact && S.ctNom === undefined && S.ctTel === undefined && S.ctMail === undefined){
+    let rest = S.contact; const mm = rest.match(/[^\s@,;]+@[^\s@,;]+\.[a-z]{2,}/i); if(mm){ S.ctMail = mm[0]; rest = rest.replace(mm[0], ""); }
+    const tt = rest.match(/(\+?\d[\d .-]{7,}\d)/); if(tt){ S.ctTel = tt[0].trim(); rest = rest.replace(tt[0], ""); }
+    S.ctNom = rest.replace(/[,;·|-]+/g, " ").replace(/\s+/g, " ").trim(); saveSuivi();
+  }
+  sv.appendChild(el("h4", "fv-sub", _t("Contact du recruteur")));
+  const ct = el("div", "ct-grid");
+  const syncCt = () => { S.contact = [S.ctNom, S.ctTel, S.ctMail].map(str).filter(Boolean).join(" · "); saveSuivi(); };
+  [["ctNom", "fv-ct-nom", _t("Nom"), "text", _t("Ex. : Julie Martin, RH")], ["ctTel", "fv-ct-tel", _t("Téléphone"), "tel", "06 12 34 56 78"], ["ctMail", "fv-ct-mail", _t("E-mail"), "email", "recrutement@entreprise.fr"]].forEach(([k, id, label, type, ph]) => {
+    const inp = document.createElement("input"); inp.type = type; inp.value = S[k] || ""; inp.placeholder = ph; inp.autocomplete = "off";
+    const w = el("div"); const l = el("label", "", label); l.htmlFor = id; inp.id = id; w.appendChild(l);
+    const line_ = el("div", "ct-l"); line_.appendChild(inp);
+    if(k !== "ctNom"){ const a_ = el("a", "btn small", k === "ctTel" ? _t("Appeler") : _t("Écrire")); const upd = () => { const v = inp.value.trim(); a_.hidden = !v; a_.href = (k === "ctTel" ? "tel:" + v.replace(/[^\d+]/g, "") : "mailto:" + v); }; upd(); inp.addEventListener("input", upd); line_.appendChild(a_); }
+    w.appendChild(line_); ct.appendChild(w);
+    inp.addEventListener("input", debounce(() => { S[k] = inp.value.trim(); syncCt(); }, 400));
+  });
+  sv.appendChild(ct);
   sv.appendChild(el("p", "hint", _t("Le résultat aide ") + BRAND.name + _t(" à voir ce qui marche pour vous dans vos prochains CV.")));
   box.appendChild(sv);
 
