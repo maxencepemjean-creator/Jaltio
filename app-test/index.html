@@ -1768,6 +1768,26 @@ const ICON = {
 const SYNC_KEYS = ["profiles", "currentProfile", "history", "pins", "suivi", "goal", "settings"];
 let syncSt = null, syncApplying = false, syncTimer = 0;   // état de la synchro (voir « Synchronisation entre appareils »)
 let syncBusy = false, syncPending = false, syncRetry = 0, syncPostponed = 0, syncDlgOpen = false, syncTouched = false, syncLastTry = 0;
+/* Profils en double : deux appareils remplis avant la connexion créent chacun leur profil au même nom.
+   On les regroupe en un seul (celui utilisé le plus récemment), on complète ses champs vides avec ceux des autres
+   et on rattache toutes les candidatures au profil gardé. Sinon une partie des candidatures devient invisible. */
+function fusionProfilsDoubles(P, H){
+  const norm = p => String((p && p.name) || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+  const recent = id => H.reduce((m, h) => (h && h.profileId === id) ? Math.max(m, h.date || 0) : m, 0);
+  const groups = new Map(), map = {};
+  P.forEach(p => { const k = norm(p); if(!k) return; if(!groups.has(k)) groups.set(k, []); groups.get(k).push(p); });
+  groups.forEach(g => {
+    if(g.length < 2) return;
+    g.sort((a, b) => recent(b.id) - recent(a.id));
+    const keep = g[0];
+    g.slice(1).forEach(o => {
+      Object.keys(o).forEach(k => { if(k !== "id" && (keep[k] == null || keep[k] === "") && o[k] != null && o[k] !== "") keep[k] = o[k]; });
+      map[o.id] = keep.id;
+    });
+  });
+  if(!Object.keys(map).length) return { P, H, map, changed:false };
+  return { P:P.filter(p => !map[p.id]), H:H.map(h => (h && map[h.profileId]) ? Object.assign({}, h, { profileId:map[h.profileId] }) : h), map, changed:true };
+}
 const store = {
   get(k, d){ try{ const v = localStorage.getItem("cvx_"+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
   set(k, v){
@@ -1861,6 +1881,11 @@ let profiles = store.get("profiles", []);
 let currentProfileId = store.get("currentProfile", null);
 let history = store.get("history", []);
 let currentHistId = null;
+{ const r = fusionProfilsDoubles(profiles, history);
+  if(r.changed){
+    profiles = r.P; history = r.H; if(r.map[currentProfileId]) currentProfileId = r.map[currentProfileId];
+    store.set("profiles", profiles); store.set("history", history); store.set("currentProfile", currentProfileId);
+  } }
 
 if(!profiles.length){ profiles = [{ id:uid(), name:"", parcours:"", photo:"" }]; }
 if(!profiles.find(p => p.id === currentProfileId)) currentProfileId = profiles[0].id;
@@ -5266,6 +5291,10 @@ function syncWrite(payload){       // écrit des données reçues ou fusionnées
   syncApplying = true;
   try{
     SYNC_KEYS.forEach(k => { const v = payload.data[k]; if(typeof v === "string") localStorage.setItem("cvx_" + k, v); else localStorage.removeItem("cvx_" + k); });
+    try{                                    // profil actif = choix local de cet appareil, s'il existe dans les données reçues
+      const pr = JSON.parse(payload.data.profiles || "[]");
+      if(currentProfileId && pr.some(p => p && p.id === currentProfileId)) localStorage.setItem("cvx_currentProfile", JSON.stringify(currentProfileId));
+    }catch(e){}
     const code = keep || (typeof payload.data.accessCode === "string" ? payload.data.accessCode : "");
     try{ const s = JSON.parse(localStorage.getItem("cvx_settings") || "{}"); if(code) s.apiKey = code; else delete s.apiKey; localStorage.setItem("cvx_settings", JSON.stringify(s)); }catch(e){}
   }catch(e){
@@ -5298,15 +5327,18 @@ function syncMerge(local, remote){
   let PR = [...pr.values()];
   const keepP = PR.filter(p => filled(p) || used.has(p.id));
   if(keepP.length) PR = keepP; else PR = PR.slice(0, 1);
+  const dd = fusionProfilsDoubles(PR, H); PR = dd.P;
+  const H2 = dd.H;
   // Suivi : par candidature, les champs de cet appareil priment
   const rs = P(remote, "suivi", {}), ls = P(local, "suivi", {}), S = Object.assign({}, rs);
   Object.keys(ls).forEach(g => { S[g] = Object.assign({}, rs[g] || {}, ls[g]); });
   const pins = [...new Set([].concat(P(remote, "pins", []), P(local, "pins", [])))];
-  const cur = P(local, "currentProfile", null), curR = P(remote, "currentProfile", null);
+  const cur0 = P(local, "currentProfile", null), curR0 = P(remote, "currentProfile", null);
+  const cur = dd.map[cur0] || cur0, curR = dd.map[curR0] || curR0;
   const curOk = id => PR.some(p => p.id === id);
   put("profiles", PR);
   put("currentProfile", curOk(cur) ? cur : curOk(curR) ? curR : (PR[0] && PR[0].id) || null);
-  put("history", H); put("pins", pins); put("suivi", S);
+  put("history", H2); put("pins", pins); put("suivi", S);
   const ac = (typeof local.data.accessCode === "string" && local.data.accessCode) || (typeof remote.data.accessCode === "string" && remote.data.accessCode) || "";
   if(ac) out.data.accessCode = ac;
   const goal = P(local, "goal", undefined); put("goal", goal !== undefined ? goal : P(remote, "goal", undefined));
