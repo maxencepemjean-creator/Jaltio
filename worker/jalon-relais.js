@@ -1,4 +1,4 @@
-// Relais Jaltio (Cloudflare Worker) — version du 11/11/2026 (recherche d'offres Careerjet via n8n)
+// Relais Jaltio (Cloudflare Worker) — version du 15/11/2026 (audit de sécurité : adresse Free d'origine, plafond d'essais du code à 6 chiffres)
 //
 // 1) Relais Claude : garde la clé Anthropic côté serveur ; le navigateur n'envoie qu'un code d'accès
 //    (code testeur du secret CODES, ou code d'abonné créé automatiquement après un paiement Stripe).
@@ -53,6 +53,7 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
   compte_abo: [20, 3600],              // consultations et résiliations d'abonnement, par adresse (hachée)
   otp_ip:   [30, 3600],                // essais de code de validation, par adresse (hachée)
   otp:      [8, 3600],                 // essais de code de validation, par paiement
+  otp_j:    [20, 86400],               // essais de code de validation, par paiement et par jour (le code ne change jamais : plafond contre les essais en série)
   renvoi:   [3, 3600],                 // renvois du mail de validation, par paiement
   free_ip:  [5, 86400],                // inscriptions Free (nouvelles adresses), par adresse IP (hachée) et par jour
   free_ip_h:[6, 3600],                 // demandes d'inscription Free (nouvelles ou déjà connues), par adresse IP et par heure
@@ -306,7 +307,11 @@ async function relais(request, env, origin) {
   }
 
   let recu;
-  try { recu = await request.json(); } catch (e) { return erreur(400, "Requête illisible.", origin); }
+  try {
+    const brut = await request.text();
+    if (brut.length > MAX_BODY) return erreur(413, "Données trop volumineuses.", origin);
+    recu = JSON.parse(brut);
+  } catch (e) { return erreur(400, "Requête illisible.", origin); }
   if (!recu || !MODELES.includes(recu.model)) return erreur(400, "Modèle non autorisé.", origin);
   if (!Array.isArray(recu.messages)) return erreur(400, "Requête invalide.", origin);
 
@@ -500,7 +505,7 @@ async function abonnementDuCode(request, env, origin) {
   return { row };
 }
 
-// État de l'abonnement, pour l'onglet Mon profil
+// État de l'abonnement, pour la page Mon compte
 async function statutAbonnement(request, env, origin) {
   const a = await abonnementDuCode(request, env, origin);
   if (a.err) return a.err;
@@ -519,7 +524,7 @@ async function resilierAbonnement(request, env, origin, ctx) {
   if (a.err) return a.err;
   if (a.testeur) return erreur(400, "Ce code de test n'est lié à aucun abonnement payant.", origin);
   const r = a.row;
-  if (r.offre === "free") return erreur(400, "L'offre Free est gratuite : il n'y a aucun abonnement à résilier. Pour effacer vos données, utilisez « Supprimer mes données en ligne » dans Mon profil.", origin);
+  if (r.offre === "free") return erreur(400, "L'offre Free est gratuite : il n'y a aucun abonnement à résilier. Pour effacer vos données, utilisez « Supprimer mes données en ligne » dans Mon compte.", origin);
   if (!env.STRIPE_KEY || !r.abonnement) return erreur(503, "La résiliation en ligne n'est pas disponible pour l'instant. Écrivez à contact@jaltio.fr.", origin);
   if (r.actif !== 1) return reponse({ deja: true, fin: r.fin || null, actif: false }, 200, origin);
   if (r.fin) return reponse({ deja: true, fin: r.fin, actif: true }, 200, origin);
@@ -602,6 +607,7 @@ async function validerPaiement(request, env, origin) {
   }
 
   if (!(await sous_limite(env, "otp:" + session, LIMITES.otp))) return erreur(429, "Trop d'essais. Demandez un nouvel envoi dans une heure, ou écrivez à contact@jaltio.fr.", origin);
+  if (!(await sous_limite(env, "otpj:" + session, LIMITES.otp_j))) return erreur(429, "Trop d'essais aujourd'hui. Réessayez demain, ou écrivez à contact@jaltio.fr.", origin);
   const otp = String(b.otp || "").replace(/\D/g, "");
   if (otp.length !== 6 || !egal(otp, await codeValidation(env, session))) return erreur(401, "Code incorrect. Vérifiez les 6 chiffres reçus par mail.", origin);
   return reponse({ code: row.code }, 200, origin);
@@ -645,11 +651,14 @@ async function inscriptionFree(request, env, origin, ctx) {
   if (!accepte) return erreur(400, "Acceptez les conditions générales et la politique de confidentialité pour continuer.", origin);
   const emailH = await sha256hex("free|" + emailCanon(email));
 
-  let g = await env.DB.prepare("SELECT session FROM gratuits WHERE email_h = ?1").bind(emailH).first();
+  let g = await env.DB.prepare("SELECT session, email FROM gratuits WHERE email_h = ?1").bind(emailH).first();
   if (g) {                                       // déjà inscrit : renvoi du code (limité par compte)
     if (!(await sous_limite(env, "renvoi:" + g.session, LIMITES.renvoi)))
       return erreur(429, "Le code a déjà été envoyé plusieurs fois. Vérifiez vos courriers indésirables, ou réessayez dans une heure.", origin);
-    await env.DB.prepare("UPDATE gratuits SET email = ?1 WHERE email_h = ?2").bind(email, emailH).run();
+    // Le code part toujours à l'adresse d'origine : une variante saisie plus tard (« prenom+x@… », points Gmail) ne la remplace pas,
+    // sinon quelqu'un pourrait faire envoyer le code d'un compte existant vers une autre boîte. L'adresse saisie ne sert que si
+    // l'adresse d'origine a été effacée (12 mois sans connexion).
+    if (!g.email) await env.DB.prepare("UPDATE gratuits SET email = ?1 WHERE email_h = ?2 AND email IS NULL").bind(email, emailH).run();
   } else {
     if (!(await sous_limite(env, "fr:" + ip, LIMITES.free_ip))) return erreur(429, "Trop d'inscriptions depuis votre connexion aujourd'hui. Réessayez demain.", origin);
     if (!(await sous_limite(env, "frjour", LIMITES.free_jour))) return erreur(503, "Les inscriptions gratuites sont complètes pour aujourd'hui. Réessayez demain, ou choisissez l'offre Essentiel.", origin);
@@ -659,11 +668,12 @@ async function inscriptionFree(request, env, origin, ctx) {
     if (r.meta && r.meta.changes === 1)
       await env.DB.prepare("INSERT INTO abonnes (code, session, offre, actif, cree, envoye, accepte) VALUES (?1, ?2, 'free', 1, ?3, 1, ?4)")
         .bind(nouveauCode(), session, t, accepte).run();
-    g = await env.DB.prepare("SELECT session FROM gratuits WHERE email_h = ?1").bind(emailH).first();
+    g = await env.DB.prepare("SELECT session, email FROM gratuits WHERE email_h = ?1").bind(emailH).first();
   }
   if (!g) return erreur(500, "Inscription impossible pour l'instant. Réessayez dans un instant.", origin);
-  if (!(await mailBienvenue(env, g.session, email))) return erreur(502, "Envoi du mail impossible pour l'instant. Réessayez dans quelques minutes.", origin);
-  return reponse({ session: g.session, email: masquer(email) }, 200, origin);
+  const destinataire = g.email || email;
+  if (!(await mailBienvenue(env, g.session, destinataire))) return erreur(502, "Envoi du mail impossible pour l'instant. Réessayez dans quelques minutes.", origin);
+  return reponse({ session: g.session, email: masquer(destinataire) }, 200, origin);
 }
 
 // Webhook Stripe (signature vérifiée) : enregistre les paiements et coupe les codes des abonnements terminés
@@ -728,8 +738,8 @@ async function rechercheOffres(request, env, origin) {
   const txt = (v, max) => String(v == null ? "" : v).replace(/[\u0000-\u001f]/g, " ").trim().slice(0, max);
   const demande = {
     mots: txt(b && b.mots, 100), lieu: txt(b && b.lieu, 80),
-    rayon: Number(b && b.rayon) || 20, contrat: txt(b && b.contrat, 1), temps: txt(b && b.temps, 1),
-    page: Number(b && b.page) || 1, tri: b && b.tri === "date" ? "date" : "pertinence",
+    rayon: Math.min(Math.max(parseInt(b && b.rayon, 10) || 20, 1), 100), contrat: txt(b && b.contrat, 1), temps: txt(b && b.temps, 1),
+    page: Math.min(Math.max(parseInt(b && b.page, 10) || 1, 1), 10), tri: b && b.tri === "date" ? "date" : "pertinence",
     user_ip: ip, user_agent: txt(request.headers.get("User-Agent"), 400),
   };
   if (!demande.mots && !demande.lieu) return erreur(400, "Indiquez un métier, des mots-clés ou une ville.", origin);

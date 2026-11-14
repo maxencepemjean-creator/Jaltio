@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /app/
+Disallow: /worker/
+Disallow: /outils/
+Disallow: /demos/
+Sitemap: https://jaltio.fr/sitemap.xml

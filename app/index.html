@@ -2221,7 +2221,14 @@ $("#btn-photo-del").addEventListener("click", () => {
 });
 
 /* ---------- Dépôt de fichiers : ancien CV (PDF, Word, texte) ou photo ---------- */
-function loadScript(src){ return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+/* Bibliothèques chargées depuis cdnjs : le navigateur vérifie leur empreinte (SRI) et refuse un fichier modifié */
+const SRI = {
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js": "sha512-q+4liFwdPC/bNdhUpZx6aXDx/h77yEQtn4I1slHydcbZK34nLaR3cAeYSJshoxIOq3mjEf7xJE8YWIUHMn+oCQ==",
+  "https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js": "sha512-sG5Q7boJL+ft/weuz6Mmi9XBD+bEzE9AI2FMP4YMFxp3FpTFUQSQQm5K5cSgJCyed6bWs3W8f8h0lp36lHXhQA==",
+  "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js": "sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==",
+  "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js": "sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA=="
+};
+function loadScript(src){ return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; if(SRI[src]){ s.integrity = SRI[src]; s.crossOrigin = "anonymous"; s.referrerPolicy = "no-referrer"; } s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
 /* Données de santé ou de handicap (RGPD, art. 9) : avertissement et choix explicite avant le premier import du parcours */
 function santeAvant(fn){
   const c = store.get("santeChoix", null);
@@ -2768,6 +2775,8 @@ function regenLabel(){
 }
 document.querySelectorAll('input[name="cible"]').forEach(r => r.addEventListener("change", () => { $("#btn-regen").textContent = regenLabel(); }));
 const URL_RE = /^https?:\/\/\S+$/i;
+/* Lien reçu d'un service externe (offres d'emploi) : seules les adresses http(s) sont ouvertes, jamais « javascript: » ou « data: » */
+const lienSur = u => URL_RE.test(String(u || "").trim()) ? String(u).trim() : "#";
 /* Anti-doublon : même annonce (lien ou texte) ou même entreprise pour le même poste, pour la même personne */
 const normTxt = t => str(t).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\b(h\s*\/\s*f|f\s*\/\s*h|cdi|cdd)\b/g, "").replace(/[^a-z0-9]+/g, " ").trim();
 function normUrl(u){
@@ -2827,7 +2836,7 @@ function ofCarte(o){
   const ex = extraitPropre(o.extrait); if(ex) li.appendChild(el("p", "of-ext", ex));
   const act = el("div", "of-act");
   // Les deux boutons sont de vrais liens ouverts par l'utilisateur : Careerjet rémunère au clic, jamais d'ouverture automatique.
-  const voir = el("a", "btn", _t("Voir l'offre ↗")); voir.href = o.url; voir.target = "_blank"; voir.rel = "noopener";
+  const voir = el("a", "btn", _t("Voir l'offre ↗")); voir.href = lienSur(o.url); voir.target = "_blank"; voir.rel = "noopener";
   const creer = btn(_t("Créer mon CV pour cette offre"), "primary", () => ofChoisir(o, li));
   const garder = btn(_t("Garder"), "", () => garderOffre(o, garder));
   act.appendChild(creer); act.appendChild(garder); act.appendChild(voir);
@@ -3566,7 +3575,7 @@ function renderCOffre(){
   box.appendChild(el("b", "", o.titre || _t("Offre choisie")));
   box.appendChild(el("span", "co", [o.entreprise, o.lieu].filter(Boolean).join(" · ")));
   const ol = el("ol");
-  const l1 = el("li"); l1.appendChild(document.createTextNode(_t("Ouvrez l'annonce : "))); const a = el("a", "", _t("ouvrir l'offre ↗")); a.href = o.url; a.target = "_blank"; a.rel = "noopener"; l1.appendChild(a); ol.appendChild(l1);
+  const l1 = el("li"); l1.appendChild(document.createTextNode(_t("Ouvrez l'annonce : "))); const a = el("a", "", _t("ouvrir l'offre ↗")); a.href = lienSur(o.url); a.target = "_blank"; a.rel = "noopener"; l1.appendChild(a); ol.appendChild(l1);
   ol.appendChild(el("li", "", _t("Copiez l'adresse de la page qui s'ouvre (en haut du navigateur), ou tout le texte de l'annonce.")));
   ol.appendChild(el("li", "", _t("Collez-la ci-dessous, puis « Continuer ».")));
   box.appendChild(ol);
@@ -4848,7 +4857,7 @@ function renderHome(){
   Q.hidden = !(d && d.cv_total);
   if(d && d.cv_total){
     Q.appendChild(el("h3", "", d.offre === "free" ? _t("Votre offre Free") : _t("Ce mois-ci")));
-    jauge(Q, _t("CV et lettres"), d.cv_utilises || 0, d.cv_total);
+    jauge(Q, d.offre === "free" ? _t("CV") : _t("CV et lettres"), d.cv_utilises || 0, d.cv_total);
     if(d.autres_total) jauge(Q, _t("Coach et lectures d'offre"), d.autres_utilises || 0, d.autres_total);
   }
   /* Parcours incomplet */
@@ -6269,20 +6278,20 @@ setInterval(() => { if(syncSt && document.visibilityState === "visible" && !sync
   });
   if(changed) saveHistory();
 })();
-/* ---------- Visite guidée (première visite, puis « Revoir la visite guidée » dans Mon profil) ---------- */
+/* ---------- Visite guidée (première visite, puis « Revoir la visite guidée » dans Mon compte ou Aide et contact) ---------- */
 const TOUR = [
   { title:_t("Bienvenue sur ") + BRAND.name, text:"<p>" + BRAND.name + _t(" adapte votre CV et votre lettre de motivation à chaque offre d'emploi, puis vous aide à suivre vos candidatures jusqu'à l'entretien.</p><p>Petite visite : moins d'une minute.</p><p class=\"hint\" style=\"margin:0\">") + BRAND.name + _t(" est une intelligence artificielle : relisez toujours vos documents avant de les envoyer.</p>") },
-  { view:"create", target:[".views", "#tabbar"], title:_t("Les onglets"),
-    text:_t("<ul><li><b>Créer</b> : un CV et une lettre pour une offre.</li><li><b>Mes candidatures</b> : le suivi de vos envois.</li><li><b>Mon profil</b> : votre parcours et vos réglages.</li></ul>"),
-    mtext:_t("<p>En bas de l'écran :</p><ul><li><b>Créer</b> : un CV et une lettre pour une offre.</li><li><b>Candidatures</b> : le suivi de vos envois.</li><li><b>Coach</b> : vos questions.</li><li><b>Profil</b> : votre parcours.</li></ul>") },
+  { view:"home", target:["#rail", "#tabbar"], title:_t("Le menu"),
+    text:_t("<ul><li><b>Accueil</b> : ce qu'il y a à faire aujourd'hui, et le bouton « Nouveau CV ».</li><li><b>Offres</b> : chercher une offre d'emploi.</li><li><b>Candidatures</b> : le suivi de vos envois.</li><li><b>Mon parcours</b> : votre CV de départ.</li></ul>"),
+    mtext:_t("<p>En bas de l'écran :</p><ul><li><b>Accueil</b> : ce qu'il y a à faire, et « Nouveau CV ».</li><li><b>Offres</b> : chercher une offre d'emploi.</li><li><b>Candidatures</b> : le suivi de vos envois.</li><li><b>Coach</b> : vos questions.</li><li><b>Mon parcours</b> : votre CV de départ.</li></ul>") },
   { view:"create", target:["#step-key"], title:_t("Votre code d'accès"), text:_t("<p>Saisissez ici le code d'accès qu'on vous a donné, puis « Enregistrer ». Il reste sur cet appareil.</p>") },
   { view:"parcours", target:["#step-parcours"], title:_t("Votre parcours"), text:_t("<p>Tout commence ici. Importez votre CV actuel (PDF, Word ou une simple photo), ou racontez votre parcours à l'écrit ou à voix haute.</p><p>") + BRAND.name + _t(" n'invente rien : il part uniquement de ce que vous lui donnez.</p>") },
   { view:"create", target:["#step-offre"], title:_t("L'offre d'emploi"), text:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b> (Hellowork, France Travail, Indeed…) ou son <b>texte</b>, puis cliquez sur <b>« Créer mon CV adapté »</b>.</p><p>Comptez 30 secondes à 1 minute.</p>"), mtext:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b> ou son <b>texte</b>, puis touchez <b>« Créer mon CV adapté »</b> (30 secondes à 1 minute).</p><p>Votre CV s'affiche ensuite : touchez <b>« Je veux changer quelque chose »</b> pour le faire corriger, à l'écrit ou à la voix, ou <b>« C'est parfait, je l'envoie »</b>.</p>") },
   { view:"create", target:["#preview"], desktop:true, sample:true, title:_t("Votre CV et votre lettre"), text:_t("<ul><li>Pour corriger un mot, <b>cliquez directement dans le texte</b>. Une barre apparaît en bas pour la police, la taille et la couleur.</li><li>Cliquez ensuite sur <b>« Enregistrer mes retouches »</b>.</li><li>Pour un changement plus important, écrivez ce qui ne va pas dans « Que voulez-vous corriger ? ».</li><li>Les anciennes versions restent dans « Revenir à une version précédente ».</li></ul>") },
-  { view:"apps", target:["#rail [data-goto=apps]", "#tabbar [data-tab=apps]"], title:_t("Mes candidatures"), text:_t("<p>Chaque CV créé y est rangé. Vous indiquez quand vous l'avez envoyé : ") + BRAND.name + _t(" vous rappelle de relancer au bout d'une semaine, vous aide à préparer l'entretien, et peut imprimer le récapitulatif de vos démarches pour France Travail.</p><p>Vos derniers CV se retrouvent aussi dans « Mes CV récents », dans l'onglet Créer.</p>") },
+  { view:"apps", target:["#rail [data-goto=apps]", "#tabbar [data-tab=apps]"], title:_t("Mes candidatures"), text:_t("<p>Chaque CV créé y est rangé. Vous indiquez quand vous l'avez envoyé : ") + BRAND.name + _t(" vous rappelle de relancer au bout d'une semaine, vous aide à préparer l'entretien, et peut imprimer le récapitulatif de vos démarches pour France Travail.</p><p>Vos CV et vos lettres sont aussi rangés dans « Mes documents ».</p>") },
   { view:"create", target:["#fab", "#tabbar [data-tab=coach]"], title:_t("Votre coach"), text:_t("<p>Posez-lui toutes vos questions : « mon accroche est-elle bonne ? », « que répondre si on me demande mes défauts ? ». Il peut appliquer ses conseils à votre CV ou à votre lettre en un clic.</p>") },
   { view:"create", target:["#btn-apply"], desktop:true, title:_t("Prêt à postuler ?"), text:_t("<p>Quand le CV vous plaît, <b>« Préparer ma candidature »</b> regroupe la dernière relecture, les PDF à télécharger et le message à envoyer au recruteur.</p>") },
-  { title:_t("C'est parti !"), text:_t("<p>Commencez par <b>Mon profil</b> pour donner votre parcours. Ensuite, une offre, un clic, et votre CV est prêt.</p><p class=\"hint\" style=\"margin:0\">Vous pouvez revoir cette visite à tout moment depuis Mon profil.</p>"), last:true }
+  { title:_t("C'est parti !"), text:_t("<p>Commencez par <b>Mon parcours</b> pour donner votre CV de départ. Ensuite, une offre, un clic, et votre CV est prêt.</p><p class=\"hint\" style=\"margin:0\">Vous pouvez revoir cette visite à tout moment depuis Mon compte.</p>"), last:true }
 ];
 let tourI = -1, tourList = [], tourBack = null;
 const visibleEl = sel => { const n = document.querySelector(sel); if(!n || n.closest("[hidden]")) return null; const r = n.getBoundingClientRect(); return r.width > 0 && r.height > 0 ? n : null; };
@@ -6488,16 +6497,18 @@ if(new URLSearchParams(location.search).has("resilier")){
     status("#sync-msg", "ok", _t("Adresse confirmée. Choisissez votre identifiant (votre e-mail) et votre mot de passe."));
     setTimeout(() => { try{ ($("#sync-mail").value ? $("#sync-pw") : $("#sync-mail")).focus(); }catch(e){} }, 60);
   };
+  let validation = false;      // une seule vérification à la fois (saisie du 6e chiffre + touche Entrée = un seul essai)
   const valider = async () => {
+    if(validation) return;
     const otp = $("#otp-in").value.replace(/\D/g, "");
     if(otp.length !== 6){ msg("err", _t("Le code contient 6 chiffres.")); $("#otp-in").focus(); return; }
-    $("#otp-go").disabled = true; msg("info", _t("Vérification…"));
+    validation = true; $("#otp-go").disabled = true; msg("info", _t("Vérification…"));
     try{
       const r = await post("/stripe/valider", { session:sess, otp });
       if(r.ok && r.d.code){ msg("", ""); fini(r.d.code); return; }
       msg("err", (r.d.error && r.d.error.message) || _t("Vérification impossible. Réessayez."));
     }catch(e){ msg("err", _t("Connexion impossible. Vérifiez votre réseau et réessayez.")); }
-    finally{ $("#otp-go").disabled = false; }
+    finally{ validation = false; $("#otp-go").disabled = false; }
   };
   $("#otp-go").addEventListener("click", valider);
   $("#otp-in").addEventListener("keydown", e => { if(e.key === "Enter") valider(); });
