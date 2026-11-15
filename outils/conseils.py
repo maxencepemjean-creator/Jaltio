@@ -1,0 +1,327 @@
+#!/usr/bin/env python3
+"""Fabrique les pages de conseils de jaltio.fr (dossier conseils/) et met à jour sitemap.xml.
+Usage (depuis la racine du dépôt) : python3 outils/conseils.py, puis python3 outils/menu.py
+Pour ajouter un article : ajouter un dictionnaire dans ARTICLES (slug, titre, description, date, intro, corps en HTML)."""
+import html, json, pathlib
+RACINE = pathlib.Path(__file__).resolve().parent.parent
+SITE = "https://jaltio.fr"
+
+ARTICLES = [
+{
+"slug": "adapter-cv-offre",
+"titre": "Adapter son CV à une offre d'emploi : la méthode en 5 étapes",
+"court": "Adapter son CV à une offre",
+"description": "Comment adapter votre CV à chaque annonce sans rien inventer : repérer ce que le recruteur cherche, reprendre ses mots, réécrire l'accroche, trier vos expériences.",
+"date": "2026-11-15",
+"intro": "Envoyer le même CV à toutes les annonces, c'est demander au recruteur de faire le tri à votre place. Il ne le fera pas : il lit vite, et souvent un logiciel a déjà comparé votre CV aux mots de l'annonce. Adapter son CV ne veut pas dire mentir. Cela veut dire mettre en avant, pour ce poste précis, ce que vous avez vraiment fait.",
+"corps": """
+<h2>1. Lire l'annonce comme un recruteur</h2>
+<p>Avant de toucher à votre CV, soulignez dans l'annonce trois choses :</p>
+<ul>
+<li><b>Les missions</b> : ce que la personne fera chaque jour.</li>
+<li><b>Les exigences obligatoires</b> : diplôme, permis, expérience minimale, horaires. Elles sont souvent introduites par « vous avez », « exigé », « indispensable ».</li>
+<li><b>Le vocabulaire</b> : les mots exacts employés pour décrire le métier (« encaissement » plutôt que « caisse », « relation client » plutôt que « accueil »).</li>
+</ul>
+<p>Si une exigence obligatoire vous manque, mieux vaut le savoir maintenant : vous en parlerez dans la lettre ou vous choisirez une autre offre.</p>
+
+<h2>2. Reprendre les mots de l'annonce, quand ils décrivent ce que vous avez fait</h2>
+<p>Les logiciels de tri et les recruteurs cherchent les termes de leur annonce. Si vous avez fait la mission, nommez-la comme eux. Une ligne « Vente » devient, pour une annonce de vendeur en boulangerie : « Accueil et conseil des clients, encaissement, mise en rayon des produits frais ».</p>
+<p>La règle est simple : vous changez les mots, jamais les faits.</p>
+
+<h2>3. Réécrire le titre et l'accroche</h2>
+<p>Le titre du CV doit correspondre au poste visé, pas à votre dernier poste. Sous le titre, deux ou trois lignes résument pourquoi vous êtes la bonne personne pour <i>ce</i> poste : votre expérience la plus proche, une compétence demandée par l'annonce, votre disponibilité si elle compte (horaires décalés, week-ends, permis).</p>
+
+<h2>4. Trier et réordonner vos expériences</h2>
+<ul>
+<li>Dans chaque expérience, mettez en premier les missions qui correspondent à l'annonce.</li>
+<li>Raccourcissez ce qui n'a pas de rapport avec le poste, sans effacer l'expérience : un trou dans un CV pose plus de questions qu'une ligne courte.</li>
+<li>Ajoutez des chiffres seulement s'ils sont vrais et vérifiables : nombre de clients par jour, taille de l'équipe, chiffre d'affaires du rayon.</li>
+<li>Remontez une compétence demandée (logiciel, langue, permis) si elle était cachée en bas de page.</li>
+</ul>
+
+<h2>5. Vérifier avant d'envoyer</h2>
+<ul>
+<li>Une page, sauf si vous avez une longue carrière dans le même domaine.</li>
+<li>Rien d'inventé : tout ce qui est écrit doit pouvoir être raconté en entretien.</li>
+<li>Coordonnées à jour, nom de fichier clair (« CV Prénom Nom - Vendeur.pdf »).</li>
+<li>Une relecture à voix haute pour attraper les fautes.</li>
+</ul>
+
+<h2>Ce qu'il ne faut pas faire</h2>
+<ul>
+<li>Copier l'annonce entière dans votre CV : le recruteur le voit tout de suite.</li>
+<li>Cacher des mots-clés en blanc sur blanc : le texte extrait par les logiciels est lu par un humain, et l'astuce se retourne contre vous.</li>
+<li>Ajouter une expérience ou un diplôme que vous n'avez pas : c'est vérifiable, et c'est un motif de rupture de la période d'essai.</li>
+</ul>
+"""},
+{
+"slug": "cv-logiciel-recrutement-ats",
+"titre": "CV et logiciels de recrutement (ATS) : ce qu'ils lisent vraiment",
+"court": "CV et logiciels de recrutement",
+"description": "Ce que fait un logiciel de recrutement (ATS) avec votre CV, les règles de mise en page qui évitent qu'il soit mal lu, et les idées reçues à oublier.",
+"date": "2026-11-15",
+"intro": "Quand vous postulez en ligne, votre CV arrive souvent d'abord dans un logiciel de suivi des candidatures, qu'on appelle ATS (applicant tracking system). Ce logiciel ne « rejette » pas votre CV par magie : il en extrait le texte, le range dans des cases et permet au recruteur de chercher et de trier les candidats. Si le texte est mal extrait, vous devenez invisible.",
+"corps": """
+<h2>Ce que fait le logiciel</h2>
+<ul>
+<li>Il <b>extrait le texte</b> de votre fichier (PDF ou Word).</li>
+<li>Il essaie de repérer vos <b>coordonnées, expériences, dates, diplômes et compétences</b>.</li>
+<li>Le recruteur <b>cherche ensuite par mots-clés</b> (un métier, un logiciel, un permis) et trie la liste. La décision finale reste humaine.</li>
+</ul>
+<p>Votre objectif est donc double : que le texte soit lu correctement, et que les mots que le recruteur va chercher soient présents, s'ils correspondent à votre parcours.</p>
+
+<h2>Les règles de mise en page qui évitent les mauvaises surprises</h2>
+<ul>
+<li><b>Du vrai texte</b> : pas de CV scanné ni de CV entièrement en image. Test simple : ouvrez votre PDF, essayez de sélectionner une ligne. Si vous ne pouvez pas, le logiciel non plus.</li>
+<li><b>Des titres de sections classiques</b> : « Expérience professionnelle », « Formation », « Compétences », « Langues ». Les titres originaux (« Mon aventure ») sont mal reconnus.</li>
+<li><b>Des dates claires</b> : « 03/2021 – 06/2024 » ou « 2021 – 2024 », au même format partout.</li>
+<li><b>Rien d'important dans l'en-tête ou le pied de page</b> du traitement de texte, ni dans des zones de texte flottantes : certains logiciels les ignorent.</li>
+<li><b>Une police courante</b> et des puces simples. Les icônes peuvent rester, à condition que l'information soit aussi écrite en texte (le numéro à côté de l'icône de téléphone, pas seulement l'icône).</li>
+<li><b>Le format demandé</b> : si l'annonce demande un fichier Word, envoyez un fichier Word. Sinon, un PDF généré depuis votre traitement de texte (pas une photo) convient.</li>
+</ul>
+
+<h2>Les idées reçues à oublier</h2>
+<ul>
+<li><b>« Un CV en couleur est rejeté »</b> : non. La couleur ne gêne pas l'extraction du texte. C'est le texte en image qui pose problème.</li>
+<li><b>« Il faut mettre un maximum de mots-clés »</b> : un CV rempli de mots sans phrases est lu ensuite par un humain, qui le trouve vide. Les mots-clés doivent décrire ce que vous avez réellement fait.</li>
+<li><b>« Le logiciel décide seul »</b> : il trie et facilite la recherche ; c'est une personne qui choisit qui appeler.</li>
+</ul>
+
+<h2>Vérification en deux minutes</h2>
+<ol>
+<li>Ouvrez votre PDF, sélectionnez tout (Ctrl + A ou Cmd + A), copiez, collez dans un bloc-notes.</li>
+<li>Si le texte collé est dans le bon ordre et complet (nom, coordonnées, postes, dates), le logiciel le lira aussi.</li>
+<li>Comparez avec l'annonce : les compétences demandées que vous avez vraiment figurent-elles dans le texte ?</li>
+</ol>
+"""},
+{
+"slug": "relancer-apres-candidature",
+"titre": "Relancer après une candidature : quand et comment (modèle de mail)",
+"court": "Relancer après une candidature",
+"description": "Quand relancer un recruteur après une candidature ou un entretien, quoi écrire, combien de fois : la méthode et des modèles de mail à adapter.",
+"date": "2026-11-15",
+"intro": "Une candidature sans réponse n'est pas forcément un refus : le recruteur a peut-être beaucoup de dossiers, ou le poste a été mis en pause. Une relance courte et polie vous remet en haut de la pile. Elle ne coûte rien, et elle montre que le poste vous intéresse vraiment.",
+"corps": """
+<h2>Quand relancer</h2>
+<ul>
+<li><b>Après une candidature</b> : environ une semaine après l'envoi, si vous n'avez pas de nouvelles. Si l'annonce indique une date limite, attendez quelques jours après cette date.</li>
+<li><b>Après un entretien</b> : envoyez un mail de remerciement dans la journée ou le lendemain. Relancez seulement si le délai annoncé par le recruteur est dépassé.</li>
+<li><b>Combien de fois</b> : une relance, éventuellement une seconde une semaine plus tard. Au-delà, consacrez votre énergie à d'autres candidatures.</li>
+</ul>
+
+<h2>Comment relancer</h2>
+<ul>
+<li><b>Répondez au mail de votre candidature</b> plutôt que d'en écrire un nouveau : le recruteur retrouve votre dossier d'un coup d'œil.</li>
+<li><b>Rappelez le poste et la date</b> de votre candidature.</li>
+<li><b>Ajoutez une phrase utile</b> : votre disponibilité, un élément nouveau, une précision sur votre motivation. Pas de reproche sur l'absence de réponse.</li>
+<li><b>Terminez par une question simple</b> : « Ma candidature est-elle toujours à l'étude ? »</li>
+</ul>
+
+<h2>Modèle : relance après une candidature</h2>
+<div class="modele"><p><b>Objet :</b> Candidature au poste de [poste] – [Prénom Nom]</p>
+<p>Madame, Monsieur,</p>
+<p>Je me permets de revenir vers vous au sujet de ma candidature au poste de [poste], envoyée le [date]. Ce poste m'intéresse toujours beaucoup, notamment [une raison précise : la mission, l'équipe, le produit].</p>
+<p>Je suis disponible [à partir de quand / pour un échange téléphonique cette semaine]. Ma candidature est-elle toujours à l'étude ?</p>
+<p>Je vous remercie par avance de votre retour.<br>Bien cordialement,<br>[Prénom Nom] – [téléphone]</p></div>
+
+<h2>Modèle : remerciement après un entretien</h2>
+<div class="modele"><p><b>Objet :</b> Merci pour notre entretien – [poste]</p>
+<p>Bonjour [Madame / Monsieur Nom],</p>
+<p>Merci pour notre échange [d'aujourd'hui / d'hier] au sujet du poste de [poste]. [Une phrase sur un point de l'entretien qui vous a marqué.] Cela m'a conforté dans mon envie de rejoindre votre équipe.</p>
+<p>Je reste à votre disposition pour toute information complémentaire.<br>Bien cordialement,<br>[Prénom Nom]</p></div>
+
+<h2>Et par téléphone ?</h2>
+<p>Pour les petites entreprises, les commerces et les postes où le contact compte (vente, accueil, artisanat), un appel court fonctionne souvent mieux qu'un mail. Préparez deux phrases : qui vous êtes, pour quel poste, et la question « Où en est le recrutement ? ».</p>
+
+<h2>Ne perdez pas le fil</h2>
+<p>Notez pour chaque candidature la date d'envoi, la personne à contacter et la date de relance prévue. Sans suivi, on relance trop tôt, trop tard, ou jamais.</p>
+"""},
+{
+"slug": "lettre-de-motivation-structure",
+"titre": "Lettre de motivation : la structure simple en 3 paragraphes",
+"court": "Structure de la lettre de motivation",
+"description": "Une lettre de motivation courte et précise : la structure vous, moi, nous, ce qu'il faut mettre dans chaque paragraphe, les phrases à éviter et un exemple.",
+"date": "2026-11-15",
+"intro": "Une bonne lettre de motivation est courte, précise et écrite pour une seule entreprise. Le recruteur doit comprendre en quelques secondes pourquoi vous, pour ce poste, chez eux. La structure la plus utilisée tient en trois paragraphes : vous, moi, nous.",
+"corps": """
+<h2>1. Vous : ce que vous savez de l'entreprise et du poste</h2>
+<p>Montrez que vous avez lu l'annonce et regardé qui recrute. Une ou deux phrases suffisent : ce que fait l'entreprise, ce qui vous attire dans ce poste précis. Évitez les généralités qui marcheraient pour n'importe quelle entreprise (« leader dans son domaine », « entreprise dynamique »).</p>
+
+<h2>2. Moi : ce que vous apportez</h2>
+<p>Reprenez deux ou trois exigences de l'annonce et montrez, avec un exemple concret de votre parcours, que vous y répondez. Un exemple vaut mieux qu'une liste de qualités : « J'ai tenu seul la caisse le samedi pendant deux ans » dit plus que « je suis autonome et rigoureux ».</p>
+
+<h2>3. Nous : la suite</h2>
+<p>Une phrase sur ce que vous voulez construire ensemble, votre disponibilité, et la demande d'un entretien. Restez simple et direct.</p>
+
+<h2>La longueur</h2>
+<p>Moins d'une page, idéalement une dizaine de lignes par paragraphe au maximum. Si votre lettre est envoyée dans le corps d'un mail ou dans un champ « message » d'un site d'emploi, raccourcissez encore : l'essentiel des paragraphes 2 et 3.</p>
+
+<h2>Les phrases à éviter</h2>
+<ul>
+<li>« Suite à votre annonce parue sur… » en ouverture : le recruteur le sait déjà, commencez par l'entreprise.</li>
+<li>« Je me permets de vous adresser ma candidature » : remplissage.</li>
+<li>Les qualités sans preuve : « dynamique, motivé, rigoureux ».</li>
+<li>Répéter le CV ligne par ligne : la lettre explique, le CV liste.</li>
+</ul>
+
+<h2>Exemple (personne fictive)</h2>
+<div class="modele"><p>Madame, Monsieur,</p>
+<p>La Boulangerie du Marché est connue à Saintes pour ses pains au levain et son accueil le samedi matin, quand la file déborde sur le trottoir. Votre recherche d'un vendeur pour renforcer l'équipe du week-end correspond exactement à ce que je sais faire.</p>
+<p>Pendant deux ans, j'ai tenu la caisse et le comptoir d'une supérette de quartier, seul le samedi, de l'ouverture à 13 h. J'y ai appris à servir vite sans bâcler le conseil, à gérer les produits frais et leurs dates, et à garder le sourire quand la file s'allonge.</p>
+<p>Disponible dès maintenant, y compris le dimanche matin, je serais heureux d'échanger avec vous lors d'un entretien.</p>
+<p>Bien cordialement,<br>Benjamin Martin</p></div>
+
+<h2>Et pour une candidature spontanée ?</h2>
+<p>Même structure, mais le premier paragraphe compte encore plus : expliquez pourquoi cette entreprise, et quel type de poste vous visez. Sans annonce, c'est à vous de dire en quoi vous pouvez être utile.</p>
+"""},
+{
+"slug": "preparer-entretien-embauche",
+"titre": "Préparer un entretien d'embauche : les questions classiques et comment y répondre",
+"court": "Préparer un entretien d'embauche",
+"description": "Comment préparer un entretien d'embauche : ce qu'il faut relire, la méthode pour raconter une expérience, les questions classiques (présentez-vous, défauts, salaire) et les questions à poser.",
+"date": "2026-11-15",
+"intro": "Un entretien se prépare comme un examen dont on connaît une bonne partie des questions. Les recruteurs posent presque toujours les mêmes, avec des variantes. Ce qui fait la différence, ce sont des réponses concrètes, appuyées sur des exemples tirés de votre parcours.",
+"corps": """
+<h2>Avant l'entretien</h2>
+<ul>
+<li><b>Relisez l'annonce et le CV que vous avez envoyé</b> : le recruteur les a sous les yeux.</li>
+<li><b>Renseignez-vous sur l'entreprise</b> : ce qu'elle fait, ses clients, ses actualités récentes, son site et ses avis.</li>
+<li><b>Préparez trois exemples concrets</b> de situations où vous avez réussi quelque chose en lien avec le poste.</li>
+<li><b>Préparez deux ou trois questions</b> à poser.</li>
+<li><b>La logistique</b> : adresse et temps de trajet, ou pour une visio, le lien, le micro et la caméra testés la veille.</li>
+</ul>
+
+<h2>La méthode pour raconter un exemple</h2>
+<p>Pour chaque exemple, déroulez quatre temps, en une minute environ :</p>
+<ol>
+<li><b>La situation</b> : où, quand, le contexte.</li>
+<li><b>Ce qu'on attendait de vous.</b></li>
+<li><b>Ce que vous avez fait</b>, vous personnellement.</li>
+<li><b>Le résultat</b>, chiffré si vous avez un chiffre vrai.</li>
+</ol>
+
+<h2>Les questions classiques</h2>
+<h3>« Présentez-vous »</h3>
+<p>Ce n'est pas votre biographie. En deux minutes : votre parcours en lien avec le poste, ce que vous savez faire, et pourquoi vous êtes là aujourd'hui. Finissez par le poste visé.</p>
+<h3>« Pourquoi ce poste, pourquoi chez nous ? »</h3>
+<p>Reliez une chose précise de l'entreprise (produit, clientèle, valeurs, proximité) à ce que vous cherchez. La réponse doit être impossible à recopier telle quelle pour une autre entreprise.</p>
+<h3>« Quelles sont vos qualités et vos défauts ? »</h3>
+<p>Pour les qualités, deux maximum, chacune avec un exemple. Pour le défaut, choisissez un vrai défaut qui ne bloque pas le poste, et dites ce que vous faites pour le corriger.</p>
+<h3>« Pourquoi avez-vous quitté votre dernier poste ? »</h3>
+<p>Restez factuel et tourné vers l'avenir. Ne critiquez jamais un ancien employeur.</p>
+<h3>« Quelles sont vos prétentions salariales ? »</h3>
+<p>Renseignez-vous avant : salaires affichés dans des annonces comparables, grille de la convention collective du secteur. Donnez une fourchette réaliste, en brut annuel ou mensuel selon l'usage du métier.</p>
+<h3>« Avez-vous des questions ? »</h3>
+<p>Répondez toujours oui. Par exemple : « À quoi ressemble une journée type ? », « Comment l'équipe est-elle organisée ? », « Quelles sont les prochaines étapes du recrutement ? ».</p>
+
+<h2>Après l'entretien</h2>
+<ul>
+<li>Notez tout de suite ce qui s'est dit, les noms et les prochaines étapes.</li>
+<li>Envoyez un court mail de remerciement dans la journée ou le lendemain.</li>
+<li>Si le délai annoncé est dépassé, relancez une fois, poliment.</li>
+</ul>
+"""},
+]
+
+CSS = """<style>
+.conseil h1{margin-bottom:10px}
+.conseil .meta{color:#6E5872;font-size:14px;margin:0 0 24px}
+.conseil h2{margin-top:34px}
+.conseil h3{margin:22px 0 6px;font-size:18px}
+.conseil ul,.conseil ol{padding-left:22px}
+.conseil li{margin:6px 0}
+.conseil .modele{background:#fff;border:1px solid #EEDFCF;border-left:4px solid #F2A93B;border-radius:12px;padding:6px 18px;margin:12px 0 18px}
+.conseil .cta-box{background:#3A2340;color:#FFF8F0;border-radius:18px;padding:22px 24px;margin:40px 0 10px}
+.conseil .cta-box h2{color:#fff;margin:0 0 8px}
+.conseil .cta-box p{margin:0 0 16px;color:#EADDEB}
+.conseil .cta-box .btn{background:#F2A93B;border-color:#F2A93B;color:#2A1A2F}
+.conseil .autres{margin-top:34px}
+.liste-conseils{list-style:none;padding:0;display:grid;gap:14px}
+.liste-conseils a{display:block;background:#fff;border:1px solid #EEDFCF;border-radius:16px;padding:18px 20px;text-decoration:none;color:inherit}
+.liste-conseils a:hover{border-color:#F2A93B}
+.liste-conseils b{display:block;font-size:18px;margin-bottom:6px;color:#2A1A2F}
+.liste-conseils span{color:#6E5872}
+</style>"""
+
+def tete(titre, description, chemin, jsonld):
+    return f"""<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<title>{html.escape(titre)} — Jaltio</title>
+<meta name="description" content="{html.escape(description)}">
+<link rel="canonical" href="{SITE}{chemin}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="{html.escape(titre)}">
+<meta property="og:description" content="{html.escape(description)}">
+<meta property="og:url" content="{SITE}{chemin}">
+<meta property="og:locale" content="fr_FR">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/pages.css">
+<script src="/anim.js"></script>
+{CSS}
+<script type="application/ld+json">{json.dumps(jsonld, ensure_ascii=False)}</script>
+</head>
+<body>
+<header class="top"></header>
+<main>
+"""
+
+PIED = """</main>
+<footer class="foot"></footer>
+<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "dcd19a490f414e60909bf61deaae5385"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
+"""
+
+CTA = """<div class="cta-box">
+  <h2>Un CV adapté à chaque offre, en une minute</h2>
+  <p>Collez le lien d'une annonce : Jaltio réécrit votre CV à partir de votre vrai parcours, sans rien inventer. 5 CV offerts, sans carte bancaire.</p>
+  <a class="btn" href="/inscription/?offre=free">Essayer gratuitement</a>
+</div>"""
+
+def date_fr(iso):
+    mois = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
+    a, m, j = iso.split("-")
+    return f"{int(j)} {mois[int(m) - 1]} {a}"
+
+(RACINE / "conseils").mkdir(exist_ok=True)
+for a in ARTICLES:
+    chemin = f"/conseils/{a['slug']}/"
+    ld = {"@context": "https://schema.org", "@type": "Article", "headline": a["titre"], "description": a["description"],
+          "datePublished": a["date"], "dateModified": a["date"], "inLanguage": "fr-FR", "mainEntityOfPage": SITE + chemin,
+          "author": {"@type": "Organization", "name": "Jaltio", "url": SITE + "/"},
+          "publisher": {"@type": "Organization", "name": "Jaltio", "logo": {"@type": "ImageObject", "url": SITE + "/assets/logo-512.png"}}}
+    autres = "".join(f'<li><a href="/conseils/{b["slug"]}/"><b>{html.escape(b["titre"])}</b><span>{html.escape(b["description"])}</span></a></li>' for b in ARTICLES if b is not a)
+    page = (tete(a["titre"], a["description"], chemin, ld)
+            + f'<article class="wrap narrow conseil">\n<p class="kicker"><a href="/conseils/">Conseils</a></p>\n<h1>{html.escape(a["titre"])}</h1>\n'
+            + f'<p class="meta">Mis à jour le {date_fr(a["date"])} · par l\'équipe Jaltio</p>\n<p class="lead">{html.escape(a["intro"])}</p>\n'
+            + a["corps"].strip() + "\n" + CTA
+            + f'\n<section class="autres"><h2>Autres conseils</h2><ul class="liste-conseils">{autres}</ul></section>\n</article>\n' + PIED)
+    d = RACINE / "conseils" / a["slug"]; d.mkdir(exist_ok=True)
+    (d / "index.html").write_text(page)
+    print("ok", chemin)
+
+ld = {"@context": "https://schema.org", "@type": "CollectionPage", "name": "Conseils pour votre recherche d'emploi", "url": SITE + "/conseils/", "inLanguage": "fr-FR"}
+liste = "".join(f'<li><a href="/conseils/{a["slug"]}/"><b>{html.escape(a["titre"])}</b><span>{html.escape(a["description"])}</span></a></li>' for a in ARTICLES)
+index = (tete("Conseils pour votre recherche d'emploi : CV, lettre, relance, entretien",
+              "Des conseils concrets pour votre recherche d'emploi : adapter son CV à une offre, passer les logiciels de recrutement, écrire sa lettre, relancer, préparer l'entretien.",
+              "/conseils/", ld)
+         + '<div class="wrap narrow conseil">\n<h1>Conseils pour votre recherche d\'emploi</h1>\n'
+         + '<p class="lead">Des méthodes simples et concrètes, de l\'annonce à l\'entretien. Sans jargon, et sans rien inventer sur votre parcours.</p>\n'
+         + f'<ul class="liste-conseils">{liste}</ul>\n' + CTA + '\n</div>\n' + PIED)
+(RACINE / "conseils" / "index.html").write_text(index)
+print("ok /conseils/")
+
+# sitemap.xml : pages fixes + conseils
+fixes = ["/", "/forfaits/", "/faq/", "/contact/", "/conseils/", "/cgv.html", "/confidentialite.html", "/mentions-legales.html"]
+urls = fixes + [f"/conseils/{a['slug']}/" for a in ARTICLES]
+xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(f"  <url><loc>{SITE}{u}</loc></url>\n" for u in urls) + "</urlset>\n"
+(RACINE / "sitemap.xml").write_text(xml)
+print("ok sitemap.xml", len(urls), "adresses")

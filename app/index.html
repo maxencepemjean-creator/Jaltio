@@ -491,6 +491,28 @@ body.m .eb-tools{display:none}
 body.m .save-fab{border-radius:999px}
 
 /* Mes CV récents (onglet Créer) */
+/* Accueil personnalisé (première connexion) */
+.onb{position:fixed;inset:0;z-index:95;background:var(--bg, #FFF8F0);overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:8vh 16px 32px}
+.onb[hidden]{display:none}
+.onb-box{width:min(520px,100%);background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 18px 50px rgba(42,26,47,.10);padding:28px 26px 22px}
+.onb-prog{display:flex;gap:6px;margin-bottom:18px}
+.onb-prog span{flex:1;height:5px;border-radius:99px;background:#EEDFCF}
+.onb-prog span.on{background:#F2A93B}
+.onb-num{font-size:13px;color:var(--muted);margin:0 0 4px}
+.onb h2{font-family:var(--display, inherit);font-size:26px;line-height:1.15;margin:0 0 8px;color:var(--ink)}
+.onb-why{color:var(--muted);margin:0 0 18px;font-size:15px}
+.onb label{display:block;font-weight:600;font-size:14px;margin:12px 0 6px}
+.onb input[type=text]{width:100%;box-sizing:border-box;font-size:17px;padding:12px 14px;border:1px solid #E2D3C3;border-radius:12px}
+.onb-choix{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.onb-choix button{padding:14px 0;border:1px solid #E2D3C3;border-radius:14px;background:#fff;font:600 18px inherit;color:var(--ink);cursor:pointer}
+.onb-choix button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.onb-gros{display:grid;gap:10px}
+.onb-gros .btn{min-height:52px;font-size:16px}
+.onb-ok{color:#2E7D4F;font-weight:600;margin:10px 0 0}
+.onb-btns{display:flex;align-items:center;gap:10px;margin-top:24px}
+.onb-btns .spacer{flex:1}
+.onb-btns .btn.primary{min-width:130px;min-height:46px}
+@media (max-width:560px){.onb{padding:16px 12px}.onb-box{padding:22px 18px 18px;border-radius:18px}.onb h2{font-size:23px}}
 .tour{position:fixed;inset:0;z-index:120}
 .tour[hidden]{display:none}
 .tour-hole{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(17,24,39,.62);outline:3px solid #F2A93B;outline-offset:3px;transition:all .28s ease;pointer-events:none}
@@ -1790,6 +1812,22 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
 <div class="sync-toast app-ui" id="sync-toast" role="status" hidden><span id="sync-toast-txt"></span> <button class="btn small primary" id="sync-toast-go" type="button">Actualiser</button></div>
 
 <!-- ================= AIDE : COMMENT MODIFIER MON CV ================= -->
+<div class="onb app-ui" id="onb" hidden>
+  <div class="onb-box" role="dialog" aria-modal="true" aria-labelledby="onb-title">
+    <div class="onb-prog" id="onb-prog" aria-hidden="true"></div>
+    <p class="onb-num" id="onb-num"></p>
+    <h2 id="onb-title"></h2>
+    <p class="onb-why" id="onb-why"></p>
+    <div id="onb-body"></div>
+    <div class="onb-btns">
+      <button class="btn" id="onb-back" type="button">Retour</button>
+      <span class="spacer"></span>
+      <button class="link" id="onb-skip" type="button">Plus tard</button>
+      <button class="btn primary" id="onb-next" type="button">Continuer</button>
+    </div>
+  </div>
+</div>
+
 <div class="tour app-ui" id="tour" hidden>
   <div class="tour-hole" id="tour-hole"></div>
   <div class="tour-tip" id="tour-tip" role="dialog" aria-modal="true" aria-labelledby="tour-title" aria-describedby="tour-text">
@@ -2010,7 +2048,7 @@ const ICON = {
 
 /* ---------- Stockage local ---------- */
 /* Données qui voyagent d'un appareil à l'autre (jamais le code d'accès, ni la vue, ni les réglages propres à l'appareil) */
-const SYNC_KEYS = ["profiles", "currentProfile", "history", "pins", "suivi", "goal", "settings"];
+const SYNC_KEYS = ["profiles", "currentProfile", "history", "pins", "suivi", "goal", "settings", "recherche", "onbFait"];
 let syncSt = null, syncApplying = false, syncTimer = 0;   // état de la synchro (voir « Synchronisation entre appareils »)
 let syncBusy = false, syncPending = false, syncRetry = 0, syncPostponed = 0, syncDlgOpen = false, syncTouched = false, syncLastTry = 0;
 /* Profils en double : deux appareils remplis avant la connexion créent chacun leur profil au même nom.
@@ -3492,7 +3530,10 @@ function renderEntretiens(){
   if(!groups.length){ const c = el("div", "it-card"); c.appendChild(el("p", "", _t("Aucun entretien pour l'instant. Quand un recruteur vous en propose un, ouvrez la candidature et indiquez « J'ai obtenu un entretien » : il apparaîtra ici avec sa préparation."))); box.appendChild(c); return; }
   const tOf = G => new Date((suivi[G.id] || {}).itwAt || 0).getTime() || interviewOf(G);
   const now = Date.now() - 3 * 3600e3;
-  const avenir = groups.filter(G => tOf(G) >= now && !(suivi[G.id] || {}).result).sort((a, b) => tOf(a) - tOf(b));
+  // À venir = date pas encore passée. Un résultat « Sans réponse » (posé par exemple en glissant la carte dans la colonne Résultat)
+  // ne retire pas un entretien futur ; seuls un refus ou une candidature abandonnée l'annulent.
+  const annule = G => ["refus", "abandon"].includes((suivi[G.id] || {}).result);
+  const avenir = groups.filter(G => tOf(G) >= now && !annule(G)).sort((a, b) => tOf(a) - tOf(b));
   const passes = groups.filter(G => !avenir.includes(G)).sort((a, b) => tOf(b) - tOf(a));
   const bloc = (titre, list, past) => {
     if(!list.length) return;
@@ -5995,6 +6036,7 @@ function syncMerge(local, remote){
   const ac = (typeof local.data.accessCode === "string" && local.data.accessCode) || (typeof remote.data.accessCode === "string" && remote.data.accessCode) || "";
   if(ac) out.data.accessCode = ac;
   const goal = P(local, "goal", undefined); put("goal", goal !== undefined ? goal : P(remote, "goal", undefined));
+  ["recherche", "onbFait"].forEach(k => { const v = P(local, k, undefined); put(k, v !== undefined ? v : P(remote, k, undefined)); });
   if(local.data.settings) out.data.settings = local.data.settings; else if(remote.data.settings) out.data.settings = remote.data.settings;
   return out;
 }
@@ -6248,7 +6290,7 @@ function hideGate(){
   if(msgHome) msgHome.parent.insertBefore($("#sync-msg"), msgHome.next);
   $("#sync-go").textContent = _t("Activer la synchronisation");
   $("#gate").hidden = true; document.body.classList.remove("gate-open");
-  if(!store.get("tourSeen", false) && !history.length && !profiles.some(p => str(p.parcours).length >= 80)) setTimeout(() => { if($("#ap").hidden && $("#msg-dlg").hidden && $("#gate").hidden) startTour(); }, 500);
+  if(!store.get("tourSeen", false) && !history.length && !profiles.some(p => str(p.parcours).length >= 80)) setTimeout(() => { if($("#ap").hidden && $("#msg-dlg").hidden && $("#gate").hidden) startAccueil(); }, 500);
 }
 const syncAvailableNow = () => !!(window.crypto && crypto.subtle && crypto.getRandomValues);
 function syncResetForm(){ ["#sync-pw", "#sync-pw2", "#sync-code"].forEach(s => { $(s).value = ""; }); $("#sync-ok").checked = false; $("#sync-new").hidden = true; }
@@ -6449,6 +6491,86 @@ setTimeout(async () => {
     } else if(!store.get("codeInSync", false)){ store.set("codeInSync", true); syncDirty(); }
   }catch(e){}
 }, 1500);
+/* ---------- Accueil personnalisé : 5 questions à la première connexion, puis la visite guidée ----------
+   Chaque réponse sert : nom en haut des CV et « Bonjour Prénom », recherche d'offres pré-remplie, objectif de la semaine,
+   photo (et son usage sur les CV), import du CV de départ. */
+const RECH_KEY = "recherche";
+function preRemplirOffres(){
+  const r = store.get(RECH_KEY, null) || {};
+  if(r.metier && $("#of-mots") && !$("#of-mots").value) $("#of-mots").value = r.metier;
+  if(r.ville && $("#of-lieu") && !$("#of-lieu").value) $("#of-lieu").value = r.ville;
+}
+const ONB = [
+  { id:"nom", titre:_t("Comment vous appelez-vous ?"), why:_t("Votre prénom et votre nom apparaîtront en haut de vos CV.") },
+  { id:"poste", titre:_t("Quel poste cherchez-vous ?"), why:_t("Vos recherches d'offres seront déjà remplies. Vous pourrez toujours chercher autre chose.") },
+  { id:"objectif", titre:_t("Combien de candidatures par semaine ?"), why:_t("C'est votre objectif : ") + BRAND.name + _t(" vous montre où vous en êtes chaque semaine. Vous pourrez le changer.") },
+  { id:"photo", titre:_t("Une photo sur vos CV ?"), why:_t("Elle n'est pas obligatoire en France. Si vous en mettez une, choisissez une photo nette, de face, sur fond neutre.") },
+  { id:"cv", titre:_t("Votre CV actuel"), why:BRAND.name + _t(" part de votre vrai parcours pour écrire tous vos CV. Rien n'est inventé.") }
+];
+let onbI = 0, onbAttente = null;
+function onbNecessaire(){ return !store.get("onbFait", false) && !history.length && !profiles.some(p => str(p.parcours).length >= 80); }
+function startAccueil(){ if(onbNecessaire()) ouvrirOnb(); else startTour(); }
+function ouvrirOnb(){
+  if(document.body.classList.contains("chat-open")) openChat(false);
+  onbI = 0; $("#onb").hidden = false; document.body.classList.add("modal-open"); renderOnb();
+}
+function onbEnregistrer(){
+  const st = ONB[onbI], p = prof();
+  if(st.id === "nom" && p){ const v = $("#onb-nom").value.replace(/\s+/g, " ").trim(); if(v){ p.name = v; saveProfiles(); renderProfiles(); } }
+  if(st.id === "poste"){ const r = { metier:$("#onb-metier").value.trim().slice(0, 100), ville:$("#onb-ville").value.trim().slice(0, 80) }; if(r.metier || r.ville){ store.set(RECH_KEY, r); preRemplirOffres(); } }
+}
+function finOnb(apres){
+  if(onbAttente){ clearInterval(onbAttente); onbAttente = null; }
+  store.set("onbFait", true);
+  $("#onb").hidden = true; document.body.classList.remove("modal-open");
+  try{ renderHistory(); }catch(e){}
+  if(apres === "importer"){ store.set("tourSeen", true); setView("parcours"); setTimeout(pickFile, 150); }
+  else if(apres === "ecrire"){ store.set("tourSeen", true); setView("parcours"); setTimeout(() => { const b = $("#pc-write"); if(b) b.click(); }, 150); }
+  else setTimeout(startTour, 300);
+}
+function renderOnb(){
+  const st = ONB[onbI], p = prof() || {}, body = $("#onb-body");
+  $("#onb-prog").innerHTML = ""; ONB.forEach((x, i) => $("#onb-prog").appendChild(el("span", i <= onbI ? "on" : "")));
+  $("#onb-num").textContent = _t("Question ") + (onbI + 1) + _t(" sur ") + ONB.length;
+  $("#onb-title").textContent = st.titre; $("#onb-why").textContent = st.why;
+  body.innerHTML = "";
+  $("#onb-back").hidden = onbI === 0; $("#onb-skip").hidden = false; $("#onb-next").hidden = false;
+  $("#onb-next").textContent = _t("Continuer");
+  const champ = (id, label, val, ph, ac) => { const l = el("label", "", label); l.htmlFor = id; body.appendChild(l); const i = document.createElement("input"); i.type = "text"; i.id = id; i.value = val || ""; i.placeholder = ph; i.maxLength = 100; if(ac) i.autocomplete = ac; i.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); $("#onb-next").click(); } }); body.appendChild(i); return i; };
+  if(st.id === "nom") champ("onb-nom", _t("Prénom et nom"), p.name, _t("Ex. : Benjamin Martin"), "name");
+  if(st.id === "poste"){ const r = store.get(RECH_KEY, null) || {}; champ("onb-metier", _t("Métier recherché"), r.metier, _t("Ex. : vendeuse, cariste, assistante comptable…")); champ("onb-ville", _t("Ville ou code postal"), r.ville, _t("Ex. : Saintes, 17100"), "address-level2"); }
+  if(st.id === "objectif"){
+    const g = Number(store.get(GOAL_KEY, 5)) || 5, row = el("div", "onb-choix"); row.setAttribute("role", "group"); row.setAttribute("aria-label", _t("Candidatures par semaine"));
+    [3, 5, 10, 15].forEach(n => { const b = el("button", n === g ? "on" : "", String(n)); b.type = "button"; b.setAttribute("aria-pressed", n === g ? "true" : "false"); b.addEventListener("click", () => { store.set(GOAL_KEY, n); renderOnb(); }); row.appendChild(b); });
+    body.appendChild(row);
+  }
+  if(st.id === "photo"){
+    const g = el("div", "onb-gros");
+    if(p.photo){ body.appendChild(el("p", "onb-ok", p.photoCv === false ? _t("Photo enregistrée. Elle n'apparaîtra pas sur vos CV.") : _t("Photo ajoutée : elle apparaîtra sur vos CV."))); }
+    const add = btn(p.photo ? _t("Changer de photo") : _t("Ajouter une photo"), p.photo ? "" : "primary", () => {
+      const avant = p.photo; $("#file-photo").click();
+      if(onbAttente) clearInterval(onbAttente);
+      let n = 0; onbAttente = setInterval(() => { n++; const q = prof() || {}; if(q.photo !== avant || n > 240){ clearInterval(onbAttente); onbAttente = null; if(!$("#onb").hidden && ONB[onbI].id === "photo") renderOnb(); } }, 500);
+    });
+    g.appendChild(add);
+    if(!p.photo) g.appendChild(btn(_t("Pas de photo sur mes CV"), "", () => { const q = prof(); if(q){ q.photoCv = false; saveProfiles(); } onbI++; renderOnb(); }));
+    body.appendChild(g);
+    $("#onb-next").hidden = !p.photo; $("#onb-skip").hidden = !!p.photo;
+  }
+  if(st.id === "cv"){
+    const g = el("div", "onb-gros");
+    g.appendChild(btn(_t("Importer mon CV (PDF, Word ou photo)"), "primary", () => finOnb("importer")));
+    g.appendChild(btn(_t("Je n'ai pas de CV : écrire mon parcours"), "", () => finOnb("ecrire")));
+    body.appendChild(g);
+    $("#onb-next").hidden = true; $("#onb-skip").textContent = _t("Plus tard");
+  } else $("#onb-skip").textContent = _t("Passer");
+  setTimeout(() => { const i = body.querySelector("input"); try{ (i || $("#onb-next")).focus({ preventScroll:true }); }catch(e){} }, 40);
+}
+$("#onb-next").addEventListener("click", () => { onbEnregistrer(); if(onbI < ONB.length - 1){ onbI++; renderOnb(); } else finOnb(); });
+$("#onb-back").addEventListener("click", () => { onbEnregistrer(); if(onbI > 0){ onbI--; renderOnb(); } });
+$("#onb-skip").addEventListener("click", () => { if(ONB[onbI].id === "cv") finOnb(); else { onbI++; renderOnb(); } });
+preRemplirOffres();
+
 const firstVisit = !store.get("tourSeen", false) && !history.length && !profiles.some(p => str(p.parcours).length >= 80);
 
 purgeOld(); renderSettings(); renderProfiles(); renderRetouchesInfo(); setSyncUi(); scalePreview(); syncLangUi(); freeUi();
@@ -6542,7 +6664,7 @@ if(new URLSearchParams(location.search).has("resilier")){
     finally{ setTimeout(() => { $("#otp-renvoi").disabled = false; }, 30000); }
   });
 })();
-if(firstVisit) setTimeout(() => { if($("#ap").hidden && $("#msg-dlg").hidden && $("#gate").hidden) startTour(); }, 700);
+if(firstVisit) setTimeout(() => { if($("#ap").hidden && $("#msg-dlg").hidden && $("#gate").hidden) startAccueil(); }, 700);
 window.__cvx = { renderAll, showTab, cleanHex, linesDiff, purgeOld, setView, resultatsBlock, statusOf, groupsFor }; // utilisé pour les tests
 })();
 </script>
