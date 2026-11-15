@@ -1092,7 +1092,8 @@ body[data-view="home"] .panel .step,body[data-view="compte"] .panel .step,body[d
   .rail-it[aria-current="page"]{background:#3A2340;color:#fff;font-weight:700}
   .rail-it[aria-current="page"] svg{color:#F2A93B}
   .rail-it .badge{margin-left:auto;background:#F2A93B;color:#2A1A2F;border-radius:999px;font-size:11px;font-weight:700;min-width:20px;height:20px;display:grid;place-items:center;padding:0 5px}
-  .rail-acc{margin-top:auto;border-top:1px solid #3A2340;border-radius:0;padding-top:12px;min-height:56px}
+  .rail-acc{margin-top:auto}
+  .rail-acc::before{content:"";position:absolute;left:4px;right:4px;top:-9px;border-top:1px solid #3A2340;pointer-events:none}
   body:not(.rail-off) .app{margin-left:256px}
   body:not(.rail-off) .chat{left:auto}
   body.rail-off .rail{transform:translateX(-100%)}
@@ -3563,10 +3564,26 @@ $("#aide-tour").addEventListener("click", () => { try{ startTour(); }catch(e){} 
 /* ===================== Offres : extrait propre, garder, créer le CV ===================== */
 const TRACKER_RE = /jobviewtrack|optioncarriere|careerjet/i;
 function extraitPropre(t){
-  let x = str(t).replace(/\s+/g, " ").replace(/\.\.\./g, "…").trim(); if(!x) return "";
-  if(/^[a-zà-ÿ]/.test(x)){ const i = x.search(/[.!?…]\s+[A-ZÀ-Ý]/); x = i > 0 && x.length - i > 60 ? x.slice(i + 2).trim() : "…" + x; }
-  if(!/[.!?]$/.test(x)){ const j = Math.max(x.lastIndexOf(". "), x.lastIndexOf("! "), x.lastIndexOf("? ")); x = j > 60 ? x.slice(0, j + 1) : x.replace(/[\s,;:…-]+$/, "") + "…"; }
-  return x.replace(/\s*…\s*/g, "… ").replace(/… $/, "…").trim();
+  // Careerjet renvoie des morceaux de l'annonce séparés par « ... » : on garde des morceaux lisibles, sans début ni fin coupés
+  const brut = str(t).replace(/\s+/g, " ").trim(); if(!brut) return "";
+  const morceaux = [];
+  brut.split(/\s*(?:\.{3}|…)\s*/).forEach(m => {
+    m = m.replace(/^[\s,;:.)\]\-–—•*]+/, "").trim();
+    let coupe = false;
+    if(/^[a-zà-ÿ]/.test(m)){                               // commence au milieu d'une phrase
+      const i = m.search(/[.!?]\s+[A-ZÀ-Ý]/);
+      if(i > 0 && i < 45 && m.length - i > 40) m = m.slice(i + 1).trim();   // bout de phrase court et sans sujet : on passe à la phrase suivante
+      else coupe = true;                                   // sinon on le garde, précédé de « … »
+    }
+    const o = (m.match(/\(/g) || []).length, f = (m.match(/\)/g) || []).length;
+    if(o > f){ const k = m.lastIndexOf("("); m = m.length - k <= 8 ? m + ")" : m.slice(0, k).trim(); }   // « (H/F » → « (H/F) »
+    m = m.replace(/[\s,;:\-–—]+$/, "");
+    if(m.length >= 25 && !morceaux.some(x => x.includes(m) || m.includes(x))) morceaux.push((coupe ? "…" : "") + m);
+  });
+  let out = "";
+  for(const m of morceaux){ if(out && out.length + m.length > 280) break; out += !out ? m : m[0] === "…" ? (/[.!?]$/.test(out) ? " " : "… ") + m.slice(1) : (/[.!?]$/.test(out) ? " " : "… ") + m; }
+  if(!out) return "";
+  return /[.!?)]$/.test(out) ? out : out + "…";
 }
 let OFFRE_CHOISIE = null;
 function renderCOffre(){
@@ -6300,6 +6317,9 @@ function startTour(){
   if(document.body.classList.contains("chat-open")) openChat(false);
   tourBack = document.body.dataset.view || "create";
   tourList = TOUR.filter(st => !(st.desktop && isM()) && !(st.target && st.target[0] === "#step-key" && settings.apiKey));
+  // On ne garde que les étapes dont la zone est visible (ex. « Prêt à postuler ? » sans CV créé) : « Étape x sur y » reste juste
+  tourList = tourList.filter(st => { if(st.view && document.body.dataset.view !== st.view) setView(st.view); return !st.target || !!tourTarget(st); });
+  if(document.body.dataset.view !== tourBack) setView(tourBack);
   tourI = 0; $("#tour").hidden = false; document.body.classList.add("modal-open");
   showTourStep(0);
 }
