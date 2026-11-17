@@ -2860,7 +2860,7 @@ function ofChoisir(o, li){
   const ra = document.querySelector('input[name="mode-cand"][value="annonce"]'); if(ra){ ra.checked = true; applyModeCand(); }
   showEmpty(); setView("create"); setMStep("offre");
   OFFRE_CHOISIE = o; renderCOffre(); status("#status-gen", "", "");
-  setTimeout(() => { try{ $("#offre-url").focus(); }catch(e){} }, 80);
+  setTimeout(() => { try{ $("#offre").focus(); }catch(e){} }, 80);
 }
 function ofCarte(o){
   const li = el("li", "of-item");
@@ -3612,8 +3612,9 @@ function renderCOffre(){
   box.appendChild(el("span", "co", [o.entreprise, o.lieu].filter(Boolean).join(" · ")));
   const ol = el("ol");
   const l1 = el("li"); l1.appendChild(document.createTextNode(_t("Ouvrez l'annonce : "))); const a = el("a", "", _t("ouvrir l'offre ↗")); a.href = lienSur(o.url); a.target = "_blank"; a.rel = "noopener"; l1.appendChild(a); ol.appendChild(l1);
-  ol.appendChild(el("li", "", _t("Copiez l'adresse de la page qui s'ouvre (en haut du navigateur), ou tout le texte de l'annonce.")));
-  ol.appendChild(el("li", "", _t("Collez-la ci-dessous, puis « Continuer ».")));
+  ol.appendChild(el("li", "", _t("Sur la page qui s'ouvre, sélectionnez tout le texte (Ctrl + A, ou Cmd + A sur Mac ; sur téléphone : appui long, puis « Tout sélectionner ») et copiez-le.")));
+  ol.appendChild(el("li", "", _t("Collez-le dans « Texte de l'annonce » ci-dessous, puis « Continuer ».")));
+  box.appendChild(el("p", "hint", _t("Inutile de coller l'adresse d'Optioncarrière : ce site ne se laisse pas lire. Si l'annonce vous renvoie vers le site du recruteur, vous pouvez coller l'adresse de ce site-là.")));
   box.appendChild(ol);
   const x = el("button", "link", _t("Choisir une autre offre")); x.type = "button"; x.addEventListener("click", () => { OFFRE_CHOISIE = null; renderCOffre(); setView("offres"); }); box.appendChild(x);
 }
@@ -5006,7 +5007,7 @@ $("#btn-cnext").addEventListener("click", () => {
   if(modeCand() === "spont"){
     if(!$("#sp-entreprise").value.trim() || !$("#sp-poste").value.trim()){ status("#status-gen", "err", _t("Indiquez l'entreprise et le poste visé.")); return; }
   } else if(!$("#offre-url").value.trim() && $("#offre").value.trim().length < 40){ status("#status-gen", "err", _t("Collez le lien de l'annonce ou son texte.")); $("#offre-url").focus(); return; }
-  else if(TRACKER_RE.test($("#offre-url").value) && $("#offre").value.trim().length < 40){ status("#status-gen", "err", _t("Ce lien d'Optioncarrière ne peut pas être lu. Ouvrez l'annonce, puis collez l'adresse de la page qui s'ouvre ou le texte de l'annonce.")); $("#offre-url").focus(); return; }
+  else if(TRACKER_RE.test($("#offre-url").value) && $("#offre").value.trim().length < 40){ status("#status-gen", "err", _t("Optioncarrière ne se laisse pas lire automatiquement. Sur la page de l'annonce, sélectionnez tout (Ctrl + A, ou Cmd + A sur Mac), copiez, puis collez dans « Texte de l'annonce ».")); $("#offre").focus(); return; }
   status("#status-gen", "", ""); setCStep("options"); window.scrollTo({ top:0 });
 });
 $("#btn-cback").addEventListener("click", () => setCStep("offre"));
