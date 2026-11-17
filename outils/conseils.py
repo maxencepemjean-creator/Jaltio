@@ -221,6 +221,92 @@ ARTICLES = [
 <li>Si le délai annoncé est dépassé, relancez une fois, poliment.</li>
 </ul>
 """},
+{
+"slug": "cv-sans-experience",
+"titre": "CV sans expérience : comment faire son premier CV (étudiant, premier emploi)",
+"court": "CV sans expérience",
+"description": "Étudiant, jeune diplômé, premier emploi : quoi mettre sur un CV sans expérience, dans quel ordre, et comment valoriser stages, jobs, projets et bénévolat.",
+"date": "2026-11-17",
+"intro": "Faire un CV quand on n'a jamais vraiment travaillé donne l'impression de partir d'une page blanche. En réalité, presque tout le monde a quelque chose à montrer : un stage, un job d'été, un projet d'école, du bénévolat, une responsabilité dans un club. Pour un premier emploi, le recruteur ne s'attend pas à une longue carrière. Il cherche des preuves que vous savez apprendre, tenir vos engagements et faire le travail demandé.",
+"corps": """
+<h2>Ce que le recruteur cherche sur un premier CV</h2>
+<p>Face à un candidat sans expérience, le recruteur ne compare pas des années de métier. Il se pose des questions plus simples :</p>
+<ul>
+<li><b>Cette personne comprend-elle le poste ?</b> Votre titre et votre accroche doivent viser l'annonce, pas « tout type d'emploi ».</li>
+<li><b>Est-elle fiable ?</b> Un job tenu tout un été, un engagement associatif sur plusieurs années, un stage mené jusqu'au bout le montrent.</li>
+<li><b>A-t-elle les bases demandées ?</b> Le diplôme, le permis, une langue, un logiciel, la disponibilité.</li>
+<li><b>Peut-elle apprendre vite ?</b> Les projets, les formations suivies seul et les responsabilités prises en disent beaucoup.</li>
+</ul>
+
+<h2>Tout ce qui compte comme expérience</h2>
+<p>« Expérience » ne veut pas dire « CDI ». Faites la liste de tout ce que vous avez fait, puis gardez ce qui a un lien avec le poste visé :</p>
+<ul>
+<li><b>Les stages</b>, y compris les stages d'observation, s'ils sont en rapport avec le métier.</li>
+<li><b>L'alternance et l'apprentissage</b> : c'est une vraie expérience professionnelle, présentez-la comme telle.</li>
+<li><b>Les jobs étudiants et saisonniers</b> : vendanges, restauration rapide, animation, caisse, cueillette, inventaires.</li>
+<li><b>Les petits boulots réguliers</b> : garde d'enfants, soutien scolaire, aide aux devoirs, petits travaux.</li>
+<li><b>Le bénévolat et la vie associative</b> : distribution alimentaire, encadrement d'enfants dans un club, organisation d'un tournoi ou d'une fête.</li>
+<li><b>Les projets d'école</b> : un projet de groupe, un mémoire, une étude de cas, une création, surtout s'il y avait un vrai résultat.</li>
+<li><b>Les projets personnels</b> : un site, une chaîne vidéo, un objet fabriqué, une petite vente en ligne.</li>
+</ul>
+<p>Une seule règle : tout ce qui est écrit doit être vrai et pouvoir être raconté en entretien.</p>
+
+<h2>Dans quel ordre mettre les rubriques</h2>
+<p>Quand l'expérience est mince, c'est souvent la formation qui porte le CV. Un ordre qui fonctionne bien :</p>
+<ol>
+<li><b>Nom, coordonnées</b> (téléphone, adresse mail sérieuse, ville).</li>
+<li><b>Titre</b> : le poste visé, par exemple « Employé polyvalent en restauration » ou « Assistant commercial – premier emploi ».</li>
+<li><b>Accroche</b> : deux ou trois lignes (voir plus bas).</li>
+<li><b>Formation</b> : en haut si votre diplôme est récent ou en lien direct avec le poste. Indiquez l'établissement, l'année, et une ou deux matières ou projets utiles pour le poste.</li>
+<li><b>Expériences</b> : stages, jobs, bénévolat, du plus récent au plus ancien. Vous pouvez séparer « Expériences professionnelles » et « Engagements » si cela rend la lecture plus claire.</li>
+<li><b>Compétences</b> : logiciels, langues avec un niveau honnête, permis, certifications.</li>
+<li><b>Centres d'intérêt</b> : seulement s'ils disent quelque chose d'utile (un sport d'équipe pratiqué en club, un rôle d'encadrement, une passion liée au métier).</li>
+</ol>
+<p>Gardez des titres de rubriques classiques : ils sont mieux lus par les logiciels de recrutement (voir <a href="/conseils/cv-logiciel-recrutement-ats/">CV et logiciels de recrutement</a>).</p>
+
+<h2>Décrire une petite expérience comme une vraie</h2>
+<p>Un job d'été mérite autant de soin qu'un poste en entreprise. Pour chaque ligne :</p>
+<ul>
+<li><b>Commencez par un verbe d'action</b> : accueillir, préparer, encaisser, organiser, encadrer, ranger, conseiller.</li>
+<li><b>Décrivez des missions précises</b> plutôt qu'un intitulé vague.</li>
+<li><b>Ajoutez un repère concret s'il est vrai</b> : la durée, la taille de l'équipe, le nombre d'enfants encadrés, les horaires.</li>
+<li><b>Reprenez les mots de l'annonce</b> quand ils décrivent ce que vous avez réellement fait.</li>
+</ul>
+<div class="modele"><p><b>Avant :</b> Job d'été – Camping – Juillet-août 2025</p>
+<p><b>Après :</b> Agent d'accueil saisonnier – Camping (exemple fictif) – Juillet-août 2025<br>
+– Accueil des vacanciers en français et en anglais, remise des clés et explication des services<br>
+– Encaissement des séjours et tenue de la caisse en fin de journée<br>
+– Réponse au téléphone et aux mails de réservation</p></div>
+
+<h2>Écrire l'accroche quand on débute</h2>
+<p>L'accroche remplace le « résumé de carrière » que vous n'avez pas encore. Elle dit en deux ou trois lignes : ce que vous êtes aujourd'hui, ce que vous apportez au poste, et ce que vous cherchez. Évitez les qualités sans preuve (« dynamique et motivé ») et visez un poste précis.</p>
+<div class="modele"><p>Titulaire d'un BTS Management commercial opérationnel obtenu en 2026, avec deux stages en magasin et un job d'été en caisse. À l'aise avec l'encaissement, la mise en rayon et le conseil client. Disponible immédiatement, y compris le week-end, pour un premier poste de vendeur en grande surface spécialisée.</p></div>
+<p>Changez cette accroche à chaque candidature : elle doit répondre à l'annonce que vous avez sous les yeux. La méthode complète est dans <a href="/conseils/adapter-cv-offre/">Adapter son CV à une offre d'emploi</a>.</p>
+
+<h2>Exemple de CV sans expérience (personne fictive)</h2>
+<div class="modele"><p><b>Léa Dubois</b> – Poitiers – 06 00 00 00 00 – lea.dubois@exemple.fr</p>
+<p><b>Assistante administrative – premier emploi</b></p>
+<p>Diplômée d'un bac pro Assistance à la gestion des organisations et de leurs activités, avec deux stages en entreprise. Rigoureuse sur le classement et la saisie, à l'aise avec le tableur et le traitement de texte. Disponible dès maintenant pour un poste à temps plein.</p>
+<p><b>Formation</b><br>2026 – Bac pro AGORA – Lycée professionnel (exemple fictif), Poitiers</p>
+<p><b>Expériences</b><br>
+2026 – Stage de 6 semaines – Agence immobilière (exemple fictif)<br>
+– Accueil téléphonique, prise de rendez-vous, classement des dossiers clients<br>
+2025 – Stage de 4 semaines – Mairie (exemple fictif)<br>
+– Saisie de courriers, mise à jour d'un tableau de suivi, accueil du public<br>
+Depuis 2024 – Bénévole – Club de handball (exemple fictif)<br>
+– Tenue de la table de marque les jours de match, aide à l'organisation du tournoi annuel</p>
+<p><b>Compétences</b><br>Tableur et traitement de texte · Classement et archivage · Accueil physique et téléphonique · Anglais : niveau scolaire · Permis B</p></div>
+
+<h2>Les erreurs à éviter</h2>
+<ul>
+<li><b>Gonfler ou inventer</b> une expérience : c'est vérifiable, et une seule question en entretien suffit à le voir.</li>
+<li><b>Remplir avec des barres de niveau</b> (« Excel : 4 étoiles sur 5 ») : elles ne veulent rien dire pour le recruteur. Décrivez plutôt ce que vous savez faire.</li>
+<li><b>Écrire « débutant » ou « sans expérience » en titre</b> : présentez le poste visé, pas ce qui vous manque.</li>
+<li><b>Étaler sur deux pages</b> : un premier CV tient sur une page.</li>
+<li><b>Oublier la relecture</b> : une faute se remarque encore plus sur un CV court. Faites relire par quelqu'un d'autre.</li>
+<li><b>Garder une adresse mail fantaisiste</b> : créez une adresse simple avec votre prénom et votre nom.</li>
+</ul>
+"""},
 ]
 
 CSS = """<style>
