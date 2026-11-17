@@ -772,7 +772,6 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 .of-item h3{font-family:var(--display);font-size:16px;line-height:1.25;color:var(--brand);margin:0 0 4px}
 .of-item .of-co{font-size:14px;font-weight:600;color:var(--ink);margin:0}
 .of-item .of-meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--muted);margin:4px 0 8px}
-.of-item .of-ext{font-size:13.5px;line-height:1.45;color:#4A3650;margin:0 0 10px}
 .of-item .of-act{display:flex;flex-wrap:wrap;gap:8px}
 .of-item .of-act .btn{font-size:13.5px;padding:7px 14px;text-decoration:none}
 .of-item.choisie{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand)}
@@ -1510,7 +1509,7 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
         </div>
         <div class="of-row">
           <div><label for="of-contrat">Contrat</label>
-          <select id="of-contrat"><option value="">Tous</option><option value="p">CDI</option><option value="t">CDD</option><option value="c">Intérim, mission</option><option value="i">Stage</option></select></div>
+          <select id="of-contrat"><option value="">Tous</option><option value="p">CDI</option><option value="t">CDD</option><option value="c">Intérim, mission</option><option value="i">Stage</option><option value="alt">Alternance</option></select></div>
           <div><label for="of-tri">Trier par</label>
           <select id="of-tri"><option value="pertinence">Pertinence</option><option value="date">Les plus récentes</option></select></div>
         </div>
@@ -2872,7 +2871,6 @@ function ofCarte(o){
   if(o.salaire) meta.appendChild(el("span", "", o.salaire));
   const age = ofAge(o.date); if(age) meta.appendChild(el("span", "", age));
   li.appendChild(meta);
-  const ex = extraitPropre(o.extrait); if(ex) li.appendChild(el("p", "of-ext", ex));
   const act = el("div", "of-act");
   // Les deux boutons sont de vrais liens ouverts par l'utilisateur : Careerjet rémunère au clic, jamais d'ouverture automatique.
   const voir = el("a", "btn", _t("Voir l'offre ↗")); voir.href = lienSur(o.url); voir.target = "_blank"; voir.rel = "noopener";
@@ -2888,6 +2886,8 @@ async function ofChercher(suite){
   if(!suite){
     const q = { mots:$("#of-mots").value.trim(), lieu:$("#of-lieu").value.trim(), rayon:$("#of-rayon").value, contrat:$("#of-contrat").value, tri:$("#of-tri").value };
     if(!q.mots && !q.lieu){ status("#of-status", "err", _t("Indiquez un métier, des mots-clés ou une ville.")); $("#of-mots").focus(); return; }
+    // Careerjet n'a pas de type « alternance » : on cherche le mot dans l'annonce, tous contrats confondus
+    if(q.contrat === "alt"){ q.contrat = ""; if(!/alternan|apprenti/i.test(q.mots)) q.mots = (q.mots + " alternance").trim(); }
     OF.q = q; OF.page = 1; OF.pages = 0; OF.vus = new Set();
     $("#of-list").innerHTML = ""; $("#of-lieux").hidden = true; $("#of-lieux").innerHTML = "";
   } else OF.page++;
@@ -3602,30 +3602,8 @@ function renderStats(){
 }
 $("#aide-tour").addEventListener("click", () => { try{ startTour(); }catch(e){} });
 
-/* ===================== Offres : extrait propre, garder, créer le CV ===================== */
+/* ===================== Offres : garder, créer le CV ===================== */
 const TRACKER_RE = /jobviewtrack|optioncarriere|careerjet/i;
-function extraitPropre(t){
-  // Careerjet renvoie des morceaux de l'annonce séparés par « ... » : on garde des morceaux lisibles, sans début ni fin coupés
-  const brut = str(t).replace(/\s+/g, " ").trim(); if(!brut) return "";
-  const morceaux = [];
-  brut.split(/\s*(?:\.{3}|…)\s*/).forEach(m => {
-    m = m.replace(/^[\s,;:.)\]\-–—•*]+/, "").trim();
-    let coupe = false;
-    if(/^[a-zà-ÿ]/.test(m)){                               // commence au milieu d'une phrase
-      const i = m.search(/[.!?]\s+[A-ZÀ-Ý]/);
-      if(i > 0 && i < 45 && m.length - i > 40) m = m.slice(i + 1).trim();   // bout de phrase court et sans sujet : on passe à la phrase suivante
-      else coupe = true;                                   // sinon on le garde, précédé de « … »
-    }
-    const o = (m.match(/\(/g) || []).length, f = (m.match(/\)/g) || []).length;
-    if(o > f){ const k = m.lastIndexOf("("); m = m.length - k <= 8 ? m + ")" : m.slice(0, k).trim(); }   // « (H/F » → « (H/F) »
-    m = m.replace(/[\s,;:\-–—]+$/, "");
-    if(m.length >= 25 && !morceaux.some(x => x.includes(m) || m.includes(x))) morceaux.push((coupe ? "…" : "") + m);
-  });
-  let out = "";
-  for(const m of morceaux){ if(out && out.length + m.length > 280) break; out += !out ? m : m[0] === "…" ? (/[.!?]$/.test(out) ? " " : "… ") + m.slice(1) : (/[.!?]$/.test(out) ? " " : "… ") + m; }
-  if(!out) return "";
-  return /[.!?)]$/.test(out) ? out : out + "…";
-}
 let OFFRE_CHOISIE = null;
 function renderCOffre(){
   const box = $("#c-offre"); if(!box) return; box.innerHTML = ""; box.hidden = !OFFRE_CHOISIE; if(!OFFRE_CHOISIE) return;
@@ -3645,7 +3623,7 @@ function garderOffre(o, b){
   if(!deja){
     const id = uid();
     history.unshift({ id, groupId:id, profileId:p.id, date:Date.now(), poste:o.titre || _t("Offre"), entreprise:o.entreprise || "", lieu:o.lieu || "", manual:true, kept:true,
-      data:{ offre_resume:extraitPropre(o.extrait), alertes:[], _userMsg:{ url:o.url } }, cvHtml:"", lettreHtml:"" });
+      data:{ offre_resume:"", alertes:[], _userMsg:{ url:o.url } }, cvHtml:"", lettreHtml:"" });
     saveHistory(); renderHistory();
   }
   b.textContent = _t("Gardée ✓"); b.disabled = true; b.classList.add("of-kept");
