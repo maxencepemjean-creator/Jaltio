@@ -233,8 +233,8 @@ body[data-view="aide"] [data-v]:not([data-v~="aide"]){display:none!important}
   body.m{padding-bottom:calc(84px + env(safe-area-inset-bottom, 0px))}
   body.m .views{display:none}
   body.m .fab{display:none!important}
-  body.m .tabbar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:70;background:#fff;border-top:1px solid var(--line);padding:6px 4px calc(10px + env(safe-area-inset-bottom, 0px))}
-  .tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font:600 11px 'Figtree',system-ui,sans-serif;white-space:nowrap;color:var(--muted);min-height:52px;position:relative;cursor:pointer}
+  body.m .tabbar{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:70;background:#fff;border-top:1px solid var(--line);padding:6px 2px calc(10px + env(safe-area-inset-bottom, 0px))}
+  .tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font:600 10.5px 'Figtree',system-ui,sans-serif;letter-spacing:-.1px;white-space:nowrap;color:var(--muted);min-height:52px;position:relative;cursor:pointer}
   .tabbar button svg{width:24px;height:24px}
   .tabbar button[aria-selected="true"]{color:var(--brand);font-weight:700}
   .tabbar .badge{position:absolute;top:0;left:calc(50% + 6px);background:var(--danger);color:#fff;border-radius:999px;font-size:11px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 4px}
@@ -1341,6 +1341,7 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
   <div class="rail-top"><span class="rail-brand"><svg width="32" height="32" viewBox="0 0 72 72" aria-hidden="true"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg><span data-brand>Jaltio</span></span><button class="rail-tog" type="button" data-railtoggle aria-label="Masquer le menu" title="Masquer le menu (⌘ S / Ctrl S)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button></div>
   <button class="rail-it" type="button" data-goto="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span>Accueil</span></button>
   <button class="rail-it" type="button" data-goto="offres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span>Offres</span></button>
+  <button class="rail-it" type="button" data-goto="create"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></svg><span>Créer un CV</span></button>
   <button class="rail-it" type="button" data-goto="apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg><span>Candidatures</span><span class="badge" id="rail-badge" hidden></span></button>
   <button class="rail-it" type="button" data-goto="entretiens"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg><span>Entretiens</span></button>
   <button class="rail-it" type="button" data-goto="documents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg><span>Mes documents</span></button>
@@ -1543,10 +1544,9 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
     <div class="c-offre c-in" id="c-offre" hidden></div>
     <div id="bloc-annonce" class="c-in">
     <label for="offre-url">Lien de l'annonce</label>
-    <input type="text" id="offre-url" inputmode="url" placeholder="https://www.hellowork.com/fr-fr/emplois/…">
-    <p class="hint">LinkedIn et Indeed bloquent souvent la lecture : collez alors le texte ci-dessous.</p>
-    <p class="or">ou</p>
-    <label for="offre">Texte de l'annonce</label>
+    <input type="text" id="offre-url" inputmode="url" placeholder="https://www.hellowork.com/fr-fr/emplois/…" aria-required="true">
+    <p class="hint">Obligatoire : il vous permet de rouvrir l'annonce depuis vos candidatures. LinkedIn et Indeed bloquent souvent la lecture : collez alors aussi le texte ci-dessous.</p>
+    <label for="offre">Texte de l'annonce <span style="font-weight:400;color:var(--muted)">(si le lien ne se lit pas)</span></label>
     <textarea id="offre" rows="5" placeholder="Copiez tout le texte de l'annonce (intitulé, missions, profil recherché…) et collez-le ici."></textarea>
     </div>
     <button class="btn primary big c-in c-next" id="btn-cnext" type="button">Continuer</button>
@@ -1598,9 +1598,9 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
       <label><input type="color" id="cp-dark" value="#0C1B33"> Bandeau</label>
       <label><input type="color" id="cp-accent" value="#2A62D4"> Titres</label>
     </div>
-    <button class="btn primary big dl-main" id="btn-pdf-cv">Télécharger le CV (PDF)</button>
+    <button class="btn primary big dl-main" id="btn-pdf-cv" data-doc="cv">Télécharger mon CV (PDF)</button>
     <div class="dl-more">
-      <button class="btn small" id="btn-pdf-lettre">Lettre (PDF)</button>
+      <button class="btn small" id="btn-pdf-lettre" data-doc="lettre">Lettre (PDF)</button>
       <button class="btn small" id="btn-copy-lettre">Copier la lettre</button>
     </div>
     <p class="hint">Le PDF se télécharge directement, sur une seule page.</p>
@@ -1761,9 +1761,10 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
 <nav class="tabbar app-ui" id="tabbar" aria-label="Navigation principale">
   <button type="button" data-tab="home" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Accueil</button>
   <button type="button" data-tab="offres" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Offres</button>
+  <button type="button" data-tab="create" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></svg>Créer</button>
   <button type="button" data-tab="apps" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>Candidatures<span class="badge" id="tab-badge" hidden></span></button>
   <button type="button" data-tab="coach" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Coach</button>
-  <button type="button" data-tab="parcours" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>Mon parcours</button>
+  <button type="button" data-tab="parcours" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>Parcours</button>
 </nav>
 <div class="edit-bar app-ui" id="edit-bar" role="toolbar" aria-label="Mise en forme du texte">
   <div class="eb-tools" id="eb-tools">
@@ -2163,6 +2164,9 @@ let profiles = store.get("profiles", []);
 let currentProfileId = store.get("currentProfile", null);
 let history = store.get("history", []);
 let currentHistId = null;
+/* Outil de création : le dernier CV travaillé, pour le retrouver depuis le menu après être allé sur une autre page */
+let createId = store.get("createId", null), genDepuisCreate = false;
+function setCreateId(id){ createId = id || null; store.set("createId", createId); }
 { const r = fusionProfilsDoubles(profiles, history);
   if(r.changed){
     profiles = r.P; history = r.H; if(r.map[currentProfileId]) currentProfileId = r.map[currentProfileId];
@@ -2790,6 +2794,7 @@ function storeResult(p, out, keep){
   else if(h.companyColor) h.look = { src:"company", pal: palFromColor(h.companyColor) };
   else { const recent = new Set(history.slice(0, 3).map(x => x.look && x.look.src).filter(Boolean)); h.look = randomLook(recent); }
   currentHistId = h.id;
+  if(genDepuisCreate || document.body.dataset.view === "create"){ setCreateId(h.id); genDepuisCreate = false; }
   h.chat = (keep && keep.chat) || [];
   renderAll(out, keep);
   h.cvHtml = $("#page-cv").innerHTML; h.lettreHtml = $("#page-lettre").innerHTML;
@@ -2801,6 +2806,7 @@ function storeResult(p, out, keep){
   if(document.body.classList.contains("chat-open")) renderChat();
 }
 function busy(on, label){
+  if(!on) genDepuisCreate = false;
   ["#btn-generate", "#btn-regen"].forEach(id => { $(id).disabled = on; });
   $("#btn-generate").textContent = on && label === "gen" ? BRAND.name + _t(" rédige…") : _t("Créer mon CV adapté");
   $("#btn-regen").textContent = on && label === "regen" ? _t("Correction en cours…") : regenLabel();
@@ -2856,7 +2862,7 @@ function ofAge(iso){
 function ofChoisir(o, li){
   document.querySelectorAll(".of-item.choisie").forEach(x => x.classList.remove("choisie")); if(li) li.classList.add("choisie");
   if(document.body.classList.contains("chat-open")) openChat(false);
-  $("#offre").value = ""; $("#offre-url").value = ""; clearSpont();
+  $("#offre").value = ""; $("#offre-url").value = ""; clearSpont(); setCreateId(null);
   const ra = document.querySelector('input[name="mode-cand"][value="annonce"]'); if(ra){ ra.checked = true; applyModeCand(); }
   showEmpty(); setView("create"); setMStep("offre");
   OFFRE_CHOISIE = o; renderCOffre(); status("#status-gen", "", "");
@@ -2937,7 +2943,7 @@ $("#btn-generate").addEventListener("click", async () => {
   const spEnt = $("#sp-entreprise").value.trim(), spPoste = $("#sp-poste").value.trim();
   let spSite = $("#sp-site").value.trim();
   if(spont && spSite && !/^https?:\/\//i.test(spSite)) spSite = "https://" + spSite;
-  const url = spont ? spSite : $("#offre-url").value.trim();
+  const url = spont ? spSite : urlAnnonce();
   const offre = spont ? "" : $("#offre").value.trim();
   const wantLettre = $("#opt-lettre").checked && !isFree();
   if(!settings.apiKey && !(await recoverCode(""))){ status("#status-gen", "err", _t("Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation ».")); $("#step-key").hidden = false; return; }
@@ -2946,7 +2952,8 @@ $("#btn-generate").addEventListener("click", async () => {
   if(spont && spPoste.length < 2){ status("#status-gen", "err", _t("Indiquez le poste visé.")); $("#sp-poste").focus(); return; }
   if(spont && spSite && !URL_RE.test(spSite)){ status("#status-gen", "err", _t("Le site de l'entreprise doit être une adresse web (https://…).")); $("#sp-site").focus(); return; }
   if(!spont && url && !URL_RE.test(url)){ status("#status-gen", "err", _t("Le lien de l'annonce doit commencer par https://")); $("#offre-url").focus(); return; }
-  if(!spont && !url && offre.length < 80){ status("#status-gen", "err", _t("Indiquez le lien de l'annonce ou collez son texte complet.")); $("#offre-url").focus(); return; }
+  if(!spont && !url){ status("#status-gen", "err", MSG_LIEN()); $("#offre-url").focus(); return; }
+  if(!spont && TRACKER_RE.test(url) && offre.length < 80){ status("#status-gen", "err", MSG_TRACKER()); $("#offre").focus(); return; }
 
   const offreH = !spont && offre.length >= 80 ? hashTxt(offre) : "";
   const force = forceNew; forceNew = false; $("#btn-force-new").hidden = true;
@@ -2960,7 +2967,7 @@ $("#btn-generate").addEventListener("click", async () => {
       return;
     }
   }
-  busy(true, "gen");
+  busy(true, "gen"); genDepuisCreate = document.body.dataset.view === "create";
   status("#status-gen", "info", (spont ? _t("Recherche sur l'entreprise puis rédaction") : url && offre.length < 80 ? _t("Lecture de l'annonce puis rédaction") : _t("Rédaction en cours")) + _t(", comptez 30 à 90 secondes. Ne fermez pas la page."));
   try{
     const offreBloc = spont ? "" : offre.length >= 80 ? offre + (url ? "\n(Lien de l'annonce, inutile de le lire : " + url + ")" : "")
@@ -3045,7 +3052,7 @@ async function doRegen(target, rq){
                       : "Rédige la lettre de motivation (champ \"lettre\") en tenant compte des remarques. Ne touche pas au CV : recopie \"cv\" à l'identique.",
     both: "Applique les remarques au CV et à la lettre de motivation" + (hadLettre ? "." : " (rédige la lettre, elle n'existe pas encore).")
   }[target];
-  busy(true, "regen");
+  busy(true, "regen"); genDepuisCreate = document.body.dataset.view === "create";
   status("#status-gen", "info", BRAND.name + " applique vos remarques, comptez 20 à 60 secondes.");
   try{
     const userMsg = "<parcours_du_candidat>\n" + parcours + "\n</parcours_du_candidat>\n\n<offre_d_emploi>\n" + (str(h.data.offre_resume) || h.poste + " — " + h.entreprise) +
@@ -3255,6 +3262,11 @@ function showTab(t){
   activeTab = t;
   document.querySelectorAll("#tabs .tab").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
   $("#holder-cv").hidden = t !== "cv"; $("#holder-lettre").hidden = t !== "lettre";
+  // Gros bouton = le document affiché ; l'autre passe en dessous
+  const surLettre = t === "lettre";
+  const dlMain = $("#btn-pdf-cv"), dlAutre = $("#btn-pdf-lettre");
+  dlMain.dataset.doc = surLettre ? "lettre" : "cv"; dlMain.textContent = surLettre ? _t("Télécharger ma lettre (PDF)") : _t("Télécharger mon CV (PDF)");
+  dlAutre.dataset.doc = surLettre ? "cv" : "lettre"; dlAutre.textContent = surLettre ? _t("CV (PDF)") : _t("Lettre (PDF)");
   // Correction par défaut = le document affiché (« Les deux » seulement si la personne le choisit) : une seule génération
   const rc = document.querySelector('input[name="cible"][value="' + (t === "lettre" ? "lettre" : "cv") + '"]');
   if(rc && !rc.checked){ rc.checked = true; $("#btn-regen").textContent = regenLabel(); }
@@ -3605,6 +3617,14 @@ $("#aide-tour").addEventListener("click", () => { try{ startTour(); }catch(e){} 
 /* ===================== Offres : garder, créer le CV ===================== */
 const TRACKER_RE = /jobviewtrack|optioncarriere|careerjet/i;
 let OFFRE_CHOISIE = null;
+/* Lien de l'annonce, obligatoire : celui saisi, sinon celui de l'offre choisie dans la recherche (il servira à « Voir l'annonce ») */
+function urlAnnonce(){
+  const u = $("#offre-url").value.trim();
+  if(u) return u;
+  return OFFRE_CHOISIE && URL_RE.test(String(OFFRE_CHOISIE.url || "").trim()) ? String(OFFRE_CHOISIE.url).trim() : "";
+}
+const MSG_LIEN = () => _t("Indiquez le lien de l'annonce, même si vous collez son texte : il vous permettra de la rouvrir depuis vos candidatures.");
+const MSG_TRACKER = () => _t("Optioncarrière ne se laisse pas lire automatiquement. Sur la page de l'annonce, sélectionnez tout (Ctrl + A, ou Cmd + A sur Mac), copiez, puis collez dans « Texte de l'annonce ».");
 function renderCOffre(){
   const box = $("#c-offre"); if(!box) return; box.innerHTML = ""; box.hidden = !OFFRE_CHOISIE; if(!OFFRE_CHOISIE) return;
   const o = OFFRE_CHOISIE;
@@ -3877,8 +3897,8 @@ async function downloadPDF(which){
 }
 
 window.addEventListener("afterprint", printDone);
-$("#btn-pdf-cv").addEventListener("click", () => downloadPDF("cv"));
-$("#btn-pdf-lettre").addEventListener("click", () => downloadPDF("lettre"));
+$("#btn-pdf-cv").addEventListener("click", e => downloadPDF(e.currentTarget.dataset.doc || "cv"));
+$("#btn-pdf-lettre").addEventListener("click", e => downloadPDF(e.currentTarget.dataset.doc || "lettre"));
 
 $("#btn-copy-lettre").addEventListener("click", async () => {
   const p = $("#page-lettre"); const parts = [];
@@ -4731,6 +4751,7 @@ function openApply(){
   document.querySelector('input[name="ap-src"][value="' + (h ? "gen" : "own") + '"]').checked = true;
   const ap = (h && h.apply) || {}, d = h ? h.data : {};
   $("#ap-url").value = ap.url ?? ((d._userMsg && d._userMsg.url) || "");
+  const apUrlLbl = document.querySelector('label[for="ap-url"]'); if(apUrlLbl) apUrlLbl.textContent = d._userMsg && d._userMsg.spont ? _t("Site de l'entreprise") : _t("Lien de l'annonce");
   $("#ap-email").value = ap.email ?? ((d.candidature && str(d.candidature.email)) || "");
   delete $("#ap-pages").dataset.zoom; document.querySelectorAll(".ap-zoom").forEach(x => { x.textContent = _t("Agrandir"); });
   $("#ap").hidden = false; document.body.classList.add("modal-open");
@@ -4769,6 +4790,7 @@ const VUES_LARGES = ["home", "offres", "compte", "entretiens", "documents", "sta
 function setView(v){
   if(v === "profile") v = "parcours";
   if(!VUES.includes(v)) v = "home";
+  if(document.body.dataset.view === "create" && v !== "create"){ const c = curHist(); setCreateId(c && !c.manual ? c.id : null); }
   delete document.body.dataset.open;
   if(v !== document.body.dataset.view) moRun("mo-run");
   const cur = curHist();
@@ -4795,11 +4817,20 @@ function setView(v){
   if(typeof syncTabbar === "function") syncTabbar();
 }
 document.querySelectorAll(".view-tab").forEach(t => t.addEventListener("click", () => setView(t.dataset.view)));
-document.addEventListener("click", e => { const g = e.target.closest("[data-goto]"); if(g){ e.preventDefault(); if(document.body.classList.contains("chat-open")) openChat(false); setView(g.dataset.goto); if(document.body.classList.contains("rail-peek")) document.body.classList.remove("rail-peek"); } });
+document.addEventListener("click", e => { const g = e.target.closest("[data-goto]"); if(g){ e.preventDefault(); if(document.body.classList.contains("chat-open")) openChat(false); if(g.dataset.goto === "create") reprendreCreation(); else setView(g.dataset.goto); if(document.body.classList.contains("rail-peek")) document.body.classList.remove("rail-peek"); } });
+/* Onglet « Créer un CV » : on retrouve le CV en cours (ou le formulaire en cours de saisie), pas une page vide */
+function reprendreCreation(){
+  if(document.body.dataset.view !== "create"){
+    const h = createId && history.find(x => x.id === createId && !x.manual);
+    if(h){ if(currentHistId !== h.id){ if(currentHistId) saveCurrentEdits(); openHist(h); } }
+    else if(currentHistId){ saveCurrentEdits(); showEmpty(); }
+  }
+  setView("create");
+}
 /* Nouveau CV : formulaire vide, étape Offre */
 function nouveauCv(){
   if(document.body.classList.contains("chat-open")) openChat(false);
-  OFFRE_CHOISIE = null; if(typeof renderCOffre === "function") renderCOffre();
+  OFFRE_CHOISIE = null; if(typeof renderCOffre === "function") renderCOffre(); setCreateId(null);
   $("#offre").value = ""; $("#offre-url").value = ""; clearSpont();
   const ra = document.querySelector('input[name="mode-cand"][value="annonce"]'); if(ra){ ra.checked = true; applyModeCand(); }
   showEmpty(); setView("create"); setMStep("offre");
@@ -5006,8 +5037,8 @@ function renderCOptions(){
 $("#btn-cnext").addEventListener("click", () => {
   if(modeCand() === "spont"){
     if(!$("#sp-entreprise").value.trim() || !$("#sp-poste").value.trim()){ status("#status-gen", "err", _t("Indiquez l'entreprise et le poste visé.")); return; }
-  } else if(!$("#offre-url").value.trim() && $("#offre").value.trim().length < 40){ status("#status-gen", "err", _t("Collez le lien de l'annonce ou son texte.")); $("#offre-url").focus(); return; }
-  else if(TRACKER_RE.test($("#offre-url").value) && $("#offre").value.trim().length < 40){ status("#status-gen", "err", _t("Optioncarrière ne se laisse pas lire automatiquement. Sur la page de l'annonce, sélectionnez tout (Ctrl + A, ou Cmd + A sur Mac), copiez, puis collez dans « Texte de l'annonce ».")); $("#offre").focus(); return; }
+  } else if(!urlAnnonce()){ status("#status-gen", "err", MSG_LIEN()); $("#offre-url").focus(); return; }
+  else if(TRACKER_RE.test(urlAnnonce()) && $("#offre").value.trim().length < 40){ status("#status-gen", "err", MSG_TRACKER()); $("#offre").focus(); return; }
   status("#status-gen", "", ""); setCStep("options"); window.scrollTo({ top:0 });
 });
 $("#btn-cback").addEventListener("click", () => setCStep("offre"));
@@ -5037,7 +5068,7 @@ document.querySelectorAll("#tabbar button").forEach(b => b.addEventListener("cli
   const t = b.dataset.tab;
   if(t === "coach"){ openChat(!document.body.classList.contains("chat-open")); syncTabbar(); return; }
   if(document.body.classList.contains("chat-open")) openChat(false);
-  setView(t); window.scrollTo({ top:0 });
+  if(t === "create") reprendreCreation(); else setView(t); window.scrollTo({ top:0 });
 }));
 function syncTabbar(){
   const chat = document.body.classList.contains("chat-open"), v = document.body.dataset.view;
@@ -5595,7 +5626,8 @@ function renderFicheView(){
     act.appendChild(btn(_t("Préparer ma candidature"), "primary", () => { openHist(latest); openApply(); }));
   }
   act.appendChild(btn(_t("Demander à ") + BRAND.name, "", () => openChat(true)));
-  if(URL_RE.test(url)){ const a = el("a", "btn", _t("Voir l'annonce ↗")); a.href = url; a.target = "_blank"; a.rel = "noopener"; act.appendChild(a); }
+  const spontanee = !!(d._userMsg && d._userMsg.spont);   // pas d'annonce : le lien éventuel est le site de l'entreprise
+  if(URL_RE.test(url) && !spontanee){ const a = el("a", "btn", _t("Voir l'annonce ↗")); a.href = url; a.target = "_blank"; a.rel = "noopener"; act.appendChild(a); }
   head.appendChild(act);
   const sub = latest.manual ? "suivi" : (document.body.dataset.sub || "cv");
   const seg = el("div", "fv-seg"); seg.setAttribute("role", "tablist"); seg.setAttribute("aria-label", _t("Contenu de la candidature"));
@@ -6324,7 +6356,7 @@ const TOUR = [
     mtext:_t("<p>En bas de l'écran :</p><ul><li><b>Accueil</b> : ce qu'il y a à faire, et « Nouveau CV ».</li><li><b>Offres</b> : chercher une offre d'emploi.</li><li><b>Candidatures</b> : le suivi de vos envois.</li><li><b>Coach</b> : vos questions.</li><li><b>Mon parcours</b> : votre CV de départ.</li></ul>") },
   { view:"create", target:["#step-key"], title:_t("Votre code d'accès"), text:_t("<p>Saisissez ici le code d'accès qu'on vous a donné, puis « Enregistrer ». Il reste sur cet appareil.</p>") },
   { view:"parcours", target:["#step-parcours"], title:_t("Votre parcours"), text:_t("<p>Tout commence ici. Importez votre CV actuel (PDF, Word ou une simple photo), ou racontez votre parcours à l'écrit ou à voix haute.</p><p>") + BRAND.name + _t(" n'invente rien : il part uniquement de ce que vous lui donnez.</p>") },
-  { view:"create", target:["#step-offre"], title:_t("L'offre d'emploi"), text:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b> (Hellowork, France Travail, Indeed…) ou son <b>texte</b>, puis cliquez sur <b>« Créer mon CV adapté »</b>.</p><p>Comptez 30 secondes à 1 minute.</p>"), mtext:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b> ou son <b>texte</b>, puis touchez <b>« Créer mon CV adapté »</b> (30 secondes à 1 minute).</p><p>Votre CV s'affiche ensuite : touchez <b>« Je veux changer quelque chose »</b> pour le faire corriger, à l'écrit ou à la voix, ou <b>« C'est parfait, je l'envoie »</b>.</p>") },
+  { view:"create", target:["#step-offre"], title:_t("L'offre d'emploi"), text:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b> (Hellowork, France Travail, Indeed…), et son <b>texte</b> si le lien ne se lit pas, puis cliquez sur <b>« Créer mon CV adapté »</b>.</p><p>Comptez 30 secondes à 1 minute.</p>"), mtext:_t("<p>Pour chaque offre, collez le <b>lien de l'annonce</b>, et son <b>texte</b> si le lien ne se lit pas, puis touchez <b>« Créer mon CV adapté »</b> (30 secondes à 1 minute).</p><p>Votre CV s'affiche ensuite : touchez <b>« Je veux changer quelque chose »</b> pour le faire corriger, à l'écrit ou à la voix, ou <b>« C'est parfait, je l'envoie »</b>.</p>") },
   { view:"create", target:["#preview"], desktop:true, sample:true, title:_t("Votre CV et votre lettre"), text:_t("<ul><li>Pour corriger un mot, <b>cliquez directement dans le texte</b>. Une barre apparaît en bas pour la police, la taille et la couleur.</li><li>Cliquez ensuite sur <b>« Enregistrer mes retouches »</b>.</li><li>Pour un changement plus important, écrivez ce qui ne va pas dans « Que voulez-vous corriger ? ».</li><li>Les anciennes versions restent dans « Revenir à une version précédente ».</li></ul>") },
   { view:"apps", target:["#rail [data-goto=apps]", "#tabbar [data-tab=apps]"], title:_t("Mes candidatures"), text:_t("<p>Chaque CV créé y est rangé. Vous indiquez quand vous l'avez envoyé : ") + BRAND.name + _t(" vous rappelle de relancer au bout d'une semaine, vous aide à préparer l'entretien, et peut imprimer le récapitulatif de vos démarches pour France Travail.</p><p>Vos CV et vos lettres sont aussi rangés dans « Mes documents ».</p>") },
   { view:"create", target:["#fab", "#tabbar [data-tab=coach]"], title:_t("Votre coach"), text:_t("<p>Posez-lui toutes vos questions : « mon accroche est-elle bonne ? », « que répondre si on me demande mes défauts ? ». Il peut appliquer ses conseils à votre CV ou à votre lettre en un clic.</p>") },
