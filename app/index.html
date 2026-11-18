@@ -851,6 +851,10 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 #profile-name:hover{border-bottom-color:var(--line)}
 #profile-name:focus{outline:none;box-shadow:none;border-bottom-color:var(--brand)}
 #profile-name::placeholder{color:#A891AC;font-weight:600}
+.who-age{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:8px}
+.who-age label[for=profile-naissance]{font-size:13px;color:var(--muted);font-weight:600}
+.who-age input[type=date]{width:auto;min-width:150px;padding:6px 8px}
+.who-age .age-txt{font-weight:700}
 .who-actions{display:flex;flex-wrap:wrap;gap:2px 14px;margin-top:5px;align-items:center}
 .link{background:none;border:0;padding:2px 0;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer}
 .link:hover{color:var(--brand);text-decoration:underline}
@@ -1384,6 +1388,12 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
     <div class="who-main">
       <label for="profile-name" class="sr-only">Votre prénom et nom</label>
       <input type="text" id="profile-name" placeholder="Votre prénom et nom" autocomplete="name">
+      <div class="who-age">
+        <label for="profile-naissance">Date de naissance</label>
+        <input type="date" id="profile-naissance" autocomplete="bday">
+        <span class="age-txt" id="age-txt" aria-live="polite"></span>
+        <label class="check" id="age-cv-row" hidden><input type="checkbox" id="age-cv"> Âge sur mes CV</label>
+      </div>
       <div class="who-actions">
         <button class="link" id="btn-photo-crop" type="button" hidden>Recadrer la photo</button>
         <button class="link" id="btn-photo-del" type="button" hidden>Retirer la photo</button>
@@ -2221,6 +2231,7 @@ function renderProfiles(){
   const pcr = $("#photo-cv-row"); if(pcr){ pcr.hidden = !p.photo; $("#photo-cv").checked = p.photoCv !== false; }
   else { th.hidden = true; th.removeAttribute("src"); $("#btn-photo-del").hidden = true; }
   $("#btn-photo-crop").hidden = !p.photo;
+  if(typeof renderAge === "function") renderAge();
   $("#btn-del-profile").hidden = profiles.length < 2;
   renderAvatar();
   renderHistory();
@@ -2234,6 +2245,39 @@ const saveProfileFields = debounce(() => {
 }, 400);
 $("#profile-name").addEventListener("input", saveProfileFields);
 $("#profile-parcours").addEventListener("input", saveProfileFields);
+/* Âge : on garde la date de naissance (l'âge reste juste d'une année sur l'autre). Sur le CV seulement si la personne le choisit. */
+const isoJour = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+function ageDe(p){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(str(p && p.naissance)); if(!m) return null;
+  const n = new Date(+m[1], +m[2] - 1, +m[3]), t = new Date();
+  let a = t.getFullYear() - n.getFullYear(); if(t.getMonth() < n.getMonth() || (t.getMonth() === n.getMonth() && t.getDate() < n.getDate())) a--;
+  return a >= 14 && a <= 80 ? a : null;
+}
+function ageLabel(a, lang){
+  if(lang === "en") return a + " years old";
+  if(lang === "es") return a + " años";
+  if(lang === "ru"){ const d = a % 10, c = a % 100; return a + (d === 1 && c !== 11 ? " год" : d >= 2 && d <= 4 && (c < 12 || c > 14) ? " года" : " лет"); }
+  return a + " ans";
+}
+function renderAge(){
+  const p = prof(); if(!p) return;
+  const i = $("#profile-naissance"); if(document.activeElement !== i) i.value = str(p.naissance);
+  i.max = isoJour(new Date()); i.min = (new Date().getFullYear() - 80) + "-01-01";
+  const a = ageDe(p);
+  $("#age-txt").textContent = a !== null ? ageLabel(a, "fr") : "";
+  $("#age-cv-row").hidden = a === null; $("#age-cv").checked = !!p.ageCv;
+}
+function setNaissance(v){
+  const p = prof(); if(!p) return true;
+  v = str(v).trim();
+  if(!v){ delete p.naissance; delete p.ageCv; saveProfiles(); renderAge(); return true; }
+  const ok = ageDe({ naissance:v }) !== null;
+  if(ok){ p.naissance = v; saveProfiles(); }
+  renderAge();
+  return ok;
+}
+$("#profile-naissance").addEventListener("change", e => { if(!setNaissance(e.target.value)) status("#pc-status", "err", _t("Cette date de naissance ne semble pas juste : vérifiez l'année.")); });
+$("#age-cv").addEventListener("change", e => { const p = prof(); if(!p) return; p.ageCv = e.target.checked; saveProfiles(); status("#pc-status", "ok", e.target.checked ? _t("Votre âge sera indiqué sur vos prochains CV.") : _t("Vos prochains CV seront sans âge.")); });
 $("#profile-select").addEventListener("change", e => { if(!e.target.value) return; currentProfileId = e.target.value; saveProfiles(); renderProfiles(); showEmpty(); });
 $("#btn-new-profile").addEventListener("click", () => {
   const p = { id:uid(), name:"", parcours:"", photo:"" }; profiles.push(p); currentProfileId = p.id; saveProfiles(); renderProfiles(); showEmpty();
@@ -3111,7 +3155,8 @@ function renderCV(out){
 
   const side = el("aside", "cv-side");
   if(prof().photo && prof().photoCv !== false){ const im = el("img", "photo" + (prof().photoShape === "square" ? " sq" : "")); im.src = prof().photo; im.alt = ""; side.appendChild(im); }
-  const contacts = [c.adresse, c.ville, c.telephone, c.email, c.linkedin, c.permis].map(plain).filter(Boolean)
+  const age = prof().ageCv ? ageDe(prof()) : null;
+  const contacts = [age !== null ? ageLabel(age, DOC_LANG) : "", c.adresse, c.ville, c.telephone, c.email, c.linkedin, c.permis].map(plain).filter(Boolean)
     .filter((x, i, a) => a.indexOf(x) === i);
   if(contacts.length){ const s = section(D().contact, "contact-blk"); const ul = el("ul", "list side-contact"); contacts.forEach(x => ul.appendChild(el("li", "", x))); s.appendChild(ul); side.appendChild(s); }
   [[D().certs, cv.certifications], [D().skills, cv.competences], [D().langs, cv.langues], [D().interests, cv.interets]].forEach(([t, l]) => {
@@ -6513,6 +6558,7 @@ function preRemplirOffres(){
 }
 const ONB = [
   { id:"nom", titre:_t("Comment vous appelez-vous ?"), why:_t("Votre prénom et votre nom apparaîtront en haut de vos CV.") },
+  { id:"age", titre:_t("Quelle est votre date de naissance ?"), why:_t("Elle sert à calculer votre âge. En France, l'âge n'est pas obligatoire sur un CV : il n'y apparaît que si vous le choisissez.") },
   { id:"poste", titre:_t("Quel poste cherchez-vous ?"), why:_t("Vos recherches d'offres seront déjà remplies. Vous pourrez toujours chercher autre chose.") },
   { id:"objectif", titre:_t("Combien de candidatures par semaine ?"), why:_t("C'est votre objectif : ") + BRAND.name + _t(" vous montre où vous en êtes chaque semaine. Vous pourrez le changer.") },
   { id:"photo", titre:_t("Une photo sur vos CV ?"), why:_t("Elle n'est pas obligatoire en France. Si vous en mettez une, choisissez une photo nette, de face, sur fond neutre.") },
@@ -6528,6 +6574,7 @@ function ouvrirOnb(){
 function onbEnregistrer(){
   const st = ONB[onbI], p = prof();
   if(st.id === "nom" && p){ const v = $("#onb-nom").value.replace(/\s+/g, " ").trim(); if(v){ p.name = v; saveProfiles(); renderProfiles(); } }
+  if(st.id === "age"){ const v = $("#onb-naissance").value; if(v && ageDe({ naissance:v }) === null){ $("#onb-why").textContent = _t("Cette date de naissance ne semble pas juste : vérifiez l'année."); return false; } if(v && setNaissance(v)){ const q = prof(); if(q){ q.ageCv = $("#onb-agecv").checked; saveProfiles(); renderAge(); } } }
   if(st.id === "poste"){ const r = { metier:$("#onb-metier").value.trim().slice(0, 100), ville:$("#onb-ville").value.trim().slice(0, 80) }; if(r.metier || r.ville){ store.set(RECH_KEY, r); preRemplirOffres(); } }
 }
 function finOnb(apres){
@@ -6549,6 +6596,11 @@ function renderOnb(){
   $("#onb-next").textContent = _t("Continuer");
   const champ = (id, label, val, ph, ac) => { const l = el("label", "", label); l.htmlFor = id; body.appendChild(l); const i = document.createElement("input"); i.type = "text"; i.id = id; i.value = val || ""; i.placeholder = ph; i.maxLength = 100; if(ac) i.autocomplete = ac; i.addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); $("#onb-next").click(); } }); body.appendChild(i); return i; };
   if(st.id === "nom") champ("onb-nom", _t("Prénom et nom"), p.name, _t("Ex. : Benjamin Martin"), "name");
+  if(st.id === "age"){
+    const l = el("label", "", _t("Date de naissance")); l.htmlFor = "onb-naissance"; body.appendChild(l);
+    const i = document.createElement("input"); i.type = "date"; i.id = "onb-naissance"; i.value = str(p.naissance); i.autocomplete = "bday"; i.max = isoJour(new Date()); i.min = (new Date().getFullYear() - 80) + "-01-01"; body.appendChild(i);
+    const ck = el("label", "check"); const cb = document.createElement("input"); cb.type = "checkbox"; cb.id = "onb-agecv"; cb.checked = !!p.ageCv; ck.appendChild(cb); ck.appendChild(document.createTextNode(" " + _t("Afficher mon âge sur mes CV"))); ck.style.marginTop = "12px"; body.appendChild(ck);
+  }
   if(st.id === "poste"){ const r = store.get(RECH_KEY, null) || {}; champ("onb-metier", _t("Métier recherché"), r.metier, _t("Ex. : vendeuse, cariste, assistante comptable…")); champ("onb-ville", _t("Ville ou code postal"), r.ville, _t("Ex. : Saintes, 17100"), "address-level2"); }
   if(st.id === "objectif"){
     const g = Number(store.get(GOAL_KEY, 5)) || 5, row = el("div", "onb-choix"); row.setAttribute("role", "group"); row.setAttribute("aria-label", _t("Candidatures par semaine"));
@@ -6577,7 +6629,7 @@ function renderOnb(){
   } else $("#onb-skip").textContent = _t("Passer");
   setTimeout(() => { const i = body.querySelector("input"); try{ (i || $("#onb-next")).focus({ preventScroll:true }); }catch(e){} }, 40);
 }
-$("#onb-next").addEventListener("click", () => { onbEnregistrer(); if(onbI < ONB.length - 1){ onbI++; renderOnb(); } else finOnb(); });
+$("#onb-next").addEventListener("click", () => { if(onbEnregistrer() === false) return; if(onbI < ONB.length - 1){ onbI++; renderOnb(); } else finOnb(); });
 $("#onb-back").addEventListener("click", () => { onbEnregistrer(); if(onbI > 0){ onbI--; renderOnb(); } });
 $("#onb-skip").addEventListener("click", () => { if(ONB[onbI].id === "cv") finOnb(); else { onbI++; renderOnb(); } });
 preRemplirOffres();
