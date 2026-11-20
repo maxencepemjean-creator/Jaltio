@@ -307,6 +307,78 @@ Depuis 2024 – Bénévole – Club de handball (exemple fictif)<br>
 <li><b>Garder une adresse mail fantaisiste</b> : créez une adresse simple avec votre prénom et votre nom.</li>
 </ul>
 """},
+{
+"slug": "trou-dans-le-cv",
+"titre": "Trou dans le CV : comment présenter et expliquer une période sans emploi",
+"court": "Trou dans le CV",
+"description": "Chômage, santé, enfants, voyage, reconversion : comment présenter une période sans emploi sur votre CV et l'expliquer sereinement en entretien, avec exemples.",
+"date": "2026-11-20",
+"intro": "Une période sans emploi sur un CV inquiète souvent plus le candidat que le recruteur. Ce qui gêne un recruteur, ce n'est pas le trou lui-même, c'est de ne pas comprendre ce qui s'est passé. Une ligne honnête sur le CV et une réponse courte et préparée pour l'entretien suffisent dans la plupart des cas. Voici comment faire, quelle que soit la raison.",
+"corps": """
+<h2>Ce qui inquiète vraiment le recruteur</h2>
+<p>Devant un CV avec une interruption, le recruteur se pose surtout trois questions :</p>
+<ul>
+<li><b>Que s'est-il passé ?</b> Un trou sans explication laisse la place à toutes les suppositions, souvent pires que la réalité.</li>
+<li><b>La personne est-elle disponible maintenant ?</b> Il veut savoir si la situation qui a causé la pause est derrière vous.</li>
+<li><b>Ses compétences sont-elles à jour ?</b> Surtout dans les métiers où les outils changent vite.</li>
+</ul>
+<p>Votre objectif est donc simple : répondre à ces trois questions avant qu'il ne les pose, sans vous justifier à l'excès.</p>
+
+<h2>Faut-il le faire apparaître sur le CV ?</h2>
+<p>Pour une courte interruption entre deux postes, rien n'oblige à ajouter une ligne : indiquer les années plutôt que les mois (« 2022 – 2024 ») est une présentation courante. Pour une période plus longue, mieux vaut la nommer que la cacher.</p>
+<ul>
+<li><b>Ne trafiquez pas les dates</b> : les dates d'un poste se vérifient facilement (certificat de travail, appel à un ancien employeur), et une incohérence découverte coûte plus cher qu'un trou expliqué.</li>
+<li><b>Gardez le même format de dates partout</b> : passer des mois aux années uniquement autour du trou se remarque.</li>
+<li><b>Ajoutez une ligne courte et neutre</b> dans vos expériences, au bon endroit chronologique, si la période est longue ou si vous y avez fait quelque chose d'utile.</li>
+</ul>
+<div class="modele"><p>2024 – 2025 – Congé parental<br>
+2023 – Recherche d'emploi et formation en ligne à la comptabilité (exemple fictif)<br>
+2022 – 2023 – Projet personnel : voyage de huit mois en Amérique du Sud, pratique quotidienne de l'espagnol</p></div>
+
+<h2>Quoi écrire selon la raison</h2>
+<h3>Recherche d'emploi après un licenciement ou une fin de contrat</h3>
+<p>C'est la situation la plus fréquente et la plus facile à comprendre. Mettez en avant ce que vous avez fait pendant cette période : une formation, une certification, des missions courtes, du bénévolat. Si vous n'avez rien de particulier à ajouter, une ligne « Recherche d'emploi » suffit.</p>
+<h3>Raisons de santé</h3>
+<p>Vous pouvez écrire simplement « Pause pour raisons personnelles » ou « Interruption pour raisons de santé ». Inutile d'entrer dans les détails médicaux, sur le CV comme en entretien. L'important est de pouvoir dire que vous êtes aujourd'hui disponible pour le poste.</p>
+<h3>Enfants ou proche à accompagner</h3>
+<p>« Congé parental » ou « Accompagnement d'un proche » sont des intitulés clairs et respectés. Si vous avez gardé un pied dans le métier (lectures, formation, activité associative), ajoutez-le en une ligne.</p>
+<h3>Voyage, année sabbatique</h3>
+<p>Présentez-le comme un projet, avec ce qu'il vous a apporté de concret pour le poste : une langue pratiquée, de l'autonomie, une organisation logistique, un travail sur place. Restez sobre : une ligne, pas un carnet de voyage.</p>
+<h3>Reconversion ou formation</h3>
+<p>Ce n'est pas un trou, c'est une étape. Placez la formation dans la rubrique « Formation » avec son intitulé exact et l'organisme, et reliez-la au poste visé dans votre accroche.</p>
+<h3>Création d'entreprise ou activité indépendante</h3>
+<p>Même si le projet s'est arrêté, c'est une expérience à part entière. Décrivez-la comme un poste : votre rôle, vos missions, ce que vous avez appris (prospection, gestion, relation client).</p>
+
+<h2>Remplir la période avec ce que vous avez vraiment fait</h2>
+<p>Beaucoup de personnes ont fait plus qu'elles ne le pensent pendant une pause. Faites la liste, puis gardez ce qui sert le poste visé :</p>
+<ul>
+<li><b>Formations</b> : en ligne, en centre, certifiantes ou non, y compris celles suivies seul.</li>
+<li><b>Missions courtes</b> : intérim, CDD, extras, dépannage chez un ancien employeur.</li>
+<li><b>Bénévolat</b> : trésorerie d'une association, encadrement, organisation d'événements.</li>
+<li><b>Projets personnels</b> : un site créé, des travaux menés, une petite activité de vente.</li>
+<li><b>Langues et outils</b> : un logiciel appris, un niveau de langue progressé.</li>
+</ul>
+<p>Une seule règle : tout ce qui est écrit doit être vrai et pouvoir être raconté en entretien.</p>
+
+<h2>Préparer la réponse pour l'entretien</h2>
+<p>Si la question vient, elle sera du type « Que s'est-il passé entre 2023 et 2024 ? ». Préparez une réponse de trois phrases, dans cet ordre :</p>
+<ol>
+<li><b>Le fait</b>, dit simplement et sans vous excuser.</li>
+<li><b>Ce que vous en avez retiré</b> ou ce que vous avez fait pendant cette période.</li>
+<li><b>Le retour au présent</b> : pourquoi vous êtes prêt aujourd'hui et pourquoi ce poste.</li>
+</ol>
+<div class="modele"><p><b>Exemple (personne fictive) :</b> « Après la fermeture du magasin où je travaillais, j'ai pris le temps de chercher un poste qui me corresponde vraiment. J'en ai profité pour suivre une formation à la gestion des stocks et j'ai fait plusieurs missions d'intérim en logistique. Aujourd'hui, je cherche un poste stable de préparateur de commandes, et votre entrepôt correspond exactement à ce que je veux faire. »</p></div>
+<p>Dites-la à voix haute plusieurs fois avant l'entretien : une réponse fluide montre que le sujet est réglé pour vous. Pour les autres questions classiques, voir <a href="/conseils/preparer-entretien-embauche/">Préparer un entretien d'embauche</a>.</p>
+
+<h2>Les erreurs à éviter</h2>
+<ul>
+<li><b>Inventer un poste ou allonger un contrat</b> pour boucher le trou : c'est vérifiable, et la confiance ne se rattrape pas.</li>
+<li><b>Se justifier longuement</b> : plus l'explication est longue, plus elle attire l'attention.</li>
+<li><b>Critiquer un ancien employeur</b> pour expliquer un départ, même si la situation était difficile.</li>
+<li><b>Laisser un trou de plusieurs années sans un mot</b> : le recruteur imagine le pire, ou passe au CV suivant.</li>
+<li><b>Utiliser le même CV pour toutes les offres</b> : selon le poste, ce que vous avez fait pendant la pause n'aura pas le même poids. Adaptez la ligne et l'accroche à chaque annonce (voir <a href="/conseils/adapter-cv-offre/">Adapter son CV à une offre d'emploi</a>).</li>
+</ul>
+"""},
 ]
 
 CSS = """<style>
