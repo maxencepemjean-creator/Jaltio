@@ -379,6 +379,99 @@ Depuis 2024 – Bénévole – Club de handball (exemple fictif)<br>
 <li><b>Utiliser le même CV pour toutes les offres</b> : selon le poste, ce que vous avez fait pendant la pause n'aura pas le même poids. Adaptez la ligne et l'accroche à chaque annonce (voir <a href="/conseils/adapter-cv-offre/">Adapter son CV à une offre d'emploi</a>).</li>
 </ul>
 """},
+{
+"slug": "cv-reconversion-professionnelle",
+"titre": "CV de reconversion professionnelle : comment l'adapter à votre nouveau métier",
+"court": "CV de reconversion",
+"description": "Reconversion professionnelle : comment construire un CV tourné vers votre nouveau métier, valoriser vos compétences transférables et présenter votre formation.",
+"date": "2026-11-24",
+"intro": "Changer de métier oblige à revoir son CV en profondeur. Un CV classique raconte un parcours dans l'ordre ; un CV de reconversion doit d'abord montrer où vous allez, puis prouver que votre passé vous y prépare. Le recruteur ne cherche pas quelqu'un qui a déjà tout fait dans le nouveau métier. Il veut comprendre votre projet, vérifier que vous avez les bases et voir ce que votre expérience passée apporte en plus.",
+"corps": """
+<h2>Ce que le recruteur se demande devant un CV de reconversion</h2>
+<p>Face à un parcours qui change de direction, le recruteur se pose surtout quatre questions :</p>
+<ul>
+<li><b>Le projet est-il sérieux ?</b> Une formation suivie, un stage, des démarches concrètes montrent que ce n'est pas un coup de tête.</li>
+<li><b>La personne a-t-elle les bases du nouveau métier ?</b> Un diplôme, une certification, des outils maîtrisés, une première pratique.</li>
+<li><b>Qu'apporte son ancien métier ?</b> Souvent, c'est là que se trouve votre vraie différence avec un jeune diplômé.</li>
+<li><b>Sait-elle ce qui l'attend ?</b> Les conditions du poste, le niveau de départ, parfois le salaire.</li>
+</ul>
+<p>Votre CV doit répondre à ces questions dès la première lecture, sans attendre la lettre ou l'entretien.</p>
+
+<h2>Mettre le nouveau métier en haut du CV</h2>
+<p>Le titre du CV, c'est le poste que vous visez, pas celui que vous quittez. « Comptable en reconversion vers le développement web » attire l'œil sur le passé ; « Développeuse web junior » dit clairement ce que vous cherchez.</p>
+<p>Juste en dessous, l'accroche fait le lien entre les deux mondes en deux ou trois lignes :</p>
+<ul>
+<li>le nouveau métier visé ;</li>
+<li>la formation ou la pratique qui vous y prépare ;</li>
+<li>ce que votre ancien métier vous apporte pour ce poste ;</li>
+<li>votre disponibilité, si elle compte.</li>
+</ul>
+<div class="modele"><p><b>Exemple d'accroche (personne fictive) :</b> Aide-soignante pendant huit ans, je me forme au métier de secrétaire médicale (formation en cours, fin prévue en juin). Habituée à l'accueil des patients, à la confidentialité et au vocabulaire médical, je recherche un premier poste de secrétaire médicale en cabinet ou en clinique.</p></div>
+
+<h2>Choisir le bon ordre des rubriques</h2>
+<p>Dans une reconversion, l'ordre chronologique strict met en avant ce qui intéresse le moins le recruteur. Un ordre qui fonctionne mieux :</p>
+<ol>
+<li><b>Titre et accroche</b> tournés vers le nouveau métier.</li>
+<li><b>Compétences</b> liées au poste visé, regroupées par thème (voir plus bas).</li>
+<li><b>Formation</b> : la formation de reconversion en premier, avec son intitulé exact, l'organisme, les dates et, si c'est le cas, le stage ou le projet de fin de formation.</li>
+<li><b>Expériences en lien avec le nouveau métier</b> : stage, missions, bénévolat, projets.</li>
+<li><b>Parcours précédent</b> : vos anciens postes, résumés et réécrits sous l'angle du poste visé.</li>
+</ol>
+<p>Gardez des intitulés de rubriques classiques (« Compétences », « Formation », « Expérience professionnelle ») : les logiciels de recrutement les reconnaissent mieux (voir <a href="/conseils/cv-logiciel-recrutement-ats/">CV et logiciels de recrutement</a>).</p>
+
+<h2>Repérer vos compétences transférables</h2>
+<p>Une compétence transférable, c'est quelque chose que vous savez faire dans votre ancien métier et qui sert aussi dans le nouveau. Pour les trouver :</p>
+<ol>
+<li>Prenez trois ou quatre annonces du métier visé et soulignez les missions et compétences demandées.</li>
+<li>Pour chacune, cherchez une situation réelle de votre parcours où vous l'avez déjà pratiquée, même dans un autre contexte.</li>
+<li>Gardez seulement celles que vous pouvez raconter avec un exemple précis en entretien.</li>
+</ol>
+<p>Quelques exemples de passerelles fréquentes :</p>
+<ul>
+<li><b>Vente ou commerce</b> : relation client, négociation, gestion des réclamations, objectifs à atteindre.</li>
+<li><b>Restauration ou hôtellerie</b> : travail sous pression, organisation d'un service, gestion des stocks, accueil.</li>
+<li><b>Soin et accompagnement</b> : écoute, confidentialité, rigueur dans les protocoles, travail en équipe.</li>
+<li><b>Bâtiment ou industrie</b> : lecture de plans, respect des consignes de sécurité, contrôle qualité, maintenance.</li>
+<li><b>Enseignement ou animation</b> : expliquer simplement, préparer un support, animer un groupe.</li>
+</ul>
+<p>Regroupez ensuite ces compétences par thème dans la rubrique « Compétences », plutôt qu'en une longue liste de qualités sans preuve.</p>
+
+<h2>Réécrire vos anciens postes</h2>
+<p>Vous ne cachez pas votre passé : vous le racontez autrement. Pour chaque ancien poste :</p>
+<ul>
+<li><b>Gardez l'intitulé réel</b>, l'entreprise et les dates : ce sont des faits vérifiables.</li>
+<li><b>Mettez en premier les missions utiles</b> pour le nouveau métier.</li>
+<li><b>Raccourcissez le reste</b> : une ou deux lignes suffisent pour ce qui n'a aucun rapport.</li>
+<li><b>Reprenez le vocabulaire du nouveau métier</b>, quand il décrit vraiment ce que vous faisiez.</li>
+</ul>
+<div class="modele"><p><b>Avant :</b> Responsable de rayon – Supermarché (exemple fictif) – 2016 – 2025<br>
+– Gestion du rayon fruits et légumes, commandes, mise en rayon, encadrement de l'équipe</p>
+<p><b>Après, pour un poste d'assistant logistique :</b> Responsable de rayon – Supermarché (exemple fictif) – 2016 – 2025<br>
+– Passage des commandes fournisseurs et suivi des livraisons<br>
+– Gestion des stocks et des dates de péremption, inventaires mensuels<br>
+– Organisation du planning d'une équipe de quatre personnes</p></div>
+<p>Les faits n'ont pas changé ; seul l'angle a changé.</p>
+
+<h2>Montrer que le projet est concret</h2>
+<p>Ce qui rassure le plus un recruteur, ce sont les preuves que vous avez déjà mis un pied dans le nouveau métier. Indiquez sur le CV, si vous les avez :</p>
+<ul>
+<li><b>La formation</b> suivie ou en cours, avec la date de fin prévue.</li>
+<li><b>Un stage</b> ou une période d'immersion en entreprise, décrite comme une vraie expérience.</li>
+<li><b>Des projets réalisés</b> pendant la formation ou seul : un site, un dossier, une réalisation, avec un lien si c'est en ligne.</li>
+<li><b>Du bénévolat</b> en lien avec le nouveau métier.</li>
+<li><b>Des outils ou logiciels</b> du métier que vous savez utiliser.</li>
+</ul>
+<p>Pas besoin de raconter tout le cheminement sur le CV. Le « pourquoi » de votre reconversion se dit dans la lettre de motivation et en entretien, en quelques phrases positives et tournées vers le nouveau métier, sans critiquer l'ancien.</p>
+
+<h2>Les erreurs à éviter</h2>
+<ul>
+<li><b>Garder l'ancien titre en haut du CV</b> : le recruteur vous classe dans votre ancien métier.</li>
+<li><b>Effacer des années d'expérience</b> : un grand vide pose plus de questions qu'une ligne courte (voir <a href="/conseils/trou-dans-le-cv/">Trou dans le CV</a>).</li>
+<li><b>Exagérer votre niveau</b> dans le nouveau métier : un test ou une question technique suffit à le voir.</li>
+<li><b>Utiliser le même CV pour toutes les annonces</b> : les compétences transférables à mettre en avant changent d'un poste à l'autre. La méthode est dans <a href="/conseils/adapter-cv-offre/">Adapter son CV à une offre d'emploi</a>.</li>
+<li><b>Dépasser une page</b> pour un premier poste dans le nouveau métier, sauf si l'annonce demande un parcours détaillé.</li>
+</ul>
+"""},
 ]
 
 CSS = """<style>
