@@ -43,11 +43,12 @@
 <tr><th>Donnée</th><th>Qui peut la lire</th></tr>
 <tr><td>Vos documents enregistrés : parcours, CV, lettres, candidatures, photo et date de naissance éventuelles</td><td><b>Vous seul.</b> Ils sont chiffrés dans votre navigateur (AES-GCM) avec une clé tirée de votre mot de passe, avant tout envoi. Ils sont aussi gardés dans votre navigateur.</td></tr>
 <tr><td>Votre mot de passe</td><td><b>Personne.</b> Il ne quitte jamais votre navigateur.</td></tr>
+<tr><td>Votre code de secours (mot de passe oublié)</td><td><b>Vous seul.</b> Il est créé dans votre navigateur. Pour vous l'envoyer par e-mail, il passe une fois par notre relais et notre serveur d'envoi d'e-mails, sans y être enregistré. Nous gardons seulement une empreinte d'un jeton tiré de ce code et la clé de vos données chiffrée avec ce code : sans le code, nous ne pouvons pas l'ouvrir.</td></tr>
 <tr><td>Votre e-mail sur nos serveurs</td><td>Votre compte est identifié par une empreinte de l'e-mail (SHA-256), qui reste une donnée personnelle. Pour l'offre Free seulement, l'adresse est aussi gardée en clair pour vous envoyer le code de validation.</td></tr>
 <tr><td><b>Ce que vous envoyez pour une génération</b> : CV, offre, demandes au coach</td><td><b>Transmis en clair</b> à notre relais technique (Cloudflare), puis à Anthropic, le temps du traitement. Notre relais n'enregistre pas ce contenu.</td></tr>
 <tr><td>Votre e-mail et vos données de paiement</td><td>Stripe (paiement). Nous voyons votre nom et votre e-mail dans notre espace Stripe, jamais vos numéros de carte.</td></tr>
 </table></div>
-<p>Conséquence : si vous oubliez votre mot de passe, nous ne pouvons pas récupérer vos documents enregistrés.</p>
+<p>Conséquence : si vous oubliez votre mot de passe, seul votre code de secours permet d'en choisir un nouveau. Si vous perdez les deux, nous ne pouvons pas récupérer vos documents enregistrés.</p>
 
 <h2>Quelles données, pourquoi, et pendant combien de temps</h2>
 <div class="table-wrap"><table>

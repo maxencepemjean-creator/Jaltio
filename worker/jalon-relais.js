@@ -1,4 +1,4 @@
-// Relais Jaltio (Cloudflare Worker) — version du 26/11/2026 (rétractation en ligne, lettre retirée côté serveur en Free)
+// Relais Jaltio (Cloudflare Worker) — version du 26/11/2026 (rétractation en ligne, lettre retirée côté serveur en Free, code de secours)
 //
 // 1) Relais Claude : garde la clé Anthropic côté serveur ; le navigateur n'envoie qu'un code d'accès
 //    (code testeur du secret CODES, ou code d'abonné créé automatiquement après un paiement Stripe).
@@ -27,6 +27,8 @@
 //   (facultatif) OFFRES_WEBHOOK = adresse du workflow n8n de recherche d'offres ; par défaut OFFRES_DEFAUT ci-dessous
 //   (facultatif) MAILS_FREE_WEBHOOK = adresse du workflow n8n des e-mails Free ; par défaut MAILS_FREE_DEFAUT ci-dessous
 //   Base D1 : exécuter une fois worker/migration-2026-11-26.sql (table retractations : fonction de rétractation en ligne, art. L221-21)
+//   Base D1 : exécuter une fois worker/migration-2026-11-26-secours.sql (code de secours : mot de passe oublié)
+//   Workflow n8n « [JLT] 05 » : gérer aussi le type « secours » (e-mail contenant le code de secours du compte)
 //   Workflow n8n « [JLT] 05 - E-mails clients » : gérer les types « retractation » (accusé de réception au client) et « retractation_admin » (alerte à contact@jaltio.fr)
 
 const ORIGINES = ["https://maxencepemjean-creator.github.io", "https://jaltio.fr", "https://www.jaltio.fr", "https://jaltio.pages.dev"];   // jaltio.pages.dev : adresse de test Cloudflare Pages
@@ -60,6 +62,8 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
   free_ip:  [5, 86400],                // inscriptions Free (nouvelles adresses), par adresse IP (hachée) et par jour
   free_ip_h:[6, 3600],                 // demandes d'inscription Free (nouvelles ou déjà connues), par adresse IP et par heure
   retract:  [5, 3600],                 // déclarations de rétractation en ligne, par adresse IP (hachée) et par heure
+  echecs_r: [5, 3600],                 // codes de secours faux, par identifiant et par heure
+  mail_r:   [3, 86400],                // e-mails du code de secours, par identifiant et par jour
   offres:   [60, 3600],                // recherches d'offres (Careerjet), par code d'accès et par heure
   offres_ip:[120, 3600],               // recherches d'offres, par adresse IP (hachée) et par heure
   free_jour:[20, 86400],               // inscriptions Free nouvelles, tous visiteurs confondus, par jour (garde-fou de coût ; 200 avant le 07/11)
@@ -196,6 +200,20 @@ async function verifierAuth(env, id, auth, row) {
   return "ok";
 }
 
+// Code de secours (mot de passe oublié) : le navigateur chiffre la clé des données avec une clé tirée du code de secours.
+// Le serveur garde l'empreinte du jeton tiré de ce code et l'enveloppe chiffrée ; il ne connaît ni le code, ni la clé.
+async function verifierSecours(env, id, rauth, row) {
+  const [max, fenetre] = LIMITES.echecs_r;
+  if ((await lire(env, "echec_r:" + id, fenetre)) >= max) return "bloque";
+  if (!row.r_auth || !RE_ID.test(rauth || "") || !egal(await sha256hex(rauth), row.r_auth)) {
+    await compter(env, "echec_r:" + id, fenetre);
+    return "refuse";
+  }
+  return "ok";
+}
+const enveloppeValide = b => RE_B64.test(b.rsalt || "") && b.rsalt.length === 24 && RE_ID.test(b.rauth || "")
+  && RE_B64.test(b.riv || "") && b.riv.length === 16 && RE_B64.test(b.renv || "") && b.renv.length < 400;
+
 async function synchro(request, env, origin, chemin) {
   if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
   if (!env.DB) return erreur(503, "La synchronisation n'est pas encore configurée côté serveur.", origin);
@@ -217,7 +235,7 @@ async function synchro(request, env, origin, chemin) {
   const row = await env.DB.prepare("SELECT * FROM sync WHERE id = ?1").bind(b.id).first();
 
   if (chemin === "/sync/meta") {
-    return reponse(row ? { exists: true, salt: row.salt, version: row.version, updated: row.updated } : { exists: false }, 200, origin);
+    return reponse(row ? { exists: true, salt: row.salt, version: row.version, updated: row.updated, secours: !!row.r_auth, rsalt: row.r_salt || null } : { exists: false }, 200, origin);
   }
 
   if (chemin === "/sync/get") {
@@ -265,6 +283,51 @@ async function synchro(request, env, origin, chemin) {
     if (ch && row.code_h !== ch) await env.DB.prepare("UPDATE sync SET code_h = ?1 WHERE id = ?2").bind(ch, b.id).run();
     await lierCompte(env, b.id, (request.headers.get("x-jalon-code") || "").trim());
     return reponse({ version: row.version + 1, updated: t }, 200, origin);
+  }
+
+  // Pose (ou remplace) l'enveloppe du code de secours ; si l'e-mail est fourni et correspond au compte, le code est envoyé par e-mail
+  if (chemin === "/sync/secours-pose") {
+    if (!row) return erreur(404, "Aucun compte pour cet identifiant.", origin);
+    const a = await verifierAuth(env, b.id, b.auth, row);
+    if (a === "bloque") return erreur(429, "Trop d'essais. Réessayez dans 15 minutes.", origin);
+    if (a !== "ok") return erreur(401, "Identifiant ou mot de passe incorrect.", origin);
+    if (!enveloppeValide(b)) return erreur(400, "Code de secours invalide.", origin);
+    await env.DB.prepare("UPDATE sync SET r_salt = ?1, r_auth = ?2, r_iv = ?3, r_env = ?4 WHERE id = ?5")
+      .bind(b.rsalt, await sha256hex(b.rauth), b.riv, b.renv, b.id).run();
+    let envoye = false;
+    const email = String(b.email || "").trim().toLowerCase(), code = String(b.code || "");
+    if (email && /^[A-Z0-9]{4}(-[A-Z0-9]{4}){4}$/.test(code) && (await sha256hex("jalon-sync-v1|" + email)) === b.id
+        && (await sous_limite(env, "mail_r:" + b.id, LIMITES.mail_r)))
+      envoye = await envoyerMail(env, { type: "secours", email, code });   // le code n'est jamais enregistré
+    return reponse({ ok: true, envoye }, 200, origin);
+  }
+
+  // Mot de passe oublié, étape 1 : avec le jeton tiré du code de secours, on récupère l'enveloppe et les données chiffrées
+  if (chemin === "/sync/secours-get") {
+    if (!row || !row.r_auth) return erreur(404, "Aucun code de secours n'est enregistré pour ce compte.", origin);
+    const a = await verifierSecours(env, b.id, b.rauth, row);
+    if (a === "bloque") return erreur(429, "Trop d'essais. Réessayez dans une heure.", origin);
+    if (a !== "ok") return erreur(401, "Adresse e-mail ou code de secours incorrect.", origin);
+    return reponse({ riv: row.r_iv, renv: row.r_env, iv: row.iv, ct: row.ct, version: row.version }, 200, origin);
+  }
+
+  // Mot de passe oublié, étape 2 : nouveau mot de passe (nouveau jeton, nouveau sel, données rechiffrées, nouvelle enveloppe)
+  if (chemin === "/sync/secours-reset") {
+    if (!row || !row.r_auth) return erreur(404, "Aucun code de secours n'est enregistré pour ce compte.", origin);
+    const a = await verifierSecours(env, b.id, b.rauth, row);
+    if (a === "bloque") return erreur(429, "Trop d'essais. Réessayez dans une heure.", origin);
+    if (a !== "ok") return erreur(401, "Adresse e-mail ou code de secours incorrect.", origin);
+    if (!RE_ID.test(b.auth || "") || !RE_B64.test(b.salt || "") || b.salt.length !== 24) return erreur(400, "Nouveau mot de passe invalide.", origin);
+    if (!RE_B64.test(b.iv || "") || b.iv.length !== 16 || !RE_B64.test(b.ct || "") || b.ct.length > MAX_BODY - 2000) return erreur(400, "Bloc invalide.", origin);
+    if (!RE_B64.test(b.riv || "") || b.riv.length !== 16 || !RE_B64.test(b.renv || "") || b.renv.length >= 400) return erreur(400, "Enveloppe invalide.", origin);
+    if (b.baseVersion !== row.version) return erreur(409, "Vos données ont changé entre-temps. Recommencez.", origin, { conflict: true });
+    const t = maintenant();
+    const r = await env.DB.prepare(
+      "UPDATE sync SET auth = ?1, salt = ?2, iv = ?3, ct = ?4, r_iv = ?5, r_env = ?6, version = version + 1, updated = ?7, accessed = ?7, size = ?8 WHERE id = ?9 AND version = ?10"
+    ).bind(await sha256hex(b.auth), b.salt, b.iv, b.ct, b.riv, b.renv, t, b.ct.length, b.id, row.version).run();
+    if (!r.meta || r.meta.changes !== 1) return erreur(409, "Vos données ont changé entre-temps. Recommencez.", origin, { conflict: true });
+    await env.DB.prepare("DELETE FROM rate WHERE k LIKE ?1").bind("echec:" + b.id + ":%").run();   // le blocage « mot de passe faux » est levé
+    return reponse({ ok: true, version: row.version + 1 }, 200, origin);
   }
 
   if (chemin === "/sync/delete") {

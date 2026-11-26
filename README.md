@@ -53,5 +53,5 @@ Voir l'en-tête de `worker/jalon-relais.js` : secrets `ANTHROPIC_KEY` (clé déd
 - **Anciens fichiers Word (.doc)** : non lus. Les réenregistrer en .docx ou en PDF.
 - **Couleur de l'entreprise** : trouvée par recherche web. Si elle est fausse ou trop claire, choisir une autre pastille.
 - **Bibliothèques externes** : la lecture des PDF et Word charge `pdf.js` et `mammoth` depuis `cdnjs.cloudflare.com` (à citer dans la politique de confidentialité, ou à héberger soi-même).
-- **Mot de passe de synchronisation perdu** : les données en ligne sont irrécupérables (solution de récupération à choisir : voir l'audit du 26/11/2026).
+- **Mot de passe oublié** : code de secours (20 caractères) créé à la première connexion, affiché et envoyé par e-mail (type n8n « secours ») ; il chiffre la clé des données dans une enveloppe (colonnes r_* de la table sync). Sans mot de passe ni code, les données en ligne sont irrécupérables.
 - **Rétractation en ligne** : page `/retractation/` + route `/retractation` du relais (table D1 `retractations`, migration du 26/11/2026). Le remboursement se fait à la main dans Stripe ; marquer ensuite `traite = 1`.

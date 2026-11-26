@@ -1075,6 +1075,9 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 .in-gate > p.hint:first-child, .in-gate .sync-warn{display:none}
 .in-gate .row .btn.primary{width:100%;justify-content:center;padding:13px 16px;font-size:16px;border-radius:12px}
 .pw-wrap{position:relative}
+.gate-forgot label{display:block;font-weight:600;font-size:14px;color:var(--ink);margin:10px 0 4px}
+.gate-forgot .row .btn.primary{width:100%;justify-content:center;padding:12px 16px;border-radius:12px;font-size:16px}
+.secours-code{font:700 20px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:1px;text-align:center;background:#FFF8F0;border:1px dashed #E2D3C3;border-radius:12px;padding:12px;user-select:all;word-break:break-all}
 .pw-wrap input{padding-right:92px!important}
 .pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--brand);font:600 13.5px Inter,Arial,sans-serif;padding:8px 10px;cursor:pointer;border-radius:8px}
 .pw-eye:hover{background:var(--lilas, #EFE4F2)}
@@ -1358,7 +1361,20 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
       <div class="status" id="otp-msg"></div>
     </div>
     <div id="gate-slot"></div>
-    <details class="gate-forgot"><summary>Mot de passe oublié ?</summary><p>Vos documents sont chiffrés avec votre mot de passe : personne ne peut le réinitialiser à votre place. Écrivez-nous à <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> depuis l'adresse de votre compte : nous vous aiderons à retrouver l'accès à votre abonnement.</p></details>
+    <details class="gate-forgot"><summary>Mot de passe oublié ?</summary>
+      <p>Entrez le code de secours reçu par e-mail à votre première connexion, puis choisissez un nouveau mot de passe : vos documents sont conservés.</p>
+      <form id="rec-form" novalidate>
+        <label for="rec-mail">E-mail</label>
+        <input type="email" id="rec-mail" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false">
+        <label for="rec-code">Code de secours</label>
+        <input type="text" id="rec-code" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX">
+        <label for="rec-pw">Nouveau mot de passe (8 caractères minimum)</label>
+        <div class="pw-wrap"><input type="password" id="rec-pw" autocomplete="new-password" minlength="8"><button class="pw-eye" type="button" data-eye="rec-pw" aria-pressed="false">Afficher</button></div>
+        <div class="row" style="margin-top:12px"><button class="btn primary" type="submit" id="rec-go">Choisir ce nouveau mot de passe</button></div>
+        <div class="status" id="rec-msg" role="status"></div>
+      </form>
+      <p>Pas de code de secours ? Écrivez-nous à <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> depuis l'adresse de votre compte : nous vous aiderons à retrouver votre abonnement (vos documents en ligne, eux, ne peuvent pas être ouverts sans le mot de passe ou le code).</p>
+    </details>
   </div>
   <p class="gate-foot gate-plans"><a href="/?accueil">Découvrir Jaltio</a><a href="/forfaits/">Tarifs</a><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a></p>
   </div>
@@ -1670,7 +1686,7 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
 
     <div id="sync-off">
       <p class="hint" style="margin-top:0">Choisissez un identifiant (votre e-mail) et un mot de passe. Sur un autre appareil, entrez les mêmes : vous retrouvez votre parcours, vos CV, vos candidatures et votre suivi.</p>
-      <div class="sync-warn" role="note"><b>À lire avant de commencer.</b> Vos données sont verrouillées avec votre mot de passe, sur votre appareil, avant d'être envoyées. Personne d'autre ne peut les lire, pas même <span data-brand>Jaltio</span>. <b>Conséquence : si vous oubliez ce mot de passe, vos données en ligne sont perdues pour toujours, personne ne peut les récupérer.</b> Gardez-le dans un endroit sûr (le gestionnaire de mots de passe de votre téléphone, par exemple).</div>
+      <div class="sync-warn" role="note"><b>À lire avant de commencer.</b> Vos données sont verrouillées avec votre mot de passe, sur votre appareil, avant d'être envoyées. Personne d'autre ne peut les lire, pas même <span data-brand>Jaltio</span>. <b>Si vous oubliez ce mot de passe, seul votre code de secours (affiché et envoyé par e-mail juste après) permet d'en choisir un nouveau. Sans les deux, vos données en ligne sont perdues.</b> Gardez-le dans un endroit sûr (le gestionnaire de mots de passe de votre téléphone, par exemple).</div>
       <form id="sync-form" autocomplete="on" novalidate>
         <label for="sync-mail">E-mail</label>
         <input type="email" id="sync-mail" name="username" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="prenom.nom@exemple.fr">
@@ -1683,7 +1699,7 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
             <label for="sync-code">Code d'accès <span data-brand>Jaltio</span></label>
             <input type="text" id="sync-code" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Le code qu'on vous a donné">
           </div>
-          <label class="sync-check"><input type="checkbox" id="sync-ok"><span>J'ai compris : si j'oublie ce mot de passe, mes données en ligne sont perdues.</span></label>
+          <label class="sync-check"><input type="checkbox" id="sync-ok"><span>J'ai compris : je garde mon mot de passe et mon code de secours en lieu sûr.</span></label>
         </div>
         <div class="row" style="margin-top:12px"><button class="btn primary" type="submit" id="sync-go">Activer la synchronisation</button></div>
       </form>
@@ -1697,6 +1713,7 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
         <button class="btn" id="sync-out" type="button">Se déconnecter de cet appareil</button>
       </div>
       <p class="hint" style="margin-top:8px">Se déconnecter garde vos données sur cet appareil et en ligne. Le code d'accès est enregistré avec vos données chiffrées : sur un nouvel appareil, il est retrouvé automatiquement.</p>
+      <button class="link sync-link" id="sync-secours" type="button">Créer un nouveau code de secours</button>
       <button class="link danger sync-link" id="sync-del" type="button">Supprimer mes données en ligne</button>
     </div>
 
@@ -5943,6 +5960,38 @@ async function decryptPayload(blob, keyB64){
   }
   return JSON.parse(td.decode(raw));
 }
+/* ----- Code de secours (mot de passe oublié) -----
+   Un code aléatoire (≈ 99 bits) chiffre la clé des données dans une « enveloppe » gardée en ligne. Le serveur ne garde
+   que l'enveloppe et l'empreinte du jeton tiré du code : sans le code, il ne peut rien ouvrir. Le code est montré à
+   l'écran et envoyé par e-mail (il transite par le relais sans y être enregistré). */
+const SECOURS_ABC = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+function secoursNouveau(){
+  let s = "";
+  while(s.length < 20){ for(const x of crypto.getRandomValues(new Uint8Array(32))){ if(x < 248 && s.length < 20) s += SECOURS_ABC[x % 31]; } }
+  return s.match(/.{4}/g).join("-");
+}
+const secoursNorm = c => { const s = String(c || "").toUpperCase().replace(/[^A-Z0-9]/g, ""); return s.length === 20 ? s.match(/.{4}/g).join("-") : ""; };
+async function secoursEnveloppe(keyB64, rkeyB64){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const k = await crypto.subtle.importKey("raw", fromB64(rkeyB64), "AES-GCM", false, ["encrypt"]);
+  const ct = await crypto.subtle.encrypt({ name:"AES-GCM", iv, additionalData:te.encode("jalon-secours-v1") }, k, fromB64(keyB64));
+  return { riv:toB64(iv), renv:toB64(ct) };
+}
+async function secoursOuvrir(riv, renv, rkeyB64){
+  const k = await crypto.subtle.importKey("raw", fromB64(rkeyB64), "AES-GCM", false, ["decrypt"]);
+  return toB64(await crypto.subtle.decrypt({ name:"AES-GCM", iv:fromB64(riv), additionalData:te.encode("jalon-secours-v1") }, k, fromB64(renv)));
+}
+/* Crée (ou remplace) le code de secours du compte, l'envoie par e-mail si l'adresse est connue, puis l'affiche */
+async function secoursPoser(id, auth, keyB64, mail){
+  const code = secoursNouveau(), rsalt = crypto.getRandomValues(new Uint8Array(16)), rk = await deriveKeys(code, rsalt);
+  const e = await secoursEnveloppe(keyB64, rk.key);
+  const r = await syncCall("secours-pose", { id, auth, rsalt:toB64(rsalt), rauth:rk.auth, riv:e.riv, renv:e.renv, email:mail || "", code:mail ? code : "" });
+  await askBox({ title:_t("Votre code de secours"),
+    html:"<p>" + _t("Si vous oubliez votre mot de passe, ce code vous permettra d'en choisir un nouveau sans perdre vos documents.") + "</p>" +
+      '<p class="secours-code">' + code + "</p><p>" + (r && r.envoye ? _t("Nous venons aussi de vous l'envoyer par e-mail : gardez ce message.")
+      : _t("Notez-le ou faites une capture d'écran : nous ne pouvons pas le retrouver à votre place.")) + "</p>",
+    buttons:[{ label:_t("C'est noté"), value:true, cls:"primary" }] });
+}
 const validPayload = p => !!p && p.app === "jalon" && !!p.data && typeof p.data === "object" && Object.keys(p.data).every(k => (SYNC_KEYS.includes(k) || k === "accessCode") && typeof p.data[k] === "string");
 
 async function syncCall(path, body, withCode){
@@ -6256,6 +6305,7 @@ async function syncStart(){
       if(!settings.apiKey && codeIn){ settings.apiKey = codeIn; saveSettings(); renderSettings(); }
       syncSt = { id, auth:k.auth, key:k.key, mail:maskMail(mail), version:res.version, dirty:false, dirtyAt:0, lastSyncAt:Date.now(), err:"" };
       syncSave(); syncResetForm(); setSyncUi();
+      try{ await secoursPoser(id, k.auth, k.key, mail); }catch(e){ /* le code pourra être créé depuis Mon compte */ }
       status("#sync-msg", "ok", _t("Synchronisation activée. Sur un autre appareil, entrez le même identifiant et le même mot de passe."));
       return;
     }
@@ -6268,6 +6318,7 @@ async function syncStart(){
     let payload;
     try{ payload = await decryptPayload(g, k.key); }catch(e){ status("#sync-msg", "err", e.message && /navigateur/.test(e.message) ? e.message : _t("Impossible de lire les données en ligne avec ce mot de passe.")); return; }
     if(!validPayload(payload)){ status("#sync-msg", "err", _t("Les données en ligne ne sont pas lisibles par cette version de l'appli.")); return; }
+    if(!meta.secours){ try{ await secoursPoser(id, k.auth, k.key, mail); }catch(e){ /* nouvelle tentative à la prochaine connexion */ } }
     const st = { id, auth:k.auth, key:k.key, mail:maskMail(mail), version:g.version, dirty:false, dirtyAt:0, lastSyncAt:Date.now(), err:"" };
     syncResetForm();
     if(!hasLocalData()){ syncSt = st; syncSave(); status("#sync-msg", "ok", _t("Données retrouvées. Chargement…")); syncApply(payload, g.version); return; }
@@ -6287,6 +6338,45 @@ async function syncStart(){
     syncStarting = false; $("#sync-go").disabled = false;
   }
 }
+/* ----- Mot de passe oublié : nouveau mot de passe grâce au code de secours ----- */
+async function secoursRecuperer(){
+  const mail = $("#rec-mail").value.trim().toLowerCase(), code = secoursNorm($("#rec-code").value), pw = $("#rec-pw").value.normalize("NFKC");
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ status("#rec-msg", "err", _t("Entrez l'adresse e-mail de votre compte.")); $("#rec-mail").focus(); return; }
+  if(!code){ status("#rec-msg", "err", _t("Le code de secours compte 20 lettres et chiffres (les tirets sont facultatifs).")); $("#rec-code").focus(); return; }
+  if(pw.length < 8){ status("#rec-msg", "err", _t("Le nouveau mot de passe doit faire au moins 8 caractères.")); $("#rec-pw").focus(); return; }
+  if(!syncAvailableNow()){ status("#rec-msg", "err", _t("Ce navigateur ne permet pas le chiffrement nécessaire. Utilisez une version récente de Safari, Chrome ou Firefox.")); return; }
+  $("#rec-go").disabled = true; status("#rec-msg", "info", _t("Vérification du code…"));
+  try{
+    const id = await syncAccountId(mail), meta = await syncCall("meta", { id });
+    if(!meta.exists){ status("#rec-msg", "err", _t("Aucun compte n'existe avec cette adresse.")); return; }
+    if(!meta.secours || !meta.rsalt){ status("#rec-msg", "err", _t("Ce compte n'a pas encore de code de secours. Écrivez-nous à contact@jaltio.fr.")); return; }
+    const rk = await deriveKeys(code, fromB64(meta.rsalt));
+    let g;
+    try{ g = await syncCall("secours-get", { id, rauth:rk.auth }); }
+    catch(e){ status("#rec-msg", "err", e.status === 401 ? _t("Adresse e-mail ou code de secours incorrect.") : (e.message || _t("Erreur."))); return; }
+    const ancienne = await secoursOuvrir(g.riv, g.renv, rk.key);
+    const payload = await decryptPayload(g, ancienne);
+    if(!validPayload(payload)){ status("#rec-msg", "err", _t("Les données en ligne ne sont pas lisibles par cette version de l'appli.")); return; }
+    status("#rec-msg", "info", _t("Chiffrement avec le nouveau mot de passe…"));
+    const salt = crypto.getRandomValues(new Uint8Array(16)), k = await deriveKeys(pw, salt);
+    const blob = await encryptPayload(payload, k.key), env = await secoursEnveloppe(k.key, rk.key);
+    await syncCall("secours-reset", { id, rauth:rk.auth, auth:k.auth, salt:toB64(salt), iv:blob.iv, ct:blob.ct, riv:env.riv, renv:env.renv, baseVersion:g.version });
+    status("#rec-msg", "ok", _t("Nouveau mot de passe enregistré. Connexion…"));
+    $("#sync-mail").value = mail; $("#sync-pw").value = pw; $("#rec-pw").value = "";
+    await syncStart();
+  }catch(e){
+    status("#rec-msg", "err", e.offline ? _t("Pas de connexion. Réessayez quand vous serez en ligne.") : (e.message || _t("Erreur.")));
+  }finally{ $("#rec-go").disabled = false; }
+}
+$("#rec-form").addEventListener("submit", e => { e.preventDefault(); secoursRecuperer(); });
+$("#sync-secours").addEventListener("click", async () => {
+  if(!syncSt || !syncSt.key) return;
+  if(!(await ask(_t("L'ancien code de secours ne fonctionnera plus. Créer un nouveau code ?"), { ok:_t("Créer un nouveau code") }))) return;
+  /* L'e-mail n'est pas gardé en clair sur l'appareil : ce nouveau code est seulement affiché, pas envoyé */
+  try{ await secoursPoser(syncSt.id, syncSt.auth, syncSt.key, ""); }
+  catch(e){ status("#sync-msg", "err", e.status === 401 ? _t("Reconnectez-vous puis réessayez.") : (e.message || _t("Erreur."))); }
+});
+
 /* ----- Mon abonnement : état et résiliation sur le site (CGV, article 9) ----- */
 const dateLongue = ms => new Date(ms).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
 const aboCode = () => (settings.apiKey && !/^sk-ant-/.test(settings.apiKey)) ? settings.apiKey.trim() : "";
