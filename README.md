@@ -29,9 +29,14 @@ Le nom de la marque se change à un seul endroit : la constante `BRAND` au débu
 
 ## Mise en ligne
 
-1. Dépôt GitHub public, **Settings → Pages**, source `main`, dossier `/ (root)`.
-2. Déposer `index.html`, `fonts.css` et le dossier `fonts/` (sans eux, le site s'affiche avec les polices du système).
-3. Adresse : `https://<pseudo>.github.io/cv-express/`.
+Le site est prévu pour **Cloudflare Pages** avec un dépôt GitHub **privé** (audit du 26/11/2026) :
+
+1. Cloudflare › Workers & Pages › Créer › Pages › connecter le dépôt `jaltio`, branche `main`, aucune commande de build, dossier de sortie `/`.
+2. Domaine personnalisé : `jaltio.fr` et `www.jaltio.fr` (les DNS restent chez Hostinger : enregistrement CNAME indiqué par Cloudflare).
+3. Les fichiers `_headers` (en-têtes de sécurité) et `_redirects` (code interne non servi) sont lus automatiquement.
+4. Une fois le site servi par Cloudflare, passer le dépôt GitHub en privé et désactiver GitHub Pages.
+
+Ancienne méthode (GitHub Pages, dépôt public) : Settings → Pages, source `main`, dossier `/ (root)`.
 
 ## Le relais Cloudflare
 
@@ -48,4 +53,5 @@ Voir l'en-tête de `worker/jalon-relais.js` : secrets `ANTHROPIC_KEY` (clé déd
 - **Anciens fichiers Word (.doc)** : non lus. Les réenregistrer en .docx ou en PDF.
 - **Couleur de l'entreprise** : trouvée par recherche web. Si elle est fausse ou trop claire, choisir une autre pastille.
 - **Bibliothèques externes** : la lecture des PDF et Word charge `pdf.js` et `mammoth` depuis `cdnjs.cloudflare.com` (à citer dans la politique de confidentialité, ou à héberger soi-même).
-- **Mot de passe de synchronisation perdu** : les données en ligne sont irrécupérables.
+- **Mot de passe de synchronisation perdu** : les données en ligne sont irrécupérables (solution de récupération à choisir : voir l'audit du 26/11/2026).
+- **Rétractation en ligne** : page `/retractation/` + route `/retractation` du relais (table D1 `retractations`, migration du 26/11/2026). Le remboursement se fait à la main dans Stripe ; marquer ensuite `traite = 1`.

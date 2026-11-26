@@ -1,0 +1,4 @@
+# Cloudflare Pages : le code du relais et les outils ne sont pas des pages du site
+/worker/*  /404.html  404
+/outils/*  /404.html  404
+/README.md /404.html  404

@@ -16,8 +16,11 @@
 <script src="/anim.js"></script>
 <style>
 .steps{display:flex;gap:6px;margin:4px 0 18px;padding:0;list-style:none}
-.steps li{flex:1;height:5px;border-radius:99px;background:var(--line)}
-.steps li.done{background:var(--brand)}
+.steps li{flex:1;font-size:12.5px;font-weight:600;color:var(--muted);padding-top:9px;border-top:5px solid var(--line);border-radius:3px}
+.steps li.done{border-top-color:var(--brand);color:var(--brand)}
+.steps li.on{border-top-color:var(--accent);color:var(--ink)}
+.h1{font-family:var(--display);font-weight:700;font-size:34px;line-height:1.12;letter-spacing:-.02em;margin:8px 0 10px;color:var(--brand)}
+@media (max-width:480px){.steps li{font-size:0}.steps li.on{font-size:12.5px}}
 .step-n{font-size:13.5px;font-weight:600;color:var(--muted);margin:0}
 .etape{display:none}
 .etape.on{display:block}
@@ -41,12 +44,13 @@
 </header>
 <main>
 <div class="wrap narrow">
-  <ol class="steps" aria-hidden="true"><li></li><li></li><li></li><li></li></ol>
+  <ol class="steps" aria-label="Étapes de l'inscription"><li class="on">Votre e-mail</li><li>Conditions</li><li>Confidentialité</li><li>Confirmation</li></ol>
 
   <!-- Étape 1 : compte -->
   <section class="etape on" id="e1" aria-labelledby="t1">
-    <p class="step-n">Étape 1 sur 4 · <span id="nom-offre">Jaltio Essentiel</span></p>
+    <p class="step-n"><span id="nom-offre">Jaltio Essentiel</span></p>
     <h1 id="t1">Créer votre compte</h1>
+    <p class="lead" style="margin:0 0 14px">4 étapes, environ 2 minutes.</p>
     <div class="card">
       <form id="f1" novalidate>
         <label for="email">Votre adresse e-mail</label>
@@ -62,8 +66,7 @@
 
   <!-- Étape 2 : CGV -->
   <section class="etape" id="e2" aria-labelledby="t2">
-    <p class="step-n">Étape 2 sur 4</p>
-    <h1 id="t2">Conditions générales</h1>
+    <h2 class="h1" id="t2">Conditions générales</h2>
     <p class="lead" style="margin:0">Lisez les conditions jusqu'en bas pour pouvoir les accepter.</p>
     <div class="lecture" id="l-cgv" tabindex="0" aria-label="Conditions générales de vente et d'utilisation">Chargement…</div>
     <p class="lecture-hint" id="h-cgv">Faites défiler jusqu'en bas du document.</p>
@@ -73,8 +76,7 @@
 
   <!-- Étape 3 : politique de confidentialité -->
   <section class="etape" id="e3" aria-labelledby="t3">
-    <p class="step-n">Étape 3 sur 4</p>
-    <h1 id="t3">Politique de confidentialité</h1>
+    <h2 class="h1" id="t3">Politique de confidentialité</h2>
     <p class="lead" style="margin:0">Lisez la politique jusqu'en bas pour pouvoir l'accepter.</p>
     <div class="lecture" id="l-conf" tabindex="0" aria-label="Politique de confidentialité">Chargement…</div>
     <p class="lecture-hint" id="h-conf">Faites défiler jusqu'en bas du document.</p>
@@ -84,8 +86,7 @@
 
   <!-- Étape 4 : confirmation et paiement -->
   <section class="etape" id="e4" aria-labelledby="t4">
-    <p class="step-n">Étape 4 sur 4</p>
-    <h1 id="t4">Confirmer votre inscription</h1>
+    <h2 class="h1" id="t4">Confirmer votre inscription</h2>
     <div class="card" id="c4-free" hidden>
       <ul class="recap">
         <li><span>Offre</span><span>Jaltio Free</span></li>
@@ -101,15 +102,14 @@
     <div class="card" id="c4-ess">
       <ul class="recap">
         <li><span>Offre</span><span>Jaltio Essentiel</span></li>
-        <li id="r-promo"><span>Premier mois (accès anticipé)</span><span>6,49 €</span></li>
-        <li><span>Ensuite</span><span>13,99 € / mois</span></li>
+        <li><span>Prix</span><span>13,99 € par mois (TTC)</span></li>
         <li><span>Engagement</span><span>Aucun</span></li>
         <li><span>E-mail</span><span id="r-mail"></span></li>
       </ul>
-      <p class="hint">L'abonnement se renouvelle automatiquement chaque mois. Vous pouvez le résilier à tout moment depuis le site : le mois commencé reste dû, l'accès continue jusqu'à sa fin. Vous disposez de 14 jours de rétractation avec remboursement intégral.</p>
+      <p class="hint">L'abonnement se renouvelle automatiquement chaque mois. Vous pouvez le résilier à tout moment depuis le site : le mois commencé reste dû, l'accès continue jusqu'à sa fin. Vous disposez de 14 jours pour vous rétracter, directement en ligne (<a href="/retractation/" target="_blank" rel="noopener">formulaire de rétractation</a>).</p>
       <p class="hint">Après le paiement, vous recevez par e-mail un code de validation à 6 chiffres, avec <b>les conditions générales et la politique de confidentialité en pièces jointes</b>.</p>
       <p class="msg" id="m4" role="alert"></p>
-      <button class="btn" type="button" id="payer" style="margin-top:16px">Payer avec Stripe</button>
+      <button class="btn" type="button" id="payer" style="margin-top:16px">S'abonner et payer 13,99 € par mois</button>
       <p class="hint" style="text-align:center">Paiement sécurisé par Stripe. Nous ne voyons jamais vos numéros de carte.</p>
     </div>
     <div class="row2"><button class="btn alt" type="button" data-back>Retour</button></div>
@@ -117,18 +117,22 @@
 </div>
 </main>
 <footer class="foot">
-  <nav><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/conseils/">Conseils</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a><a href="/app/?resilier">Résilier mon abonnement</a></nav>
-  Jaltio · <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> · IA : Claude, d'Anthropic (États-Unis)
+  <a class="foot-brand" href="/"><svg width="26" height="26" viewBox="0 0 72 72" aria-hidden="true"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg>Jaltio</a>
+  <p class="foot-tag">Un CV et une lettre adaptés à chaque offre d'emploi.</p>
+  <nav aria-label="Pied de page"><a href="/forfaits/">Tarifs</a><a href="/conseils/">Conseils</a><a href="/conseils/adapter-cv-offre/">Adapter son CV</a><a href="/conseils/lettre-de-motivation-structure/">Lettre de motivation</a><a href="/conseils/preparer-entretien-embauche/">Entretien</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav>
+  <nav aria-label="Informations légales"><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a><a href="/app/?resilier">Résilier mon abonnement</a><a href="/retractation/">Me rétracter</a></nav>
+  <p class="foot-legal">© 2026 Jaltio · <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> · Documents rédigés avec Claude, l'IA d'Anthropic (<a href="/faq/#ia">en savoir plus</a>)</p>
 </footer>
 <script>
 (function(){
   /* Relais Jaltio : inscription à l'offre Free (sans paiement) */
   var RELAIS = "https://jalon-relais.jalon-emploi.workers.dev";
-  var FREE = new URLSearchParams(location.search).get("offre") === "free";
+  /* Par défaut, l'offre gratuite : seul un lien explicite « ?offre=essentiel » mène au paiement */
+  var FREE = new URLSearchParams(location.search).get("offre") !== "essentiel";
   /* Lien de paiement Stripe de l'offre Essentiel. À remplacer par le lien « live » (https://buy.stripe.com/…) au lancement. */
   var LIEN_PAIEMENT = "https://buy.stripe.com/dRmcN52t20WSdSu18ndwc00";
   /* Versions des documents acceptés (à changer quand les documents changent) : enregistrées avec le paiement */
-  var VERSION_CGV = "20261111", VERSION_CONF = "20261111";
+  var VERSION_CGV = "20261126", VERSION_CONF = "20261126";
   /* Code promo Stripe de l'accès anticipé (1er mois à 6,49 €), appliqué automatiquement jusqu'au 23/11/2026 inclus (heure de Paris) */
   var CODE_PROMO = "ANTICIPE", FIN_PROMO = Date.parse("2026-11-24T00:00:00+01:00");
 
@@ -146,11 +150,11 @@
   function montrer(n){
     etape = n;
     document.querySelectorAll(".etape").forEach(function(s, i){ s.classList.toggle("on", i + 1 === n); });
-    document.querySelectorAll(".steps li").forEach(function(li, i){ li.classList.toggle("done", i < n); });
+    document.querySelectorAll(".steps li").forEach(function(li, i){ li.classList.toggle("done", i < n - 1); li.classList.toggle("on", i === n - 1); if(i === n - 1) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current"); });
     window.scrollTo(0, 0);
     if(n === 2) charger("/cgv.html", "#l-cgv", "#h-cgv", "#ok-cgv");
     if(n === 3) charger("/confidentialite.html", "#l-conf", "#h-conf", "#ok-conf");
-    if(n === 4){ $("#r-mail").textContent = email; $("#r-mail-free").textContent = email; if(Date.now() >= FIN_PROMO && $("#r-promo")) $("#r-promo").remove(); }
+    if(n === 4){ $("#r-mail").textContent = email; $("#r-mail-free").textContent = email; }
   }
   document.querySelectorAll("[data-back]").forEach(function(b){ b.addEventListener("click", function(){ montrer(etape - 1); }); });
 
@@ -226,7 +230,7 @@
   if(offreDemandee && offreDemandee !== "essentiel" && offreDemandee !== "free"){
     var m = $("#m1"); m.textContent = "Cette offre n'est pas encore disponible. Seules les offres Free et Essentiel sont ouvertes pour l'instant."; m.className = "msg info";
   }
-  window.addEventListener("pageshow", function(){ $("#payer").disabled = false; $("#payer").textContent = "Payer avec Stripe"; });
+  window.addEventListener("pageshow", function(){ $("#payer").disabled = false; $("#payer").textContent = "S'abonner et payer 13,99 € par mois"; });
 })();
 </script>
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "dcd19a490f414e60909bf61deaae5385"}'></script><!-- End Cloudflare Web Analytics -->

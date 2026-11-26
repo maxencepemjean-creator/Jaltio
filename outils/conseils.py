@@ -2,7 +2,7 @@
 """Fabrique les pages de conseils de jaltio.fr (dossier conseils/) et met à jour sitemap.xml.
 Usage (depuis la racine du dépôt) : python3 outils/conseils.py, puis python3 outils/menu.py
 Pour ajouter un article : ajouter un dictionnaire dans ARTICLES (slug, titre, description, date, intro, corps en HTML)."""
-import html, json, pathlib
+import html, json, pathlib, re
 RACINE = pathlib.Path(__file__).resolve().parent.parent
 SITE = "https://jaltio.fr"
 
@@ -487,7 +487,11 @@ CSS = """<style>
 .conseil .cta-box p{margin:0 0 16px;color:#EADDEB}
 .conseil .cta-box .btn{background:#F2A93B;border-color:#F2A93B;color:#2A1A2F}
 .conseil .autres{margin-top:34px}
-.liste-conseils{list-style:none;padding:0;display:grid;gap:14px}
+.liste-conseils,.conseil .liste-conseils{list-style:none;padding:0;display:grid;gap:14px}
+.conseil .sommaire{background:#fff;border:1px solid #EEDFCF;border-radius:14px;padding:14px 20px;margin:18px 0 8px}
+.conseil .sommaire b{display:block;margin-bottom:4px;color:#3A2340}
+.conseil .sommaire ol{margin:0;padding-left:20px}
+.conseil .sommaire li{margin:3px 0}
 .liste-conseils a{display:block;background:#fff;border:1px solid #EEDFCF;border-radius:16px;padding:18px 20px;text-decoration:none;color:inherit}
 .liste-conseils a:hover{border-color:#F2A93B}
 .liste-conseils b{display:block;font-size:18px;margin-bottom:6px;color:#2A1A2F}
@@ -509,6 +513,11 @@ def tete(titre, description, chemin, jsonld):
 <meta property="og:description" content="{html.escape(description)}">
 <meta property="og:url" content="{SITE}{chemin}">
 <meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Jaltio">
+<meta property="og:image" content="{SITE}/assets/og/conseils.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -532,7 +541,7 @@ PIED = """</main>
 """
 
 CTA = """<div class="cta-box">
-  <h2>Un CV adapté à chaque offre, en une minute</h2>
+  <h2>Un CV adapté à chaque offre, en quelques minutes</h2>
   <p>Collez le lien d'une annonce : Jaltio réécrit votre CV à partir de votre vrai parcours, sans rien inventer. 5 CV offerts, sans carte bancaire.</p>
   <a class="btn" href="/inscription/?offre=free">Essayer gratuitement</a>
 </div>"""
@@ -546,14 +555,23 @@ def date_fr(iso):
 for a in ARTICLES:
     chemin = f"/conseils/{a['slug']}/"
     ld = {"@context": "https://schema.org", "@type": "Article", "headline": a["titre"], "description": a["description"],
-          "datePublished": a["date"], "dateModified": a["date"], "inLanguage": "fr-FR", "mainEntityOfPage": SITE + chemin,
+          "datePublished": a.get("publie", a["date"]), "dateModified": a["date"], "inLanguage": "fr-FR", "mainEntityOfPage": SITE + chemin,
           "author": {"@type": "Organization", "name": "Jaltio", "url": SITE + "/"},
           "publisher": {"@type": "Organization", "name": "Jaltio", "logo": {"@type": "ImageObject", "url": SITE + "/assets/logo-512.png"}}}
-    autres = "".join(f'<li><a href="/conseils/{b["slug"]}/"><b>{html.escape(b["titre"])}</b><span>{html.escape(b["description"])}</span></a></li>' for b in ARTICLES if b is not a)
+    i = ARTICLES.index(a)
+    voisins = [ARTICLES[(i + k) % len(ARTICLES)] for k in range(1, min(4, len(ARTICLES)))]   # 3 articles liés, pas toute la liste
+    autres = "".join(f'<li><a href="/conseils/{b["slug"]}/"><b>{html.escape(b["titre"])}</b><span>{html.escape(b["description"])}</span></a></li>' for b in voisins)
+    corps, titres = a["corps"].strip(), []
+    def ancre(m):
+        n = len(titres) + 1; titres.append(re.sub(r"<[^>]+>", "", m.group(1))); return f'<h2 id="s{n}">{m.group(1)}</h2>'
+    corps = re.sub(r"<h2>(.*?)</h2>", ancre, corps)
+    sommaire = ('<nav class="sommaire" aria-label="Sommaire"><b>Au sommaire</b><ol>' + "".join(f'<li><a href="#s{k + 1}">{t}</a></li>' for k, t in enumerate(titres)) + '</ol></nav>\n') if len(titres) >= 3 else ""
+    publie, maj = a.get("publie", a["date"]), a["date"]
+    meta = f"Publié le {date_fr(publie)}" + (f" · mis à jour le {date_fr(maj)}" if maj != publie else "")
     page = (tete(a["titre"], a["description"], chemin, ld)
             + f'<article class="wrap narrow conseil">\n<p class="kicker"><a href="/conseils/">Conseils</a></p>\n<h1>{html.escape(a["titre"])}</h1>\n'
-            + f'<p class="meta">Mis à jour le {date_fr(a["date"])} · par l\'équipe Jaltio</p>\n<p class="lead">{html.escape(a["intro"])}</p>\n'
-            + a["corps"].strip() + "\n" + CTA
+            + f'<p class="meta">{meta}</p>\n<p class="lead">{html.escape(a["intro"])}</p>\n' + sommaire
+            + corps + "\n" + CTA
             + f'\n<section class="autres"><h2>Autres conseils</h2><ul class="liste-conseils">{autres}</ul></section>\n</article>\n' + PIED)
     d = RACINE / "conseils" / a["slug"]; d.mkdir(exist_ok=True)
     (d / "index.html").write_text(page)

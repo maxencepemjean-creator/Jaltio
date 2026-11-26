@@ -12,6 +12,11 @@
 <meta property="og:description" content="Ce que fait un logiciel de recrutement (ATS) avec votre CV, les règles de mise en page qui évitent qu&#x27;il soit mal lu, et les idées reçues à oublier.">
 <meta property="og:url" content="https://jaltio.fr/conseils/cv-logiciel-recrutement-ats/">
 <meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Jaltio">
+<meta property="og:image" content="https://jaltio.fr/assets/og/conseils.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -32,7 +37,11 @@
 .conseil .cta-box p{margin:0 0 16px;color:#EADDEB}
 .conseil .cta-box .btn{background:#F2A93B;border-color:#F2A93B;color:#2A1A2F}
 .conseil .autres{margin-top:34px}
-.liste-conseils{list-style:none;padding:0;display:grid;gap:14px}
+.liste-conseils,.conseil .liste-conseils{list-style:none;padding:0;display:grid;gap:14px}
+.conseil .sommaire{background:#fff;border:1px solid #EEDFCF;border-radius:14px;padding:14px 20px;margin:18px 0 8px}
+.conseil .sommaire b{display:block;margin-bottom:4px;color:#3A2340}
+.conseil .sommaire ol{margin:0;padding-left:20px}
+.conseil .sommaire li{margin:3px 0}
 .liste-conseils a{display:block;background:#fff;border:1px solid #EEDFCF;border-radius:16px;padding:18px 20px;text-decoration:none;color:inherit}
 .liste-conseils a:hover{border-color:#F2A93B}
 .liste-conseils b{display:block;font-size:18px;margin-bottom:6px;color:#2A1A2F}
@@ -52,9 +61,10 @@
 <article class="wrap narrow conseil">
 <p class="kicker"><a href="/conseils/">Conseils</a></p>
 <h1>CV et logiciels de recrutement (ATS) : ce qu&#x27;ils lisent vraiment</h1>
-<p class="meta">Mis à jour le 15 novembre 2026 · par l'équipe Jaltio</p>
+<p class="meta">Publié le 15 novembre 2026</p>
 <p class="lead">Quand vous postulez en ligne, votre CV arrive souvent d&#x27;abord dans un logiciel de suivi des candidatures, qu&#x27;on appelle ATS (applicant tracking system). Ce logiciel ne « rejette » pas votre CV par magie : il en extrait le texte, le range dans des cases et permet au recruteur de chercher et de trier les candidats. Si le texte est mal extrait, vous devenez invisible.</p>
-<h2>Ce que fait le logiciel</h2>
+<nav class="sommaire" aria-label="Sommaire"><b>Au sommaire</b><ol><li><a href="#s1">Ce que fait le logiciel</a></li><li><a href="#s2">Les règles de mise en page qui évitent les mauvaises surprises</a></li><li><a href="#s3">Les idées reçues à oublier</a></li><li><a href="#s4">Vérification en deux minutes</a></li></ol></nav>
+<h2 id="s1">Ce que fait le logiciel</h2>
 <ul>
 <li>Il <b>extrait le texte</b> de votre fichier (PDF ou Word).</li>
 <li>Il essaie de repérer vos <b>coordonnées, expériences, dates, diplômes et compétences</b>.</li>
@@ -62,7 +72,7 @@
 </ul>
 <p>Votre objectif est donc double : que le texte soit lu correctement, et que les mots que le recruteur va chercher soient présents, s'ils correspondent à votre parcours.</p>
 
-<h2>Les règles de mise en page qui évitent les mauvaises surprises</h2>
+<h2 id="s2">Les règles de mise en page qui évitent les mauvaises surprises</h2>
 <ul>
 <li><b>Du vrai texte</b> : pas de CV scanné ni de CV entièrement en image. Test simple : ouvrez votre PDF, essayez de sélectionner une ligne. Si vous ne pouvez pas, le logiciel non plus.</li>
 <li><b>Des titres de sections classiques</b> : « Expérience professionnelle », « Formation », « Compétences », « Langues ». Les titres originaux (« Mon aventure ») sont mal reconnus.</li>
@@ -72,30 +82,33 @@
 <li><b>Le format demandé</b> : si l'annonce demande un fichier Word, envoyez un fichier Word. Sinon, un PDF généré depuis votre traitement de texte (pas une photo) convient.</li>
 </ul>
 
-<h2>Les idées reçues à oublier</h2>
+<h2 id="s3">Les idées reçues à oublier</h2>
 <ul>
 <li><b>« Un CV en couleur est rejeté »</b> : non. La couleur ne gêne pas l'extraction du texte. C'est le texte en image qui pose problème.</li>
 <li><b>« Il faut mettre un maximum de mots-clés »</b> : un CV rempli de mots sans phrases est lu ensuite par un humain, qui le trouve vide. Les mots-clés doivent décrire ce que vous avez réellement fait.</li>
 <li><b>« Le logiciel décide seul »</b> : il trie et facilite la recherche ; c'est une personne qui choisit qui appeler.</li>
 </ul>
 
-<h2>Vérification en deux minutes</h2>
+<h2 id="s4">Vérification en deux minutes</h2>
 <ol>
 <li>Ouvrez votre PDF, sélectionnez tout (Ctrl + A ou Cmd + A), copiez, collez dans un bloc-notes.</li>
 <li>Si le texte collé est dans le bon ordre et complet (nom, coordonnées, postes, dates), le logiciel le lira aussi.</li>
 <li>Comparez avec l'annonce : les compétences demandées que vous avez vraiment figurent-elles dans le texte ?</li>
 </ol>
 <div class="cta-box">
-  <h2>Un CV adapté à chaque offre, en une minute</h2>
+  <h2>Un CV adapté à chaque offre, en quelques minutes</h2>
   <p>Collez le lien d'une annonce : Jaltio réécrit votre CV à partir de votre vrai parcours, sans rien inventer. 5 CV offerts, sans carte bancaire.</p>
   <a class="btn" href="/inscription/?offre=free">Essayer gratuitement</a>
 </div>
-<section class="autres"><h2>Autres conseils</h2><ul class="liste-conseils"><li><a href="/conseils/adapter-cv-offre/"><b>Adapter son CV à une offre d&#x27;emploi : la méthode en 5 étapes</b><span>Comment adapter votre CV à chaque annonce sans rien inventer : repérer ce que le recruteur cherche, reprendre ses mots, réécrire l&#x27;accroche, trier vos expériences.</span></a></li><li><a href="/conseils/relancer-apres-candidature/"><b>Relancer après une candidature : quand et comment (modèle de mail)</b><span>Quand relancer un recruteur après une candidature ou un entretien, quoi écrire, combien de fois : la méthode et des modèles de mail à adapter.</span></a></li><li><a href="/conseils/lettre-de-motivation-structure/"><b>Lettre de motivation : la structure simple en 3 paragraphes</b><span>Une lettre de motivation courte et précise : la structure vous, moi, nous, ce qu&#x27;il faut mettre dans chaque paragraphe, les phrases à éviter et un exemple.</span></a></li><li><a href="/conseils/preparer-entretien-embauche/"><b>Préparer un entretien d&#x27;embauche : les questions classiques et comment y répondre</b><span>Comment préparer un entretien d&#x27;embauche : ce qu&#x27;il faut relire, la méthode pour raconter une expérience, les questions classiques (présentez-vous, défauts, salaire) et les questions à poser.</span></a></li><li><a href="/conseils/cv-sans-experience/"><b>CV sans expérience : comment faire son premier CV (étudiant, premier emploi)</b><span>Étudiant, jeune diplômé, premier emploi : quoi mettre sur un CV sans expérience, dans quel ordre, et comment valoriser stages, jobs, projets et bénévolat.</span></a></li><li><a href="/conseils/trou-dans-le-cv/"><b>Trou dans le CV : comment présenter et expliquer une période sans emploi</b><span>Chômage, santé, enfants, voyage, reconversion : comment présenter une période sans emploi sur votre CV et l&#x27;expliquer sereinement en entretien, avec exemples.</span></a></li><li><a href="/conseils/cv-reconversion-professionnelle/"><b>CV de reconversion professionnelle : comment l&#x27;adapter à votre nouveau métier</b><span>Reconversion professionnelle : comment construire un CV tourné vers votre nouveau métier, valoriser vos compétences transférables et présenter votre formation.</span></a></li></ul></section>
+<section class="autres"><h2>Autres conseils</h2><ul class="liste-conseils"><li><a href="/conseils/relancer-apres-candidature/"><b>Relancer après une candidature : quand et comment (modèle de mail)</b><span>Quand relancer un recruteur après une candidature ou un entretien, quoi écrire, combien de fois : la méthode et des modèles de mail à adapter.</span></a></li><li><a href="/conseils/lettre-de-motivation-structure/"><b>Lettre de motivation : la structure simple en 3 paragraphes</b><span>Une lettre de motivation courte et précise : la structure vous, moi, nous, ce qu&#x27;il faut mettre dans chaque paragraphe, les phrases à éviter et un exemple.</span></a></li><li><a href="/conseils/preparer-entretien-embauche/"><b>Préparer un entretien d&#x27;embauche : les questions classiques et comment y répondre</b><span>Comment préparer un entretien d&#x27;embauche : ce qu&#x27;il faut relire, la méthode pour raconter une expérience, les questions classiques (présentez-vous, défauts, salaire) et les questions à poser.</span></a></li></ul></section>
 </article>
 </main>
 <footer class="foot">
-  <nav><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/conseils/">Conseils</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a><a href="/app/?resilier">Résilier mon abonnement</a></nav>
-  Jaltio · <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> · IA : Claude, d'Anthropic (États-Unis)
+  <a class="foot-brand" href="/"><svg width="26" height="26" viewBox="0 0 72 72" aria-hidden="true"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg>Jaltio</a>
+  <p class="foot-tag">Un CV et une lettre adaptés à chaque offre d'emploi.</p>
+  <nav aria-label="Pied de page"><a href="/forfaits/">Tarifs</a><a href="/conseils/">Conseils</a><a href="/conseils/adapter-cv-offre/">Adapter son CV</a><a href="/conseils/lettre-de-motivation-structure/">Lettre de motivation</a><a href="/conseils/preparer-entretien-embauche/">Entretien</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav>
+  <nav aria-label="Informations légales"><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a><a href="/app/?resilier">Résilier mon abonnement</a><a href="/retractation/">Me rétracter</a></nav>
+  <p class="foot-legal">© 2026 Jaltio · <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> · Documents rédigés avec Claude, l'IA d'Anthropic (<a href="/faq/#ia">en savoir plus</a>)</p>
 </footer>
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "dcd19a490f414e60909bf61deaae5385"}'></script><!-- End Cloudflare Web Analytics -->
 </body>

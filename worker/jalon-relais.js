@@ -1,4 +1,4 @@
-// Relais Jaltio (Cloudflare Worker) — version du 15/11/2026 (audit de sécurité : adresse Free d'origine, plafond d'essais du code à 6 chiffres)
+// Relais Jaltio (Cloudflare Worker) — version du 26/11/2026 (rétractation en ligne, lettre retirée côté serveur en Free)
 //
 // 1) Relais Claude : garde la clé Anthropic côté serveur ; le navigateur n'envoie qu'un code d'accès
 //    (code testeur du secret CODES, ou code d'abonné créé automatiquement après un paiement Stripe).
@@ -26,8 +26,10 @@
 //   Base D1 : exécuter une fois worker/migration-2026-11-02.sql (table gratuits : offre Free)
 //   (facultatif) OFFRES_WEBHOOK = adresse du workflow n8n de recherche d'offres ; par défaut OFFRES_DEFAUT ci-dessous
 //   (facultatif) MAILS_FREE_WEBHOOK = adresse du workflow n8n des e-mails Free ; par défaut MAILS_FREE_DEFAUT ci-dessous
+//   Base D1 : exécuter une fois worker/migration-2026-11-26.sql (table retractations : fonction de rétractation en ligne, art. L221-21)
+//   Workflow n8n « [JLT] 05 - E-mails clients » : gérer les types « retractation » (accusé de réception au client) et « retractation_admin » (alerte à contact@jaltio.fr)
 
-const ORIGINES = ["https://maxencepemjean-creator.github.io", "https://jaltio.fr", "https://www.jaltio.fr"];
+const ORIGINES = ["https://maxencepemjean-creator.github.io", "https://jaltio.fr", "https://www.jaltio.fr", "https://jaltio.pages.dev"];   // jaltio.pages.dev : adresse de test Cloudflare Pages
 const MODELES = ["claude-sonnet-5-5", "claude-haiku-5-5"];
 // Poids de coût par rapport à Sonnet 5.5 (2 $ / 10 $ par M jetons) : Haiku 5.5 = 0,10 $ / 0,50 $, soit 5 %.
 // La table conso enregistre des « jetons équivalent Sonnet » : coût en $ = (tokens_in × 2 + tokens_out × 10) / 1e6 + recherches × 0,01.
@@ -57,6 +59,7 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
   renvoi:   [3, 3600],                 // renvois du mail de validation, par paiement
   free_ip:  [5, 86400],                // inscriptions Free (nouvelles adresses), par adresse IP (hachée) et par jour
   free_ip_h:[6, 3600],                 // demandes d'inscription Free (nouvelles ou déjà connues), par adresse IP et par heure
+  retract:  [5, 3600],                 // déclarations de rétractation en ligne, par adresse IP (hachée) et par heure
   offres:   [60, 3600],                // recherches d'offres (Careerjet), par code d'accès et par heure
   offres_ip:[120, 3600],               // recherches d'offres, par adresse IP (hachée) et par heure
   free_jour:[20, 86400],               // inscriptions Free nouvelles, tous visiteurs confondus, par jour (garde-fou de coût ; 200 avant le 07/11)
@@ -278,6 +281,27 @@ async function synchro(request, env, origin, chemin) {
 
 /* ---------- Relais Claude ---------- */
 // true si la réponse finale contient un CV (objet JSON avec « cv ») : texte après le dernier résultat d'outil
+// Offre Free : la lettre de motivation est retirée de la réponse côté serveur, même si l'IA en a rédigé une
+// (la consigne CONSIGNE_FREE ne suffit pas à elle seule : un prompt peut la contourner).
+function sansLettre(texte) {
+  try {
+    const rep = JSON.parse(texte);
+    const blocs = Array.isArray(rep && rep.content) ? rep.content : [];
+    let dernier = -1;
+    blocs.forEach((b, i) => { if (b && /_tool_result$/.test(String(b.type || ""))) dernier = i; });
+    const idx = blocs.map((b, i) => i).filter(i => i > dernier && blocs[i] && blocs[i].type === "text");
+    const t = idx.map(i => String(blocs[i].text || "")).join("");
+    const a = t.indexOf("{"), z = t.lastIndexOf("}");
+    if (a < 0 || z <= a) return texte;
+    const o = JSON.parse(t.slice(a, z + 1));
+    if (!o || typeof o !== "object" || o.lettre == null) return texte;
+    o.lettre = null;
+    blocs[idx[0]] = { type: "text", text: t.slice(0, a) + JSON.stringify(o) + t.slice(z + 1) };
+    rep.content = blocs.filter((b, i) => !idx.slice(1).includes(i));
+    return JSON.stringify(rep);
+  } catch (e) { return texte; }
+}
+
 function produitUnCV(rep) {
   const blocs = Array.isArray(rep && rep.content) ? rep.content : [];
   let dernier = -1;
@@ -371,7 +395,8 @@ async function relais(request, env, origin) {
     },
     body: JSON.stringify(body),
   });
-  const texte = await res.text();
+  let texte = await res.text();
+  if (acces.offre === "free" && res.ok) texte = sansLettre(texte);
 
   // Consommation réelle (jetons, recherches web) par code et par mois : sert au quota et au calcul du coût
   if (env.DB && res.ok) {
@@ -539,6 +564,36 @@ async function resilierAbonnement(request, env, origin, ctx) {
   if (ctx && ctx.waitUntil) ctx.waitUntil(envoi); else await envoi;
   return reponse({ ok: true, fin, actif: true }, 200, origin);
 }
+// Rétractation en ligne (art. L221-21 du Code de la consommation, en vigueur depuis le 19/06/2026) :
+// la déclaration est enregistrée, un accusé de réception part aussitôt par e-mail (support durable)
+// et Maxence est prévenu pour vérifier le délai de 14 jours et rembourser dans Stripe.
+async function retractation(request, env, origin, ctx) {
+  if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
+  if (!env.DB) return erreur(503, "Service non configuré. Écrivez à contact@jaltio.fr.", origin);
+  const ip = await sha256hex("ip|" + (request.headers.get("CF-Connecting-IP") || "?"));
+  if (!(await sous_limite(env, "rt:" + ip, LIMITES.retract))) return erreur(429, "Trop de demandes. Patientez quelques minutes ou écrivez à contact@jaltio.fr.", origin);
+  let d = {};
+  try { d = JSON.parse((await request.text()).slice(0, 5000)) || {}; } catch (e) { return erreur(400, "Requête illisible.", origin); }
+  const nom = String(d.nom || "").trim().slice(0, 120);
+  const email = String(d.email || "").trim().toLowerCase().slice(0, 200);
+  const offre = String(d.offre || "").trim().slice(0, 60);
+  const souscription = String(d.souscription || "").trim().slice(0, 20);
+  const message = String(d.message || "").trim().slice(0, 1000);
+  if (String(d.site || "")) return reponse({ ok: true }, 200, origin);          // champ piège rempli : robot
+  if (!nom || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return erreur(400, "Indiquez votre nom et l'adresse e-mail utilisée pour l'abonnement.", origin);
+  const t = maintenant();
+  const ref = "R-" + new Date(t).toISOString().slice(0, 10).replace(/-/g, "") + "-" + (await sha256hex("rt|" + email + "|" + t)).slice(0, 6).toUpperCase();
+  await env.DB.prepare("INSERT INTO retractations (ref, cree, nom, email, offre, souscription, message, ip_h) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)")
+    .bind(ref, t, nom, email, offre, souscription, message, ip).run();
+  const date = new Date(t).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" });
+  const envoi = (async () => {
+    await envoyerMail(env, { type: "retractation", email, nom, ref, date, offre });
+    await envoyerMail(env, { type: "retractation_admin", email: "contact@jaltio.fr", client: email, nom, ref, date, offre, souscription, message });
+  })();
+  if (ctx && ctx.waitUntil) ctx.waitUntil(envoi); else await envoi;
+  return reponse({ ok: true, ref, date }, 200, origin);
+}
+
 const emailSession = s => (s && ((s.customer_details && s.customer_details.email) || s.customer_email)) || "";
 
 const masquer = m => { const [u, d] = String(m).split("@"); return d ? u.slice(0, 1) + "•••@" + d : ""; };
@@ -776,6 +831,7 @@ export default {
       if (chemin === "/stripe/valider") return await validerPaiement(request, env, origin);
       if (chemin === "/stripe/statut") return await statutAbonnement(request, env, origin);
       if (chemin === "/stripe/resilier") return await resilierAbonnement(request, env, origin, ctx);
+      if (chemin === "/retractation") return await retractation(request, env, origin, ctx);
       if (chemin.startsWith("/sync/")) return await synchro(request, env, origin, chemin);
       return await relais(request, env, origin);
     } catch (e) {

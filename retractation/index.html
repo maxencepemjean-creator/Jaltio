@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<title>Me rétracter — Jaltio</title>
+<meta name="description" content="Formulaire de rétractation en ligne de Jaltio : renoncez à votre abonnement dans les 14 jours suivant la souscription.">
+<link rel="canonical" href="https://jaltio.fr/retractation/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Jaltio">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Me rétracter de mon abonnement Jaltio">
+<meta property="og:description" content="Formulaire de rétractation en ligne, gratuit, dans les 14 jours suivant la souscription.">
+<meta property="og:url" content="https://jaltio.fr/retractation/">
+<meta property="og:image" content="https://jaltio.fr/assets/og/accueil.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/pages.css">
+<script src="/anim.js"></script>
+<style>
+.rt-form .row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.rt-form textarea{width:100%;min-height:90px;border:1px solid #d6c9d9;border-radius:10px;padding:12px;font:inherit;font-size:16px}
+.rt-form input[type=date]{width:100%;border:1px solid #d6c9d9;border-radius:10px;padding:11px 12px;font:inherit;font-size:16px;background:#fff}
+.rt-form .piege{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.rt-form .btn{margin-top:18px}
+.rt-ok{display:none}
+.rt-ok.vu{display:block}
+.rt-ok dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:14px 0}
+.rt-ok dt{font-weight:600;color:var(--muted)}
+.rt-ok dd{margin:0}
+@media (max-width:600px){.rt-form .row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/"><svg width="36" height="36" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg><span class="name">Jaltio</span></a>
+  <nav class="mainnav" aria-label="Menu principal"><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/conseils/">Conseils</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav>
+  <div class="top-cta"><a class="top-link" href="/app/">Se connecter</a><a class="top-link solid" href="/inscription/?offre=free">Essayer gratuitement</a></div>
+  <details class="menu"><summary aria-label="Ouvrir le menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A2340" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
+    <div class="menu-pop"><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/conseils/">Conseils</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><hr><a href="/app/">Se connecter</a><a href="/inscription/?offre=free">Essayer gratuitement</a></div></details>
+</header>
+<main>
+<div class="wrap narrow">
+  <h1>Me rétracter de mon abonnement</h1>
+  <p class="lead">Vous avez 14 jours après la souscription d'un abonnement Jaltio pour vous rétracter, sans avoir à vous justifier. Ce formulaire est gratuit et suffit : vous recevez aussitôt un accusé de réception par e-mail.</p>
+
+  <form class="card rt-form" id="rt" novalidate>
+    <label for="rt-nom">Nom et prénom</label>
+    <input type="text" id="rt-nom" name="nom" autocomplete="name" required>
+    <label for="rt-email">Adresse e-mail utilisée pour l'abonnement</label>
+    <input type="email" id="rt-email" name="email" autocomplete="email" required>
+    <div class="row">
+      <div><label for="rt-offre">Abonnement concerné</label>
+        <input type="text" id="rt-offre" name="offre" value="Jaltio Essentiel"></div>
+      <div><label for="rt-date">Date de souscription (si vous la connaissez)</label>
+        <input type="date" id="rt-date" name="souscription"></div>
+    </div>
+    <label for="rt-msg">Message (facultatif)</label>
+    <textarea id="rt-msg" name="message" maxlength="1000"></textarea>
+    <label class="piege" aria-hidden="true">Ne pas remplir <input name="site" tabindex="-1" autocomplete="off"></label>
+    <p class="hint">En confirmant, vous déclarez vous rétracter de votre contrat d'abonnement Jaltio. Le remboursement est fait sur votre moyen de paiement dans les 14 jours, selon l'article 8 des <a href="/cgv.html">conditions générales</a>.</p>
+    <button class="btn" type="submit">Confirmer la rétractation</button>
+    <p class="msg" id="rt-msg-err" role="alert"></p>
+  </form>
+
+  <div class="card rt-ok" id="rt-ok" role="status" tabindex="-1">
+    <h2 style="margin-top:0">Votre rétractation est enregistrée</h2>
+    <p>Un accusé de réception vient de partir vers <b id="rt-ok-email"></b>. Gardez-le, ou imprimez cette page.</p>
+    <dl><dt>Numéro</dt><dd id="rt-ok-ref"></dd><dt>Date</dt><dd id="rt-ok-date"></dd><dt>Nom</dt><dd id="rt-ok-nom"></dd><dt>Abonnement</dt><dd id="rt-ok-offre"></dd></dl>
+    <p class="hint">Vous n'avez rien reçu d'ici une heure ? Vérifiez vos courriers indésirables, puis écrivez à <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> en indiquant ce numéro.</p>
+    <button class="btn alt no-print" type="button" onclick="window.print()">Imprimer cette page</button>
+  </div>
+
+  <h2>Les autres moyens</h2>
+  <p>Vous pouvez aussi nous écrire à <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a>, ou utiliser le modèle de formulaire de rétractation figurant en annexe des <a href="/cgv.html#annexe-retractation">conditions générales</a>. Pour arrêter un abonnement après 14 jours, il s'agit d'une résiliation : <a href="/app/?resilier">Résilier mon abonnement</a>.</p>
+</div>
+</main>
+<footer class="foot">
+  <a class="foot-brand" href="/"><svg width="26" height="26" viewBox="0 0 72 72" aria-hidden="true"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg>Jaltio</a>
+  <p class="foot-tag">Un CV et une lettre adaptés à chaque offre d'emploi.</p>
+  <nav aria-label="Pied de page"><a href="/forfaits/">Tarifs</a><a href="/conseils/">Conseils</a><a href="/conseils/adapter-cv-offre/">Adapter son CV</a><a href="/conseils/lettre-de-motivation-structure/">Lettre de motivation</a><a href="/conseils/preparer-entretien-embauche/">Entretien</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav>
+  <nav aria-label="Informations légales"><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a><a href="/app/?resilier">Résilier mon abonnement</a><a href="/retractation/">Me rétracter</a></nav>
+  <p class="foot-legal">© 2026 Jaltio · <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> · Documents rédigés avec Claude, l'IA d'Anthropic (<a href="/faq/#ia">en savoir plus</a>)</p>
+</footer>
+<script>
+(function(){
+  var RELAIS = "https://jalon-relais.jalon-emploi.workers.dev";
+  var f = document.getElementById("rt"), err = document.getElementById("rt-msg-err"), go = f.querySelector("button[type=submit]");
+  function dire(t){ err.textContent = t; err.className = t ? "msg err" : "msg"; }
+  f.addEventListener("submit", function(ev){
+    ev.preventDefault(); dire("");
+    var d = { nom: f.nom.value.trim(), email: f.email.value.trim(), offre: f.offre.value.trim(), souscription: f.souscription.value, message: f.message.value.trim(), site: f.site.value };
+    if(!d.nom){ dire("Indiquez votre nom et prénom."); f.nom.focus(); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.email)){ dire("Indiquez l'adresse e-mail utilisée pour l'abonnement."); f.email.focus(); return; }
+    go.disabled = true; go.textContent = "Envoi…";
+    fetch(RELAIS + "/retractation", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(d) })
+      .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error(j && j.error && j.error.message || "serveur"); return j; }); })
+      .then(function(j){
+        f.style.display = "none";
+        var ok = document.getElementById("rt-ok"); ok.classList.add("vu");
+        document.getElementById("rt-ok-email").textContent = d.email;
+        document.getElementById("rt-ok-ref").textContent = j.ref || "";
+        document.getElementById("rt-ok-date").textContent = j.date || "";
+        document.getElementById("rt-ok-nom").textContent = d.nom;
+        document.getElementById("rt-ok-offre").textContent = d.offre || "Jaltio";
+        ok.focus();
+      })
+      .catch(function(e){
+        dire((e && e.message && e.message !== "serveur" ? e.message + " " : "") + "Si le problème continue, écrivez à contact@jaltio.fr : votre e-mail vaut déclaration de rétractation.");
+      })
+      .then(function(){ go.disabled = false; go.textContent = "Confirmer la rétractation"; });
+  });
+})();
+</script>
+<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "dcd19a490f414e60909bf61deaae5385"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

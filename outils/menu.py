@@ -9,7 +9,8 @@ INSCRIPTION, CONNEXION = "/inscription/?offre=free", "/app/"
 LIB_INSCRIPTION = "Essayer gratuitement"
 # page -> lien actif du menu (None : aucun) ; "simple" = en-tête allégé (tunnel d'inscription)
 PAGES = {"index.html": "/", "forfaits/index.html": "/forfaits/", "faq/index.html": "/faq/", "contact/index.html": "/contact/",
-         "conseils/index.html": "/conseils/", "cgv.html": None, "confidentialite.html": None, "mentions-legales.html": None, "inscription/index.html": "simple"}
+         "conseils/index.html": "/conseils/", "cgv.html": None, "confidentialite.html": None, "mentions-legales.html": None, "inscription/index.html": "simple",
+         "retractation/index.html": None, "404.html": None}
 
 def entete(actif):
     if actif == "simple":
@@ -23,10 +24,13 @@ def entete(actif):
             '  <details class="menu"><summary aria-label="Ouvrir le menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A2340" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>\n'
             f'    <div class="menu-pop">{liens}<hr><a href="{CONNEXION}">Se connecter</a><a href="{INSCRIPTION}">' + LIB_INSCRIPTION + '</a></div></details>\n</header>')
 
-PIED = ('<footer class="foot">\n  <nav><a href="/">Accueil</a><a href="/forfaits/">Tarifs</a><a href="/conseils/">Conseils</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a>'
-        '<a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a>'
-        '<a href="/app/?resilier">Résilier mon abonnement</a></nav>\n'
-        '  Jaltio · <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> · IA : Claude, d\'Anthropic (États-Unis)\n</footer>')
+LOGO_PIED = LOGO.replace('width="36" height="36"', 'width="26" height="26"').replace('role="img" aria-label="Logo Jaltio"', 'aria-hidden="true"')
+PIED = ('<footer class="foot">\n  <a class="foot-brand" href="/">' + LOGO_PIED + 'Jaltio</a>\n'
+        '  <p class="foot-tag">Un CV et une lettre adaptés à chaque offre d\'emploi.</p>\n'
+        '  <nav aria-label="Pied de page"><a href="/forfaits/">Tarifs</a><a href="/conseils/">Conseils</a><a href="/conseils/adapter-cv-offre/">Adapter son CV</a><a href="/conseils/lettre-de-motivation-structure/">Lettre de motivation</a><a href="/conseils/preparer-entretien-embauche/">Entretien</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a></nav>\n'
+        '  <nav aria-label="Informations légales"><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a>'
+        '<a href="/app/?resilier">Résilier mon abonnement</a><a href="/retractation/">Me rétracter</a></nav>\n'
+        '  <p class="foot-legal">© 2026 Jaltio · <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> · Documents rédigés avec Claude, l\'IA d\'Anthropic (<a href="/faq/#ia">en savoir plus</a>)</p>\n</footer>')
 
 # Articles de conseils : lien « Conseils » actif
 for d in sorted((RACINE / "conseils").glob("*/index.html")):

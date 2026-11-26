@@ -37,6 +37,8 @@
       vus.forEach(function (el) { io.observe(el); });
       /* Filet de sécurité : rien ne reste caché (impression, onglet en arrière-plan…) */
       window.addEventListener("beforeprint", function () { vus.forEach(function (el) { el.classList.add("vu"); }); });
+      /* Au bout de 4 s, tout est affiché même sans défilement (aperçus, robots, navigateurs lents) */
+      setTimeout(function () { vus.forEach(function (el) { el.classList.add("vu"); }); }, 4000);
     }
 
     /* FAQ : ouverture et fermeture en douceur */

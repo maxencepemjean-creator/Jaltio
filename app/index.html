@@ -4,7 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="only light">
-<title>Jaltio — votre coach emploi IA</title>
+<title>Mon espace — Jaltio</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#3A2340">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Jaltio">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -234,7 +238,7 @@ body[data-view="aide"] [data-v]:not([data-v~="aide"]){display:none!important}
   body.m .views{display:none}
   body.m .fab{display:none!important}
   body.m .tabbar{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:70;background:#fff;border-top:1px solid var(--line);padding:6px 2px calc(10px + env(safe-area-inset-bottom, 0px))}
-  .tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font:600 10.5px 'Figtree',system-ui,sans-serif;letter-spacing:-.1px;white-space:nowrap;color:var(--muted);min-height:52px;position:relative;cursor:pointer}
+  .tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font:600 10.5px Inter,Arial,sans-serif;letter-spacing:-.1px;white-space:nowrap;color:var(--muted);min-height:52px;position:relative;cursor:pointer}
   .tabbar button svg{width:24px;height:24px}
   .tabbar button[aria-selected="true"]{color:var(--brand);font-weight:700}
   .tabbar .badge{position:absolute;top:0;left:calc(50% + 6px);background:var(--danger);color:#fff;border-radius:999px;font-size:11px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 4px}
@@ -637,6 +641,8 @@ body.m .save-fab{border-radius:999px}
 @media print{ .overlay.hlp{display:none!important} }
 
 /* Bulle « Demande à Claude ! » */
+.app{padding-bottom:90px}
+body.m .app{padding-bottom:0}
 .fab{position:fixed;right:22px;bottom:22px;width:62px;height:62px;border-radius:50%;border:0;background:var(--brand);color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(31,78,121,.35);display:grid;place-items:center;z-index:50;transition:transform .15s}
 .fab:hover{transform:scale(1.06)}
 .fab:focus-visible{outline:3px solid #93c5fd;outline-offset:3px}
@@ -738,7 +744,7 @@ body.modal-open{overflow:hidden}
 
 /* ================= Identité Jaltio ================= */
 [hidden]{display:none!important} /* un élément masqué le reste, quel que soit son style */
-body{font-family:'Figtree',system-ui,sans-serif;background:var(--bg)}
+body{font-family:Inter,Arial,sans-serif;background:var(--bg)}
 .panel{background:#fff;border-right:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:12px;margin:0 0 4px}
 .brand .name{font-family:var(--display);font-size:30px;font-weight:800;letter-spacing:-.02em;color:var(--brand);line-height:1}
@@ -968,7 +974,7 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 .sync-state{display:flex;align-items:center;gap:8px;margin:0 0 4px;font-size:15px}
 .sync-dot{width:10px;height:10px;border-radius:50%;background:var(--ok);flex:none}
 .sync-dot.wait{background:var(--accent)} .sync-dot.err{background:var(--danger)} .sync-dot.off{background:#9a8aa0}
-.sync-pill{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--muted);font:600 12px 'Figtree',system-ui,sans-serif;padding:0 2px;min-height:28px;cursor:pointer;margin:-2px 0 6px}
+.sync-pill{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--muted);font:600 12px Inter,Arial,sans-serif;padding:0 2px;min-height:28px;cursor:pointer;margin:-2px 0 6px}
 .sync-pill[hidden]{display:none}
 .sync-pill .sync-dot{width:8px;height:8px}
 .sync-pill:hover{color:var(--brand)}
@@ -1057,9 +1063,23 @@ input[type=text]:focus,input[type=password]:focus,input[type=tel]:focus,input[ty
 .gate[hidden]{display:none}
 .gate-box{width:100%;max-width:440px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px 24px 22px;box-shadow:0 18px 50px rgba(58,35,64,.12)}
 .gate-box h1{margin:14px 0 6px;font-size:26px;line-height:1.2}
-.gate-box .gate-forgot{margin:14px 0 0;font-size:13px}
+.gate-box .gate-forgot{margin:14px 0 0;font-size:13.5px;color:var(--muted)}
+.gate-box .gate-forgot summary{cursor:pointer;font-weight:600;color:var(--brand);list-style:none}
+.gate-box .gate-forgot summary::-webkit-details-marker{display:none}
+.gate-box .gate-forgot p{margin:8px 0 0}
+.gate a{color:var(--brand);font-weight:600}
+.gate .gate-logo{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-weight:700;font-size:22px;color:var(--brand)}
+.gate .gate-foot{width:100%;max-width:440px;text-align:center;font-size:12.5px;color:var(--muted);margin:18px auto 0}
+.gate .gate-foot a{color:var(--muted);font-weight:500;margin:0 5px}
+.gate-col{width:100%;max-width:440px}
 .in-gate > p.hint:first-child, .in-gate .sync-warn{display:none}
-body.gate-open{overflow:hidden}
+.in-gate .row .btn.primary{width:100%;justify-content:center;padding:13px 16px;font-size:16px;border-radius:12px}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:92px!important}
+.pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--brand);font:600 13.5px Inter,Arial,sans-serif;padding:8px 10px;cursor:pointer;border-radius:8px}
+.pw-eye:hover{background:var(--lilas, #EFE4F2)}
+body.gate-open{overflow:hidden;position:fixed;inset:0;width:100%}
+body.gate-open .app, body.gate-open .rail, body.gate-open #rail-edge, body.gate-open #rail-open, body.gate-open #chat, body.gate-open #app-legal, body.gate-open .edit-bar{visibility:hidden}
 body.gate-open .tabbar, body.gate-open .fab{display:none}
 .tour-sample{position:relative;margin:0 auto;max-width:560px;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.15)}
 .tour-sample img{display:block;width:100%;height:auto}
@@ -1325,10 +1345,11 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
 </head>
 <body>
 <div class="gate app-ui" id="gate" hidden>
+  <div class="gate-col">
   <div class="gate-box" role="dialog" aria-modal="true" aria-labelledby="gate-title">
-    <svg class="logo" width="52" height="52" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg>
-    <h1 id="gate-title">Bienvenue sur <span data-brand>Jaltio</span></h1>
-    <p class="hint" style="margin-top:0">Connectez-vous avec l'e-mail et le mot de passe choisis à votre inscription. Pas encore de compte ? Créez-en un gratuitement (offre Free) ou abonnez-vous depuis la page Tarifs.</p>
+    <a class="gate-logo" href="/?accueil" aria-label="Jaltio, retour au site"><svg class="logo" width="44" height="44" viewBox="0 0 72 72" role="img" aria-label="Logo Jaltio"><rect width="72" height="72" rx="18" fill="#3A2340"/><path d="M15 55H28V44H41V33H55" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="20" r="6.5" fill="#F2A93B"/></svg><span>Jaltio</span></a>
+    <h1 id="gate-title">Connexion à votre espace</h1>
+    <p class="hint" style="margin-top:0">Avec l'e-mail et le mot de passe choisis à votre inscription. Pas encore de compte ? <a href="/inscription/?offre=free">Essayer gratuitement</a></p>
     <div id="gate-otp" hidden>
       <p class="hint" id="otp-txt" style="margin-top:0"></p>
       <label for="otp-in">Code de validation (6 chiffres)</label>
@@ -1337,8 +1358,9 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
       <div class="status" id="otp-msg"></div>
     </div>
     <div id="gate-slot"></div>
-    <p class="hint gate-plans"><a href="/?accueil">Découvrir Jaltio</a> · Pas encore abonné ? <a href="/forfaits/">Voir les forfaits</a> · <a href="/cgv.html">CGV</a> · <a href="/confidentialite.html">Confidentialité</a></p>
-    <p class="hint gate-forgot">Mot de passe oublié : vos données sont chiffrées avec lui, personne ne peut le réinitialiser. Pour repartir de zéro, rouvrez le lien de votre e-mail de bienvenue Jaltio, puis créez un compte avec une autre adresse e-mail.</p>
+    <details class="gate-forgot"><summary>Mot de passe oublié ?</summary><p>Vos documents sont chiffrés avec votre mot de passe : personne ne peut le réinitialiser à votre place. Écrivez-nous à <a href="mailto:contact@jaltio.fr">contact@jaltio.fr</a> depuis l'adresse de votre compte : nous vous aiderons à retrouver l'accès à votre abonnement.</p></details>
+  </div>
+  <p class="gate-foot gate-plans"><a href="/?accueil">Découvrir Jaltio</a><a href="/forfaits/">Tarifs</a><a href="/cgv.html">CGV</a><a href="/confidentialite.html">Confidentialité</a><a href="/mentions-legales.html">Mentions légales</a></p>
   </div>
 </div>
 <nav class="rail app-ui" id="rail" aria-label="Menu">
@@ -1389,10 +1411,10 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
       <label for="profile-name" class="sr-only">Votre prénom et nom</label>
       <input type="text" id="profile-name" placeholder="Votre prénom et nom" autocomplete="name">
       <div class="who-age">
-        <label for="profile-naissance">Date de naissance</label>
+        <label for="profile-naissance">Date de naissance <small style="font-weight:400;color:var(--muted)">(facultative)</small></label>
         <input type="date" id="profile-naissance" autocomplete="bday">
         <span class="age-txt" id="age-txt" aria-live="polite"></span>
-        <label class="check" id="age-cv-row" hidden><input type="checkbox" id="age-cv"> Âge sur mes CV</label>
+        <label class="check" id="age-cv-row" hidden title="Déconseillé : la loi interdit de choisir un candidat selon son âge, mais l'afficher peut quand même vous desservir."><input type="checkbox" id="age-cv"> Âge sur mes CV (déconseillé)</label>
       </div>
       <div class="who-actions">
         <button class="link" id="btn-photo-crop" type="button" hidden>Recadrer la photo</button>
@@ -1650,10 +1672,10 @@ button.kpi{cursor:pointer}button.kpi:hover{border-color:#D9C6B3}button.kpi:focus
       <p class="hint" style="margin-top:0">Choisissez un identifiant (votre e-mail) et un mot de passe. Sur un autre appareil, entrez les mêmes : vous retrouvez votre parcours, vos CV, vos candidatures et votre suivi.</p>
       <div class="sync-warn" role="note"><b>À lire avant de commencer.</b> Vos données sont verrouillées avec votre mot de passe, sur votre appareil, avant d'être envoyées. Personne d'autre ne peut les lire, pas même <span data-brand>Jaltio</span>. <b>Conséquence : si vous oubliez ce mot de passe, vos données en ligne sont perdues pour toujours, personne ne peut les récupérer.</b> Gardez-le dans un endroit sûr (le gestionnaire de mots de passe de votre téléphone, par exemple).</div>
       <form id="sync-form" autocomplete="on" novalidate>
-        <label for="sync-mail">Identifiant (votre e-mail)</label>
+        <label for="sync-mail">E-mail</label>
         <input type="email" id="sync-mail" name="username" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="prenom.nom@exemple.fr">
         <label for="sync-pw">Mot de passe (8 caractères minimum)</label>
-        <input type="password" id="sync-pw" name="password" autocomplete="current-password" minlength="8">
+        <div class="pw-wrap"><input type="password" id="sync-pw" name="password" autocomplete="current-password" minlength="8"><button class="pw-eye" type="button" data-eye="sync-pw" aria-pressed="false">Afficher</button></div>
         <div id="sync-new" hidden>
           <label for="sync-pw2">Retapez le mot de passe</label>
           <input type="password" id="sync-pw2" name="password2" autocomplete="new-password">
@@ -2086,7 +2108,7 @@ const store = {
   set(k, v){
     let changed = false;
     try{ const s = JSON.stringify(v), prev = localStorage.getItem("cvx_"+k); localStorage.setItem("cvx_"+k, s); changed = prev !== s; }
-    catch(e){ alert(_t("Impossible d'enregistrer (mémoire du navigateur pleine ou navigation privée). Supprimez d'anciens CV de l'historique.")); return false; }
+    catch(e){ notify(_t("Impossible d'enregistrer (mémoire du navigateur pleine ou navigation privée). Supprimez d'anciens CV de l'historique.")); return false; }
     if(changed && syncSt && SYNC_KEYS.includes(k)) syncDirty();
     return true;
   }
@@ -2283,9 +2305,9 @@ $("#btn-new-profile").addEventListener("click", () => {
   const p = { id:uid(), name:"", parcours:"", photo:"" }; profiles.push(p); currentProfileId = p.id; saveProfiles(); renderProfiles(); showEmpty();
   $("#offre").value = ""; $("#offre-url").value = ""; clearSpont(); $("#profile-name").focus();
 });
-$("#btn-del-profile").addEventListener("click", () => {
+$("#btn-del-profile").addEventListener("click", async () => {
   const p = prof();
-  if(!confirm(_t("Supprimer le profil « ") + (p.name || _t("sans nom")) + _t(" » et ses CV ?"))) return;
+  if(!(await ask(_t("Supprimer le profil « ") + (p.name || _t("sans nom")) + _t(" » et ses CV ?"), { ok:_t("Supprimer"), danger:true }))) return;
   profiles = profiles.filter(x => x.id !== p.id);
   history = history.filter(h => h.profileId !== p.id); saveHistory();
   currentProfileId = profiles[0].id; saveProfiles(); renderProfiles(); showEmpty();
@@ -2470,6 +2492,11 @@ function askBox({ title, html, buttons }){
   });
 }
 const escHtml = t => String(t).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]);
+/* Fenêtres de Jaltio à la place des boîtes grises du navigateur (alert, confirm, prompt) */
+const notify = (texte, titre) => askBox({ title: titre || BRAND.name, html: "<p>" + escHtml(texte).replace(/\n/g, "<br>") + "</p>", buttons: [{ label: _t("OK"), value: true, cls: "primary" }] });
+const ask = (texte, { ok = _t("Confirmer"), danger = false, titre } = {}) =>
+  askBox({ title: titre || _t("Êtes-vous sûr ?"), html: "<p>" + escHtml(texte) + "</p>",
+           buttons: [{ label: _t("Annuler"), value: false, cls: "primary" }, { label: ok, value: true, cls: danger ? "danger" : "" }] }).then(v => v === true);
 const FORMATS_HTML = _t("<ul><li><b>PDF</b> (.pdf), même scanné</li><li><b>Word</b> (.docx)</li><li><b>Photo ou capture d'écran du CV</b> (.jpg, .jpeg, .png, .webp)</li><li><b>Texte</b> (.txt)</li></ul>");
 const IMG_RE = /\.(jpe?g|png|webp)$/i, OK_RE = /\.(pdf|docx|txt|md|jpe?g|png|webp)$/i;
 function badFormatHtml(names){
@@ -2529,7 +2556,7 @@ async function handleFiles(files){
         const txt = await imagesViaClaude(imgs);
         if(txt.length < 40) throw new Error(_t("Aucun texte trouvé sur cette image. Prenez la photo bien à plat, avec une bonne lumière."));
         const pp = prof();
-        if(!(str(pp.parcours).length >= 80 && !confirm(_t("Remplacer votre CV enregistré par « ") + imgs[0].name + " » ?"))) setParcours(txt, _t("la photo du CV « ") + imgs[0].name + " »");
+        if(!(str(pp.parcours).length >= 80 && !(await ask(_t("Remplacer votre CV enregistré par « ") + imgs[0].name + " » ?", { ok:_t("Remplacer") })))) setParcours(txt, _t("la photo du CV « ") + imgs[0].name + " »");
       }catch(e){ status("#pc-status", "err", e.message || _t("Cette image n'a pas pu être lue.")); }
       finally{ drop.innerHTML = DROP_HTML; }
     }
@@ -2549,7 +2576,7 @@ async function handleDocFiles(files){
         if(txt.length < 80){
           drop.innerHTML = _t("<b>PDF scanné : lecture en cours… (10 à 30 s)</b>");
           try{ txt = await pdfViaClaude(buf); }
-          catch(e){ throw new Error(e.message === "nokey" ? _t("Ce PDF est une image scannée. Enregistrez d'abord la clé d'accès pour qu'il puisse être lu.") : e.message); }
+          catch(e){ throw new Error(e.message === "nokey" ? _t("Ce PDF est une image scannée. Connectez-vous à votre compte pour qu'il puisse être lu.") : e.message); }
         }
       } else if(name.endsWith(".docx")){ txt = await docxToText(buf); }
       else if(name.endsWith(".doc")){ throw new Error(_t("Les anciens fichiers Word (.doc) ne sont pas lisibles. Ouvrez-le dans Word et enregistrez-le en .docx ou en PDF.")); }
@@ -2557,7 +2584,7 @@ async function handleDocFiles(files){
       else throw new Error(_t("Format non pris en charge : utilisez un PDF, un .docx ou un fichier texte."));
       if(txt.length < 40) throw new Error(_t("Aucun texte trouvé dans ce fichier. Copiez-collez votre parcours à la main."));
       const pp = prof();
-      if(str(pp.parcours).length >= 80 && !confirm(_t("Remplacer votre CV enregistré par « ") + f.name + " » ?")) continue;
+      if(str(pp.parcours).length >= 80 && !(await ask(_t("Remplacer votre CV enregistré par « ") + f.name + " » ?", { ok:_t("Remplacer") }))) continue;
       setParcours(txt, _t("le CV « ") + f.name + " »");
     }catch(e){
       status("#pc-status", "err", e.message && e.message.length > 12 ? e.message : _t("Ce fichier n'a pas pu être lu. Essayez un autre fichier, ou écrivez votre parcours."));
@@ -3469,7 +3496,8 @@ function renderBoard(groups){
   const badge = $("#nav-badge"); badge.textContent = todo.length; badge.hidden = !todo.length;
   const tb = $("#tab-badge"); if(tb){ tb.textContent = todo.length; tb.hidden = !todo.length; }
   const rb = $("#rail-badge"); if(rb){ rb.textContent = todo.length; rb.hidden = !todo.length; }
-  badge.title = todo.length ? todo.length + _t(" chose(s) à faire") : "";
+  const lib = todo.length ? todo.length + (todo.length > 1 ? _t(" actions à faire (relances, envois, entretiens)") : _t(" action à faire (relance, envoi ou entretien)")) : "";
+  [badge, tb, rb].forEach(b => { if(b){ b.title = lib; b.setAttribute("aria-label", lib); } });
   const fn = firstName();
   $("#apps-hello-t").textContent = _t("Bonjour") + (fn ? " " + fn : "");
   $("#apps-hello-s").textContent = !groups.length ? _t("Créez un CV ou ajoutez une candidature pour démarrer votre suivi.") : todo.length ? (todo.length === 1 ? _t("1 chose à faire aujourd'hui.") : todo.length + _t(" choses à faire aujourd'hui.")) : _t("Rien d'urgent aujourd'hui.");
@@ -3488,7 +3516,7 @@ function renderBoard(groups){
   const sent = groups.filter(G => appliedOf(G)).length;
   const answers = groups.filter(G => { const r = (suivi[G.id] || {}).result; return interviewOf(G) || r === "refus" || r === "offre"; }).length;
   const pct = Math.min(100, Math.round(thisWeek / goal * 100));
-  const g = $("#goal"); g.innerHTML = ""; g.hidden = !groups.length;
+  const g = $("#goal"); g.innerHTML = ""; g.hidden = true;   /* objectif hebdomadaire masqué : culpabilisant (audit du 26/11) */
   const ring = el("div", "ring"); ring.style.background = "conic-gradient(var(--accent) 0 " + pct + "%, var(--lilas) " + pct + "% 100%)";
   ring.appendChild(el("span", "", thisWeek + "/" + goal)); ring.setAttribute("aria-hidden", "true"); g.appendChild(ring);
   const gt = el("div", "gt");
@@ -3643,7 +3671,6 @@ function renderStats(){
   kpi(K, groups.filter(G => G.versions.some(v => !v.manual)).length, _t("CV créés"));
   kpi(K, groups.filter(G => G.versions.some(v => v.lettreHtml)).length, _t("lettres rédigées"));
   kpi(K, sent, _t("candidatures envoyées"));
-  kpi(K, serie, _t("jours d'affilée"), { sub:serie ? _t("série en cours") : _t("revenez demain pour en démarrer une") });
   box.appendChild(K);
   const g = el("div", "st-grid");
   const f = el("section", "hcard"); f.appendChild(entonnoir(groups)); g.appendChild(f);
@@ -3854,7 +3881,7 @@ function doPrint(){
   if(inAppBrowser() || typeof window.print !== "function"){
     printDone();
     try{ navigator.clipboard.writeText(location.href); }catch(e){}
-    alert(_t("Cette fenêtre (ouverte depuis une application) ne permet pas de créer le PDF.\n\nOuvrez Jaltio dans Safari ou Chrome : touchez « ⋯ » puis « Ouvrir dans le navigateur ». Le lien a été copié, vous pouvez aussi le coller dans Safari ou Chrome."));
+    notify(_t("Cette fenêtre (ouverte depuis une application) ne permet pas de créer le PDF.\n\nOuvrez Jaltio dans Safari ou Chrome : touchez « ⋯ » puis « Ouvrir dans le navigateur ». Le lien a été copié, vous pouvez aussi le coller dans Safari ou Chrome."));
     return;
   }
   /* Appel direct dans le clic : sur iPhone, un print() différé (setTimeout) peut être ignoré */
@@ -3895,8 +3922,8 @@ function pdfTextLayer(doc, page){
   }
 }
 async function downloadPDF(which){
-  if(!currentHistId){ alert(_t("Générez d'abord un CV.")); return; }
-  if(which === "lettre" && $("#tab-lettre").hidden){ alert(_t("Aucune lettre pour ce CV.")); return; }
+  if(!currentHistId){ notify(_t("Générez d'abord un CV.")); return; }
+  if(which === "lettre" && $("#tab-lettre").hidden){ notify(_t("Aucune lettre pour ce CV.")); return; }
   const h = history.find(x => x.id === currentHistId);
   const nom = (h && h.data && h.data.cv && str(h.data.cv.nom)) || "CV";
   const fname = ((which === "cv" ? "CV " : _t("Lettre ")) + nom + (h && h.entreprise ? " - " + h.entreprise : "")).replace(/[\\/:*?"<>|]+/g, "").trim() + ".pdf";
@@ -3935,7 +3962,7 @@ async function downloadPDF(which){
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 30000);
     }
   }catch(e){
-    alert(_t("Le PDF n'a pas pu être créé. Vérifiez votre connexion internet puis réessayez."));
+    notify(_t("Le PDF n'a pas pu être créé. Vérifiez votre connexion internet puis réessayez."));
   }finally{
     wrap.remove(); document.body.classList.remove("pdf-busy");
   }
@@ -3949,8 +3976,8 @@ $("#btn-copy-lettre").addEventListener("click", async () => {
   const p = $("#page-lettre"); const parts = [];
   p.querySelectorAll(".objet, p, .sign").forEach(n => parts.push(n.innerText.trim()));
   const txt = parts.join("\n\n");
-  try{ await navigator.clipboard.writeText(txt); alert(_t("Texte de la lettre copié. Vous pouvez le coller dans un e-mail ou un formulaire.")); }
-  catch(e){ prompt(_t("Copiez le texte ci-dessous :"), txt); }
+  try{ await navigator.clipboard.writeText(txt); notify(_t("Texte de la lettre copié. Vous pouvez le coller dans un e-mail ou un formulaire.")); }
+  catch(e){ askBox({ title:_t("Copiez le texte ci-dessous"), html:'<textarea readonly style="width:100%;min-height:200px;font:inherit">' + escHtml(txt) + '</textarea>', buttons:[{ label:_t("Fermer"), value:true, cls:"primary" }] }); }
 });
 
 /* ---------- Retouches à la main : validation et apprentissage ---------- */
@@ -4252,12 +4279,10 @@ function ebApply(kind, val){
   const s2 = getSelection(); if(s2.rangeCount) ebRange = s2.getRangeAt(0).cloneRange();
   markDirty(); onEditSave();
 }
-const EB_FONTS = [
+const EB_FONTS = [   /* polices sobres seulement (audit du 26/11) ; les anciens CV gardent leur police */
   ["Sans empattements", [["Lato", "Lato, Carlito, Arial, sans-serif"], ["Inter", "Inter, Arial, sans-serif"], ["Roboto", "Roboto, Arial, sans-serif"], ["Open Sans", "'Open Sans', Arial, sans-serif"],
-    ["Source Sans 3", "'Source Sans 3', Arial, sans-serif"], ["Nunito", "Nunito, Arial, sans-serif"], ["Montserrat", "Montserrat, Arial, sans-serif"], ["Poppins", "Poppins, Arial, sans-serif"],
-    ["Raleway", "Raleway, Arial, sans-serif"], ["Figtree", "Figtree, Arial, sans-serif"], ["Arial", "Arial, Helvetica, sans-serif"], ["Verdana", "Verdana, Geneva, sans-serif"]]],
-  ["Avec empattements", [["Lora", "Lora, Georgia, serif"], ["Merriweather", "Merriweather, Georgia, serif"], ["PT Serif", "'PT Serif', Georgia, serif"],
-    ["Playfair Display", "'Playfair Display', Georgia, serif"], ["Georgia", "Georgia, serif"], ["Times New Roman", "'Times New Roman', Times, serif"]]]
+    ["Source Sans 3", "'Source Sans 3', Arial, sans-serif"], ["Arial", "Arial, Helvetica, sans-serif"]]],
+  ["Avec empattements", [["Lora", "Lora, Georgia, serif"], ["Merriweather", "Merriweather, Georgia, serif"], ["PT Serif", "'PT Serif', Georgia, serif"], ["Georgia", "Georgia, serif"]]]
 ];
 const EB_SIZES = [7, 8, 9, 10, 10.5, 11, 12, 13, 14, 16, 18, 20, 24, 28];
 const fmtPt = v => String(v).replace(".", ",");
@@ -4328,8 +4353,8 @@ function renderRetouchesInfo(){
   box.hidden = !n;
   if(n) $("#retouches-n").textContent = n === 1 ? _t("1 de vos retouches") : n + _t(" de vos retouches");
 }
-$("#btn-forget").addEventListener("click", () => {
-  if(!confirm(BRAND.name + _t(" oubliera vos retouches passées pour ce profil. Continuer ?"))) return;
+$("#btn-forget").addEventListener("click", async () => {
+  if(!(await ask(BRAND.name + _t(" oubliera vos retouches passées pour ce profil. Continuer ?"), { ok:_t("Oublier"), danger:true }))) return;
   prof().retouches = []; saveProfiles(); renderRetouchesInfo();
 });
 function retouchesBlock(p){
@@ -4408,7 +4433,7 @@ let chatBusy = false;
 async function sendChat(text){
   text = str(text); if(!text || chatBusy) return;
   if(freeBlock()) return;
-  if(!settings.apiKey){ $("#step-key").hidden = false; alert(_t("Enregistrez d'abord la clé d'accès (encadré « Première utilisation »).")); return; }
+  if(!settings.apiKey){ $("#step-key").hidden = false; notify(_t("Connectez-vous à votre compte pour utiliser cette fonction.")); return; }
   const list = chatList(); list.push({ role:"user", text }); saveChat(); renderChat();
   stopDictation(); $("#chat-input").value = ""; growChat(); chatBusy = true; $("#chat-send").disabled = true;
   const wait = el("div", "msg wait", BRAND.name + _t(" réfléchit…")); $("#chat-msgs").appendChild(wait); $("#chat-msgs").scrollTop = 1e9;
@@ -4441,8 +4466,8 @@ $("#fab").addEventListener("click", () => openChat(true));
 $("#chat-close").addEventListener("click", () => { stopDictation(); openChat(false); });
 $("#chat-form").addEventListener("submit", e => { e.preventDefault(); sendChat($("#chat-input").value); });
 $("#chat-input").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendChat($("#chat-input").value); } });
-$("#chat-clear").addEventListener("click", () => {
-  if(!chatList().length || !confirm(_t("Effacer cette discussion ?"))) return;
+$("#chat-clear").addEventListener("click", async () => {
+  if(!chatList().length || !(await ask(_t("Effacer cette discussion ?"), { ok:_t("Effacer"), danger:true }))) return;
   chatList().length = 0; saveChat(); renderChat();
 });
 document.querySelectorAll("[data-apply]").forEach(b => b.addEventListener("click", async () => {
@@ -4496,9 +4521,9 @@ function setupDictation(btn, field, onUnsupported){
     };
     rec.onerror = e => {
       if(e.error === "not-allowed" || e.error === "service-not-allowed")
-        alert(_t("Le micro est bloqué. Cliquez sur le cadenas à gauche de l'adresse du site, autorisez le micro, puis réessayez."));
-      else if(e.error === "audio-capture") alert(_t("Aucun micro n'a été trouvé sur cet appareil."));
-      else if(e.error === "network") alert(_t("La dictée a besoin d'Internet. Vérifiez la connexion et réessayez."));
+        notify(_t("Le micro est bloqué. Cliquez sur le cadenas à gauche de l'adresse du site, autorisez le micro, puis réessayez."));
+      else if(e.error === "audio-capture") notify(_t("Aucun micro n'a été trouvé sur cet appareil."));
+      else if(e.error === "network") notify(_t("La dictée a besoin d'Internet. Vérifiez la connexion et réessayez."));
     };
     rec.onend = () => { btn.classList.remove("on"); btn.setAttribute("aria-pressed", "false"); if(activeDictation && activeDictation.rec === rec) activeDictation = null; field.dispatchEvent(new Event("input", { bubbles:true })); };
     try{ rec.start(); }catch(e){ return; }
@@ -4510,7 +4535,7 @@ function setupDictation(btn, field, onUnsupported){
 }
 const DICT_HELP = _t("La dictée n'est pas disponible dans ce navigateur. Utilisez Chrome, Edge ou Safari, ou la dictée intégrée à votre ordinateur : touches Windows + H sur un PC, ou touche micro (ou Fn deux fois) sur un Mac.");
 setupDictation($("#chat-mic"), $("#chat-input"), () => { $("#chat-msgs").appendChild(el("div", "msg err", DICT_HELP)); $("#chat-msgs").scrollTop = 1e9; });
-setupDictation($("#regen-mic"), $("#remarques"), () => alert(DICT_HELP));
+setupDictation($("#regen-mic"), $("#remarques"), () => notify(DICT_HELP));
 
 /* ---------- Préparer ma candidature ---------- */
 const curHist = () => currentHistId && history.find(x => x.id === currentHistId);
@@ -4581,8 +4606,8 @@ function renderFiche(){
 async function draftMessage(inp, btn){
   if(freeBlock()) return;
   const h = curHist();
-  if(!settings.apiKey){ alert(_t("Enregistrez d'abord la clé d'accès.")); return; }
-  if(!h){ alert(_t("Créez d'abord un CV et une lettre pour cette candidature.")); return; }
+  if(!settings.apiKey){ notify(_t("Connectez-vous à votre compte pour utiliser cette fonction.")); return; }
+  if(!h){ notify(_t("Créez d'abord un CV et une lettre pour cette candidature.")); return; }
   saveCurrentEdits();
   const l = lettreFromHtml(h.lettreHtml), cvTxt = cvTextFromHtml(h.cvHtml);
   btn.disabled = true; const old = btn.textContent; btn.textContent = BRAND.name + _t(" écrit…");
@@ -4595,7 +4620,7 @@ async function draftMessage(inp, btn){
     addCost(data.usage);
     const msg = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("").trim();
     if(msg){ inp.value = msg; saveFicheValue("message", 0, msg); btn.textContent = _t("Réécrire avec ") + BRAND.name; btn.disabled = false; return; }
-  }catch(e){ alert(e.message); }
+  }catch(e){ notify(e.message); }
   btn.disabled = false; btn.textContent = old;
 }
 
@@ -4662,7 +4687,7 @@ $("#ap-url").addEventListener("input", debounce(e => apSave("url", e.target.valu
 $("#ap-email").addEventListener("input", debounce(e => apSave("email", e.target.value.trim()), 400));
 $("#ap-open").addEventListener("click", () => {
   const u = $("#ap-url").value.trim();
-  if(!URL_RE.test(u)){ alert(_t("Collez d'abord le lien de l'annonce (il commence par https://).")); $("#ap-url").focus(); return; }
+  if(!URL_RE.test(u)){ notify(_t("Collez d'abord le lien de l'annonce (il commence par https://).")); $("#ap-url").focus(); return; }
   window.open(u, "_blank", "noopener");
 });
 const openMail = u => (window.__cvxOpenMail || (x => { window.location.href = x; }))(u);
@@ -4689,14 +4714,14 @@ $("#ap-share").addEventListener("click", async () => {
   const to = $("#ap-email").value.trim(), m = mailParts();
   if(to) try{ await navigator.clipboard.writeText(to); }catch(e){}
   try{ await navigator.share({ files: shareFiles(), title: m.subject, text: (to ? to + "\n\n" : "") + m.subject + "\n\n" + m.body }); }
-  catch(e){ if(e && e.name !== "AbortError") alert(_t("Le partage n'a pas fonctionné sur cet appareil. Utilisez « Préparer l'e-mail » puis joignez vos fichiers.")); }
+  catch(e){ if(e && e.name !== "AbortError") notify(_t("Le partage n'a pas fonctionné sur cet appareil. Utilisez « Préparer l'e-mail » puis joignez vos fichiers.")); }
 });
 
 /* Contact de l'entreprise : uniquement ce que l'employeur publie pour recevoir des candidatures (annonce, page carrières officielle) */
 $("#ap-find").addEventListener("click", async () => {
   if(freeBlock()) return;
   const h = curHist(), box = $("#ap-contact"), b = $("#ap-find");
-  if(!settings.apiKey){ box.hidden = false; box.textContent = _t("Enregistrez d'abord la clé d'accès."); return; }
+  if(!settings.apiKey){ box.hidden = false; box.textContent = _t("Connectez-vous à votre compte pour utiliser cette fonction."); return; }
   if(!h){ box.hidden = false; box.textContent = _t("Créez d'abord un CV et une lettre pour cette candidature."); return; }
   const url = $("#ap-url").value.trim(), d = h.data || {};
   b.disabled = true; box.hidden = false; box.textContent = _t("Recherche en cours…");
@@ -4739,7 +4764,7 @@ $("#ap-find").addEventListener("click", async () => {
 
 $("#ap-mail").addEventListener("click", () => {
   const to = $("#ap-email").value.trim(), h = curHist();
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)){ alert(_t("Indiquez l'adresse e-mail donnée dans l'annonce.")); $("#ap-email").focus(); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)){ notify(_t("Indiquez l'adresse e-mail donnée dans l'annonce.")); $("#ap-email").focus(); return; }
   const f = ficheFields(), g = k => (f.find(x => x.k === k) || {}).value || "";
   const ref = h && h.data.candidature && str(h.data.candidature.reference);
   const L = DOCT[(h && h.data._lang) || "fr"] || DOCT.fr;
@@ -4777,7 +4802,7 @@ function renderApplied(){
   prep.addEventListener("click", () => {
     const to = $("#ap-email").value.trim();
     if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) openMail(mailto(to, L.relSubj + (g("poste") || "") + " – " + nomComplet(), relanceTxt));
-    else { copyText(relanceTxt, prep); alert(_t("Texte de relance copié. Collez-le dans la messagerie du site, ou dans un e-mail au recruteur.")); }
+    else { copyText(relanceTxt, prep); notify(_t("Texte de relance copié. Collez-le dans la messagerie du site, ou dans un e-mail au recruteur.")); }
   });
   if(!itw) row.appendChild(prep);
   if(!itw){ const ib = el("button", "btn small itw-btn", _t("J'ai obtenu un entretien")); ib.type = "button"; ib.addEventListener("click", () => { h.interview = Date.now(); h.touched = Date.now(); saveHistory(); renderApplied(); renderHistory(); }); row.appendChild(ib); }
@@ -4921,8 +4946,7 @@ function prochaineRelance(groups){
 }
 function horloge(){
   const d = $("#home-date"); if(!d) return;
-  const n = new Date(), t = n.toLocaleDateString(LOCALE, { weekday:"long", day:"numeric", month:"long" });
-  d.textContent = t.charAt(0).toUpperCase() + t.slice(1) + " · " + String(n.getHours()).padStart(2, "0") + ":" + String(n.getMinutes()).padStart(2, "0");
+  d.hidden = true;     /* date et heure retirées de l'accueil (audit du 26/11) */
 }
 setInterval(() => { if(document.body.dataset.view === "home") horloge(); }, 20000);
 function kpi(box, n, label, opts){
@@ -4943,10 +4967,7 @@ function renderHome(){
     kpi(K, sent, sent > 1 ? _t("candidatures envoyées") : _t("candidature envoyée"), { goto:"apps" });
     if(rel) kpi(K, rel, _t("à relancer"), { hot:true, goto:"apps" });
     if(itws.length) kpi(K, itws.length, itws.length > 1 ? _t("entretiens à venir") : _t("entretien à venir"), { goto:"entretiens" });
-    if(rep) kpi(K, rep, rep > 1 ? _t("réponses reçues") : _t("réponse reçue"));
-    if(serie >= 2) kpi(K, serie, _t("jours d'affilée"), { sub:_t("Continuez sur votre lancée") });
-    if(gard.length) kpi(K, gard.length, gard.length > 1 ? _t("offres gardées") : _t("offre gardée"), { goto:"apps", sub:_t("sans CV pour l'instant") });
-    if(sr.length) kpi(K, sr.length, _t("sans réponse depuis 14 j"), { goto:"apps", sub:_t("Dernière relance ou à classer") });
+    /* Audit du 26/11 : 4 chiffres au plus, ceux sur lesquels on agit (plus de série de jours, ni d'objectif chiffré) */
     if(pr) kpi(K, new Date(pr.t).toLocaleDateString(LOCALE, { day:"numeric", month:"short" }), _t("prochaine relance"), { sub:pr.G.versions[pr.G.versions.length - 1].entreprise || pr.G.versions[0].poste });
   }
   K.hidden = !groups.length;
@@ -5264,8 +5285,8 @@ $("#pc-save").addEventListener("click", () => {
 setupDictation($("#pc-mic"), $("#pc-input"), () => status("#pc-status", "err", DICT_HELP));
 $("#pc-reimport").addEventListener("click", pickFile);
 $("#pc-add").addEventListener("click", () => openWrite("append"));
-$("#pc-reset").addEventListener("click", () => {
-  if(!confirm("Effacer votre CV enregistré ? Vos candidatures déjà créées sont gardées.")) return;
+$("#pc-reset").addEventListener("click", async () => {
+  if(!(await ask(_t("Effacer votre CV enregistré ? Vos candidatures déjà créées sont gardées."), { ok:_t("Effacer"), danger:true }))) return;
   const p = prof(); p.parcours = ""; delete p.resume; delete p.parcoursAt; delete p.parcoursSrc; delete p.parcoursRaw;
   $("#profile-parcours").value = ""; saveProfiles(); renderParcoursUI(); updateForWho();
 });
@@ -5504,17 +5525,21 @@ function renderProfilView(){
   }
   if(!r){
     const c = card(_t("Votre CV est enregistré"), "pv-ok");
-    c.appendChild(el("p", "", !settings.apiKey ? _t("Votre CV est bien pris en compte. Saisissez votre code d'accès (encadré « Première utilisation ») pour le voir rangé en fiche.")
+    c.appendChild(el("p", "", !settings.apiKey ? _t("Votre CV est bien pris en compte. Connectez-vous à votre compte pour le voir rangé en fiche.")
       : p.resumeErr ? _t("La fiche n'a pas pu être préparée, mais votre CV est bien pris en compte : vous pouvez créer vos CV adaptés.") : _t("Votre CV est bien pris en compte.")));
     if(settings.apiKey) c.appendChild(btn(_t("Ranger mon CV en fiche"), "small", () => analyzeParcours(p)));
     box.appendChild(c); return;
   }
   if(analyzing !== p.id){
-    const ok = card(_t("Votre CV a bien été pris en compte"), "pv-ok");
-    ok.appendChild(el("p", "", _t("Vérifiez chaque bloc : le bouton « Modifier » corrige une information, les boutons « + Ajouter » complètent votre fiche. Tout est enregistré et servira à vos prochains CV.")));
-    const m = manques(r);
-    if(m.length){ const ul = el("ul", "pv-miss"); m.forEach(t => ul.appendChild(el("li", "", t))); ok.appendChild(el("b", "", _t("À compléter si possible :"))); ok.appendChild(ul); }
-    box.appendChild(ok);
+    /* Le message de confirmation ne s'affiche qu'une fois ; ensuite, seulement ce qui reste à compléter */
+    const vu = store.get("ficheVue_" + p.id, false), m = manques(r);
+    if(!vu || m.length){
+      const ok = card(vu ? _t("À compléter si possible") : _t("Votre CV a bien été pris en compte"), "pv-ok");
+      if(!vu) ok.appendChild(el("p", "", _t("Vérifiez chaque bloc : le bouton « Modifier » corrige une information, les boutons « + Ajouter » complètent votre fiche. Tout est enregistré et servira à vos prochains CV.")));
+      if(m.length){ const ul = el("ul", "pv-miss"); m.forEach(t => ul.appendChild(el("li", "", t))); if(!vu) ok.appendChild(el("b", "", _t("À compléter si possible :"))); ok.appendChild(ul); }
+      box.appendChild(ok);
+      if(!vu) store.set("ficheVue_" + p.id, true);
+    }
   }
 
   /* Identité */
@@ -5573,7 +5598,7 @@ function renderProfilView(){
         const o = { poste:a.poste.value.trim(), contrat:a.contrat.value, entreprise:a.entreprise.value.trim(), lieu:a.lieu.value.trim(), dates:a.dates.value.trim(), missions:mi.value.split("\n").map(s => s.replace(/^[-•*]\s*/, "").trim()).filter(Boolean) };
         if(!o.contrat) delete o.contrat;
         if(i < 0) r.experiences.unshift(o); else r.experiences[i] = o; saveResume(p);
-      }, i < 0 ? null : () => { if(confirm(_t("Supprimer cette expérience ?"))){ r.experiences.splice(i, 1); saveResume(p); } }, i < 0 ? [] : moveBtns(r.experiences, i)));
+      }, i < 0 ? null : async () => { if((await ask(_t("Supprimer cette expérience ?"), { ok:_t("Supprimer"), danger:true }))){ r.experiences.splice(i, 1); saveResume(p); } }, i < 0 ? [] : moveBtns(r.experiences, i)));
       setTimeout(() => a.poste.focus(), 0); return f;
     }, _t("Aucune expérience pour l'instant."));
   listCard("form", _t("Formations"), r.formations,
@@ -5585,7 +5610,7 @@ function renderProfilView(){
         const o = { diplome:a.diplome.value.trim(), etablissement:a.etablissement.value.trim(), dates:a.dates.value.trim() };
         if(!o.diplome){ a.diplome.focus(); return; }
         if(i < 0) r.formations.unshift(o); else r.formations[i] = o; saveResume(p);
-      }, i < 0 ? null : () => { if(confirm(_t("Supprimer cette formation ?"))){ r.formations.splice(i, 1); saveResume(p); } }, i < 0 ? [] : moveBtns(r.formations, i)));
+      }, i < 0 ? null : async () => { if((await ask(_t("Supprimer cette formation ?"), { ok:_t("Supprimer"), danger:true }))){ r.formations.splice(i, 1); saveResume(p); } }, i < 0 ? [] : moveBtns(r.formations, i)));
       setTimeout(() => a.diplome.focus(), 0); return f;
     }, _t("Aucune formation pour l'instant."));
 
@@ -5868,7 +5893,7 @@ $("#file-restore").addEventListener("change", async e => {
   let file;
   try{ file = JSON.parse(await f.text()); }catch(err){ status("#status-backup", "err", _t("Ce fichier n'est pas un export ") + BRAND.name + "."); return; }
   if(!file || file.app !== "jalon" || !file.data || typeof file.data !== "object"){ status("#status-backup", "err", _t("Ce fichier n'est pas un export ") + BRAND.name + "."); return; }
-  if(!confirm(_t("Importer le fichier du ") + fmtDay(Date.parse(file.date) || Date.now()) + _t(" ? Les données actuelles de cet appareil seront remplacées."))) return;
+  if(!(await ask(_t("Importer le fichier du ") + fmtDay(Date.parse(file.date) || Date.now()) + _t(" ? Les données actuelles de cet appareil seront remplacées."), { ok:_t("Importer") }))) return;
   const key = settings.apiKey;
   syncApplying = true;
   Object.keys(file.data).forEach(k => { if(k.indexOf("cvx_") === 0 && k !== "cvx_sync" && typeof file.data[k] === "string") try{ localStorage.setItem(k, file.data[k]); }catch(err){} });
@@ -6730,6 +6755,15 @@ if(new URLSearchParams(location.search).has("resilier")){
 if(firstVisit) setTimeout(() => { if($("#ap").hidden && $("#msg-dlg").hidden && $("#gate").hidden) startAccueil(); }, 700);
 window.__cvx = { renderAll, showTab, cleanHex, linesDiff, purgeOld, setView, resultatsBlock, statusOf, groupsFor }; // utilisé pour les tests
 })();
+</script>
+<script>
+/* Afficher / masquer le mot de passe */
+document.addEventListener("click", function(e){
+  var b = e.target.closest && e.target.closest("[data-eye]"); if(!b) return;
+  var i = document.getElementById(b.getAttribute("data-eye")); if(!i) return;
+  var voir = i.type === "password"; i.type = voir ? "text" : "password";
+  b.textContent = voir ? "Masquer" : "Afficher"; b.setAttribute("aria-pressed", voir ? "true" : "false"); i.focus();
+});
 </script>
 </body>
 </html>

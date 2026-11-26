@@ -1,0 +1,19 @@
+# En-têtes de sécurité (lus par Cloudflare Pages ; ignorés par GitHub Pages).
+# La politique CSP est d'abord en mode « Report-Only » : elle ne bloque rien, elle signale seulement
+# dans la console du navigateur ce qu'elle bloquerait. Après 2 semaines sans alerte, remplacer
+# « Content-Security-Policy-Report-Only » par « Content-Security-Policy ».
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Permissions-Policy: camera=(), geolocation=(), payment=(), microphone=(self)
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://jalon-relais.jalon-emploi.workers.dev https://n8n.srv1136752.hstgr.cloud https://cloudflareinsights.com https://cdnjs.cloudflare.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://buy.stripe.com https://checkout.stripe.com
+
+# Fichiers internes : jamais servis
+/worker/*
+  X-Robots-Tag: noindex
+/outils/*
+  X-Robots-Tag: noindex
+/demos/*
+  X-Robots-Tag: noindex
