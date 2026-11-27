@@ -17,3 +17,6 @@
   X-Robots-Tag: noindex
 /demos/*
   X-Robots-Tag: noindex
+/console/*
+  X-Robots-Tag: noindex
+  Cache-Control: no-store

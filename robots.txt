@@ -3,4 +3,5 @@ Disallow: /app/
 Disallow: /worker/
 Disallow: /outils/
 Disallow: /demos/
+Disallow: /console/
 Sitemap: https://jaltio.fr/sitemap.xml

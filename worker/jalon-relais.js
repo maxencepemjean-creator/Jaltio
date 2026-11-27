@@ -33,6 +33,7 @@
 //   Base D1 : exécuter une fois worker/migration-2026-11-27.sql (colonne lettres de conso : lettre offerte en Free)
 //   (facultatif, pass 30 jours) Variable PASS_LIEN = identifiant du lien de paiement Stripe du pass (plink_…) ; sans elle, aucun pass n'est accepté
 //   Workflow n8n « [JLT] 07 - E-mails clients » : gérer le type « bienvenue_pass » (code de validation + date de fin du pass)
+//   Console d'administration (jaltio.fr/console/) : secret ADMIN_MOT_DE_PASSE (au moins 16 caractères). Sans lui, la console est fermée.
 
 const ORIGINES = ["https://maxencepemjean-creator.github.io", "https://jaltio.fr", "https://www.jaltio.fr", "https://jaltio.pages.dev"];   // jaltio.pages.dev : adresse de test Cloudflare Pages
 const MODELES = ["claude-sonnet-5-5", "claude-haiku-5-5"];
@@ -64,7 +65,8 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
   renvoi:   [3, 3600],                 // renvois du mail de validation, par paiement
   free_ip:  [5, 86400],                // inscriptions Free (nouvelles adresses), par adresse IP (hachée) et par jour
   free_ip_h:[6, 3600],                 // demandes d'inscription Free (nouvelles ou déjà connues), par adresse IP et par heure
-  retract:  [5, 3600],                 // déclarations de rétractation en ligne, par adresse IP (hachée) et par heure
+  retract:  [5, 3600],
+  admin:    [5, 900],                  // mots de passe faux sur la console, par adresse IP (hachée)                 // déclarations de rétractation en ligne, par adresse IP (hachée) et par heure
   echecs_r: [5, 3600],                 // codes de secours faux, par identifiant et par heure
   mail_r:   [3, 86400],                // e-mails du code de secours, par identifiant et par jour
   offres:   [60, 3600],                // recherches d'offres (Careerjet), par code d'accès et par heure
@@ -120,7 +122,7 @@ function cors(origin) {
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "content-type, x-jalon-code",
+    "Access-Control-Allow-Headers": "content-type, x-jalon-code, x-jaltio-admin",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin",
   };
@@ -969,6 +971,51 @@ async function rechercheOffres(request, env, origin) {
   return reponse({ offres: r.offres.slice(0, 20), total: r.total || 0, pages: r.pages || 0, lieux: Array.isArray(r.lieux) ? r.lieux : undefined }, 200, origin);
 }
 
+/* ---------- Console d'administration (lecture seule) ---------- */
+// Mot de passe dans le secret ADMIN_MOT_DE_PASSE ; 5 essais faux par quart d'heure et par adresse. Ne modifie jamais rien.
+async function console_(request, env, origin) {
+  if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
+  if (!env.DB || !env.ADMIN_MOT_DE_PASSE || String(env.ADMIN_MOT_DE_PASSE).length < 16) return erreur(503, "Console non configurée (secret ADMIN_MOT_DE_PASSE).", origin);
+  const ip = await sha256hex("ip|" + (request.headers.get("CF-Connecting-IP") || "?"));
+  const [max, fenetre] = LIMITES.admin;
+  if ((await lire(env, "adm:" + ip, fenetre)) >= max) return erreur(429, "Trop d'essais. Réessayez dans 15 minutes.", origin);
+  const mdp = String(request.headers.get("x-jaltio-admin") || "");
+  if (!egal(await sha256hex("adm|" + mdp), await sha256hex("adm|" + env.ADMIN_MOT_DE_PASSE))) {
+    await compter(env, "adm:" + ip, fenetre);
+    return erreur(401, "Mot de passe incorrect.", origin);
+  }
+  const tout = async (q, ...a) => { try { return ((await env.DB.prepare(q).bind(...a).all()).results) || []; } catch (e) { return []; } };
+  const abonnes = await tout(
+    "SELECT a.code, a.offre, a.actif, a.cree, a.fin, a.client, a.compte, a.accepte, g.email FROM abonnes a LEFT JOIN gratuits g ON g.session = a.session ORDER BY a.cree DESC LIMIT 2000");
+  const conso = await tout("SELECT code_h, mois, offre, generations, autres, tokens_in, tokens_out, recherches FROM conso");
+  const cout = c => (c.tokens_in * 2 + c.tokens_out * 10) / 1e6 + c.recherches * 0.01;   // dollars
+  const parCode = {};
+  for (const c of conso) {
+    const p = parCode[c.code_h] || (parCode[c.code_h] = { cv: 0, appels: 0, usd: 0 });
+    p.cv += c.generations; p.appels += c.autres; p.usd += cout(c);
+  }
+  const comptes = [];
+  for (const a of abonnes) {
+    const u = parCode[await sha256hex("code|" + a.code)] || { cv: 0, appels: 0, usd: 0 };
+    comptes.push({ offre: a.offre, actif: a.actif === 1, cree: a.cree, fin: a.fin || null, email: a.email || null, client: a.client || null,
+      connecte: !!a.compte, cv: u.cv, appels: u.appels, usd: Math.round(u.usd * 1000) / 1000 });
+  }
+  const parMois = {};
+  for (const c of conso) {
+    const k = c.mois + "|" + c.offre, m = parMois[k] || (parMois[k] = { mois: c.mois, offre: c.offre, comptes: 0, cv: 0, appels: 0, usd: 0 });
+    m.comptes++; m.cv += c.generations; m.appels += c.autres; m.usd += cout(c);
+  }
+  const passages = await tout(
+    "SELECT COUNT(DISTINCT f.compte) AS n FROM abonnes f JOIN abonnes p ON p.compte = f.compte AND p.offre IN ('essentiel', 'pro', 'pass') AND p.cree > f.cree WHERE f.offre = 'free'");
+  const retractations = await tout("SELECT ref, cree, nom, email, offre, souscription, message, traite FROM retractations ORDER BY cree DESC LIMIT 100");
+  return reponse({
+    genere: maintenant(), comptes,
+    cout_mois: Object.values(parMois).map(m => ({ ...m, usd: Math.round(m.usd * 100) / 100 })).sort((x, y) => (y.mois + y.offre).localeCompare(x.mois + x.offre)),
+    passages_free_payant: (passages[0] && passages[0].n) || 0,
+    retractations,
+  }, 200, origin);
+}
+
 export default {
   async fetch(request, env, ctx) {
     const chemin = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
@@ -987,6 +1034,7 @@ export default {
       if (chemin === "/stripe/statut") return await statutAbonnement(request, env, origin);
       if (chemin === "/stripe/resilier") return await resilierAbonnement(request, env, origin, ctx);
       if (chemin === "/retractation") return await retractation(request, env, origin, ctx);
+      if (chemin === "/admin/donnees") return await console_(request, env, origin);
       if (chemin.startsWith("/sync/")) return await synchro(request, env, origin, chemin);
       return await relais(request, env, origin);
     } catch (e) {
@@ -1012,7 +1060,7 @@ export default {
         }
       } catch (e) {}                              // colonne preavis absente : migration du 27/11 pas faite
     }
- : accès coupé (la conservation de 6 mois part de la date de fin, comme un abonnement)
+    // 0. Pass 30 jours arrivés à leur fin : accès coupé (la conservation de 6 mois part de la date de fin, comme un abonnement)
     try { await env.DB.prepare("UPDATE abonnes SET actif = 0 WHERE offre = 'pass' AND actif = 1 AND fin IS NOT NULL AND fin <= ?1").bind(t).run(); } catch (e) {}
     // 1. Avertissement : abonnement terminé, suppression dans 7 jours au plus, pas encore averti
     const aAvertir = await env.DB.prepare(

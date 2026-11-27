@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<meta name="robots" content="noindex, nofollow">
+<title>Console — Jaltio</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/pages.css">
+<style>
+body{background:#FBF6F1}
+.cs{max-width:1180px;margin:0 auto;padding:24px 18px 60px}
+.cs-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.cs-top h1{font-size:26px;margin:0}
+.cs-top small{color:var(--muted)}
+.cs-top .btn{width:auto;display:inline-block;padding:9px 14px;font-size:14px;margin:0}
+.cs-login{max-width:380px;margin:12vh auto 0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px}
+.cs-login input{width:100%;border:1px solid #d6c9d9;border-radius:10px;padding:12px;font:inherit;font-size:16px;margin:10px 0 14px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.tabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer;color:var(--brand)}
+.tabs button[aria-selected=true]{background:var(--brand);color:#fff;border-color:var(--brand)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.kpi b{display:block;font-size:26px;color:var(--brand)}
+.kpi span{font-size:13.5px;color:var(--muted)}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px;overflow-x:auto}
+.card h2{font-size:18px;margin:0 0 10px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:12.5px;color:var(--muted);font-weight:600}
+td.num,th.num{text-align:right}
+.pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700}
+.p-free{background:#EEE6F0;color:#3A2340}.p-essentiel{background:#3A2340;color:#F2A93B}.p-offert{background:#E4F2EA;color:#1F6B45}
+.p-pass,.p-pro,.p-testeur{background:#FFF1D6;color:#7A4B00}
+.off{color:var(--muted)}
+.mail{cursor:pointer;border-bottom:1px dotted currentColor}
+.filtres{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.filtres select{border:1px solid #d6c9d9;border-radius:8px;padding:6px 8px;font:inherit}
+.vide{color:var(--muted);margin:0}
+.msg{margin:8px 0;color:#9B1C1C}
+</style>
+</head>
+<body>
+<div class="cs">
+  <section class="cs-login" id="login">
+    <h1 style="font-size:22px;margin:0 0 4px">Console Jaltio</h1>
+    <p class="vide">Réservée à l'administrateur. Lecture seule.</p>
+    <form id="f-login">
+      <label for="mdp">Mot de passe</label>
+      <input id="mdp" type="password" autocomplete="current-password" required>
+      <button class="btn" type="submit" style="width:100%">Ouvrir la console</button>
+      <p class="msg" id="m-login" role="alert"></p>
+    </form>
+  </section>
+
+  <div id="app" hidden>
+    <div class="cs-top">
+      <div><h1>Console Jaltio</h1><small id="maj"></small></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a class="btn alt" href="https://mail.hostinger.com/" target="_blank" rel="noopener">Messagerie contact@</a>
+        <a class="btn alt" href="https://dashboard.stripe.com/subscriptions" target="_blank" rel="noopener">Stripe</a>
+        <button class="btn alt" type="button" id="b-maj">Actualiser</button>
+        <button class="btn alt" type="button" id="b-sortir">Se déconnecter</button>
+      </div>
+    </div>
+    <div class="tabs" role="tablist">
+      <button role="tab" data-t="vue" aria-selected="true">Vue d'ensemble</button>
+      <button role="tab" data-t="comptes" aria-selected="false">Comptes</button>
+      <button role="tab" data-t="cout" aria-selected="false">Coût IA</button>
+      <button role="tab" data-t="traiter" aria-selected="false">À traiter <span id="n-traiter"></span></button>
+    </div>
+    <section data-p="vue"></section>
+    <section data-p="comptes" hidden></section>
+    <section data-p="cout" hidden></section>
+    <section data-p="traiter" hidden></section>
+  </div>
+</div>
+<script>
+(function(){
+  var RELAIS = "https://jalon-relais.jalon-emploi.workers.dev";
+  var PRIX = { essentiel: 13.99 };
+  var D = null;
+  var $ = function(s){ return document.querySelector(s); };
+  function el(t, c, x){ var e = document.createElement(t); if(c) e.className = c; if(x != null) e.textContent = x; return e; }
+  function date(ms){ return ms ? new Date(ms).toLocaleDateString("fr-FR", { day:"2-digit", month:"2-digit", year:"numeric" }) : "—"; }
+  function mois(ms){ var d = new Date(ms); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); }
+  function eur(n){ return n.toLocaleString("fr-FR", { style:"currency", currency:"EUR" }); }
+  function usd(n){ return n.toLocaleString("fr-FR", { minimumFractionDigits:2, maximumFractionDigits:3 }) + " $"; }
+  function masque(m){ var p = String(m).split("@"); return p[1] ? p[0].slice(0, 1) + "•••@" + p[1] : m; }
+  function mdp(){ try{ return sessionStorage.getItem("jaltio_admin") || ""; }catch(e){ return ""; } }
+
+  async function charger(){
+    var r = await fetch(RELAIS + "/admin/donnees", { method:"POST", headers:{ "content-type":"application/json", "x-jaltio-admin": mdp() }, body:"{}" });
+    var d = null; try{ d = await r.json(); }catch(e){}
+    if(!r.ok){ var err = new Error((d && d.error && d.error.message) || ("Erreur " + r.status)); err.status = r.status; throw err; }
+    return d;
+  }
+  async function ouvrir(){
+    try{ D = await charger(); }
+    catch(e){
+      if(e.status === 401){ try{ sessionStorage.removeItem("jaltio_admin"); }catch(x){} }
+      $("#login").hidden = false; $("#app").hidden = true; $("#m-login").textContent = e.message; return;
+    }
+    $("#login").hidden = true; $("#app").hidden = false;
+    $("#maj").textContent = "Données du " + new Date(D.genere).toLocaleString("fr-FR");
+    vue(); comptes(); cout(); traiter();
+  }
+
+  function table(entetes, lignes){
+    var t = el("table"), h = el("tr");
+    entetes.forEach(function(x){ var th = el("th", /^(CV|Appels|Coût|Nb|Comptes|\$\/CV)/.test(x) ? "num" : "", x); h.appendChild(th); });
+    var th = el("thead"); th.appendChild(h); t.appendChild(th);
+    var tb = el("tbody"); lignes.forEach(function(l){ var tr = el("tr"); l.forEach(function(c){ var td = el("td"); if(c && c.nodeType) td.appendChild(c); else { td.textContent = c == null ? "—" : c; if(typeof c === "number") td.className = "num"; } tr.appendChild(td); }); tb.appendChild(tr); });
+    t.appendChild(tb); return t;
+  }
+  function carte(titre, contenu, note){ var c = el("div", "card"); c.appendChild(el("h2", "", titre)); if(note) c.appendChild(el("p", "vide", note)); c.appendChild(contenu); return c; }
+  function pill(o){ return el("span", "pill p-" + o, o); }
+
+  function vue(){
+    var P = document.querySelector('[data-p="vue"]'); P.innerHTML = "";
+    var C = D.comptes, now = Date.now();
+    var payants = C.filter(function(c){ return c.offre === "essentiel" && c.actif; });
+    var resiliesBientot = payants.filter(function(c){ return c.fin; });
+    var mrr = (payants.length - resiliesBientot.length) * PRIX.essentiel;
+    var free = C.filter(function(c){ return c.offre === "free"; });
+    var freeActifs = free.filter(function(c){ return c.connecte; });
+    var ce30 = C.filter(function(c){ return now - c.cree < 30 * 864e5; });
+    var termines = C.filter(function(c){ return c.offre === "essentiel" && !c.actif; });
+    var k = el("div", "kpis");
+    [[payants.length, "abonnés Essentiel actifs"], [eur(mrr), "revenu mensuel récurrent (hors résiliations prévues, avant frais)"],
+     [resiliesBientot.length, "résiliations prévues (accès jusqu'à la fin du mois payé)"], [termines.length, "abonnements Essentiel terminés"],
+     [free.length, "comptes Free"], [freeActifs.length + " / " + free.length, "Free qui ont créé leur compte"],
+     [D.passages_free_payant, "passages Free → payant"], [ce30.length, "inscriptions sur 30 jours (toutes offres)"],
+     [C.filter(function(c){ return c.offre === "offert" && c.actif; }).length, "accès offerts actifs"]]
+      .forEach(function(x){ var d = el("div", "kpi"); d.appendChild(el("b", "", String(x[0]))); d.appendChild(el("span", "", x[1])); k.appendChild(d); });
+    P.appendChild(k);
+    var parMois = {}, offres = {};
+    C.forEach(function(c){ var m = mois(c.cree); offres[c.offre] = 1; parMois[m] = parMois[m] || {}; parMois[m][c.offre] = (parMois[m][c.offre] || 0) + 1; });
+    var liste = Object.keys(offres).sort(), lignes = Object.keys(parMois).sort().reverse().map(function(m){ return [m].concat(liste.map(function(o){ return parMois[m][o] || 0; })); });
+    P.appendChild(carte("Inscriptions par mois", table(["Mois"].concat(liste.map(function(o){ return "Nb " + o; })), lignes), "Tes propres comptes de test sont inclus."));
+  }
+
+  function comptes(){
+    var P = document.querySelector('[data-p="comptes"]'); P.innerHTML = "";
+    var f = el("div", "filtres"), so = el("select"), ss = el("select");
+    ["Toutes les offres"].concat(Array.from(new Set(D.comptes.map(function(c){ return c.offre; }))).sort()).forEach(function(o, i){ var op = el("option", "", o); op.value = i ? o : ""; so.appendChild(op); });
+    [["", "Tous les statuts"], ["1", "Actifs"], ["0", "Terminés"]].forEach(function(x){ var op = el("option", "", x[1]); op.value = x[0]; ss.appendChild(op); });
+    f.appendChild(so); f.appendChild(ss); P.appendChild(f);
+    var zone = el("div"); P.appendChild(zone);
+    function rendre(){
+      zone.innerHTML = "";
+      var L = D.comptes.filter(function(c){ return (!so.value || c.offre === so.value) && (!ss.value || String(c.actif ? 1 : 0) === ss.value); });
+      var lignes = L.map(function(c){
+        var m = null;
+        if(c.email){ m = el("span", "mail", masque(c.email)); m.title = "Cliquer pour afficher"; m.addEventListener("click", function(){ m.textContent = m.textContent === c.email ? masque(c.email) : c.email; }); }
+        else if(c.client){ m = el("a", "", "Voir dans Stripe"); m.href = "https://dashboard.stripe.com/customers/" + encodeURIComponent(c.client); m.target = "_blank"; m.rel = "noopener"; }
+        var statut = c.actif ? (c.fin ? "résilié, accès jusqu'au " + date(c.fin) : "actif") : "terminé" + (c.fin ? " le " + date(c.fin) : "");
+        return [date(c.cree), pill(c.offre), statut, m, c.connecte ? "oui" : "non", c.cv, c.appels, usd(c.usd)];
+      });
+      zone.appendChild(carte(L.length + " compte(s)", table(["Inscription", "Offre", "Statut", "Client", "Compte créé", "CV", "Appels", "Coût IA"], lignes),
+        "E-mail des Free masqué (clic pour l'afficher) ; abonnés payants : e-mail dans Stripe."));
+    }
+    so.addEventListener("change", rendre); ss.addEventListener("change", rendre); rendre();
+  }
+
+  function cout(){
+    var P = document.querySelector('[data-p="cout"]'); P.innerHTML = "";
+    var lignes = D.cout_mois.map(function(m){ return [m.mois, pill(m.offre), m.comptes, m.cv, m.appels, usd(m.usd), m.cv ? usd(m.usd / m.cv) : "—"]; });
+    P.appendChild(carte("Coût IA par mois et par offre", table(["Mois", "Offre", "Comptes", "CV", "Appels", "Coût", "$/CV"], lignes),
+      "En dollars (facture Anthropic), petits appels compris dans le coût par CV. Mise en cache et Haiku déjà pondérés."));
+    var top = D.comptes.filter(function(c){ return c.usd > 0; }).sort(function(a, b){ return b.usd - a.usd; }).slice(0, 10)
+      .map(function(c){ return [pill(c.offre), c.email ? masque(c.email) : (c.client || "—"), c.cv, c.appels, usd(c.usd)]; });
+    P.appendChild(carte("Les 10 comptes qui coûtent le plus (depuis le début)", top.length ? table(["Offre", "Client", "CV", "Appels", "Coût"], top) : el("p", "vide", "Aucune consommation.")));
+  }
+
+  function traiter(){
+    var P = document.querySelector('[data-p="traiter"]'); P.innerHTML = "";
+    var R = (D.retractations || []).filter(function(r){ return !r.traite; });
+    $("#n-traiter").textContent = R.length ? "(" + R.length + ")" : "";
+    P.appendChild(carte("Rétractations à rembourser (" + R.length + ")",
+      R.length ? table(["Reçue le", "Réf.", "Nom", "E-mail", "Offre", "Souscrit le", "Message"], R.map(function(r){ return [date(r.cree), r.ref, r.nom, r.email, r.offre || "—", r.souscription || "—", r.message || "—"]; }))
+               : el("p", "vide", "Aucune rétractation en attente."),
+      "À rembourser dans Stripe sous 14 jours (au prorata des jours écoulés si l'accès immédiat a été demandé)."));
+    P.appendChild(carte("Liste d'attente Jaltio Pro", el("p", "vide", "Dans le Google Sheet « Jaltio – Liste d'attente », onglet Pro (alimenté par n8n [JLT] 21).")));
+    P.appendChild(carte("Messages reçus sur contact@jaltio.fr", el("p", "vide", "Bouton « Messagerie contact@ » en haut de la page.")));
+  }
+
+  $("#f-login").addEventListener("submit", function(e){ e.preventDefault(); try{ sessionStorage.setItem("jaltio_admin", $("#mdp").value); }catch(x){} $("#mdp").value = ""; $("#m-login").textContent = "Vérification…"; ouvrir(); });
+  $("#b-maj").addEventListener("click", ouvrir);
+  $("#b-sortir").addEventListener("click", function(){ try{ sessionStorage.removeItem("jaltio_admin"); }catch(x){} location.reload(); });
+  document.querySelectorAll(".tabs button").forEach(function(b){ b.addEventListener("click", function(){
+    document.querySelectorAll(".tabs button").forEach(function(x){ x.setAttribute("aria-selected", x === b ? "true" : "false"); });
+    document.querySelectorAll("[data-p]").forEach(function(p){ p.hidden = p.dataset.p !== b.dataset.t; });
+  }); });
+  if(mdp()) ouvrir();
+})();
+</script>
+</body>
+</html>
