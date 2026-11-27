@@ -6385,7 +6385,7 @@ async function reinitEnregistrer(jeton){
     await syncCall("reinit", { id, jeton, auth:k.auth, salt:toB64(salt), iv:blob.iv, ct:blob.ct, cle:k.key });
     status("#ri-msg", "ok", _t("Nouveau mot de passe enregistré. Connexion…"));
     history.replaceState(null, "", location.pathname);
-    $("#gate-reinit").hidden = true; $("#sync-mail").value = mail; $("#sync-pw").value = pw; $("#ri-pw").value = $("#ri-pw2").value = "";
+    $("#gate-reinit").hidden = true; $("#gate-slot").hidden = false; $("#sync-mail").value = mail; $("#sync-pw").value = pw; $("#ri-pw").value = $("#ri-pw2").value = "";
     await syncStart();
   }catch(e){
     status("#ri-msg", "err", e.offline ? _t("Pas de connexion. Réessayez quand vous serez en ligne.") : (e.message || _t("Erreur.")));
@@ -6405,6 +6405,10 @@ setTimeout(async () => {
   const jeton = new URLSearchParams(location.search).get("reinit") || "";
   if(!/^[0-9a-f]{64}\.\d{13}\.[0-9a-f]{64}$/.test(jeton)) return;
   $("#gate-reinit").hidden = false; $("#gate-forgot").hidden = true;
+  /* Écran dédié : seul le formulaire du nouveau mot de passe est visible */
+  $("#gate-title").textContent = _t("Nouveau mot de passe");
+  const intro = document.querySelector("#gate .gate-box > p.hint"); if(intro) intro.hidden = true;
+  $("#gate-slot").hidden = true;
   try{ const m = localStorage.getItem("jaltio_inscription_mail"); if(m) $("#ri-mail").value = m; }catch(e){}
   if(Number(jeton.split(".")[1]) < Date.now()) status("#ri-msg", "err", _t("Ce lien a expiré. Demandez-en un nouveau depuis « Mot de passe oublié ? »."));
   $("#ri-form").addEventListener("submit", e => { e.preventDefault(); reinitEnregistrer(jeton); });
@@ -6547,7 +6551,7 @@ function postponeReset(){ syncPostponed = 0; if(syncSt && syncSt.err === "confli
 $("#sync-pill").addEventListener("click", () => { if(syncSt && syncSt.err === "conflict") postponeReset(); });
 $("#sync-out").addEventListener("click", () => {
   if(!syncSt) return;
-  const go = () => syncDisconnect(_t("Cet appareil est déconnecté. Vos données y restent, et restent aussi en ligne."), "ok");
+  const go = () => { syncDisconnect(_t("Cet appareil est déconnecté. Vos données y restent, et restent aussi en ligne."), "ok"); location.href = "/?accueil"; };
   if(!syncSt.dirty){ go(); return; }
   openSyncDlg({ title:_t("Modifications non envoyées"), text:_t("Des modifications de cet appareil n'ont pas encore été envoyées. Si vous vous déconnectez maintenant, elles resteront ici mais ne seront pas en ligne."),
     buttons:[{ label:_t("Envoyer, puis me déconnecter"), fn: async () => { try{ await syncPush((await syncCall("meta", { id:syncSt.id })).version); go(); }catch(e){ status("#sync-msg", "err", _t("Envoi impossible : ") + (e.message || "erreur") + ". Vous êtes toujours connecté."); } } },

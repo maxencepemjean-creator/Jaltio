@@ -263,12 +263,14 @@ async function rendreCle(env, row) {
   return b64(pt);
 }
 const cleValide = c => RE_B64.test(c || "") && c.length === 44;
-async function jetonReinit(env, id, exp, version) { return hmacHex(env.CLE_COMPTES, "reinit|" + id + "|" + exp + "|" + version); }
-// Lien « id.expiration.signature » : refusé s'il a expiré ou si le compte a changé depuis (version : le lien ne sert qu'une fois)
+// Le lien est lié à l'empreinte du mot de passe actuel (pas à la version des données, qui change à chaque synchronisation) :
+// il ne sert qu'une fois, puisque le nouveau mot de passe change cette empreinte.
+async function jetonReinit(env, id, exp, auth) { return hmacHex(env.CLE_COMPTES, "reinit|" + id + "|" + exp + "|" + auth); }
+// Lien « id.expiration.signature » : refusé s'il a expiré ou si le mot de passe a changé depuis
 async function lireJeton(env, jeton, row) {
   const m = /^([0-9a-f]{64})\.(\d{13})\.([0-9a-f]{64})$/.exec(String(jeton || ""));
   if (!m || !row || row.id !== m[1] || Number(m[2]) < maintenant()) return false;
-  return egal(m[3], await jetonReinit(env, m[1], m[2], row.version));
+  return egal(m[3], await jetonReinit(env, m[1], m[2], row.auth));
 }
 
 async function synchro(request, env, origin, chemin) {
@@ -314,7 +316,7 @@ async function synchro(request, env, origin, chemin) {
     if (row && row.k_env && env.CLE_COMPTES && (await sha256hex("jalon-sync-v1|" + email)) === b.id
         && (await sous_limite(env, "oubli:" + b.id, LIMITES.oubli))) {
       const exp = String(maintenant() + REINIT_MINUTES * 60000);
-      const lien = "https://jaltio.fr/app/?reinit=" + b.id + "." + exp + "." + (await jetonReinit(env, b.id, exp, row.version));
+      const lien = "https://jaltio.fr/app/?reinit=" + b.id + "." + exp + "." + (await jetonReinit(env, b.id, exp, row.auth));
       await envoyerMail(env, { type: "reinitialisation", email, lien, date: REINIT_MINUTES + " minutes" });
     }
     return reponse({ ok: true }, 200, origin);
