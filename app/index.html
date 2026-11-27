@@ -6362,7 +6362,7 @@ async function oubliDemander(){
   $("#rec-go").disabled = true; status("#rec-msg", "info", _t("Envoi…"));
   try{
     await syncCall("oubli", { id: await syncAccountId(mail), email: mail });
-    status("#rec-msg", "ok", _t("Si un compte existe avec cette adresse, un e-mail vient de partir avec un lien valable 1 heure. Pensez à regarder dans les courriers indésirables."));
+    status("#rec-msg", "ok", _t("Si un compte existe avec cette adresse, un e-mail vient de partir avec un lien valable 1 heure. Pensez à regarder dans les courriers indésirables. Au plus 3 liens par jour et par compte : utilisez le dernier reçu."));
   }catch(e){ status("#rec-msg", "err", e.offline ? _t("Pas de connexion. Réessayez quand vous serez en ligne.") : (e.message || _t("Erreur."))); }
   finally{ $("#rec-go").disabled = false; }
 }
