@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS abonnes (
   session    TEXT UNIQUE NOT NULL,  -- session de paiement Stripe (cs_...) ou inscription Free (fr_...)
   client     TEXT,                  -- client Stripe (cus_...)
   abonnement TEXT,                  -- abonnement Stripe (sub_...)
-  offre      TEXT NOT NULL,         -- essentiel, offert, free (pro plus tard)
+  offre      TEXT NOT NULL,         -- essentiel, offert, free, pass (pass 30 jours : fin = date de fin d'accès) ; pro plus tard
   actif      INTEGER NOT NULL,      -- 1 = abonnement en cours, 0 = terminé
   cree       INTEGER NOT NULL,      -- date de création (ms)
   envoye     INTEGER NOT NULL DEFAULT 0,  -- 1 = code envoyé par e-mail
@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS conso (
   tokens_in   INTEGER NOT NULL,
   tokens_out  INTEGER NOT NULL,
   recherches  INTEGER NOT NULL,     -- recherches web facturées
+  lettres     INTEGER NOT NULL DEFAULT 0,  -- lettre offerte utilisée (Free) ; base créée avant le 27/11/2026 : worker/migration-2026-11-27.sql
   PRIMARY KEY (code_h, mois)
 );
 

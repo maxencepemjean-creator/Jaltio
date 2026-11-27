@@ -91,10 +91,10 @@
       <ul class="recap">
         <li><span>Offre</span><span>Jaltio Free</span></li>
         <li><span>Prix</span><span>Gratuit, sans carte bancaire</span></li>
-        <li><span>Inclus</span><span>5 CV au total, corrections comprises</span></li>
+        <li><span>Inclus</span><span>3 CV au total, corrections comprises, et 1 lettre de motivation offerte</span></li>
         <li><span>E-mail</span><span id="r-mail-free"></span></li>
       </ul>
-      <p class="hint">L'offre Free ne comprend ni la lettre de motivation, ni le coach, ni la préparation d'entretien. Vous pourrez passer à Jaltio Essentiel à tout moment depuis la page Tarifs.</p>
+      <p class="hint">L'offre Free comprend une seule lettre de motivation ; elle ne comprend ni le coach, ni la préparation d'entretien. Vous pourrez passer à Jaltio Essentiel à tout moment depuis la page Tarifs.</p>
       <p class="hint">Vous recevez par e-mail un code de validation à 6 chiffres, avec <b>les conditions générales et la politique de confidentialité en pièces jointes</b>.</p>
       <p class="msg" id="m4-free" role="alert"></p>
       <button class="btn" type="button" id="creer-free" style="margin-top:16px">Créer mon compte gratuit</button>
@@ -111,6 +111,7 @@
       <p class="hint">Après le paiement, vous recevez par e-mail un code de validation à 6 chiffres, avec <b>les conditions générales et la politique de confidentialité en pièces jointes</b>.</p>
       <p class="msg" id="m4" role="alert"></p>
       <button class="btn" type="button" id="payer" style="margin-top:16px" disabled>S'abonner et payer 13,99 € par mois</button>
+      <p class="hint" style="text-align:center;margin-bottom:0"><b>Sans engagement · résiliation en ligne depuis Mon compte</b></p>
       <p class="hint" style="text-align:center">Paiement sécurisé par Stripe. Nous ne voyons jamais vos numéros de carte.</p>
     </div>
     <div class="row2"><button class="btn alt" type="button" data-back>Retour</button></div>
@@ -133,7 +134,7 @@
   /* Lien de paiement Stripe de l'offre Essentiel. À remplacer par le lien « live » (https://buy.stripe.com/…) au lancement. */
   var LIEN_PAIEMENT = "https://buy.stripe.com/dRmcN52t20WSdSu18ndwc00";
   /* Versions des documents acceptés (à changer quand les documents changent) : enregistrées avec le paiement */
-  var VERSION_CGV = "20261127", VERSION_CONF = "20261126";
+  var VERSION_CGV = "20261201", VERSION_CONF = "20261126";
   /* Code promo Stripe de l'accès anticipé (1er mois à 6,49 €), appliqué automatiquement jusqu'au 23/11/2026 inclus (heure de Paris) */
   var CODE_PROMO = "ANTICIPE", FIN_PROMO = Date.parse("2026-11-24T00:00:00+01:00");
 

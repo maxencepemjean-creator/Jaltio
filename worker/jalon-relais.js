@@ -1,4 +1,4 @@
-// Relais Jaltio (Cloudflare Worker) — version du 26/11/2026 (rétractation en ligne, lettre retirée côté serveur en Free, code de secours)
+// Relais Jaltio (Cloudflare Worker) — version du 27/11/2026 (Free = 3 CV + 1 lettre offerte, pass 30 jours en paiement unique)
 //
 // 1) Relais Claude : garde la clé Anthropic côté serveur ; le navigateur n'envoie qu'un code d'accès
 //    (code testeur du secret CODES, ou code d'abonné créé automatiquement après un paiement Stripe).
@@ -30,6 +30,9 @@
 //   Base D1 : exécuter une fois worker/migration-2026-11-26-secours.sql (code de secours : mot de passe oublié)
 //   Workflow n8n « [JLT] 05 » : gérer aussi le type « secours » (e-mail contenant le code de secours du compte)
 //   Workflow n8n « [JLT] 05 - E-mails clients » : gérer les types « retractation » (accusé de réception au client) et « retractation_admin » (alerte à contact@jaltio.fr)
+//   Base D1 : exécuter une fois worker/migration-2026-11-27.sql (colonne lettres de conso : lettre offerte en Free)
+//   (facultatif, pass 30 jours) Variable PASS_LIEN = identifiant du lien de paiement Stripe du pass (plink_…) ; sans elle, aucun pass n'est accepté
+//   Workflow n8n « [JLT] 07 - E-mails clients » : gérer le type « bienvenue_pass » (code de validation + date de fin du pass)
 
 const ORIGINES = ["https://maxencepemjean-creator.github.io", "https://jaltio.fr", "https://www.jaltio.fr", "https://jaltio.pages.dev"];   // jaltio.pages.dev : adresse de test Cloudflare Pages
 const MODELES = ["claude-sonnet-5-5", "claude-haiku-5-5"];
@@ -72,7 +75,7 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
 // Quotas mensuels par offre (mois calendaire). Les codes testeurs (secret CODES) n'ont pas de quota mensuel.
 // « generations » = création ou régénération d'un CV et d'une lettre (requêtes à plus de SEUIL_GENERATION jetons max) ;
 // « autres » = petits appels (lecture d'offre, coach, analyse du parcours…) : garde-fou de coût.
-// Offre Free : quota « à vie » (vie: true) — 5 CV au total, régénérations comprises ; pas de lettre, ni coach.
+// Offre Free : quota « à vie » (vie: true) — 3 CV au total, régénérations comprises, + 1 lettre offerte (lettres: 1) ; ni coach.
 // Quotas revus le 07/11/2026 (analyse des coûts) : Essentiel 50 + 300 → 30 + 100 ; Free 10 + 30 → 5 + 15.
 // Pro et Ultra ne sont pas encore en vente : leurs quotas sont prêts pour l'ouverture.
 // 08/11/2026 : Pro 60 + 150 → 45 + 120, Ultra 120 + 300 → 90 + 200 (rentables à quota plein avec 20 % de commission ambassadrice).
@@ -80,12 +83,28 @@ const QUOTAS = {
   essentiel: { generations: 30, autres: 100 },
   pro:       { generations: 45, autres: 120 },
   ultra:     { generations: 90, autres: 200 },
-  free:      { generations: 5, autres: 15, vie: true },
+  free:      { generations: 3, lettres: 1, autres: 15, vie: true },
+  // Pass 30 jours (paiement unique, sans renouvellement), proposé seulement en sortie : quota sur toute la durée du pass.
+  // Prix et quota À CONFIRMER avec le vrai coût par CV (requête D1) avant la mise en vente.
+  pass:      { generations: 15, autres: 50, vie: true },
 };
+const PASS_JOURS = 30;
 // Comptes Free créés avant le changement : ils gardent 10 CV + 30 demandes (CGV art. 4 bis : préavis de 30 jours).
 const FREE_ANCIEN = { generations: 10, autres: 30, vie: true };
 const FREE_CHANGEMENT = Date.parse("2026-11-07T11:00:00+01:00");
-const quotaDe = acces => (acces.offre === "free" && Number(acces.cree) && Number(acces.cree) < FREE_CHANGEMENT) ? FREE_ANCIEN : QUOTAS[acces.offre];
+const FREE_07_11 = { generations: 5, autres: 15, vie: true };          // comptes Free créés entre le 07/11/2026 et FREE_LETTRE
+// Free = 3 CV + 1 lettre offerte pour les comptes créés à partir de FREE_LETTRE (date de mise en ligne, À AJUSTER le jour du
+// déploiement, en même temps que les CGV et l'e-mail de préavis). Les comptes plus anciens gardent leurs limites jusqu'à
+// FREE_FIN_PREAVIS (préavis de 30 jours de l'art. 4 bis : l'e-mail doit partir au plus tard le 02/12/2026), puis passent à 3 CV + 1 lettre.
+const FREE_LETTRE = Date.parse("2026-12-01T00:00:00+01:00");
+const FREE_FIN_PREAVIS = Date.parse("2027-01-01T00:00:00+01:00");   // CGV art. 4 bis : anciennes limites jusqu'au 31/12/2026 inclus
+function quotaDe(acces) {
+  if (acces.offre !== "free") return QUOTAS[acces.offre];
+  const cree = Number(acces.cree) || 0;
+  if (cree && cree < FREE_LETTRE && maintenant() < FREE_FIN_PREAVIS) return cree < FREE_CHANGEMENT ? FREE_ANCIEN : FREE_07_11;
+  if (maintenant() < FREE_LETTRE) return FREE_07_11;                   // tant que la nouvelle offre n'est pas en ligne
+  return QUOTAS.free;
+}
 // Ajouté au prompt système des appels Free : jamais de lettre de motivation (fonction réservée aux abonnés)
 const CONSIGNE_FREE = "\n\nOFFRE GRATUITE : ne rédige JAMAIS de lettre de motivation, quelle que soit la demande. Mets toujours \"lettre\": null.";
 const SEUIL_GENERATION = 8000;
@@ -140,13 +159,15 @@ function nouveauCode() {               // ex. « jal-7k2m-p9xq » (sans 0/o/1/l 
   const c = [...r].map(x => alpha[x % alpha.length]).join("");
   return "jal-" + c.slice(0, 4) + "-" + c.slice(4);
 }
-async function verifierCode(env, code) {      // renvoie { offre, cree } si le code est valable, sinon null
+async function verifierCode(env, code) {      // renvoie { offre, cree, fin } si le code est valable, sinon null
   if (!code) return null;
   const codes = String(env.CODES || "").split(",").map(c => c.trim()).filter(Boolean);
   if (codes.includes(code)) return { offre: "testeur" };
   if (!env.DB || !/^jal-[a-z0-9]{4}-[a-z0-9]{4}$/.test(code)) return null;
-  const row = await env.DB.prepare("SELECT offre, actif, cree FROM abonnes WHERE code = ?1").bind(code).first();
-  return row && row.actif === 1 ? { offre: row.offre, cree: row.cree } : null;
+  const row = await env.DB.prepare("SELECT offre, actif, cree, fin FROM abonnes WHERE code = ?1").bind(code).first();
+  if (!row || row.actif !== 1) return null;
+  if (row.offre === "pass" && !(Number(row.fin) > maintenant())) return null;   // pass expiré (le cron de la nuit le passe à actif = 0)
+  return { offre: row.offre, cree: row.cree, fin: row.fin };
 }
 
 // Empreinte d'un code d'abonné (table abonnes, actif ou non) ; null pour un code testeur ou inconnu
@@ -183,8 +204,8 @@ async function lierCompte(env, compte, code) {
 async function codeDuCompte(env, compte) {
   try {
     const r = await env.DB.prepare(
-      "SELECT code FROM abonnes WHERE compte = ?1 AND actif = 1 ORDER BY CASE offre WHEN 'offert' THEN 0 WHEN 'pro' THEN 1 WHEN 'essentiel' THEN 2 ELSE 3 END, cree DESC LIMIT 1"
-    ).bind(compte).first();
+      "SELECT code FROM abonnes WHERE compte = ?1 AND actif = 1 AND (offre <> 'pass' OR fin > ?2) ORDER BY CASE offre WHEN 'offert' THEN 0 WHEN 'pro' THEN 1 WHEN 'essentiel' THEN 2 WHEN 'pass' THEN 3 ELSE 4 END, cree DESC LIMIT 1"
+    ).bind(compte, maintenant()).first();
     return r ? r.code : null;
   } catch (e) { return null; }
 }
@@ -365,6 +386,31 @@ function sansLettre(texte) {
   } catch (e) { return texte; }
 }
 
+// Texte final de la réponse (après le dernier résultat d'outil), objet JSON lu ou null
+function jsonFinal(rep) {
+  const blocs = Array.isArray(rep && rep.content) ? rep.content : [];
+  let dernier = -1;
+  blocs.forEach((b, i) => { if (b && /_tool_result$/.test(String(b.type || ""))) dernier = i; });
+  const t = blocs.slice(dernier + 1).filter(b => b && b.type === "text").map(b => String(b.text || "")).join("");
+  const a = t.indexOf("{"), z = t.lastIndexOf("}");
+  if (a < 0 || z <= a) return null;
+  try { const o = JSON.parse(t.slice(a, z + 1)); return o && typeof o === "object" ? o : null; } catch (e) { return null; }
+}
+const contientLettre = rep => { const o = jsonFinal(rep); return !!(o && o.lettre && typeof o.lettre === "object"); };
+
+// Consommation d'un code : sur un mois (mois = « 2026-11 ») ou depuis toujours (mois = null). lettres = null si la colonne manque.
+async function usage(env, h, mois) {
+  const ou = mois ? " WHERE code_h = ?1 AND mois = ?2" : " WHERE code_h = ?1";
+  const lie = q => mois ? q.bind(h, mois) : q.bind(h);
+  try {
+    const u = await lie(env.DB.prepare("SELECT COALESCE(SUM(generations), 0) AS generations, COALESCE(SUM(autres), 0) AS autres, COALESCE(SUM(lettres), 0) AS lettres FROM conso" + ou)).first();
+    return { generations: (u && u.generations) || 0, autres: (u && u.autres) || 0, lettres: (u && u.lettres) || 0 };
+  } catch (e) {
+    const u = await lie(env.DB.prepare("SELECT COALESCE(SUM(generations), 0) AS generations, COALESCE(SUM(autres), 0) AS autres FROM conso" + ou)).first();
+    return { generations: (u && u.generations) || 0, autres: (u && u.autres) || 0, lettres: null };
+  }
+}
+
 function produitUnCV(rep) {
   const blocs = Array.isArray(rep && rep.content) ? rep.content : [];
   let dernier = -1;
@@ -418,23 +464,32 @@ async function relais(request, env, origin) {
   // Quota mensuel de l'offre
   let generation = body.max_tokens > SEUIL_GENERATION;
   const mois = moisCourant(), quota = quotaDe(acces);
+  // Free : la lettre offerte (quota.lettres) est accordée tant qu'elle n'a pas été utilisée. L'appli indique ce qu'elle demande
+  // (champ « jaltio.cible », jamais transmis à Claude) : « lettre » = rédiger la lettre d'un CV déjà fait (ne consomme pas de CV).
+  const cible = String((recu.jaltio && recu.jaltio.cible) || "");
+  let lettreOK = false, lettreSeule = false;
   if (env.DB && quota) {
-    const u = quota.vie
-      ? await env.DB.prepare("SELECT COALESCE(SUM(generations), 0) AS generations, COALESCE(SUM(autres), 0) AS autres FROM conso WHERE code_h = ?1").bind(h).first()
-      : await env.DB.prepare("SELECT generations, autres FROM conso WHERE code_h = ?1 AND mois = ?2").bind(h, mois).first();
+    const u = await usage(env, h, quota.vie ? null : mois);
+    const lettresRestantes = (quota.lettres || 0) - (u.lettres == null ? (quota.lettres || 0) : u.lettres);   // colonne absente : lettre refusée
     if (quota.vie) {
-      if (generation && u && u.generations >= quota.generations)
-        return erreur(402, "Vous avez utilisé vos " + quota.generations + " CV de l'offre Free. Passez à Jaltio Essentiel pour continuer : jaltio.fr/forfaits/", origin, { quota: true, free: true });
-      if (!generation && u && u.autres >= quota.autres)
-        return erreur(402, "Limite de l'offre Free atteinte. Passez à Jaltio Essentiel pour continuer : jaltio.fr/forfaits/", origin, { quota: true, free: true });
+      const plus = acces.offre === "free" ? " Passez à Jaltio Essentiel pour continuer : jaltio.fr/forfaits/" : "";
+      const nom = acces.offre === "pass" ? "du pass 30 jours" : "de l'offre Free";
+      if (generation) {
+        lettreOK = lettresRestantes > 0;
+        lettreSeule = lettreOK && cible === "lettre";
+        if (!lettreSeule && u.generations >= quota.generations)
+          return erreur(402, "Vous avez utilisé vos " + quota.generations + " CV " + nom + "." + plus, origin, { quota: true, free: acces.offre === "free", pass: acces.offre === "pass", lettre_offerte: lettreOK });
+      }
+      if (!generation && u.autres >= quota.autres)
+        return erreur(402, "Limite " + nom + " atteinte." + plus, origin, { quota: true, free: acces.offre === "free", pass: acces.offre === "pass" });
     } else {
-      if (generation && u && u.generations >= quota.generations)
+      if (generation && u.generations >= quota.generations)
         return erreur(402, "Vous avez utilisé vos " + quota.generations + " générations de CV de ce mois. Le compteur repart à zéro le 1er du mois prochain.", origin, { quota: true });
-      if (!generation && u && u.autres >= quota.autres)
+      if (!generation && u.autres >= quota.autres)
         return erreur(402, "Limite mensuelle d'utilisation atteinte. Le compteur repart à zéro le 1er du mois prochain.", origin, { quota: true });
     }
   }
-  if (acces.offre === "free") {      // pas de lettre de motivation en Free, ni de prompt système libre
+  if (acces.offre === "free" && !lettreOK) {      // pas de lettre en Free une fois la lettre offerte utilisée, ni de prompt système libre
     if (typeof body.system === "string") body.system += CONSIGNE_FREE;
     else if (Array.isArray(body.system)) body.system = body.system.concat([{ type: "text", text: CONSIGNE_FREE.trim() }]);
     else body.system = CONSIGNE_FREE.trim();
@@ -459,7 +514,7 @@ async function relais(request, env, origin) {
     body: JSON.stringify(body),
   });
   let texte = await res.text();
-  if (acces.offre === "free" && res.ok) texte = sansLettre(texte);
+  if (acces.offre === "free" && res.ok && !lettreOK) texte = sansLettre(texte);
 
   // Consommation réelle (jetons, recherches web) par code et par mois : sert au quota et au calcul du coût
   if (env.DB && res.ok) {
@@ -472,11 +527,28 @@ async function relais(request, env, origin) {
       // Jetons pondérés par leur prix (écriture en cache × 1,25, lecture × 0,1, Haiku × 0,05) : équivalent Sonnet
       const entree = Math.round(((u.input_tokens || 0) + 1.25 * (u.cache_creation_input_tokens || 0) + 0.1 * (u.cache_read_input_tokens || 0)) * poids);
       const recherches = (u.server_tool_use && u.server_tool_use.web_search_requests) || 0;
-      await env.DB.prepare(
-        "INSERT INTO conso (code_h, mois, offre, generations, autres, tokens_in, tokens_out, recherches) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8) " +
-        "ON CONFLICT(code_h, mois) DO UPDATE SET generations = generations + excluded.generations, autres = autres + excluded.autres, " +
-        "tokens_in = tokens_in + excluded.tokens_in, tokens_out = tokens_out + excluded.tokens_out, recherches = recherches + excluded.recherches"
-      ).bind(h, mois, acces.offre, generation ? 1 : 0, generation ? 0 : 1, entree, Math.round((u.output_tokens || 0) * poids), recherches).run();
+      // Lettre offerte (Free) : consommée dès qu'une lettre sort ; une demande « lettre seule » consomme la lettre et pas de CV,
+      // même si la réponse n'en contient pas (sinon une demande « lettre » répétée donnerait des CV sans limite).
+      let lettre = 0;
+      if (lettreOK && generation) {
+        lettre = (lettreSeule || contientLettre(rep)) ? 1 : 0;
+        if (lettreSeule) generation = false;
+      }
+      const sortie = Math.round((u.output_tokens || 0) * poids);
+      const vals = [h, mois, acces.offre, generation ? 1 : 0, generation || lettre ? 0 : 1, entree, sortie, recherches];
+      try {
+        await env.DB.prepare(
+          "INSERT INTO conso (code_h, mois, offre, generations, autres, tokens_in, tokens_out, recherches, lettres) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9) " +
+          "ON CONFLICT(code_h, mois) DO UPDATE SET generations = generations + excluded.generations, autres = autres + excluded.autres, " +
+          "tokens_in = tokens_in + excluded.tokens_in, tokens_out = tokens_out + excluded.tokens_out, recherches = recherches + excluded.recherches, lettres = lettres + excluded.lettres"
+        ).bind(...vals, lettre).run();
+      } catch (e) {                                   // colonne lettres absente (migration du 27/11 pas encore faite)
+        await env.DB.prepare(
+          "INSERT INTO conso (code_h, mois, offre, generations, autres, tokens_in, tokens_out, recherches) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8) " +
+          "ON CONFLICT(code_h, mois) DO UPDATE SET generations = generations + excluded.generations, autres = autres + excluded.autres, " +
+          "tokens_in = tokens_in + excluded.tokens_in, tokens_out = tokens_out + excluded.tokens_out, recherches = recherches + excluded.recherches"
+        ).bind(...vals).run();
+      }
     } catch (e) { /* le comptage ne doit jamais bloquer la réponse */ }
   }
 
@@ -505,17 +577,21 @@ async function couponsSession(env, s) {
 }
 
 // Enregistre une session de paiement payée et renvoie son code d'accès (toujours le même pour une même session)
+// Pass 30 jours : paiement unique (mode « payment ») passé par le lien de paiement PASS_LIEN, et rien d'autre
+const estPass = (env, s) => !!(s && s.mode === "payment" && env.PASS_LIEN && idStripe(s.payment_link) === env.PASS_LIEN);
 async function enregistrerSession(env, s) {
-  const paye = s && s.mode === "subscription" && s.status === "complete" &&
-    (s.payment_status === "paid" || s.payment_status === "no_payment_required");
+  const pass = estPass(env, s);
+  const paye = s && (s.mode === "subscription" || pass) && s.status === "complete" &&
+    (s.payment_status === "paid" || (!pass && s.payment_status === "no_payment_required"));
   if (!paye || typeof s.id !== "string") return null;
   // Preuve d'acceptation : versions des CGV et de la politique + horodatage, transmis par la page d'inscription
   const accepte = /^[A-Za-z0-9_-]{1,200}$/.test(s.client_reference_id || "") ? s.client_reference_id : null;
-  const offre = (await couponsSession(env, s)).includes(COUPON_OFFERT) ? "offert" : OFFRE_PAR_DEFAUT;
+  const offre = pass ? "pass" : (await couponsSession(env, s)).includes(COUPON_OFFERT) ? "offert" : OFFRE_PAR_DEFAUT;
+  const t = maintenant();
   await env.DB.prepare(
-    "INSERT INTO abonnes (code, session, client, abonnement, offre, actif, cree, accepte) VALUES (?1, ?2, ?3, ?4, ?5, 1, ?6, ?7) " +
+    "INSERT INTO abonnes (code, session, client, abonnement, offre, actif, cree, accepte, fin) VALUES (?1, ?2, ?3, ?4, ?5, 1, ?6, ?7, ?8) " +
     "ON CONFLICT(session) DO UPDATE SET client = COALESCE(excluded.client, client), abonnement = COALESCE(excluded.abonnement, abonnement), accepte = COALESCE(excluded.accepte, accepte)"
-  ).bind(nouveauCode(), s.id, idStripe(s.customer), idStripe(s.subscription), offre, maintenant(), accepte).run();
+  ).bind(nouveauCode(), s.id, idStripe(s.customer), idStripe(s.subscription), offre, t, accepte, pass ? t + PASS_JOURS * 864e5 : null).run();
   const row = await env.DB.prepare("SELECT code FROM abonnes WHERE session = ?1").bind(s.id).first();
   return row ? row.code : null;
 }
@@ -543,9 +619,14 @@ async function codeValidation(env, session) {
   const h = await hmacHex(String(env.STRIPE_WEBHOOK_SECRET || env.MAIL_SECRET || "") + "|validation", "otp|" + session);
   return String(parseInt(h.slice(0, 12), 16) % 1000000).padStart(6, "0");
 }
-const mailBienvenue = async (env, session, email) => estFree(session)
-  ? envoyerMailFree(env, { type: "bienvenue_free", email, code: await codeValidation(env, session), lien: "https://jaltio.fr/?paye=" + session })
-  : envoyerMail(env, { type: "bienvenue", email, code: await codeValidation(env, session), lien: "https://jaltio.fr/?paye=" + session });
+async function mailBienvenue(env, session, email) {
+  const code = await codeValidation(env, session), lien = "https://jaltio.fr/?paye=" + session;
+  if (estFree(session)) return envoyerMailFree(env, { type: "bienvenue_free", email, code, lien });
+  const p = await env.DB.prepare("SELECT offre, fin FROM abonnes WHERE session = ?1").bind(session).first();
+  if (p && p.offre === "pass")
+    return envoyerMail(env, { type: "bienvenue_pass", email, code, lien, fin: dateFr(p.fin), cv: QUOTAS.pass.generations, demandes: QUOTAS.pass.autres });
+  return envoyerMail(env, { type: "bienvenue", email, code, lien });
+}
 
 // Envoie le mail de bienvenue (code de validation + CGV et politique) une seule fois par paiement. Renvoie false si l'envoi a échoué.
 async function envoyerCode(env, session, email) {
@@ -599,9 +680,13 @@ async function statutAbonnement(request, env, origin) {
   if (a.err) return a.err;
   if (a.testeur) return reponse({ offre: "testeur", actif: true }, 200, origin);
   const r = a.row;
-  if (r.offre === "free") {
-    const u = await env.DB.prepare("SELECT COALESCE(SUM(generations), 0) AS g FROM conso WHERE code_h = ?1").bind(await sha256hex("code|" + r.code)).first();
-    return reponse({ offre: "free", actif: r.actif === 1, cv_utilises: (u && u.g) || 0, cv_total: quotaDe(r).generations }, 200, origin);
+  if (r.offre === "free" || r.offre === "pass") {
+    const q = quotaDe(r), u = await usage(env, await sha256hex("code|" + r.code), null);
+    const d = { offre: r.offre, actif: r.actif === 1, cv_utilises: u.generations, cv_total: q.generations, autres_utilises: u.autres, autres_total: q.autres };
+    if (q.lettres) { d.lettres_total = q.lettres; d.lettres_utilisees = u.lettres == null ? q.lettres : u.lettres; }
+    if (r.offre === "free" && Number(r.cree) < FREE_LETTRE && maintenant() < FREE_FIN_PREAVIS) d.changement = FREE_FIN_PREAVIS;   // date de passage à 3 CV + 1 lettre
+    if (r.offre === "pass") { d.fin = r.fin || null; if (!(Number(r.fin) > maintenant())) d.actif = false; }
+    return reponse(d, 200, origin);
   }
   return reponse({ offre: r.offre, actif: r.actif === 1, fin: r.fin || null, resiliation_prevue: r.actif === 1 && !!r.fin }, 200, origin);
 }
@@ -613,6 +698,7 @@ async function resilierAbonnement(request, env, origin, ctx) {
   if (a.testeur) return erreur(400, "Ce code de test n'est lié à aucun abonnement payant.", origin);
   const r = a.row;
   if (r.offre === "free") return erreur(400, "L'offre Free est gratuite : il n'y a aucun abonnement à résilier. Pour effacer vos données, utilisez « Supprimer mes données en ligne » dans Mon compte.", origin);
+  if (r.offre === "pass") return erreur(400, "Le pass 30 jours est un paiement unique : il s'arrête tout seul le " + dateFr(r.fin) + ", rien n'est à résilier.", origin);
   if (!env.STRIPE_KEY || !r.abonnement) return erreur(503, "La résiliation en ligne n'est pas disponible pour l'instant. Écrivez à contact@jaltio.fr.", origin);
   if (r.actif !== 1) return reponse({ deja: true, fin: r.fin || null, actif: false }, 200, origin);
   if (r.fin) return reponse({ deja: true, fin: r.fin, actif: true }, 200, origin);
@@ -907,6 +993,8 @@ export default {
   async scheduled(event, env) {
     if (!env.DB) return;
     const t = Date.now(), apres = APRES_FIN_JOURS * 864e5, preavis = PREAVIS_JOURS * 864e5;
+    // 0. Pass 30 jours arrivés à leur fin : accès coupé (la conservation de 6 mois part de la date de fin, comme un abonnement)
+    try { await env.DB.prepare("UPDATE abonnes SET actif = 0 WHERE offre = 'pass' AND actif = 1 AND fin IS NOT NULL AND fin <= ?1").bind(t).run(); } catch (e) {}
     // 1. Avertissement : abonnement terminé, suppression dans 7 jours au plus, pas encore averti
     const aAvertir = await env.DB.prepare(
       "SELECT code, client, fin FROM abonnes WHERE actif = 0 AND fin IS NOT NULL AND averti = 0 AND fin + ?1 - ?2 <= ?3 LIMIT 50"

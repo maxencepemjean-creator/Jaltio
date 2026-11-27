@@ -2720,7 +2720,7 @@ async function callClaude(body, key){
       settings.apiKey = ""; saveSettings(); renderSettings(); throw new Error(_t("Aucun abonnement actif n'est lié à ce compte. Pour continuer à créer des documents, choisissez un forfait sur la page Tarifs. Si c'est une erreur, écrivez à contact@jaltio.fr.")); }
     if(res.status === 400 && body.model === MODELE_LEGER) return callClaude(Object.assign({}, body, { model:MODELE_PRINCIPAL }), key);
     if(res.status === 403) throw new Error(_t("Accès refusé par le service. Écrivez à contact@jaltio.fr."));
-    if(res.status === 402) throw new Error(m || _t("Limite mensuelle atteinte. Le compteur repart à zéro le 1er du mois prochain."));
+    if(res.status === 402){ const err = new Error(m || _t("Limite mensuelle atteinte. Le compteur repart à zéro le 1er du mois prochain.")); err.quota = data || {}; throw err; }
     if(res.status === 429) throw new Error(_t("Trop de demandes d'un coup. Patientez une minute et réessayez."));
     if(res.status === 529 || res.status >= 500) throw new Error(_t("Le service Claude est surchargé. Réessayez dans quelques minutes."));
     if(/credit|balance|billing/i.test(m)) throw new Error(_t("Le service de rédaction est momentanément indisponible. Réessayez dans quelques minutes ; si cela continue, écrivez à contact@jaltio.fr."));
@@ -2845,8 +2845,9 @@ function addCost(u){
   saveSettings(); renderSettings();
 }
 /* Appel avec outils serveur (lecture du lien, recherche de couleur), en gérant les pauses */
-async function runClaude(messages, tools){
+async function runClaude(messages, tools, cible){
   const body = { model:settings.model, max_tokens:16000, system:SYSTEM, messages:messages.slice() };
+  if(cible) body.jaltio = { cible };   // lu par le relais (lettre offerte en Free), jamais transmis à Claude
   if(tools && tools.length) body.tools = tools;
   let data;
   for(let i = 0; i < 4; i++){
@@ -3033,7 +3034,8 @@ $("#btn-generate").addEventListener("click", async () => {
   if(spont && spSite && !/^https?:\/\//i.test(spSite)) spSite = "https://" + spSite;
   const url = spont ? spSite : urlAnnonce();
   const offre = spont ? "" : $("#offre").value.trim();
-  const wantLettre = $("#opt-lettre").checked && !isFree();
+  const wantLettre = $("#opt-lettre").checked && (!isFree() || lettreOfferte());
+  const lettreDuFree = isFree() && wantLettre;
   if(!settings.apiKey && !(await recoverCode(""))){ status("#status-gen", "err", _t("Saisissez d'abord votre code d'accès dans l'encadré « Première utilisation ».")); $("#step-key").hidden = false; return; }
   if(parcours.length < 80){ status("#status-gen", "err", _t("Votre parcours est trop court. Déposez votre ancien CV ou décrivez vos expériences.")); $("#profile-parcours").focus(); return; }
   if(spont && spEnt.length < 2){ status("#status-gen", "err", _t("Indiquez le nom de l'entreprise.")); $("#sp-entreprise").focus(); return; }
@@ -3080,11 +3082,12 @@ $("#btn-generate").addEventListener("click", async () => {
     storeResult(p, out, D2 ? { groupId:D2.id } : undefined);
     setMStep("cv"); if(isM()) window.scrollTo({ top:0, behavior:"smooth" });
     maybeShowHelp();
-    if(isFree()) aboStatut();
+    if(isFree()) aboStatut().then(() => apresFree(lettreDuFree && !!out.lettre));
     $("#remarques").value = "";
     status("#status-gen", "ok", _t("C'est prêt ! Relisez le CV à droite. Corrigez directement dans le document, ou expliquez ce qui ne va pas ci-dessous."));
   }catch(e){
     status("#status-gen", "err", e.message);
+    if(e.quota && e.quota.free) quotaFree(e.quota);
   }
   busy(false);
 });
@@ -3116,12 +3119,12 @@ function restoreLettreFrame(oldHtml){
 $("#btn-regen").addEventListener("click", async () => {
   const rq = $("#remarques").value.trim();
   if(rq.length < 4){ status("#status-gen", "err", _t("Expliquez ce que vous voulez changer.")); $("#remarques").focus(); return; }
-  if(cible() !== "cv" && freeBlock()) return;
+  if(cible() !== "cv" && freeBlock("lettre")) return;
   stopDictation();
   if(await doRegen(cible(), rq)) $("#remarques").value = "";
 });
 async function doRegen(target, rq){
-  if(target !== "cv" && freeBlock()) return false;
+  if(target !== "cv" && freeBlock("lettre")) return false;
   const h = history.find(x => x.id === currentHistId);
   if(!h){ status("#status-gen", "err", _t("Générez d'abord un CV.")); return false; }
   validateEdits(true); // les retouches à la main deviennent la base de travail, et Claude les mémorise
@@ -3150,7 +3153,8 @@ async function doRegen(target, rq){
       retouchesBlock(p) + "<remarques_du_candidat>\n" + rq +
       "\n</remarques_du_candidat>\n\n" + consigne + " Garde ce qui n'est pas concerné par les remarques et renvoie le JSON complet mis à jour. Les règles absolues restent valables : n'invente rien. Conserve \"couleur_entreprise\", \"offre_resume\" et \"candidature\" tels quels. Mets \"message_court\" à jour s'il ne correspond plus à la lettre." +
       (wantLettre ? "" : " Mets \"lettre\": null.");
-    const out = await runClaude([{ role:"user", content: langBlock(h.data._lang) + userMsg }], []);
+    const lettreDuFree = isFree() && target !== "cv";
+    const out = await runClaude([{ role:"user", content: langBlock(h.data._lang) + userMsg }], [], target === "lettre" ? "lettre" : "");
     out._lang = h.data._lang || "fr";
     if(!str(out.couleur_entreprise)) out.couleur_entreprise = h.companyColor;
     if(!str(out.offre_resume)) out.offre_resume = h.data.offre_resume;
@@ -3167,10 +3171,12 @@ async function doRegen(target, rq){
     storeResult(p, out, keep);
     const nh = curHist(); if(nh){ if(h.apply) nh.apply = h.apply; if(h.fiche) nh.fiche = h.fiche; saveHistory(); }
     if(target === "lettre") showTab("lettre");
+    if(isFree()) aboStatut().then(() => apresFree(lettreDuFree && !!out.lettre));
     status("#status-gen", "ok", _t("Nouvelle version prête. L'ancienne reste dans l'historique."));
     busy(false); return true;
   }catch(e){
     status("#status-gen", "err", e.message);
+    if(e.quota && e.quota.free) quotaFree(e.quota);
   }
   busy(false); return false;
 }
@@ -3698,7 +3704,7 @@ function renderStats(){
   cols.forEach(([d, n]) => { const c = el("div"); c.appendChild(el("b", "", String(n))); const i_ = el("i"); i_.style.height = Math.round(n / max * 120) + "px"; c.appendChild(i_); c.appendChild(el("span", "", d.toLocaleDateString(LOCALE, { month:"short" }))); mois.appendChild(c); });
   m.appendChild(mois); g.appendChild(m);
   const d = aboDernier;
-  if(d && d.cv_total){ const q = el("section", "hcard"); q.appendChild(el("h3", "", d.offre === "free" ? _t("Votre offre Free") : _t("Votre quota ce mois-ci"))); jauge(q, _t("CV et lettres"), d.cv_utilises || 0, d.cv_total); if(d.autres_total) jauge(q, _t("Coach et lectures d'offre"), d.autres_utilises || 0, d.autres_total); g.appendChild(q); }
+  if(d && d.cv_total){ const q = el("section", "hcard"); q.appendChild(el("h3", "", d.offre === "free" ? _t("Votre offre Free") : _t("Votre quota ce mois-ci"))); jauge(q, d.offre === "free" ? _t("CV") : _t("CV et lettres"), d.cv_utilises || 0, d.cv_total); if(d.offre === "free" && d.lettres_total) jauge(q, _t("Lettre offerte"), d.lettres_utilisees || 0, d.lettres_total); else if(d.autres_total) jauge(q, _t("Coach et lectures d'offre"), d.autres_utilises || 0, d.autres_total); g.appendChild(q); }
   box.appendChild(g);
 }
 $("#aide-tour").addEventListener("click", () => { try{ startTour(); }catch(e){} });
@@ -5009,7 +5015,8 @@ function renderHome(){
   if(d && d.cv_total){
     Q.appendChild(el("h3", "", d.offre === "free" ? _t("Votre offre Free") : _t("Ce mois-ci")));
     jauge(Q, d.offre === "free" ? _t("CV") : _t("CV et lettres"), d.cv_utilises || 0, d.cv_total);
-    if(d.autres_total) jauge(Q, _t("Coach et lectures d'offre"), d.autres_utilises || 0, d.autres_total);
+    if(d.offre === "free" && d.lettres_total) jauge(Q, _t("Lettre offerte"), d.lettres_utilisees || 0, d.lettres_total);
+    else if(d.autres_total) jauge(Q, _t("Coach et lectures d'offre"), d.autres_utilises || 0, d.autres_total);
   }
   /* Parcours incomplet */
   const P = $("#home-parcours"); P.innerHTML = ""; const pc = parcoursManques();
@@ -5112,9 +5119,10 @@ function renderCSum(){
 function renderCOptions(){
   renderCSum();
   const f = isFree();
-  $("#opt-lettre-row").hidden = f; $("#c-lock").hidden = !f;
+  $("#opt-lettre-row").hidden = f && !lettreOfferte(); $("#c-lock").hidden = !f || lettreOfferte();
   const q = $("#c-quota"), d = aboDernier;
-  if(d && d.cv_total){ const r = Math.max(0, (d.cv_total || 0) - (d.cv_utilises || 0)); q.textContent = _t("Il vous reste ") + r + _t(" CV sur ") + d.cv_total + (d.offre === "free" ? _t(" (offre Free).") : _t(" ce mois-ci.")); q.hidden = false; }
+  if(d && d.offre === "free" && d.cv_total){ q.textContent = compteurFree(d); q.hidden = false; }
+  else if(d && d.cv_total){ const r = Math.max(0, (d.cv_total || 0) - (d.cv_utilises || 0)); q.textContent = _t("Il vous reste ") + r + _t(" CV sur ") + d.cv_total + _t(" ce mois-ci."); q.hidden = false; }
   else q.hidden = true;
 }
 $("#btn-cnext").addEventListener("click", () => {
@@ -5125,7 +5133,7 @@ $("#btn-cnext").addEventListener("click", () => {
   status("#status-gen", "", ""); setCStep("options"); window.scrollTo({ top:0 });
 });
 $("#btn-cback").addEventListener("click", () => setCStep("offre"));
-$("#c-lock-btn").addEventListener("click", () => freeBlock());
+$("#c-lock-btn").addEventListener("click", () => freeBlock("lettre"));
 function setMStep(s){ setCStep(s === "cv" ? "done" : "offre"); document.body.dataset.mstep = s; if(s !== "cv") delete document.body.dataset.mfix; renderMSteps(); requestAnimationFrame(() => { try{ scalePreview(); fitVisible(); }catch(e){} }); }
 function renderMSteps(){
   const box = $("#m-steps"); if(!box) return;
@@ -6380,25 +6388,65 @@ $("#sync-secours").addEventListener("click", async () => {
 /* ----- Mon abonnement : état et résiliation sur le site (CGV, article 9) ----- */
 const dateLongue = ms => new Date(ms).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" });
 const aboCode = () => (settings.apiKey && !/^sk-ant-/.test(settings.apiKey)) ? settings.apiKey.trim() : "";
-/* Offre Free : 5 CV au total (10 pour les comptes créés avant le 07/11/2026), sans lettre, coach ni aide à la candidature (le relais l'impose aussi) */
+/* Offre Free : 3 CV au total + 1 lettre de motivation offerte (comptes plus anciens : leurs limites jusqu'à la fin du préavis),
+   sans coach ni aide à la candidature. Le relais l'impose aussi. */
 const isFree = () => store.get("offre", "") === "free";
+const lettreOfferte = () => isFree() && !!aboDernier && (aboDernier.lettres_total || 0) > (aboDernier.lettres_utilisees || 0);
+const RASSURE = () => _t("Sans engagement · résiliation en ligne depuis Mon compte");
+function compteurFree(d){
+  const cv = Math.min(d.cv_utilises || 0, d.cv_total) + _t(" CV sur ") + d.cv_total;
+  if(!d.lettres_total) return cv + _t(" (offre Free).");
+  return cv + " · " + ((d.lettres_utilisees || 0) >= d.lettres_total ? _t("lettre offerte utilisée") : _t("lettre : 1 offerte"));
+}
 function freeUi(){
-  const f = isFree(), o = $("#opt-lettre");
+  const f = isFree(), o = $("#opt-lettre"), lo = lettreOfferte();
   document.body.dataset.offre = f ? "free" : "";
-  if(f){ o.checked = false; o.disabled = true; $("#opt-lettre-txt").textContent = _t("Lettre de motivation : incluse dans Jaltio Essentiel"); }
-  else if(o.disabled){ o.disabled = false; o.checked = true; $("#opt-lettre-txt").textContent = _t("Rédiger aussi la lettre de motivation"); }
-  // Corrections : en Free, seul le CV (les choix « La lettre » et « Les deux » sont masqués)
-  document.querySelectorAll('input[name="cible"]').forEach(r => { if(r.value !== "cv") r.closest("label").style.display = f ? "none" : ""; if(f) r.checked = r.value === "cv"; });
+  if(f && !lo){ o.checked = false; o.disabled = true; $("#opt-lettre-txt").textContent = _t("Lettre de motivation : incluse dans Jaltio Essentiel"); }
+  else if(f && lo){ if(o.disabled){ o.disabled = false; o.checked = true; } $("#opt-lettre-txt").textContent = _t("Rédiger aussi la lettre de motivation (1 lettre offerte)"); }
+  else { if(o.disabled){ o.disabled = false; o.checked = true; } $("#opt-lettre-txt").textContent = _t("Rédiger aussi la lettre de motivation"); }
+  // Corrections : en Free, seul le CV, sauf tant que la lettre offerte n'est pas utilisée
+  document.querySelectorAll('input[name="cible"]').forEach(r => { if(r.value !== "cv") r.closest("label").style.display = f && !lo ? "none" : ""; if(f && !lo) r.checked = r.value === "cv"; });
   if(!f && !document.querySelector('input[name="cible"]:checked')){ const b = document.querySelector('input[name="cible"][value="both"]'); if(b) b.checked = true; }
   $("#btn-regen").textContent = regenLabel();
 }
-function freeBlock(){
+function freeBlock(quoi){
   if(!isFree()) return false;
-  openSyncDlg({ title:_t("Inclus dans Jaltio Essentiel"),
-    text:_t("La lettre de motivation, le coach et l'aide à la candidature ne font pas partie de l'offre Free. Jaltio Essentiel les inclut, avec 30 CV par mois."),
-    buttons:[{ label:_t("Voir l'offre Essentiel"), fn: () => { location.href = "/forfaits/"; } },
-             { label:_t("Plus tard"), cls:"alt", cancel:true, fn: () => {} }] });
+  if(quoi === "lettre" && lettreOfferte()) return false;
+  fenetreEssentiel(_t("Inclus dans Jaltio Essentiel"),
+    (quoi === "lettre" && aboDernier && aboDernier.lettres_total ? _t("Votre lettre offerte est déjà utilisée. ") : "") + _t("Les lettres de motivation, le coach et l'aide à la candidature sont inclus dans Jaltio Essentiel, avec 30 CV par mois."));
   return true;
+}
+/* Fenêtre Essentiel : bouton vers les tarifs + rappel « sans engagement » (vrai : résiliation en ligne, rubrique Mon abonnement) */
+function fenetreEssentiel(titre, texte, sortie){
+  openSyncDlg({ title:titre, text:texte + " " + RASSURE() + ".",
+    buttons:[{ label:_t("Passer à Essentiel : 13,99 € par mois"), fn: () => { location.href = "/forfaits/"; } },
+             { label:_t("Plus tard"), cls:"alt", cancel:true, fn: () => { if(sortie) setTimeout(proposerPass, 150); } }] });
+}
+/* Quota Free atteint (réponse 402 du relais) : fenêtre Essentiel ; s'il reste la lettre offerte, on dit comment l'utiliser */
+function quotaFree(q){
+  fenetreEssentiel(_t("Vos CV gratuits sont utilisés"),
+    (q.lettre_offerte ? _t("Il vous reste votre lettre offerte : ouvrez un de vos CV et choisissez « La lettre » dans « Que voulez-vous corriger ? ». ") : "") +
+    _t("Pour de nouveaux CV : Jaltio Essentiel, 30 CV et lettres par mois, coach et préparation d'entretien."), true);
+}
+/* Après une génération en Free : fenêtre Essentiel après la lettre offerte, et quand le dernier CV est utilisé */
+function apresFree(lettreFaite){
+  const d = aboDernier; if(!isFree() || !d) return;
+  const fini = !!d.cv_total && (d.cv_utilises || 0) >= d.cv_total;
+  if(lettreFaite && !store.get("vu_lettre_offerte", "")){ store.set("vu_lettre_offerte", "1");
+    fenetreEssentiel(_t("Votre lettre offerte est prête"), _t("Relisez-la dans l'onglet « Lettre de motivation ». Avec Jaltio Essentiel, une lettre accompagne chaque CV (30 par mois), avec le coach et la préparation d'entretien."), fini); return; }
+  if(fini) fenetreEssentiel(_t("Vous avez utilisé vos ") + d.cv_total + _t(" CV gratuits"), _t("Vos documents restent accessibles. Pour continuer : Jaltio Essentiel, 30 CV et lettres par mois, coach et préparation d'entretien."), true);
+}
+/* Pass 30 jours : proposé uniquement en sortie (refus de l'Essentiel en fin de quota Free, résiliation). Jamais sur les tarifs.
+   À remplir à la mise en vente : PASS_URL = lien de paiement Stripe du pass, PASS_PRIX = prix affiché. Vides : rien n'est proposé. */
+const PASS_URL = "", PASS_PRIX = "", PASS_CV = 15;
+function proposerPass(){
+  if(!PASS_URL || !PASS_PRIX) return;
+  const jour = new Date().toISOString().slice(0, 10);
+  if(store.get("vu_pass", "") === jour) return; store.set("vu_pass", jour);
+  openSyncDlg({ title:_t("Plutôt sans abonnement ?"),
+    text:_t("Pass 30 jours : ") + PASS_PRIX + _t(", payé une seule fois, sans renouvellement : ") + PASS_CV + _t(" CV et lettres pendant 30 jours, puis il s'arrête tout seul."),
+    buttons:[{ label:_t("Prendre le pass 30 jours"), fn: () => { location.href = PASS_URL; } },
+             { label:_t("Non merci"), cls:"alt", cancel:true, fn: () => {} }] });
 }
 async function aboCall(route){
   const res = await fetch(RELAIS.replace(/\/+$/, "") + "/stripe/" + route, { method:"POST", headers:{ "content-type":"application/json", "x-jalon-code":aboCode() }, body:"{}" });
@@ -6417,7 +6465,8 @@ async function aboStatut(){
     const d = await aboCall("statut"); aboDernier = d;
     if(!d.actif && await recoverCode(aboCode())) return;      // un autre code, actif, est enregistré sur le compte synchronisé
     store.set("offre", str(d.offre)); freeUi();
-    if(d.offre === "free"){ aboRender(_t("Jaltio Free : ") + (d.cv_utilises || 0) + _t(" CV utilisés sur ") + (d.cv_total || 10) + _t(" (corrections comprises). Lettre de motivation, coach et préparation d'entretien : inclus dans Jaltio Essentiel."), false, true, true); return; }
+    if(d.offre === "free"){ aboRender(_t("Jaltio Free : ") + compteurFree(d) + _t(" Corrections comprises.") + (d.changement ? _t(" À partir du ") + dateLongue(d.changement) + _t(" : 3 CV et 1 lettre offerte au total.") : "") + _t(" Lettres, coach et préparation d'entretien : inclus dans Jaltio Essentiel."), false, true, true); try{ renderCOptions(); }catch(e){} return; }
+    if(d.offre === "pass"){ aboRender(d.actif ? _t("Pass 30 jours : ") + (d.cv_utilises || 0) + _t(" CV utilisés sur ") + d.cv_total + _t(", accès jusqu'au ") + dateLongue(d.fin) + _t(". Paiement unique : rien ne sera prélevé ensuite.") : _t("Votre pass 30 jours est terminé. Vos documents restent consultables 6 mois, puis sont supprimés."), false, !d.actif); return; }
     if(d.offre === "offert") aboRender(_t("Accès offert : Jaltio sans limite mensuelle, aucun prélèvement."), d.actif && !d.resiliation_prevue, false, true);
     else if(d.offre === "testeur") aboRender(_t("Accès testeur : aucun abonnement payant n'est lié à ce compte."), false, false);
     else if(d.actif && d.resiliation_prevue) aboRender(_t("Résiliation enregistrée. Votre accès Jaltio Essentiel continue jusqu'au ") + dateLongue(d.fin) + _t(", sans nouveau prélèvement."), false, false);
@@ -6436,7 +6485,7 @@ $("#abo-resilier").addEventListener("click", () => {
                 try{
                   const d = await aboCall("resilier");
                   status("#abo-msg", "ok", (d.deja ? _t("Votre résiliation était déjà enregistrée.") : _t("Résiliation enregistrée. Un e-mail de confirmation vous a été envoyé.")) + (d.fin ? _t(" Accès jusqu'au ") + dateLongue(d.fin) + "." : ""));
-                  aboStatut();
+                  aboStatut(); if(!d.deja) setTimeout(proposerPass, 400);
                 }catch(e){ status("#abo-msg", "err", (e.message || _t("Résiliation impossible.")) + _t(" Vous pouvez aussi résilier en écrivant à contact@jaltio.fr.")); }
                 finally{ $("#abo-resilier").disabled = false; } } },
              { label:_t("Garder mon abonnement"), cls:"alt", cancel:true, fn: () => {} }] });
@@ -6791,11 +6840,11 @@ if(new URLSearchParams(location.search).has("resilier")){
     await new Promise(r => setTimeout(r, 4000));
   }
   $("#otp-txt").textContent = _t("Nous venons d'envoyer un code à 6 chiffres à ") + (email || _t("votre adresse e-mail")) + _t(", avec vos conditions générales et la politique de confidentialité. Saisissez-le ici. Pensez à regarder dans les courriers indésirables.");
-  if(free) $("#otp-txt").textContent += " " + _t("L'offre Free comprend 5 CV au total, sans paiement.");
+  if(free) $("#otp-txt").textContent += " " + _t("L'offre Free comprend 3 CV et 1 lettre de motivation offerte, sans paiement.");
   setTimeout(() => { try{ $("#otp-in").focus(); }catch(e){} }, 60);
   const fini = code => {
     // Un compte déjà abonné ne repasse jamais sur l'offre Free
-    if(free && aboCode() && ["essentiel", "offert", "testeur"].includes(store.get("offre", ""))){
+    if(free && aboCode() && ["essentiel", "offert", "testeur", "pass"].includes(store.get("offre", ""))){
       try{ window.history.replaceState(null, "", location.pathname); }catch(e){}
       $("#gate-otp").hidden = true; $("#gate").hidden = true; document.body.classList.remove("gate-open");
       status("#sync-msg", "info", _t("Ce compte a déjà un abonnement Jaltio : l'offre Free n'a pas été activée."));
