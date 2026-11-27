@@ -33,6 +33,8 @@
 //   Base D1 : exécuter une fois worker/migration-2026-11-27.sql (colonne lettres de conso : lettre offerte en Free)
 //   (facultatif, pass 30 jours) Variable PASS_LIEN = identifiant du lien de paiement Stripe du pass (plink_…) ; sans elle, aucun pass n'est accepté
 //   Workflow n8n « [JLT] 07 - E-mails clients » : gérer le type « bienvenue_pass » (code de validation + date de fin du pass)
+//   Mot de passe oublié par lien e-mail (27/11/2026) : secret CLE_COMPTES (au moins 32 caractères aléatoires, ne JAMAIS le changer :
+//   il protège la clé de chaque compte) + worker/migration-2026-11-27-reinit.sql ; e-mail type « reinitialisation » dans [JLT] 07.
 //   Console d'administration (jaltio.fr/console/) : secret ADMIN_MOT_DE_PASSE (au moins 16 caractères). Sans lui, la console est fermée.
 
 const ORIGINES = ["https://maxencepemjean-creator.github.io", "https://jaltio.fr", "https://www.jaltio.fr", "https://jaltio.pages.dev"];   // jaltio.pages.dev : adresse de test Cloudflare Pages
@@ -67,7 +69,10 @@ const LIMITES = {                      // [nombre max, fenêtre en secondes]
   free_ip_h:[6, 3600],                 // demandes d'inscription Free (nouvelles ou déjà connues), par adresse IP et par heure
   retract:  [5, 3600],
   admin:    [5, 900],                  // mots de passe faux sur la console, par adresse IP (hachée)                 // déclarations de rétractation en ligne, par adresse IP (hachée) et par heure
-  echecs_r: [5, 3600],                 // codes de secours faux, par identifiant et par heure
+  echecs_r: [5, 3600],
+  oubli_ip: [5, 3600],                 // demandes de lien « mot de passe oublié », par adresse IP (hachée) et par heure
+  oubli:    [3, 86400],                // liens « mot de passe oublié » envoyés, par compte et par jour
+  reinit:   [10, 3600],                // ouvertures d'un lien de réinitialisation, par adresse IP (hachée)                 // codes de secours faux, par identifiant et par heure
   mail_r:   [3, 86400],                // e-mails du code de secours, par identifiant et par jour
   offres:   [60, 3600],                // recherches d'offres (Careerjet), par code d'accès et par heure
   offres_ip:[120, 3600],               // recherches d'offres, par adresse IP (hachée) et par heure
@@ -237,6 +242,34 @@ async function verifierSecours(env, id, rauth, row) {
 const enveloppeValide = b => RE_B64.test(b.rsalt || "") && b.rsalt.length === 24 && RE_ID.test(b.rauth || "")
   && RE_B64.test(b.riv || "") && b.riv.length === 16 && RE_B64.test(b.renv || "") && b.renv.length < 400;
 
+// ---------- Mot de passe oublié (option B, 27/11/2026) ----------
+// Le navigateur dépose la clé de ses données ; le serveur la garde chiffrée avec le secret CLE_COMPTES (AES-GCM, lié à l'identifiant).
+// Avec un lien reçu par e-mail (valable 1 heure, utilisable une fois), le serveur rend cette clé : les documents sont conservés.
+const REINIT_MINUTES = 60;
+async function cleServeur(env) {
+  const brut = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("jaltio-comptes-v1|" + env.CLE_COMPTES));
+  return crypto.subtle.importKey("raw", brut, "AES-GCM", false, ["encrypt", "decrypt"]);
+}
+const b64 = u8 => btoa(String.fromCharCode(...new Uint8Array(u8)));
+const deB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function garderCle(env, id, cle) {          // cle = clé AES du compte (base64, 32 octets)
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv, additionalData: new TextEncoder().encode(id) }, await cleServeur(env), deB64(cle));
+  await env.DB.prepare("UPDATE sync SET k_iv = ?1, k_env = ?2 WHERE id = ?3").bind(b64(iv), b64(ct), id).run();
+}
+async function rendreCle(env, row) {
+  const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: deB64(row.k_iv), additionalData: new TextEncoder().encode(row.id) }, await cleServeur(env), deB64(row.k_env));
+  return b64(pt);
+}
+const cleValide = c => RE_B64.test(c || "") && c.length === 44;
+async function jetonReinit(env, id, exp, version) { return hmacHex(env.CLE_COMPTES, "reinit|" + id + "|" + exp + "|" + version); }
+// Lien « id.expiration.signature » : refusé s'il a expiré ou si le compte a changé depuis (version : le lien ne sert qu'une fois)
+async function lireJeton(env, jeton, row) {
+  const m = /^([0-9a-f]{64})\.(\d{13})\.([0-9a-f]{64})$/.exec(String(jeton || ""));
+  if (!m || !row || row.id !== m[1] || Number(m[2]) < maintenant()) return false;
+  return egal(m[3], await jetonReinit(env, m[1], m[2], row.version));
+}
+
 async function synchro(request, env, origin, chemin) {
   if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
   if (!env.DB) return erreur(503, "La synchronisation n'est pas encore configurée côté serveur.", origin);
@@ -258,7 +291,56 @@ async function synchro(request, env, origin, chemin) {
   const row = await env.DB.prepare("SELECT * FROM sync WHERE id = ?1").bind(b.id).first();
 
   if (chemin === "/sync/meta") {
-    return reponse(row ? { exists: true, salt: row.salt, version: row.version, updated: row.updated, secours: !!row.r_auth, rsalt: row.r_salt || null } : { exists: false }, 200, origin);
+    return reponse(row ? { exists: true, salt: row.salt, version: row.version, updated: row.updated, secours: !!row.r_auth, rsalt: row.r_salt || null, cle: !!row.k_env } : { exists: false }, 200, origin);
+  }
+
+  // Dépôt de la clé du compte (après chaque connexion ou création, tant que le serveur ne l'a pas)
+  if (chemin === "/sync/cle-pose") {
+    if (!row) return erreur(404, "Aucun compte pour cet identifiant.", origin);
+    if (!env.CLE_COMPTES || String(env.CLE_COMPTES).length < 32) return erreur(503, "Récupération de mot de passe non configurée.", origin);
+    const a = await verifierAuth(env, b.id, b.auth, row);
+    if (a === "bloque") return erreur(429, "Trop d'essais. Réessayez dans 15 minutes.", origin);
+    if (a !== "ok") return erreur(401, "Identifiant ou mot de passe incorrect.", origin);
+    if (!cleValide(b.cle)) return erreur(400, "Clé invalide.", origin);
+    await garderCle(env, b.id, b.cle);
+    return reponse({ ok: true }, 200, origin);
+  }
+
+  // Mot de passe oublié, étape 1 : { id, email } → e-mail avec un lien (réponse identique que le compte existe ou non)
+  if (chemin === "/sync/oubli") {
+    const email = String(b.email || "").trim().toLowerCase();
+    if (!(await sous_limite(env, "oubli_ip:" + ip, LIMITES.oubli_ip))) return erreur(429, "Trop de demandes. Réessayez dans une heure.", origin);
+    if (row && row.k_env && env.CLE_COMPTES && (await sha256hex("jalon-sync-v1|" + email)) === b.id
+        && (await sous_limite(env, "oubli:" + b.id, LIMITES.oubli))) {
+      const exp = String(maintenant() + REINIT_MINUTES * 60000);
+      const lien = "https://jaltio.fr/app/?reinit=" + b.id + "." + exp + "." + (await jetonReinit(env, b.id, exp, row.version));
+      await envoyerMail(env, { type: "reinitialisation", email, lien, date: REINIT_MINUTES + " minutes" });
+    }
+    return reponse({ ok: true }, 200, origin);
+  }
+
+  // Étape 2 : avec le lien, le navigateur récupère la clé et les données pour les rechiffrer avec le nouveau mot de passe
+  if (chemin === "/sync/reinit-get") {
+    if (!(await sous_limite(env, "reinit:" + ip, LIMITES.reinit))) return erreur(429, "Trop d'essais. Réessayez dans une heure.", origin);
+    if (!row || !row.k_env || !env.CLE_COMPTES || !(await lireJeton(env, b.jeton, row)))
+      return erreur(410, "Ce lien a expiré ou a déjà servi. Demandez-en un nouveau depuis « Mot de passe oublié ? ».", origin);
+    return reponse({ cle: await rendreCle(env, row), iv: row.iv, ct: row.ct, version: row.version }, 200, origin);
+  }
+
+  // Étape 3 : nouveau mot de passe (nouveau jeton d'accès, nouveau sel, données rechiffrées, nouvelle clé gardée)
+  if (chemin === "/sync/reinit") {
+    if (!row || !row.k_env || !env.CLE_COMPTES || !(await lireJeton(env, b.jeton, row)))
+      return erreur(410, "Ce lien a expiré ou a déjà servi. Demandez-en un nouveau depuis « Mot de passe oublié ? ».", origin);
+    if (!RE_ID.test(b.auth || "") || !RE_B64.test(b.salt || "") || b.salt.length !== 24 || !cleValide(b.cle)) return erreur(400, "Nouveau mot de passe invalide.", origin);
+    if (!RE_B64.test(b.iv || "") || b.iv.length !== 16 || !RE_B64.test(b.ct || "") || b.ct.length > MAX_BODY - 2000) return erreur(400, "Bloc invalide.", origin);
+    const t = maintenant();
+    const r = await env.DB.prepare(
+      "UPDATE sync SET auth = ?1, salt = ?2, iv = ?3, ct = ?4, version = version + 1, updated = ?5, accessed = ?5, size = ?6, r_salt = NULL, r_auth = NULL, r_iv = NULL, r_env = NULL WHERE id = ?7 AND version = ?8"
+    ).bind(await sha256hex(b.auth), b.salt, b.iv, b.ct, t, b.ct.length, b.id, row.version).run();
+    if (!r.meta || r.meta.changes !== 1) return erreur(409, "Vos données ont changé entre-temps. Recommencez.", origin, { conflict: true });
+    await garderCle(env, b.id, b.cle);
+    await env.DB.prepare("DELETE FROM rate WHERE k LIKE ?1").bind("echec:" + b.id + ":%").run();
+    return reponse({ ok: true, version: row.version + 1 }, 200, origin);
   }
 
   if (chemin === "/sync/get") {
