@@ -253,10 +253,14 @@ async function cleServeur(env) {
 }
 const b64 = u8 => btoa(String.fromCharCode(...new Uint8Array(u8)));
 const deB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-async function garderCle(env, id, cle) {          // cle = clé AES du compte (base64, 32 octets)
+async function emballerCle(env, id, cle) {        // cle = clé AES du compte (base64, 32 octets) → { iv, env } chiffrés avec CLE_COMPTES
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv, additionalData: new TextEncoder().encode(id) }, await cleServeur(env), deB64(cle));
-  await env.DB.prepare("UPDATE sync SET k_iv = ?1, k_env = ?2 WHERE id = ?3").bind(b64(iv), b64(ct), id).run();
+  return { iv: b64(iv), env: b64(ct) };
+}
+async function garderCle(env, id, cle) {
+  const e = await emballerCle(env, id, cle);
+  await env.DB.prepare("UPDATE sync SET k_iv = ?1, k_env = ?2 WHERE id = ?3").bind(e.iv, e.env, id).run();
 }
 async function rendreCle(env, row) {
   const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: deB64(row.k_iv), additionalData: new TextEncoder().encode(row.id) }, await cleServeur(env), deB64(row.k_env));
@@ -336,12 +340,11 @@ async function synchro(request, env, origin, chemin) {
       return erreur(410, "Ce lien a expiré ou a déjà servi. Demandez-en un nouveau depuis « Mot de passe oublié ? ».", origin);
     if (!RE_ID.test(b.auth || "") || !RE_B64.test(b.salt || "") || b.salt.length !== 24 || !cleValide(b.cle)) return erreur(400, "Nouveau mot de passe invalide.", origin);
     if (!RE_B64.test(b.iv || "") || b.iv.length !== 16 || !RE_B64.test(b.ct || "") || b.ct.length > MAX_BODY - 2000) return erreur(400, "Bloc invalide.", origin);
-    const t = maintenant();
+    const t = maintenant(), k = await emballerCle(env, b.id, b.cle);   // tout en une seule écriture : jamais de clé gardée périmée
     const r = await env.DB.prepare(
-      "UPDATE sync SET auth = ?1, salt = ?2, iv = ?3, ct = ?4, version = version + 1, updated = ?5, accessed = ?5, size = ?6, r_salt = NULL, r_auth = NULL, r_iv = NULL, r_env = NULL WHERE id = ?7 AND version = ?8"
-    ).bind(await sha256hex(b.auth), b.salt, b.iv, b.ct, t, b.ct.length, b.id, row.version).run();
+      "UPDATE sync SET auth = ?1, salt = ?2, iv = ?3, ct = ?4, version = version + 1, updated = ?5, accessed = ?5, size = ?6, r_salt = NULL, r_auth = NULL, r_iv = NULL, r_env = NULL, k_iv = ?9, k_env = ?10 WHERE id = ?7 AND version = ?8"
+    ).bind(await sha256hex(b.auth), b.salt, b.iv, b.ct, t, b.ct.length, b.id, row.version, k.iv, k.env).run();
     if (!r.meta || r.meta.changes !== 1) return erreur(409, "Vos données ont changé entre-temps. Recommencez.", origin, { conflict: true });
-    await garderCle(env, b.id, b.cle);
     await env.DB.prepare("DELETE FROM rate WHERE k LIKE ?1").bind("echec:" + b.id + ":%").run();
     return reponse({ ok: true, version: row.version + 1 }, 200, origin);
   }
@@ -1123,6 +1126,7 @@ export default {
       if (chemin.startsWith("/sync/")) return await synchro(request, env, origin, chemin);
       return await relais(request, env, origin);
     } catch (e) {
+      console.error("Erreur", chemin, e && e.stack ? e.stack : String(e));   // visible dans Cloudflare > jalon-relais > Logs
       return erreur(500, "Erreur du serveur. Réessayez dans un instant.", origin);
     }
   },

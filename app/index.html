@@ -6333,7 +6333,7 @@ async function syncStart(){
     let payload;
     try{ payload = await decryptPayload(g, k.key); }catch(e){ status("#sync-msg", "err", e.message && /navigateur/.test(e.message) ? e.message : _t("Impossible de lire les données en ligne avec ce mot de passe.")); return; }
     if(!validPayload(payload)){ status("#sync-msg", "err", _t("Les données en ligne ne sont pas lisibles par cette version de l'appli.")); return; }
-    if(!meta.cle) await clePoser(id, k.auth, k.key);   // attendu : la page peut se recharger juste après
+    await clePoser(id, k.auth, k.key);   // à chaque connexion (répare une clé gardée périmée) ; attendu : la page peut se recharger juste après
     const st = { id, auth:k.auth, key:k.key, mail:maskMail(mail), version:g.version, dirty:false, dirtyAt:0, lastSyncAt:Date.now(), err:"" };
     syncResetForm();
     if(!hasLocalData()){ syncSt = st; syncSave(); status("#sync-msg", "ok", _t("Données retrouvées. Chargement…")); syncApply(payload, g.version); return; }
