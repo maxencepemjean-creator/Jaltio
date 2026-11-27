@@ -6386,7 +6386,7 @@ async function reinitEnregistrer(jeton){
     const blob = await encryptPayload(payload, k.key);
     await syncCall("reinit", { id, jeton, auth:k.auth, salt:toB64(salt), iv:blob.iv, ct:blob.ct, cle:k.key });
     status("#ri-msg", "ok", _t("Nouveau mot de passe enregistré. Connexion…"));
-    history.replaceState(null, "", location.pathname);
+    window.history.replaceState(null, "", location.pathname);   // « history » seul = la liste des candidatures de l'appli
     $("#gate-reinit").hidden = true; $("#gate-slot").hidden = false; $("#sync-mail").value = mail; $("#sync-pw").value = pw; $("#ri-pw").value = $("#ri-pw2").value = "";
     await syncStart();
   }catch(e){
