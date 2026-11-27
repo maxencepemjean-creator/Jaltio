@@ -6392,6 +6392,15 @@ async function reinitEnregistrer(jeton){
   }finally{ $("#ri-go").disabled = false; }
 }
 $("#rec-form").addEventListener("submit", e => { e.preventDefault(); oubliDemander(); });
+/* Appareil déjà connecté (aucune nouvelle connexion) : la clé est déposée au démarrage si le serveur ne l'a pas encore */
+setTimeout(async () => {
+  try{
+    if(!syncSt || !syncSt.id || !syncSt.auth || !syncSt.key || localStorage.getItem("cvx_cle_ok") === syncSt.id) return;
+    const m = await syncCall("meta", { id:syncSt.id });
+    if(m && m.exists && !m.cle) await syncCall("cle-pose", { id:syncSt.id, auth:syncSt.auth, cle:syncSt.key });
+    if(m && m.exists) localStorage.setItem("cvx_cle_ok", syncSt.id);
+  }catch(e){ /* nouvel essai au prochain démarrage */ }
+}, 3000);
 (function(){
   const jeton = new URLSearchParams(location.search).get("reinit") || "";
   if(!/^[0-9a-f]{64}\.\d{13}\.[0-9a-f]{64}$/.test(jeton)) return;
