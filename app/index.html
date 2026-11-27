@@ -6366,7 +6366,9 @@ async function oubliDemander(){
   }catch(e){ status("#rec-msg", "err", e.offline ? _t("Pas de connexion. Réessayez quand vous serez en ligne.") : (e.message || _t("Erreur."))); }
   finally{ $("#rec-go").disabled = false; }
 }
+let reinitEnCours = false;
 async function reinitEnregistrer(jeton){
+  if(reinitEnCours) return;            // un seul envoi à la fois (Entrée + clic)
   const mail = $("#ri-mail").value.trim().toLowerCase(), pw = $("#ri-pw").value.normalize("NFKC");
   const id = jeton.split(".")[0];
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ status("#ri-msg", "err", _t("Entrez l'adresse e-mail de votre compte.")); $("#ri-mail").focus(); return; }
@@ -6374,7 +6376,7 @@ async function reinitEnregistrer(jeton){
   if(pw.length < 8){ status("#ri-msg", "err", _t("Le nouveau mot de passe doit faire au moins 8 caractères.")); $("#ri-pw").focus(); return; }
   if(pw !== $("#ri-pw2").value.normalize("NFKC")){ status("#ri-msg", "err", _t("Les deux mots de passe sont différents.")); $("#ri-pw2").focus(); return; }
   if(!syncAvailableNow()){ status("#ri-msg", "err", _t("Ce navigateur ne permet pas le chiffrement nécessaire. Utilisez une version récente de Safari, Chrome ou Firefox.")); return; }
-  $("#ri-go").disabled = true; status("#ri-msg", "info", _t("Récupération de vos données…"));
+  $("#ri-go").disabled = true; reinitEnCours = true; status("#ri-msg", "info", _t("Récupération de vos données…"));
   try{
     const g = await syncCall("reinit-get", { id, jeton });
     const payload = await decryptPayload(g, g.cle);
@@ -6389,7 +6391,7 @@ async function reinitEnregistrer(jeton){
     await syncStart();
   }catch(e){
     status("#ri-msg", "err", e.offline ? _t("Pas de connexion. Réessayez quand vous serez en ligne.") : (e.message || _t("Erreur.")));
-  }finally{ $("#ri-go").disabled = false; }
+  }finally{ $("#ri-go").disabled = false; reinitEnCours = false; }
 }
 $("#rec-form").addEventListener("submit", e => { e.preventDefault(); oubliDemander(); });
 /* Appareil déjà connecté (aucune nouvelle connexion) : la clé est déposée au démarrage si le serveur ne l'a pas encore */

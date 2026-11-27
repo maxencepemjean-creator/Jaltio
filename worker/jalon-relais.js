@@ -271,11 +271,17 @@ const cleValide = c => RE_B64.test(c || "") && c.length === 44;
 // il ne sert qu'une fois, puisque le nouveau mot de passe change cette empreinte.
 async function jetonReinit(env, id, exp, auth) { return hmacHex(env.CLE_COMPTES, "reinit|" + id + "|" + exp + "|" + auth); }
 // Lien « id.expiration.signature » : refusé s'il a expiré ou si le mot de passe a changé depuis
+// Renvoie "" si le lien est bon, sinon la raison (journalisée, et affichée en petit pour le diagnostic)
 async function lireJeton(env, jeton, row) {
   const m = /^([0-9a-f]{64})\.(\d{13})\.([0-9a-f]{64})$/.exec(String(jeton || ""));
-  if (!m || !row || row.id !== m[1] || Number(m[2]) < maintenant()) return false;
-  return egal(m[3], await jetonReinit(env, m[1], m[2], row.auth));
+  if (!m) return "format";
+  if (!row || row.id !== m[1]) return "compte";
+  if (!row.k_env) return "cle";
+  if (!env.CLE_COMPTES) return "config";
+  if (Number(m[2]) < maintenant()) return "expire";
+  return egal(m[3], await jetonReinit(env, m[1], m[2], row.auth)) ? "" : "signature";
 }
+const lienRefuse = (origin, raison) => { console.log("reinit refusé :", raison); return erreur(410, "Ce lien a expiré ou a déjà servi. Demandez-en un nouveau depuis « Mot de passe oublié ? ». (code : " + raison + ")", origin, { raison }); };
 
 async function synchro(request, env, origin, chemin) {
   if (request.method !== "POST") return erreur(405, "Méthode non autorisée.", origin);
@@ -321,7 +327,10 @@ async function synchro(request, env, origin, chemin) {
         && (await sous_limite(env, "oubli:" + b.id, LIMITES.oubli))) {
       const exp = String(maintenant() + REINIT_MINUTES * 60000);
       const lien = "https://jaltio.fr/app/?reinit=" + b.id + "." + exp + "." + (await jetonReinit(env, b.id, exp, row.auth));
-      await envoyerMail(env, { type: "reinitialisation", email, lien, date: REINIT_MINUTES + " minutes" });
+      const ok = await envoyerMail(env, { type: "reinitialisation", email, lien, date: REINIT_MINUTES + " minutes" });
+      console.log("oubli : lien envoyé", ok);
+    } else {
+      console.log("oubli : rien envoyé", { compte: !!row, cle: !!(row && row.k_env), config: !!env.CLE_COMPTES });
     }
     return reponse({ ok: true }, 200, origin);
   }
@@ -329,15 +338,15 @@ async function synchro(request, env, origin, chemin) {
   // Étape 2 : avec le lien, le navigateur récupère la clé et les données pour les rechiffrer avec le nouveau mot de passe
   if (chemin === "/sync/reinit-get") {
     if (!(await sous_limite(env, "reinit:" + ip, LIMITES.reinit))) return erreur(429, "Trop d'essais. Réessayez dans une heure.", origin);
-    if (!row || !row.k_env || !env.CLE_COMPTES || !(await lireJeton(env, b.jeton, row)))
-      return erreur(410, "Ce lien a expiré ou a déjà servi. Demandez-en un nouveau depuis « Mot de passe oublié ? ».", origin);
+    const raison = await lireJeton(env, b.jeton, row);
+    if (raison) return lienRefuse(origin, raison);
     return reponse({ cle: await rendreCle(env, row), iv: row.iv, ct: row.ct, version: row.version }, 200, origin);
   }
 
   // Étape 3 : nouveau mot de passe (nouveau jeton d'accès, nouveau sel, données rechiffrées, nouvelle clé gardée)
   if (chemin === "/sync/reinit") {
-    if (!row || !row.k_env || !env.CLE_COMPTES || !(await lireJeton(env, b.jeton, row)))
-      return erreur(410, "Ce lien a expiré ou a déjà servi. Demandez-en un nouveau depuis « Mot de passe oublié ? ».", origin);
+    const raison = await lireJeton(env, b.jeton, row);
+    if (raison) return lienRefuse(origin, raison + "-2");
     if (!RE_ID.test(b.auth || "") || !RE_B64.test(b.salt || "") || b.salt.length !== 24 || !cleValide(b.cle)) return erreur(400, "Nouveau mot de passe invalide.", origin);
     if (!RE_B64.test(b.iv || "") || b.iv.length !== 16 || !RE_B64.test(b.ct || "") || b.ct.length > MAX_BODY - 2000) return erreur(400, "Bloc invalide.", origin);
     const t = maintenant(), k = await emballerCle(env, b.id, b.cle);   // tout en une seule écriture : jamais de clé gardée périmée
