@@ -6436,7 +6436,8 @@ function apresFree(lettreFaite){
     fenetreEssentiel(_t("Votre lettre offerte est prête"), _t("Relisez-la dans l'onglet « Lettre de motivation ». Avec Jaltio Essentiel, une lettre accompagne chaque CV (30 par mois), avec le coach et la préparation d'entretien."), fini); return; }
   if(fini) fenetreEssentiel(_t("Vous avez utilisé vos ") + d.cv_total + _t(" CV gratuits"), _t("Vos documents restent accessibles. Pour continuer : Jaltio Essentiel, 30 CV et lettres par mois, coach et préparation d'entretien."), true);
 }
-/* Pass 30 jours : proposé uniquement en sortie (refus de l'Essentiel en fin de quota Free, résiliation). Jamais sur les tarifs.
+/* Pass 30 jours : proposé uniquement au Free qui refuse l'Essentiel en fin de quota. Jamais sur les tarifs, jamais à la résiliation
+   (un abonné qui résilie a encore accès jusqu'à la fin du mois payé : le pass lui ferait perdre un renouvellement à 13,99 €).
    À remplir à la mise en vente : PASS_URL = lien de paiement Stripe du pass, PASS_PRIX = prix affiché. Vides : rien n'est proposé. */
 const PASS_URL = "", PASS_PRIX = "", PASS_CV = 15;
 function proposerPass(){
@@ -6485,7 +6486,7 @@ $("#abo-resilier").addEventListener("click", () => {
                 try{
                   const d = await aboCall("resilier");
                   status("#abo-msg", "ok", (d.deja ? _t("Votre résiliation était déjà enregistrée.") : _t("Résiliation enregistrée. Un e-mail de confirmation vous a été envoyé.")) + (d.fin ? _t(" Accès jusqu'au ") + dateLongue(d.fin) + "." : ""));
-                  aboStatut(); if(!d.deja) setTimeout(proposerPass, 400);
+                  aboStatut();
                 }catch(e){ status("#abo-msg", "err", (e.message || _t("Résiliation impossible.")) + _t(" Vous pouvez aussi résilier en écrivant à contact@jaltio.fr.")); }
                 finally{ $("#abo-resilier").disabled = false; } } },
              { label:_t("Garder mon abonnement"), cls:"alt", cancel:true, fn: () => {} }] });
