@@ -832,6 +832,11 @@ const JETABLES = new Set(("yopmail.com yopmail.fr yopmail.net cool.fr.nf jetable
   "mohmal.com emailondeck.com fakeinbox.com mintemail.com mytemp.email tmail.ws tmpmail.org tmpmail.net mail.tm " +
   "jetable.org jetable.com spambox.us spamgourmet.com mailcatch.com burnermail.io emailfake.com fakemail.net " +
   "inboxkitten.com mailpoof.com discard.email luxusmail.org minuteinbox.com moakt.com tempinbox.com 33mail.com").split(" "));
+// Fautes de frappe courantes sur les grands fournisseurs : le code partirait vers une boîte qui n'existe pas
+const FAUTES = { "gmail.fr": "gmail.com", "gmail.con": "gmail.com", "gmail.co": "gmail.com", "gmial.com": "gmail.com", "gmai.com": "gmail.com",
+  "gmal.com": "gmail.com", "gamil.com": "gmail.com", "gnail.com": "gmail.com", "gmail.cm": "gmail.com", "hotmail.con": "hotmail.com", "hotmal.fr": "hotmail.fr",
+  "hotmial.fr": "hotmail.fr", "homail.fr": "hotmail.fr", "outlok.fr": "outlook.fr", "outloo.fr": "outlook.fr", "yahoo.con": "yahoo.com",
+  "wanado.fr": "wanadoo.fr", "lapost.net": "laposte.net", "laposte.ne": "laposte.net" };   // pas orange.com, laposte.fr… : vraies adresses d'entreprise
 // Adresse normalisée pour repérer les doublons : « prenom+jaltio@x » = « prenom@x » ; points ignorés chez Gmail
 function emailCanon(m) {
   let [u, d] = m.split("@");
@@ -851,6 +856,7 @@ async function inscriptionFree(request, env, origin, ctx) {
   if (email.length > 120 || !/^[a-z0-9._%+-]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/.test(email)) return erreur(400, "Cette adresse e-mail ne semble pas valide.", origin);
   const domaine = email.split("@")[1];
   if (JETABLES.has(domaine)) return erreur(400, "Les adresses e-mail temporaires ne sont pas acceptées. Utilisez votre adresse habituelle.", origin);
+  if (FAUTES[domaine]) return erreur(400, "Vérifiez votre adresse : vouliez-vous écrire " + email.split("@")[0] + "@" + FAUTES[domaine] + " ? (« " + domaine + " » ne reçoit pas d'e-mails)", origin);
   const accepte = /^[A-Za-z0-9_-]{1,200}$/.test(String((b && b.accepte) || "")) ? b.accepte : null;
   if (!accepte) return erreur(400, "Acceptez les conditions générales et la politique de confidentialité pour continuer.", origin);
   const emailH = await sha256hex("free|" + emailCanon(email));
