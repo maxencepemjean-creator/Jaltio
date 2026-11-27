@@ -472,6 +472,91 @@ Depuis 2024 – Bénévole – Club de handball (exemple fictif)<br>
 <li><b>Dépasser une page</b> pour un premier poste dans le nouveau métier, sauf si l'annonce demande un parcours détaillé.</li>
 </ul>
 """},
+{
+"slug": "candidature-spontanee",
+"titre": "Candidature spontanée : à qui l'envoyer et comment la rédiger (modèle)",
+"court": "Candidature spontanée",
+"description": "Candidature spontanée : choisir les entreprises, trouver la bonne personne, écrire un mail court et un CV ciblé, relancer. Méthode et modèle de mail à adapter.",
+"date": "2026-11-27",
+"intro": "Toutes les offres ne sont pas publiées : beaucoup d'entreprises, surtout les petites, recrutent par le bouche-à-oreille ou parmi les candidatures qu'elles ont déjà reçues. Une candidature spontanée vous place dans cette pile avant même qu'une annonce existe. Elle demande un peu plus de travail qu'une réponse à une offre, car c'est à vous d'expliquer en quoi vous pouvez être utile. Bien ciblée, elle montre au recruteur que vous avez choisi son entreprise, et pas seulement une annonce.",
+"corps": """
+<h2>Choisir les entreprises à contacter</h2>
+<p>Une candidature spontanée envoyée à cinquante entreprises au hasard donne rarement quelque chose. Mieux vaut une courte liste d'entreprises choisies, chacune avec une raison précise. Pour la construire :</p>
+<ul>
+<li><b>Partez du métier visé</b> : quelles entreprises emploient ce type de poste près de chez vous ou dans la zone où vous pouvez vous déplacer ?</li>
+<li><b>Regardez autour de vous</b> : commerces, artisans, entreprises de la zone d'activité, fournisseurs ou clients de votre ancien employeur.</li>
+<li><b>Repérez les signes de besoin</b> : ouverture d'un nouveau site, déménagement, nouveau produit, saison qui approche, annonces récentes pour des postes proches.</li>
+<li><b>Consultez leur site et leur page sur les réseaux professionnels</b> : une rubrique « Nous rejoindre » ou « Carrières » indique souvent comment candidater.</li>
+<li><b>Notez une raison par entreprise</b> : ce qui vous attire chez elle. Si vous n'en trouvez aucune, elle n'a probablement pas sa place sur la liste.</li>
+</ul>
+
+<h2>Trouver la bonne personne</h2>
+<p>Une candidature adressée à une personne nommée a plus de chances d'être lue qu'un message envoyé à une adresse générale. Selon la taille de l'entreprise :</p>
+<ul>
+<li><b>Petite entreprise, commerce, artisan</b> : le gérant ou la gérante. Souvent, c'est la même personne qui recrute, encadre et décide.</li>
+<li><b>Entreprise moyenne</b> : le responsable du service que vous visez (atelier, magasin, comptabilité, logistique), avec une copie au service des ressources humaines s'il existe.</li>
+<li><b>Grande entreprise</b> : passez par la rubrique « Candidature spontanée » de son site carrières si elle existe ; sinon, cherchez le responsable du recrutement ou du service concerné.</li>
+</ul>
+<p>Pour trouver un nom : le site de l'entreprise (page « Équipe » ou « Qui sommes-nous »), les réseaux professionnels, ou tout simplement un appel à l'accueil : « Bonjour, je souhaiterais adresser une candidature pour un poste de [métier]. À quelle personne dois-je l'envoyer ? »</p>
+
+<h2>Mail, site carrières ou dépôt en main propre ?</h2>
+<ul>
+<li><b>Par mail</b> : le plus courant. Le message tient lieu de lettre de motivation courte, avec le CV en pièce jointe.</li>
+<li><b>Par le formulaire du site carrières</b> : à privilégier quand l'entreprise en propose un, car c'est là que le recruteur cherche.</li>
+<li><b>En main propre</b> : efficace pour les commerces, la restauration, l'hôtellerie et l'artisanat. Venez à une heure calme (pas au moment du coup de feu), avec un CV imprimé, et demandez à parler au responsable.</li>
+<li><b>Par téléphone</b> : utile pour obtenir un nom ou proposer de passer déposer votre CV. Préparez deux phrases : qui vous êtes et ce que vous cherchez.</li>
+</ul>
+
+<h2>Écrire un message court et ciblé</h2>
+<p>Sans annonce, le recruteur ne sait pas pourquoi vous lui écrivez. Votre message doit le lui dire en quelques lignes :</p>
+<ol>
+<li><b>Pourquoi cette entreprise</b> : une chose précise que vous savez d'elle.</li>
+<li><b>Quel poste vous visez</b> : un métier clair, pas « tout poste disponible ».</li>
+<li><b>Ce que vous apportez</b> : une ou deux expériences concrètes en lien avec ce poste.</li>
+<li><b>La suite</b> : votre disponibilité et une proposition simple (un échange, un passage sur place).</li>
+</ol>
+<p>Le mail doit rester lisible sans faire défiler l'écran. La structure détaillée est dans <a href="/conseils/lettre-de-motivation-structure/">Lettre de motivation : la structure en 3 paragraphes</a>.</p>
+
+<h2>Modèle de mail de candidature spontanée</h2>
+<div class="modele"><p><b>Objet :</b> Candidature spontanée – [poste visé] – [Prénom Nom]</p>
+<p>Bonjour [Madame / Monsieur Nom],</p>
+<p>[Une phrase sur l'entreprise : ce qu'elle fait, ce qui vous attire, une actualité récente.] C'est pourquoi je vous propose ma candidature pour un poste de [poste visé].</p>
+<p>[Une ou deux phrases sur votre expérience la plus proche du poste, avec un exemple concret.]</p>
+<p>Je suis disponible [à partir de quand / à temps plein, à temps partiel] et serais heureux de vous rencontrer, ou de passer vous déposer mon CV si vous le préférez. Vous le trouverez en pièce jointe.</p>
+<p>Bien cordialement,<br>[Prénom Nom] – [téléphone]</p></div>
+<div class="modele"><p><b>Exemple (personne fictive, entreprise fictive) :</b></p>
+<p>Bonjour Madame Lefèvre,</p>
+<p>J'ai vu que la Menuiserie des Deux Rives (exemple fictif) ouvrait un second atelier à Cognac. C'est pourquoi je vous propose ma candidature pour un poste d'agent de fabrication.</p>
+<p>Pendant trois ans, j'ai travaillé sur une ligne de découpe et d'assemblage de meubles, avec la lecture des fiches de fabrication et le contrôle des pièces en fin de poste.</p>
+<p>Je suis disponible dès le mois prochain, à temps plein, et serais heureux de vous rencontrer. Vous trouverez mon CV en pièce jointe.</p>
+<p>Bien cordialement,<br>Karim Benali – 06 00 00 00 00</p></div>
+
+<h2>Adapter le CV, même sans annonce</h2>
+<p>Sans offre à suivre, il est tentant d'envoyer un CV général. C'est justement le moment de le cibler :</p>
+<ul>
+<li><b>Le titre</b> reprend le poste que vous proposez, avec les mots employés dans ce métier.</li>
+<li><b>L'accroche</b> parle à cette entreprise : son secteur, sa clientèle, ses besoins probables.</li>
+<li><b>Les expériences</b> mettent en premier les missions utiles pour ce poste.</li>
+<li><b>Pour trouver les bons mots</b>, lisez deux ou trois annonces publiées ailleurs pour le même métier : elles montrent ce que les employeurs attendent.</li>
+</ul>
+<p>La méthode complète est dans <a href="/conseils/adapter-cv-offre/">Adapter son CV à une offre d'emploi</a>.</p>
+
+<h2>Relancer et garder une trace</h2>
+<ul>
+<li><b>Relancez une fois</b>, environ une semaine plus tard, en répondant à votre premier mail ou par un appel court. Les modèles sont dans <a href="/conseils/relancer-apres-candidature/">Relancer après une candidature</a>.</li>
+<li><b>Une réponse « pas de poste pour l'instant » n'est pas un refus définitif</b> : demandez si vous pouvez rester dans leurs contacts et revenir vers eux dans quelques mois.</li>
+<li><b>Notez tout</b> : l'entreprise, la personne, la date d'envoi, la réponse, la date de relance. Sans suivi, on relance deux fois la même entreprise ou on en oublie une.</li>
+</ul>
+
+<h2>Les erreurs à éviter</h2>
+<ul>
+<li><b>Le même message pour toutes les entreprises</b>, avec seulement le nom changé : cela se voit dès la première phrase.</li>
+<li><b>Ne pas dire quel poste vous visez</b> : le recruteur n'a pas le temps de deviner où vous placer.</li>
+<li><b>Envoyer un mail groupé</b> avec toutes les adresses visibles : chaque entreprise doit recevoir son propre message.</li>
+<li><b>Écrire « Madame, Monsieur » quand vous pouviez trouver un nom</b> : un appel de deux minutes suffit souvent.</li>
+<li><b>Relancer trop souvent</b> : une relance, deux au maximum, puis passez à d'autres entreprises.</li>
+</ul>
+"""},
 ]
 
 CSS = """<style>
