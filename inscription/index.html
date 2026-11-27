@@ -106,10 +106,11 @@
         <li><span>Engagement</span><span>Aucun</span></li>
         <li><span>E-mail</span><span id="r-mail"></span></li>
       </ul>
-      <p class="hint">L'abonnement se renouvelle automatiquement chaque mois. Vous pouvez le résilier à tout moment depuis le site : le mois commencé reste dû, l'accès continue jusqu'à sa fin. Vous disposez de 14 jours pour vous rétracter, directement en ligne (<a href="/retractation/" target="_blank" rel="noopener">formulaire de rétractation</a>).</p>
+      <p class="hint">L'abonnement se renouvelle automatiquement chaque mois. Vous pouvez le résilier à tout moment depuis le site : le mois commencé reste dû, l'accès continue jusqu'à sa fin. Vous disposez de 14 jours pour vous rétracter, directement en ligne (<a href="/retractation/" target="_blank" rel="noopener">formulaire de rétractation</a>) : vous êtes alors remboursé, moins la part du mois déjà écoulée (article 8 des conditions générales).</p>
+      <label class="check"><input type="checkbox" id="ok-immediat"><span>Je demande à accéder à Jaltio Essentiel tout de suite, avant la fin du délai de rétractation de 14 jours. Si je me rétracte, je paierai la part du service déjà fournie, au prorata des jours écoulés.</span></label>
       <p class="hint">Après le paiement, vous recevez par e-mail un code de validation à 6 chiffres, avec <b>les conditions générales et la politique de confidentialité en pièces jointes</b>.</p>
       <p class="msg" id="m4" role="alert"></p>
-      <button class="btn" type="button" id="payer" style="margin-top:16px">S'abonner et payer 13,99 € par mois</button>
+      <button class="btn" type="button" id="payer" style="margin-top:16px" disabled>S'abonner et payer 13,99 € par mois</button>
       <p class="hint" style="text-align:center">Paiement sécurisé par Stripe. Nous ne voyons jamais vos numéros de carte.</p>
     </div>
     <div class="row2"><button class="btn alt" type="button" data-back>Retour</button></div>
@@ -132,7 +133,7 @@
   /* Lien de paiement Stripe de l'offre Essentiel. À remplacer par le lien « live » (https://buy.stripe.com/…) au lancement. */
   var LIEN_PAIEMENT = "https://buy.stripe.com/dRmcN52t20WSdSu18ndwc00";
   /* Versions des documents acceptés (à changer quand les documents changent) : enregistrées avec le paiement */
-  var VERSION_CGV = "20261126", VERSION_CONF = "20261126";
+  var VERSION_CGV = "20261127", VERSION_CONF = "20261126";
   /* Code promo Stripe de l'accès anticipé (1er mois à 6,49 €), appliqué automatiquement jusqu'au 23/11/2026 inclus (heure de Paris) */
   var CODE_PROMO = "ANTICIPE", FIN_PROMO = Date.parse("2026-11-24T00:00:00+01:00");
 
@@ -197,7 +198,9 @@
   /* Étape 4 : paiement Stripe, avec l'acceptation enregistrée dans la référence du paiement */
   $("#payer").addEventListener("click", function(){
     if(!email || !$("#ok-cgv").checked || !$("#ok-conf").checked){ montrer(email ? 2 : 1); return; }
-    var ref = "cgv" + VERSION_CGV + "_conf" + VERSION_CONF + "_" + Date.now();
+    if(!$("#ok-immediat").checked){ var mi = $("#m4"); mi.textContent = "Cochez la case pour accéder au service dès le paiement."; mi.className = "msg err"; return; }
+    /* « immediat » : demande expresse d'exécution avant la fin du délai de rétractation (art. L221-25), gardée avec l'acceptation */
+    var ref = "cgv" + VERSION_CGV + "_conf" + VERSION_CONF + "_immediat_" + Date.now();
     store("jaltio_inscription", JSON.stringify({ email: email, ref: ref, offre: "essentiel" }));
     var u = LIEN_PAIEMENT + "?prefilled_email=" + encodeURIComponent(email) + "&client_reference_id=" + encodeURIComponent(ref) + "&locale=fr" + (Date.now() < FIN_PROMO ? "&prefilled_promo_code=" + CODE_PROMO : "");
     $("#payer").disabled = true; $("#payer").textContent = "Ouverture de la page de paiement…";
@@ -230,7 +233,8 @@
   if(offreDemandee && offreDemandee !== "essentiel" && offreDemandee !== "free"){
     var m = $("#m1"); m.textContent = "Cette offre n'est pas encore disponible. Seules les offres Free et Essentiel sont ouvertes pour l'instant."; m.className = "msg info";
   }
-  window.addEventListener("pageshow", function(){ $("#payer").disabled = false; $("#payer").textContent = "S'abonner et payer 13,99 € par mois"; });
+  $("#ok-immediat").addEventListener("change", function(e){ $("#payer").disabled = !e.target.checked; });
+  window.addEventListener("pageshow", function(){ $("#payer").disabled = !$("#ok-immediat").checked; $("#payer").textContent = "S'abonner et payer 13,99 € par mois"; });
 })();
 </script>
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "dcd19a490f414e60909bf61deaae5385"}'></script><!-- End Cloudflare Web Analytics -->
