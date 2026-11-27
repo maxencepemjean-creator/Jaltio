@@ -35,6 +35,7 @@
 //   Workflow n8n « [JLT] 07 - E-mails clients » : gérer le type « bienvenue_pass » (code de validation + date de fin du pass)
 //   Mot de passe oublié par lien e-mail (27/11/2026) : secret CLE_COMPTES (au moins 32 caractères aléatoires, ne JAMAIS le changer :
 //   il protège la clé de chaque compte) + worker/migration-2026-11-27-reinit.sql ; e-mail type « reinitialisation » dans [JLT] 07.
+//   (facultatif) Variable PREAVIS_FREE = « oui » pour envoyer l'e-mail de préavis aux comptes Free créés avant FREE_LETTRE
 //   Console d'administration (jaltio.fr/console/) : secret ADMIN_MOT_DE_PASSE (au moins 16 caractères). Sans lui, la console est fermée.
 
 const ORIGINES = ["https://maxencepemjean-creator.github.io", "https://jaltio.fr", "https://www.jaltio.fr", "https://jaltio.pages.dev"];   // jaltio.pages.dev : adresse de test Cloudflare Pages
@@ -1131,7 +1132,8 @@ export default {
     const t = Date.now(), apres = APRES_FIN_JOURS * 864e5, preavis = PREAVIS_JOURS * 864e5;
     // 0 bis. Préavis de 30 jours aux comptes Free créés avant FREE_LETTRE (CGV art. 4 bis) : e-mail « preavis_free »
     //        via [JLT] 19, une fois par compte, par lots de 15 (limite de sous-requêtes d'un Worker)
-    if (t >= FREE_LETTRE && t < FREE_FIN_PREAVIS) {
+    // Désactivé par défaut : ne part que si la variable PREAVIS_FREE vaut « oui » (décision de Maxence du 27/11 : vérifier d'abord la liste)
+    if (env.PREAVIS_FREE === "oui" && t >= FREE_LETTRE && t < FREE_FIN_PREAVIS) {
       try {
         const lot = await env.DB.prepare(
           "SELECT email_h, email FROM gratuits WHERE cree < ?1 AND email IS NOT NULL AND preavis IS NULL LIMIT 15"
