@@ -103,7 +103,7 @@ const FREE_07_11 = { generations: 5, autres: 15, vie: true };          // compte
 // Free = 3 CV + 1 lettre offerte pour les comptes créés à partir de FREE_LETTRE (date de mise en ligne, À AJUSTER le jour du
 // déploiement, en même temps que les CGV et l'e-mail de préavis). Les comptes plus anciens gardent leurs limites jusqu'à
 // FREE_FIN_PREAVIS (préavis de 30 jours de l'art. 4 bis : l'e-mail doit partir au plus tard le 02/12/2026), puis passent à 3 CV + 1 lettre.
-const FREE_LETTRE = Date.parse("2026-12-01T00:00:00+01:00");
+const FREE_LETTRE = Date.parse("2026-11-27T15:00:00+01:00");
 const FREE_FIN_PREAVIS = Date.parse("2027-01-01T00:00:00+01:00");   // CGV art. 4 bis : anciennes limites jusqu'au 31/12/2026 inclus
 function quotaDe(acces) {
   if (acces.offre !== "free") return QUOTAS[acces.offre];
