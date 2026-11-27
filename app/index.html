@@ -6320,7 +6320,7 @@ async function syncStart(){
       if(!settings.apiKey && codeIn){ settings.apiKey = codeIn; saveSettings(); renderSettings(); }
       syncSt = { id, auth:k.auth, key:k.key, mail:maskMail(mail), version:res.version, dirty:false, dirtyAt:0, lastSyncAt:Date.now(), err:"" };
       syncSave(); syncResetForm(); setSyncUi();
-      clePoser(id, k.auth, k.key);
+      await clePoser(id, k.auth, k.key);
       status("#sync-msg", "ok", _t("Synchronisation activée. Sur un autre appareil, entrez le même identifiant et le même mot de passe."));
       return;
     }
@@ -6333,7 +6333,7 @@ async function syncStart(){
     let payload;
     try{ payload = await decryptPayload(g, k.key); }catch(e){ status("#sync-msg", "err", e.message && /navigateur/.test(e.message) ? e.message : _t("Impossible de lire les données en ligne avec ce mot de passe.")); return; }
     if(!validPayload(payload)){ status("#sync-msg", "err", _t("Les données en ligne ne sont pas lisibles par cette version de l'appli.")); return; }
-    if(!meta.cle) clePoser(id, k.auth, k.key);
+    if(!meta.cle) await clePoser(id, k.auth, k.key);   // attendu : la page peut se recharger juste après
     const st = { id, auth:k.auth, key:k.key, mail:maskMail(mail), version:g.version, dirty:false, dirtyAt:0, lastSyncAt:Date.now(), err:"" };
     syncResetForm();
     if(!hasLocalData()){ syncSt = st; syncSave(); status("#sync-msg", "ok", _t("Données retrouvées. Chargement…")); syncApply(payload, g.version); return; }
@@ -6355,7 +6355,7 @@ async function syncStart(){
 }
 /* ----- Mot de passe oublié (27/11/2026) : lien reçu par e-mail ; la clé du compte est gardée par le serveur (chiffrée) ----- */
 /* Dépose la clé du compte côté serveur, sans bloquer : nouvelle tentative à la prochaine connexion si l'envoi échoue */
-function clePoser(id, auth, key){ syncCall("cle-pose", { id, auth, cle:key }).catch(() => {}); }
+function clePoser(id, auth, key){ return syncCall("cle-pose", { id, auth, cle:key }).then(() => { try{ localStorage.setItem("cvx_cle_ok", id); }catch(e){} }).catch(() => {}); }
 async function oubliDemander(){
   const mail = $("#rec-mail").value.trim().toLowerCase();
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ status("#rec-msg", "err", _t("Entrez l'adresse e-mail de votre compte.")); $("#rec-mail").focus(); return; }
