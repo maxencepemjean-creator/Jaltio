@@ -993,7 +993,20 @@ export default {
   async scheduled(event, env) {
     if (!env.DB) return;
     const t = Date.now(), apres = APRES_FIN_JOURS * 864e5, preavis = PREAVIS_JOURS * 864e5;
-    // 0. Pass 30 jours arrivés à leur fin : accès coupé (la conservation de 6 mois part de la date de fin, comme un abonnement)
+    // 0 bis. Préavis de 30 jours aux comptes Free créés avant FREE_LETTRE (CGV art. 4 bis) : e-mail « preavis_free »
+    //        via [JLT] 19, une fois par compte, par lots de 15 (limite de sous-requêtes d'un Worker)
+    if (t >= FREE_LETTRE && t < FREE_FIN_PREAVIS) {
+      try {
+        const lot = await env.DB.prepare(
+          "SELECT email_h, email FROM gratuits WHERE cree < ?1 AND email IS NOT NULL AND preavis IS NULL LIMIT 15"
+        ).bind(FREE_LETTRE).all();
+        for (const g of (lot.results || [])) {
+          if (await envoyerMailFree(env, { type: "preavis_free", email: g.email, date: dateFr(FREE_FIN_PREAVIS) }))
+            await env.DB.prepare("UPDATE gratuits SET preavis = ?1 WHERE email_h = ?2").bind(t, g.email_h).run();
+        }
+      } catch (e) {}                              // colonne preavis absente : migration du 27/11 pas faite
+    }
+ : accès coupé (la conservation de 6 mois part de la date de fin, comme un abonnement)
     try { await env.DB.prepare("UPDATE abonnes SET actif = 0 WHERE offre = 'pass' AND actif = 1 AND fin IS NOT NULL AND fin <= ?1").bind(t).run(); } catch (e) {}
     // 1. Avertissement : abonnement terminé, suppression dans 7 jours au plus, pas encore averti
     const aAvertir = await env.DB.prepare(

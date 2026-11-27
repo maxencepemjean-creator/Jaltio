@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS gratuits (
   email_h TEXT PRIMARY KEY,        -- SHA-256 de l'adresse normalisée (une seule offre Free par adresse)
   session TEXT UNIQUE NOT NULL,    -- référence interne fr_… (lien du mail, code à 6 chiffres) ; le code d'accès est dans abonnes
   email   TEXT,                    -- adresse pour l'envoi du code ; effacée après 12 mois sans connexion
-  cree    INTEGER NOT NULL         -- date d'inscription (ms)
+  cree    INTEGER NOT NULL,        -- date d'inscription (ms)
+  preavis INTEGER                  -- date de l'e-mail de préavis du 01/12/2026 (migration du 27/11)
 );
 -- Base créée avant le 02/11/2026 : exécuter une fois worker/migration-2026-11-02.sql
