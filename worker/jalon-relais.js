@@ -345,7 +345,7 @@ async function synchro(request, env, origin, chemin) {
       "UPDATE sync SET auth = ?1, salt = ?2, iv = ?3, ct = ?4, version = version + 1, updated = ?5, accessed = ?5, size = ?6, r_salt = NULL, r_auth = NULL, r_iv = NULL, r_env = NULL, k_iv = ?9, k_env = ?10 WHERE id = ?7 AND version = ?8"
     ).bind(await sha256hex(b.auth), b.salt, b.iv, b.ct, t, b.ct.length, b.id, row.version, k.iv, k.env).run();
     if (!r.meta || r.meta.changes !== 1) return erreur(409, "Vos données ont changé entre-temps. Recommencez.", origin, { conflict: true });
-    await env.DB.prepare("DELETE FROM rate WHERE k LIKE ?1").bind("echec:" + b.id + ":%").run();
+    await env.DB.prepare("DELETE FROM rate WHERE substr(k, 1, ?2) = ?1").bind("echec:" + b.id + ":", ("echec:" + b.id + ":").length).run();   // pas de LIKE : D1 refuse les motifs de plus de 50 octets
     return reponse({ ok: true, version: row.version + 1 }, 200, origin);
   }
 
@@ -437,7 +437,7 @@ async function synchro(request, env, origin, chemin) {
       "UPDATE sync SET auth = ?1, salt = ?2, iv = ?3, ct = ?4, r_iv = ?5, r_env = ?6, version = version + 1, updated = ?7, accessed = ?7, size = ?8 WHERE id = ?9 AND version = ?10"
     ).bind(await sha256hex(b.auth), b.salt, b.iv, b.ct, b.riv, b.renv, t, b.ct.length, b.id, row.version).run();
     if (!r.meta || r.meta.changes !== 1) return erreur(409, "Vos données ont changé entre-temps. Recommencez.", origin, { conflict: true });
-    await env.DB.prepare("DELETE FROM rate WHERE k LIKE ?1").bind("echec:" + b.id + ":%").run();   // le blocage « mot de passe faux » est levé
+    await env.DB.prepare("DELETE FROM rate WHERE substr(k, 1, ?2) = ?1").bind("echec:" + b.id + ":", ("echec:" + b.id + ":").length).run();   // pas de LIKE : D1 refuse les motifs de plus de 50 octets   // le blocage « mot de passe faux » est levé
     return reponse({ ok: true, version: row.version + 1 }, 200, origin);
   }
 
