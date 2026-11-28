@@ -3,198 +3,515 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="only light">
 <meta name="robots" content="noindex, nofollow">
 <title>Console — Jaltio</title>
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/fonts.css">
-<link rel="stylesheet" href="/pages.css">
 <style>
-body{background:#FBF6F1}
-.cs{max-width:1180px;margin:0 auto;padding:24px 18px 60px}
-.cs-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
-.cs-top h1{font-size:26px;margin:0}
-.cs-top small{color:var(--muted)}
-.cs-top .btn{width:auto;display:inline-block;padding:9px 14px;font-size:14px;margin:0}
-.cs-login{max-width:380px;margin:12vh auto 0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px}
-.cs-login input{width:100%;border:1px solid #d6c9d9;border-radius:10px;padding:12px;font:inherit;font-size:16px;margin:10px 0 14px}
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
-.tabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer;color:var(--brand)}
-.tabs button[aria-selected=true]{background:var(--brand);color:#fff;border-color:var(--brand)}
-.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:18px}
-.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px}
-.kpi b{display:block;font-size:26px;color:var(--brand)}
-.kpi span{font-size:13.5px;color:var(--muted)}
-.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px;overflow-x:auto}
-.card h2{font-size:18px;margin:0 0 10px}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
-th{font-size:12.5px;color:var(--muted);font-weight:600}
-td.num,th.num{text-align:right}
-.pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700}
-.p-free{background:#EEE6F0;color:#3A2340}.p-essentiel{background:#3A2340;color:#F2A93B}.p-offert{background:#E4F2EA;color:#1F6B45}
-.p-pass,.p-pro,.p-testeur{background:#FFF1D6;color:#7A4B00}
-.off{color:var(--muted)}
-.mail{cursor:pointer;border-bottom:1px dotted currentColor}
-.filtres{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.filtres select{border:1px solid #d6c9d9;border-radius:8px;padding:6px 8px;font:inherit}
-.vide{color:var(--muted);margin:0}
-.msg{margin:8px 0;color:#9B1C1C}
+/* Console d'administration Jaltio (v2, 28/11/2026) — thème clair (crème) / sombre (prune), cartes de verre */
+:root{
+  --prune:#3A2340; --orange:#F2A93B;
+  --display:'Bricolage Grotesque','Figtree',system-ui,sans-serif;
+  --r-carte:30px; --r-ligne:20px;
+}
+html[data-theme=clair]{
+  color-scheme:light;
+  --fond:radial-gradient(55% 50% at 8% 6%,#FDE3BE 0%,rgba(253,227,190,0) 62%),radial-gradient(50% 55% at 95% 10%,#EBDDF0 0%,rgba(235,221,240,0) 60%),radial-gradient(60% 55% at 70% 100%,#F8D9C4 0%,rgba(248,217,196,0) 62%),#FBF6F1;
+  --texte:#2A1A2F; --doux:#6E5872; --titre:#3A2340;
+  --verre:rgba(255,255,255,.58); --verre-bord:rgba(255,255,255,.9); --verre-fort:rgba(255,255,255,.82);
+  --ligne:rgba(255,255,255,.7); --ligne-bord:rgba(58,35,64,.08); --sep:rgba(58,35,64,.09);
+  --ombre:0 1px 2px rgba(58,35,64,.05),0 18px 44px -18px rgba(58,35,64,.28);
+  --actif-fond:#3A2340; --actif-texte:#fff; --nav-texte:#3A2340;
+  --vert:#1F6B45; --vert-f:#E3F4EA; --rouge:#B42318; --rouge-f:#FDECEA; --neutre-f:#EFE4F2; --neutre:#3A2340; --orange-f:#FDEBCB; --orange-t:#7A4A05;
+}
+html[data-theme=sombre]{
+  color-scheme:dark;
+  --fond:radial-gradient(55% 50% at 10% 8%,rgba(242,169,59,.55) 0%,rgba(242,169,59,0) 62%),radial-gradient(50% 55% at 92% 6%,rgba(140,82,160,.75) 0%,rgba(140,82,160,0) 62%),radial-gradient(65% 60% at 72% 100%,rgba(214,104,64,.45) 0%,rgba(214,104,64,0) 62%),radial-gradient(50% 50% at 20% 95%,rgba(94,52,110,.9) 0%,rgba(94,52,110,0) 65%),#1C0F22;
+  --texte:#fff; --doux:rgba(255,255,255,.78); --titre:#fff;
+  --verre:rgba(255,255,255,.12); --verre-bord:rgba(255,255,255,.28); --verre-fort:rgba(255,255,255,.2);
+  --ligne:rgba(255,255,255,.08); --ligne-bord:rgba(255,255,255,.16); --sep:rgba(255,255,255,.14);
+  --ombre:inset 0 1px 0 rgba(255,255,255,.35),0 18px 40px -18px rgba(10,2,16,.7);
+  --actif-fond:rgba(255,255,255,.92); --actif-texte:#3A2340; --nav-texte:#fff;
+  --vert:#0E5A3A; --vert-f:rgba(255,255,255,.88); --rouge:#A32A12; --rouge-f:rgba(255,255,255,.88); --neutre-f:rgba(255,255,255,.88); --neutre:#3A2340; --orange-f:rgba(242,169,59,.95); --orange-t:#3A2340;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--fond);background-attachment:fixed;color:var(--texte);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.5;min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+a{color:inherit}
+.v{background:var(--verre);-webkit-backdrop-filter:blur(26px) saturate(170%);backdrop-filter:blur(26px) saturate(170%);border:1px solid var(--verre-bord);box-shadow:var(--ombre)}
+.cache,[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+/* ---------- Connexion ---------- */
+.cx{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.cx-boite{width:100%;max-width:420px;border-radius:32px;padding:30px}
+.cx-logo{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.cx-logo img{width:36px;height:36px;border-radius:10px}
+.cx-logo b{font-family:var(--display);font-size:22px;color:var(--titre)}
+.cx h1{font-family:var(--display);font-size:28px;line-height:1.1;margin:0 0 6px;color:var(--titre);letter-spacing:-.02em}
+.cx p{margin:0 0 18px;color:var(--doux)}
+.cx label{display:block;font-size:13.5px;font-weight:600;margin:0 0 6px}
+.champ{width:100%;border-radius:16px;border:1px solid var(--ligne-bord);background:var(--verre-fort);padding:13px 15px;font-size:16px;outline:none}
+.champ:focus{border-color:var(--orange)}
+.code{letter-spacing:.5em;font-size:24px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums}
+.bouton{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:12px 20px;font-weight:600;cursor:pointer;background:var(--actif-fond);color:var(--actif-texte)}
+.bouton:disabled{opacity:.5;cursor:default}
+.bouton.large{width:100%;margin-top:14px;padding:14px}
+.bouton.leger{background:var(--verre-fort);color:var(--texte);border:1px solid var(--ligne-bord)}
+.bouton.petit{padding:7px 13px;font-size:13px}
+.lien{background:none;border:0;padding:0;color:var(--doux);text-decoration:underline;cursor:pointer;font-size:13.5px}
+.note{font-size:13.5px;margin-top:12px;min-height:20px;color:var(--doux)}
+.note.err{color:var(--rouge)}
+html[data-theme=sombre] .note.err{color:#FFB4A3}
+
+/* ---------- Coque ---------- */
+.coque{max-width:1400px;margin:0 auto;padding:22px 24px 60px}
+.haut{display:flex;align-items:center;gap:12px;padding:8px 10px 8px 10px;border-radius:999px}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--prune);color:var(--orange);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none}
+html[data-theme=sombre] .avatar{background:rgba(255,255,255,.9);color:var(--prune)}
+.salut{font-weight:600;font-size:15px;white-space:nowrap}
+.espace{flex:1}
+.site{display:flex;align-items:center;gap:8px;border-radius:999px;padding:6px 12px 6px 6px;background:var(--verre-fort);border:1px solid var(--ligne-bord);cursor:pointer;font-weight:600;font-size:14px}
+.site img{width:26px;height:26px;border-radius:8px}
+.rond{width:40px;height:40px;border-radius:50%;border:1px solid var(--ligne-bord);background:var(--verre-fort);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;position:relative}
+.rond svg{width:18px;height:18px}
+.pastille{position:absolute;top:7px;right:8px;width:9px;height:9px;border-radius:50%;background:#E5533A;border:2px solid #fff}
+.corps{display:flex;gap:20px;margin-top:20px;align-items:flex-start}
+nav.menu{position:sticky;top:20px;display:flex;flex-direction:column;gap:6px;padding:9px;border-radius:32px;flex:none}
+.menu button{width:48px;height:48px;border-radius:50%;border:0;background:transparent;color:var(--nav-texte);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.menu button svg{width:20px;height:20px}
+.menu button[aria-current=page]{background:var(--actif-fond);color:var(--actif-texte);box-shadow:0 6px 16px -6px rgba(58,35,64,.45)}
+.menu button[disabled]{opacity:.38;cursor:default}
+.menu button .bulle{position:absolute;left:58px;top:50%;transform:translateY(-50%);white-space:nowrap;background:var(--prune);color:#fff;font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .12s;z-index:5}
+.menu button:hover .bulle,.menu button:focus-visible .bulle{opacity:1}
+.menu .num{position:absolute;top:4px;right:3px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#E5533A;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+main{flex:1;min-width:0;display:flex;flex-direction:column;gap:20px}
+.titre{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px}
+.titre h1{margin:0;font-family:var(--display);font-size:44px;line-height:1.04;letter-spacing:-.025em;color:var(--titre)}
+.titre p{margin:6px 0 0;color:var(--doux)}
+.periode{display:flex;gap:4px;padding:4px;border-radius:999px}
+.periode button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--texte)}
+.periode button[aria-pressed=true]{background:var(--actif-fond);color:var(--actif-texte);box-shadow:0 4px 14px -4px rgba(58,35,64,.4)}
+.bandeau{border-radius:18px;padding:10px 16px;font-size:13.5px;font-weight:600;background:var(--orange-f);color:var(--orange-t)}
+
+/* Chiffres clés */
+.chiffres{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.chiffre{border-radius:26px;padding:18px 20px}
+.chiffre .lib{font-size:13px;font-weight:500;color:var(--doux);display:flex;justify-content:space-between;gap:8px}
+.chiffre .val{margin-top:8px;font-family:var(--display);font-size:36px;font-weight:700;letter-spacing:-.02em;line-height:1.05;color:var(--titre);font-variant-numeric:tabular-nums}
+.chiffre .comp{margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--doux)}
+.delta{display:inline-flex;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.d-plus{background:var(--vert-f);color:var(--vert)}.d-moins{background:var(--rouge-f);color:var(--rouge)}.d-egal,.d-nd{background:var(--neutre-f);color:var(--neutre)}
+.groupe-titre{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--doux);margin:2px 0 -6px 6px}
+
+/* Sections */
+.rangee{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.section{border-radius:var(--r-carte);padding:22px;min-width:0}
+.section h2{margin:0;font-size:18px;font-weight:650;font-family:var(--display);color:var(--titre)}
+.section .sous{margin:4px 0 0;font-size:13px;color:var(--doux)}
+.entete{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.liste{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.item{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--r-ligne);background:var(--ligne);border:1px solid var(--ligne-bord)}
+.item .ic{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}
+.item .ic svg{width:17px;height:17px}
+.ic-rouge{background:#FDECEA;color:#B42318}.ic-orange{background:#FDEBCB;color:#7A4A05}.ic-vert{background:#E3F4EA;color:#1F6B45}.ic-prune{background:#EFE4F2;color:#3A2340}
+.item .txt{flex:1;min-width:0}
+.item .txt b{display:block;font-size:14.5px;font-weight:600}
+.item .txt span{display:block;font-size:12.5px;color:var(--doux);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .quand{font-size:12px;color:var(--doux);white-space:nowrap;font-variant-numeric:tabular-nums}
+.vide{color:var(--doux);font-size:14px;margin:14px 0 0}
+.puce{display:inline-flex;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;background:var(--neutre-f);color:var(--neutre)}
+
+/* Graphique */
+.graph{margin-top:16px;height:150px;display:flex;align-items:flex-end;gap:4px}
+.graph .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;height:100%;min-width:0}
+.graph .b1{background:var(--prune);border-radius:5px 5px 2px 2px}
+html[data-theme=sombre] .graph .b1{background:rgba(255,255,255,.85)}
+.lg-cv{background:var(--prune)}html[data-theme=sombre] .lg-cv{background:rgba(255,255,255,.85)}
+.graph .b2{background:var(--orange);border-radius:5px 5px 2px 2px}
+.axe{display:flex;justify-content:space-between;font-size:11.5px;color:var(--doux);margin-top:6px}
+.legende{display:flex;gap:14px;font-size:12.5px;color:var(--doux)}
+.legende i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+/* Menu des sites */
+.menu-site{position:absolute;top:58px;left:0;min-width:240px;border-radius:22px;padding:8px;z-index:10}
+.menu-site button{width:100%;display:flex;align-items:center;gap:10px;border:0;background:transparent;padding:9px 10px;border-radius:14px;cursor:pointer;text-align:left;font-weight:600}
+.menu-site button:hover{background:var(--ligne)}
+.menu-site button[disabled]{opacity:.5;cursor:default;font-weight:500}
+
+@media (max-width:760px){
+  .coque{padding:12px 12px 90px}
+  .salut{display:none}
+  .titre h1{font-size:34px}
+  nav.menu{position:fixed;bottom:10px;left:10px;right:10px;top:auto;flex-direction:row;justify-content:space-around;z-index:20;border-radius:999px;padding:6px}
+  .menu button{width:42px;height:42px}
+  .menu button .bulle{display:none}
+  .chiffre .val{font-size:26px}
+  .haut{gap:6px}
+  .rond{width:36px;height:36px}
+  #b-maj{display:none}
+  .chiffres{grid-template-columns:1fr 1fr;gap:10px}
+  .chiffre{padding:14px;border-radius:22px}
+  .chiffre .comp span:last-child:not(.delta){display:none}
+}
 </style>
 </head>
 <body>
-<div class="cs">
-  <section class="cs-login" id="login">
-    <h1 style="font-size:22px;margin:0 0 4px">Console Jaltio</h1>
-    <p class="vide">Réservée à l'administrateur. Lecture seule.</p>
-    <form id="f-login">
-      <label for="mdp">Mot de passe</label>
-      <input id="mdp" type="password" autocomplete="current-password" required>
-      <button class="btn" type="submit" style="width:100%">Ouvrir la console</button>
-      <p class="msg" id="m-login" role="alert"></p>
-    </form>
-  </section>
 
-  <div id="app" hidden>
-    <div class="cs-top">
-      <div><h1>Console Jaltio</h1><small id="maj"></small></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <a class="btn alt" href="https://mail.hostinger.com/" target="_blank" rel="noopener">Messagerie contact@</a>
-        <a class="btn alt" href="https://dashboard.stripe.com/subscriptions" target="_blank" rel="noopener">Stripe</a>
-        <button class="btn alt" type="button" id="b-maj">Actualiser</button>
-        <button class="btn alt" type="button" id="b-sortir">Se déconnecter</button>
-      </div>
-    </div>
-    <div class="tabs" role="tablist">
-      <button role="tab" data-t="vue" aria-selected="true">Vue d'ensemble</button>
-      <button role="tab" data-t="comptes" aria-selected="false">Comptes</button>
-      <button role="tab" data-t="cout" aria-selected="false">Coût IA</button>
-      <button role="tab" data-t="traiter" aria-selected="false">À traiter <span id="n-traiter"></span></button>
-    </div>
-    <section data-p="vue"></section>
-    <section data-p="comptes" hidden></section>
-    <section data-p="cout" hidden></section>
-    <section data-p="traiter" hidden></section>
+<!-- Connexion : e-mail puis code à 6 chiffres reçu par e-mail -->
+<section class="cx" id="connexion" hidden>
+  <div class="cx-boite v">
+    <div class="cx-logo"><img src="/assets/favicon.svg" alt=""><b>Jaltio</b></div>
+    <form id="f-mail">
+      <h1>Console</h1>
+      <p>Entrez votre adresse : un code à 6 chiffres vous est envoyé par e-mail.</p>
+      <label for="c-mail">Adresse e-mail</label>
+      <input class="champ" id="c-mail" type="email" autocomplete="email" required>
+      <button class="bouton large" type="submit" id="b-mail">Recevoir le code</button>
+      <p class="note" id="n-mail" role="status"></p>
+    </form>
+    <form id="f-code" hidden>
+      <h1>Code reçu</h1>
+      <p id="p-code">Saisissez le code à 6 chiffres envoyé par e-mail. Il est valable 10 minutes.</p>
+      <label for="c-code">Code</label>
+      <input class="champ code" id="c-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required>
+      <button class="bouton large" type="submit" id="b-code">Ouvrir la console</button>
+      <p class="note" id="n-code" role="status"></p>
+      <button class="lien" type="button" id="b-retour">Changer d'adresse ou renvoyer un code</button>
+    </form>
+  </div>
+</section>
+
+<!-- Console -->
+<div class="coque" id="console" hidden>
+  <header class="haut v" style="position:relative">
+    <div class="avatar" id="avatar" aria-hidden="true">MP</div>
+    <div class="salut" id="salut">Bonjour</div>
+    <button class="site" type="button" id="b-site" aria-haspopup="true" aria-expanded="false">
+      <img src="/assets/favicon.svg" alt=""> <span id="site-nom">Jaltio</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="menu-site v cache" id="menu-site" role="menu"></div>
+    <div class="espace"></div>
+    <button class="rond" type="button" id="b-alertes" aria-label="Alertes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 21a2 2 0 0 0 4 0"/></svg><span class="pastille cache" id="pastille"></span></button>
+    <button class="rond" type="button" id="b-maj" aria-label="Actualiser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg></button>
+    <button class="rond" type="button" id="b-theme" aria-label="Mode sombre"></button>
+    <button class="rond" type="button" id="b-sortir" aria-label="Se déconnecter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3"/></svg></button>
+  </header>
+
+  <div class="corps">
+    <nav class="menu v" id="menu" aria-label="Rubriques"></nav>
+    <main id="page"></main>
   </div>
 </div>
+
 <script>
 (function(){
+  "use strict";
   var RELAIS = "https://jalon-relais.jalon-emploi.workers.dev";
-  var PRIX = { essentiel: 13.99 };
-  var D = null;
+  var MAQUETTE = /[?&]maquette\b/.test(location.search);
   var $ = function(s){ return document.querySelector(s); };
   function el(t, c, x){ var e = document.createElement(t); if(c) e.className = c; if(x != null) e.textContent = x; return e; }
-  function date(ms){ return ms ? new Date(ms).toLocaleDateString("fr-FR", { day:"2-digit", month:"2-digit", year:"numeric" }) : "—"; }
-  function mois(ms){ var d = new Date(ms); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); }
-  function eur(n){ return n.toLocaleString("fr-FR", { style:"currency", currency:"EUR" }); }
-  function usd(n){ return n.toLocaleString("fr-FR", { minimumFractionDigits:2, maximumFractionDigits:3 }) + " $"; }
-  function masque(m){ var p = String(m).split("@"); return p[1] ? p[0].slice(0, 1) + "•••@" + p[1] : m; }
-  function mdp(){ try{ return sessionStorage.getItem("jaltio_admin") || ""; }catch(e){ return ""; } }
+  function svg(d){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>'; }
+  var lire = function(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } };
+  var ecrire = function(k, v){ try{ v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); }catch(e){} };
 
-  async function charger(){
-    var r = await fetch(RELAIS + "/admin/donnees", { method:"POST", headers:{ "content-type":"application/json", "x-jaltio-admin": mdp() }, body:"{}" });
-    var d = null; try{ d = await r.json(); }catch(e){}
+  /* ---------- Thème (clair par défaut, choix mémorisé) ---------- */
+  var ICONE_LUNE = svg('<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>');
+  var ICONE_SOLEIL = svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>');
+  function theme(t){
+    document.documentElement.dataset.theme = t; ecrire("jaltio_console_theme", t);
+    var b = $("#b-theme"); b.innerHTML = t === "sombre" ? ICONE_SOLEIL : ICONE_LUNE; b.setAttribute("aria-label", t === "sombre" ? "Mode clair" : "Mode sombre");
+  }
+  var tDemande = (location.search.match(/[?&]theme=(clair|sombre)/) || [])[1];
+  theme(tDemande || lire("jaltio_console_theme") || "clair");
+  $("#b-theme").addEventListener("click", function(){ theme(document.documentElement.dataset.theme === "sombre" ? "clair" : "sombre"); });
+
+  /* ---------- Formats ---------- */
+  var eur = function(n){ return n.toLocaleString("fr-FR", { style:"currency", currency:"EUR", maximumFractionDigits: n >= 1000 ? 0 : 2 }); };
+  var ent = function(n){ return n.toLocaleString("fr-FR"); };
+  function quand(ms){
+    var d = new Date(ms), now = new Date(), h = d.toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" }).replace(":", " h ");
+    if(d.toDateString() === now.toDateString()) return "aujourd'hui, " + h;
+    var hier = new Date(now); hier.setDate(now.getDate() - 1);
+    if(d.toDateString() === hier.toDateString()) return "hier, " + h;
+    return d.toLocaleDateString("fr-FR", { day:"numeric", month:"short" }) + ", " + h;
+  }
+  function salut(){ var h = new Date().getHours(); return (h >= 18 || h < 5 ? "Bonsoir" : "Bonjour") + (S.moi && S.moi.prenom ? ", " + S.moi.prenom : ""); }
+
+  /* ---------- Accès au relais (jeton de session de 30 jours) ---------- */
+  var S = { jeton: lire("jaltio_console_jeton"), moi: null, site: lire("jaltio_console_site") || "jaltio", periode: "mois", page: "aujourdhui", donnees: null };
+  async function api(route, corps){
+    if(MAQUETTE) return maquette(route, corps || {});
+    var h = { "content-type":"application/json" }; if(S.jeton) h.authorization = "Bearer " + S.jeton;
+    var r, d = null;
+    try{ r = await fetch(RELAIS + "/console/" + route, { method:"POST", headers:h, body: JSON.stringify(corps || {}) }); }
+    catch(e){ throw new Error("Pas de connexion au serveur."); }
+    try{ d = await r.json(); }catch(e){}
+    if(r.status === 401 && route !== "code" && route !== "verifier"){ deconnecter(); }
     if(!r.ok){ var err = new Error((d && d.error && d.error.message) || ("Erreur " + r.status)); err.status = r.status; throw err; }
     return d;
   }
-  async function ouvrir(){
-    try{ D = await charger(); }
-    catch(e){
-      if(e.status === 401){ try{ sessionStorage.removeItem("jaltio_admin"); }catch(x){} }
-      $("#login").hidden = false; $("#app").hidden = true; $("#m-login").textContent = e.message; return;
+
+  /* ---------- Connexion ---------- */
+  var mailSaisi = "";
+  $("#f-mail").addEventListener("submit", async function(e){
+    e.preventDefault(); var b = $("#b-mail"), n = $("#n-mail");
+    mailSaisi = $("#c-mail").value.trim().toLowerCase();
+    b.disabled = true; n.className = "note"; n.textContent = "Envoi…";
+    try{
+      await api("code", { email: mailSaisi });
+      $("#f-mail").hidden = true; $("#f-code").hidden = false; $("#c-code").value = ""; $("#c-code").focus();
+      $("#p-code").textContent = "Si " + mailSaisi + " a accès à la console, un code à 6 chiffres vient de partir. Il est valable 10 minutes.";
+      n.textContent = "";
+    }catch(x){ n.className = "note err"; n.textContent = x.message; }
+    finally{ b.disabled = false; }
+  });
+  $("#c-code").addEventListener("input", function(){ this.value = this.value.replace(/\D/g, "").slice(0, 6); if(this.value.length === 6) $("#f-code").requestSubmit(); });
+  $("#f-code").addEventListener("submit", async function(e){
+    e.preventDefault(); var b = $("#b-code"), n = $("#n-code");
+    if(b.disabled) return;
+    b.disabled = true; n.className = "note"; n.textContent = "Vérification…";
+    try{
+      var d = await api("verifier", { email: mailSaisi, code: $("#c-code").value });
+      S.jeton = d.jeton; ecrire("jaltio_console_jeton", d.jeton); n.textContent = "";
+      demarrer();
+    }catch(x){ n.className = "note err"; n.textContent = x.message; $("#c-code").select(); }
+    finally{ b.disabled = false; }
+  });
+  $("#b-retour").addEventListener("click", function(){ $("#f-code").hidden = true; $("#f-mail").hidden = false; $("#c-mail").focus(); });
+  function deconnecter(){
+    if(S.jeton && !MAQUETTE) fetch(RELAIS + "/console/sortir", { method:"POST", headers:{ authorization:"Bearer " + S.jeton } }).catch(function(){});
+    S.jeton = null; ecrire("jaltio_console_jeton", null);
+    $("#console").hidden = true; $("#connexion").hidden = false; $("#f-code").hidden = true; $("#f-mail").hidden = false;
+  }
+  $("#b-sortir").addEventListener("click", deconnecter);
+
+  /* ---------- Rubriques ---------- */
+  var RUBRIQUES = [
+    { id:"aujourdhui", nom:"Aujourd'hui", ic:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>' },
+    { id:"clients", nom:"Clients", ic:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M17 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/>' },
+    { id:"couts", nom:"Coûts et marge", ic:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>' },
+    { id:"boite", nom:"Boîte contact@", ic:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 7l9 6 9-6"/>' },
+    { id:"juridique", nom:"Juridique / à traiter", ic:'<path d="M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0zM8 21h8"/>' },
+    { id:"sante", nom:"Santé technique", ic:'<path d="M3 12h4l3-8 4 16 3-8h4"/>' },
+    { id:"ambassadeurs", nom:"Ambassadeurs", ic:'<path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z"/>' },
+  ];
+  var PRETES = { aujourdhui: 1 };   // rubriques livrées ; les autres arrivent une par une
+  function menu(){
+    var m = $("#menu"); m.innerHTML = "";
+    RUBRIQUES.forEach(function(r){
+      var b = el("button"); b.type = "button"; b.innerHTML = svg(r.ic);
+      var bulle = el("span", "bulle", r.nom + (PRETES[r.id] ? "" : " — bientôt")); b.appendChild(bulle);
+      b.setAttribute("aria-label", r.nom);
+      if(!PRETES[r.id]) b.disabled = true;
+      if(S.page === r.id) b.setAttribute("aria-current", "page");
+      var n = S.donnees && S.donnees.compteurs && S.donnees.compteurs[r.id];
+      if(n){ var c = el("span", "num", String(n)); b.appendChild(c); }
+      b.addEventListener("click", function(){ S.page = r.id; menu(); rendre(); });
+      m.appendChild(b);
+    });
+  }
+
+  /* ---------- Sites (Jaltio en premier ; d'autres sites plus tard) ---------- */
+  function sites(){
+    var m = $("#menu-site"); m.innerHTML = "";
+    ((S.moi && S.moi.sites) || [{ id:"jaltio", nom:"Jaltio" }]).forEach(function(s){
+      var b = el("button"); b.type = "button"; b.setAttribute("role", "menuitem");
+      b.innerHTML = '<img src="/assets/favicon.svg" alt="" style="width:24px;height:24px;border-radius:7px">'; b.appendChild(document.createTextNode(s.nom));
+      b.addEventListener("click", function(){ S.site = s.id; ecrire("jaltio_console_site", s.id); $("#site-nom").textContent = s.nom; fermerSites(); charger(); });
+      m.appendChild(b);
+    });
+    var a = el("button", "", "+ Ajouter un site (bientôt)"); a.type = "button"; a.disabled = true; m.appendChild(a);
+  }
+  function fermerSites(){ $("#menu-site").classList.add("cache"); $("#b-site").setAttribute("aria-expanded", "false"); }
+  $("#b-site").addEventListener("click", function(e){ e.stopPropagation(); var m = $("#menu-site"), o = m.classList.toggle("cache"); this.setAttribute("aria-expanded", o ? "false" : "true"); });
+  document.addEventListener("click", function(e){ if(!e.target.closest("#menu-site")) fermerSites(); });
+
+  /* ---------- Chargement ---------- */
+  async function demarrer(){
+    try{ S.moi = await api("moi"); }
+    catch(e){ if(e.status === 401 || !S.jeton) return; }
+    $("#connexion").hidden = true; $("#console").hidden = false;
+    $("#avatar").textContent = (S.moi && S.moi.initiales) || "MP";
+    $("#salut").textContent = salut(); sites(); menu(); charger();
+  }
+  async function charger(){
+    var P = $("#page");
+    if(!S.donnees) P.innerHTML = '<p class="vide">Chargement…</p>';
+    try{ S.donnees = await api("aujourdhui", { site:S.site, periode:S.periode }); }
+    catch(e){ P.innerHTML = ""; P.appendChild(el("p", "note err", e.message)); return; }
+    $("#pastille").classList.toggle("cache", !(S.donnees.alertes || []).length);
+    menu(); rendre();
+  }
+  $("#b-maj").addEventListener("click", charger);
+  $("#b-alertes").addEventListener("click", function(){ S.page = "aujourdhui"; menu(); rendre(); var a = $("#s-alertes"); if(a) a.scrollIntoView({ behavior:"smooth", block:"start" }); });
+  function rendre(){ if(S.page === "aujourdhui") aujourdhui(); }
+
+  /* ---------- Aujourd'hui ---------- */
+  var LIB_PERIODE = { jour:"hier à la même heure", semaine:"les 7 jours précédents", mois:"la même période du mois dernier" };
+  function delta(c){
+    // c = { val, prec, sens } ; sens : 1 = plus c'est haut, mieux c'est ; -1 = l'inverse (résiliations)
+    var s = el("span", "delta");
+    if(c.prec == null){ s.classList.add("d-nd"); s.textContent = "pas encore de données"; return s; }
+    var d = c.val - c.prec;
+    if(Math.abs(d) < 1e-9){ s.classList.add("d-egal"); s.textContent = "="; return s; }
+    var bon = (d > 0) === ((c.sens || 1) > 0);
+    s.classList.add(bon ? "d-plus" : "d-moins");
+    var txt = c.format === "eur" ? eur(Math.abs(d)) : ent(Math.abs(d));
+    s.textContent = (d > 0 ? "+" : "−") + txt + (c.prec ? " (" + (d > 0 ? "+" : "−") + Math.round(Math.abs(d) / c.prec * 100) + " %)" : "");
+    return s;
+  }
+  function carteChiffre(c){
+    var k = el("div", "chiffre v");
+    var l = el("div", "lib"); l.appendChild(el("span", "", c.lib)); if(c.etiquette) l.appendChild(el("span", "puce", c.etiquette)); k.appendChild(l);
+    k.appendChild(el("div", "val", c.format === "eur" ? eur(c.val) : ent(c.val)));
+    var p = el("div", "comp");
+    if(c.instantane){ p.appendChild(el("span", "", c.note || "en ce moment")); }
+    else { p.appendChild(delta(c)); p.appendChild(el("span", "", "vs " + LIB_PERIODE[S.periode])); }
+    k.appendChild(p);
+    if(c.titre) k.title = c.titre;
+    return k;
+  }
+  var ICONES = {
+    alerte:'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+    euro:'<path d="M18 7a7 7 0 1 0 0 10M4 10h10M4 14h10"/>',
+    plus:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+    moins:'<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>',
+    retour:'<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
+    mail:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 7l9 6 9-6"/>',
+    serveur:'<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 8h.01M7 17h.01"/>',
+  };
+  var EVT = {
+    payant:   { ic:"euro",  c:"ic-vert",   t:"Nouvel abonné payant" },
+    free:     { ic:"plus",  c:"ic-prune",  t:"Inscription Free" },
+    resiliation:{ ic:"moins", c:"ic-orange", t:"Résiliation" },
+    retractation:{ ic:"retour", c:"ic-rouge", t:"Rétractation" },
+    echec:    { ic:"alerte", c:"ic-rouge", t:"Paiement échoué" },
+    offert:   { ic:"plus",  c:"ic-vert",   t:"Accès offert" },
+  };
+  function item(ic, classe, titre, detail, droite){
+    var i = el("div", "item");
+    var c = el("div", "ic " + classe); c.innerHTML = svg(ICONES[ic]); i.appendChild(c);
+    var t = el("div", "txt"); t.appendChild(el("b", "", titre)); if(detail) t.appendChild(el("span", "", detail)); i.appendChild(t);
+    if(droite) i.appendChild(droite);
+    return i;
+  }
+
+  function aujourdhui(){
+    var D = S.donnees, P = $("#page"); P.innerHTML = "";
+    var t = el("div", "titre"), g = el("div");
+    g.appendChild(el("h1", "", "Aujourd'hui"));
+    var auj = new Date().toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long" });
+    g.appendChild(el("p", "", auj.charAt(0).toUpperCase() + auj.slice(1) + " · mis à jour à " + new Date(D.genere).toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" }).replace(":", " h ")));
+    t.appendChild(g);
+    var p = el("div", "periode v"); p.setAttribute("role", "group"); p.setAttribute("aria-label", "Période");
+    [["jour", "Jour"], ["semaine", "Semaine"], ["mois", "Mois"]].forEach(function(x){
+      var b = el("button", "", x[1]); b.type = "button"; b.setAttribute("aria-pressed", S.periode === x[0] ? "true" : "false");
+      b.addEventListener("click", function(){ if(S.periode !== x[0]){ S.periode = x[0]; charger(); } });
+      p.appendChild(b);
+    });
+    t.appendChild(p); P.appendChild(t);
+    if(MAQUETTE) P.appendChild(el("div", "bandeau", "Maquette : tous les chiffres et noms de cette page sont fictifs."));
+
+    var C = D.chiffres;
+    P.appendChild(el("div", "groupe-titre", "Argent"));
+    var g1 = el("div", "chiffres");
+    [C.encaisse, C.mrr, C.payants, C.commissions].forEach(function(c){ g1.appendChild(carteChiffre(c)); });
+    P.appendChild(g1);
+    P.appendChild(el("div", "groupe-titre", "Acquisition et activité"));
+    var g2 = el("div", "chiffres");
+    [C.nouveaux, C.resiliations, C.free, C.cv, C.actifs].forEach(function(c){ g2.appendChild(carteChiffre(c)); });
+    P.appendChild(g2);
+
+    var r1 = el("div", "rangee");
+    // Alertes
+    var sa = el("section", "section v"); sa.id = "s-alertes"; sa.style.flex = "3 1 440px";
+    var ea = el("div", "entete"); ea.appendChild(el("h2", "", "Alertes")); ea.appendChild(el("span", "puce", (D.alertes || []).length ? (D.alertes.length + " à regarder") : "rien à signaler"));
+    sa.appendChild(ea);
+    var la = el("div", "liste");
+    (D.alertes || []).forEach(function(a){
+      var b = null;
+      if(a.action){ b = el("button", "bouton petit", a.action); b.type = "button"; b.disabled = MAQUETTE; b.title = MAQUETTE ? "Désactivé dans la maquette" : ""; }
+      la.appendChild(item(a.ic || "alerte", a.niveau === "rouge" ? "ic-rouge" : "ic-orange", a.titre, a.detail, b));
+    });
+    if(!(D.alertes || []).length) la.appendChild(el("p", "vide", "Aucune rétractation, aucun paiement échoué, aucune erreur du relais, coût IA normal."));
+    sa.appendChild(la); r1.appendChild(sa);
+    // Activité récente
+    var sv = el("section", "section v"); sv.style.flex = "2 1 340px";
+    sv.appendChild(el("h2", "", "Activité récente"));
+    sv.appendChild(el("p", "sous", "Les 8 derniers événements, toutes périodes."));
+    var lv = el("div", "liste");
+    (D.evenements || []).slice(0, 8).forEach(function(e){ var k = EVT[e.type] || EVT.free; lv.appendChild(item(k.ic, k.c, k.t, e.detail, el("span", "quand", quand(e.quand)))); });
+    if(!(D.evenements || []).length) lv.appendChild(el("p", "vide", "Aucun événement enregistré pour l'instant."));
+    sv.appendChild(lv); r1.appendChild(sv);
+    P.appendChild(r1);
+
+    // Courbe : inscriptions Free et CV générés par jour sur la période
+    var sg = el("section", "section v");
+    var eg = el("div", "entete"); eg.appendChild(el("h2", "", "Inscriptions Free et CV générés"));
+    var lg = el("div", "legende"); lg.innerHTML = '<span><i style="background:var(--orange)"></i>Inscriptions Free</span><span><i class="lg-cv"></i>CV générés</span>';
+    eg.appendChild(lg); sg.appendChild(eg);
+    var serie = D.serie || [], max = Math.max(1, Math.max.apply(null, serie.map(function(s){ return s.free + s.cv; })));
+    var gr = el("div", "graph");
+    serie.forEach(function(s){
+      var c = el("div", "col"); c.title = s.lib + " : " + s.free + " inscription(s), " + s.cv + " CV";
+      var b2 = el("div", "b2"); b2.style.height = (s.free / max * 100) + "%"; c.appendChild(b2);
+      var b1 = el("div", "b1"); b1.style.height = (s.cv / max * 100) + "%"; c.appendChild(b1);
+      gr.appendChild(c);
+    });
+    sg.appendChild(gr);
+    if(serie.length){ var ax = el("div", "axe"); ax.appendChild(el("span", "", serie[0].lib)); ax.appendChild(el("span", "", serie[serie.length - 1].lib)); sg.appendChild(ax); }
+    P.appendChild(sg);
+  }
+
+  /* ---------- Maquette : données fictives (aucun appel au serveur) ---------- */
+  function maquette(route, b){
+    var attente = function(v){ return new Promise(function(ok){ setTimeout(function(){ ok(v); }, 250); }); };
+    if(route === "code") return attente({ ok:true });
+    if(route === "verifier") return b.code === "123456" ? attente({ jeton:"maquette" }) : Promise.reject(new Error("Code incorrect. Dans la maquette, le code est 123456."));
+    if(route === "moi") return attente({ prenom:"Maxence", initiales:"MP", role:"admin", sites:[{ id:"jaltio", nom:"Jaltio" }] });
+    var f = { jour:1, semaine:3, mois:10 }[b.periode] || 10, H = 36e5, now = Date.now();
+    var n = b.periode === "jour" ? 24 : b.periode === "semaine" ? 7 : 28, serie = [];
+    for(var i = 0; i < n; i++){
+      var d = new Date(now - (n - 1 - i) * (b.periode === "jour" ? H : 864e5));
+      serie.push({ lib: b.periode === "jour" ? d.getHours() + " h" : d.toLocaleDateString("fr-FR", { day:"numeric", month:"short" }), free: (i * 7 % 5 === 0) ? 2 : (i % 3 ? 1 : 0), cv: (i * 5 % 7) + (i % 4 ? 2 : 0) });
     }
-    $("#login").hidden = true; $("#app").hidden = false;
-    $("#maj").textContent = "Données du " + new Date(D.genere).toLocaleString("fr-FR");
-    vue(); comptes(); cout(); traiter();
+    return attente({
+      genere: now,
+      chiffres: {
+        encaisse:   { lib:"Encaissé (Stripe, net)", val: 9.8 * f, prec: 7.1 * f, format:"eur" },
+        mrr:        { lib:"Revenu mensuel récurrent", val: 97.93, instantane:true, format:"eur", note:"7 abonnés, après codes promo" },
+        payants:    { lib:"Abonnés payants", val: 7, instantane:true, note:"dont 1 résiliation prévue" },
+        commissions:{ lib:"Commissions dues", val: 4.12, instantane:true, format:"eur", note:"2 ambassadeurs, à virer le 1er" },
+        nouveaux:   { lib:"Nouveaux payants", val: Math.round(.3 * f + 1), prec: Math.round(.2 * f) },
+        resiliations:{ lib:"Résiliations", val: b.periode === "mois" ? 1 : 0, prec: 0, sens:-1 },
+        free:       { lib:"Inscriptions Free", val: 3 * f + 2, prec: 2 * f + 3 },
+        cv:         { lib:"CV générés", val: 14 * f, prec: b.periode === "jour" ? null : 11 * f },
+        actifs:     { lib:"Utilisateurs actifs", val: 4 * f + 1, prec: b.periode === "jour" ? null : 4 * f + 3, titre:"Au moins un appel (CV, lettre, lecture d'offre, coach) sur la période" },
+      },
+      alertes: [
+        { niveau:"rouge", ic:"retour", titre:"Rétractation à rembourser", detail:"Prénom NOM · reçue hier · délai légal : 14 jours", action:"Traiter" },
+        { niveau:"orange", ic:"euro", titre:"Paiement échoué", detail:"p•••@exemple.fr · Stripe réessaiera dans 3 jours", action:"Voir" },
+        { niveau:"orange", ic:"serveur", titre:"2 erreurs du relais en 24 h", detail:"/sync/reinit · dernière à 11 h 02", action:"Détail" },
+      ],
+      evenements: [
+        { type:"payant", detail:"m•••@exemple.fr · Essentiel · code DIANA-4A3T", quand: now - 2 * H },
+        { type:"free", detail:"s•••@exemple.fr", quand: now - 5 * H },
+        { type:"free", detail:"j•••@exemple.fr", quand: now - 20 * H },
+        { type:"retractation", detail:"Prénom NOM · Essentiel", quand: now - 26 * H },
+        { type:"resiliation", detail:"a•••@exemple.fr · accès jusqu'au 12 déc.", quand: now - 50 * H },
+        { type:"offert", detail:"Accès offert à l•••@exemple.fr", quand: now - 72 * H },
+      ],
+      compteurs: { juridique: 1, boite: 3 },
+      serie: serie,
+    });
   }
 
-  function table(entetes, lignes){
-    var t = el("table"), h = el("tr");
-    entetes.forEach(function(x){ var th = el("th", /^(CV|Appels|Coût|Nb|Comptes|\$\/CV)/.test(x) ? "num" : "", x); h.appendChild(th); });
-    var th = el("thead"); th.appendChild(h); t.appendChild(th);
-    var tb = el("tbody"); lignes.forEach(function(l){ var tr = el("tr"); l.forEach(function(c){ var td = el("td"); if(c && c.nodeType) td.appendChild(c); else { td.textContent = c == null ? "—" : c; if(typeof c === "number") td.className = "num"; } tr.appendChild(td); }); tb.appendChild(tr); });
-    t.appendChild(tb); return t;
-  }
-  function carte(titre, contenu, note){ var c = el("div", "card"); c.appendChild(el("h2", "", titre)); if(note) c.appendChild(el("p", "vide", note)); c.appendChild(contenu); return c; }
-  function pill(o){ return el("span", "pill p-" + o, o); }
-
-  function vue(){
-    var P = document.querySelector('[data-p="vue"]'); P.innerHTML = "";
-    var C = D.comptes, now = Date.now();
-    var payants = C.filter(function(c){ return c.offre === "essentiel" && c.actif; });
-    var resiliesBientot = payants.filter(function(c){ return c.fin; });
-    var mrr = (payants.length - resiliesBientot.length) * PRIX.essentiel;
-    var free = C.filter(function(c){ return c.offre === "free"; });
-    var freeActifs = free.filter(function(c){ return c.connecte; });
-    var ce30 = C.filter(function(c){ return now - c.cree < 30 * 864e5; });
-    var termines = C.filter(function(c){ return c.offre === "essentiel" && !c.actif; });
-    var k = el("div", "kpis");
-    [[payants.length, "abonnés Essentiel actifs"], [eur(mrr), "revenu mensuel récurrent (hors résiliations prévues, avant frais)"],
-     [resiliesBientot.length, "résiliations prévues (accès jusqu'à la fin du mois payé)"], [termines.length, "abonnements Essentiel terminés"],
-     [free.length, "comptes Free"], [freeActifs.length + " / " + free.length, "Free qui ont créé leur compte"],
-     [D.passages_free_payant, "passages Free → payant"], [ce30.length, "inscriptions sur 30 jours (toutes offres)"],
-     [C.filter(function(c){ return c.offre === "offert" && c.actif; }).length, "accès offerts actifs"]]
-      .forEach(function(x){ var d = el("div", "kpi"); d.appendChild(el("b", "", String(x[0]))); d.appendChild(el("span", "", x[1])); k.appendChild(d); });
-    P.appendChild(k);
-    var parMois = {}, offres = {};
-    C.forEach(function(c){ var m = mois(c.cree); offres[c.offre] = 1; parMois[m] = parMois[m] || {}; parMois[m][c.offre] = (parMois[m][c.offre] || 0) + 1; });
-    var liste = Object.keys(offres).sort(), lignes = Object.keys(parMois).sort().reverse().map(function(m){ return [m].concat(liste.map(function(o){ return parMois[m][o] || 0; })); });
-    P.appendChild(carte("Inscriptions par mois", table(["Mois"].concat(liste.map(function(o){ return "Nb " + o; })), lignes), "Tes propres comptes de test sont inclus."));
-  }
-
-  function comptes(){
-    var P = document.querySelector('[data-p="comptes"]'); P.innerHTML = "";
-    var f = el("div", "filtres"), so = el("select"), ss = el("select");
-    ["Toutes les offres"].concat(Array.from(new Set(D.comptes.map(function(c){ return c.offre; }))).sort()).forEach(function(o, i){ var op = el("option", "", o); op.value = i ? o : ""; so.appendChild(op); });
-    [["", "Tous les statuts"], ["1", "Actifs"], ["0", "Terminés"]].forEach(function(x){ var op = el("option", "", x[1]); op.value = x[0]; ss.appendChild(op); });
-    f.appendChild(so); f.appendChild(ss); P.appendChild(f);
-    var zone = el("div"); P.appendChild(zone);
-    function rendre(){
-      zone.innerHTML = "";
-      var L = D.comptes.filter(function(c){ return (!so.value || c.offre === so.value) && (!ss.value || String(c.actif ? 1 : 0) === ss.value); });
-      var lignes = L.map(function(c){
-        var m = null;
-        if(c.email){ m = el("span", "mail", masque(c.email)); m.title = "Cliquer pour afficher"; m.addEventListener("click", function(){ m.textContent = m.textContent === c.email ? masque(c.email) : c.email; }); }
-        else if(c.client){ m = el("a", "", "Voir dans Stripe"); m.href = "https://dashboard.stripe.com/customers/" + encodeURIComponent(c.client); m.target = "_blank"; m.rel = "noopener"; }
-        var statut = c.actif ? (c.fin ? "résilié, accès jusqu'au " + date(c.fin) : "actif") : "terminé" + (c.fin ? " le " + date(c.fin) : "");
-        return [date(c.cree), pill(c.offre), statut, m, c.connecte ? "oui" : "non", c.cv, c.appels, usd(c.usd)];
-      });
-      zone.appendChild(carte(L.length + " compte(s)", table(["Inscription", "Offre", "Statut", "Client", "Compte créé", "CV", "Appels", "Coût IA"], lignes),
-        "E-mail des Free masqué (clic pour l'afficher) ; abonnés payants : e-mail dans Stripe."));
-    }
-    so.addEventListener("change", rendre); ss.addEventListener("change", rendre); rendre();
-  }
-
-  function cout(){
-    var P = document.querySelector('[data-p="cout"]'); P.innerHTML = "";
-    var lignes = D.cout_mois.map(function(m){ return [m.mois, pill(m.offre), m.comptes, m.cv, m.appels, usd(m.usd), m.cv ? usd(m.usd / m.cv) : "—"]; });
-    P.appendChild(carte("Coût IA par mois et par offre", table(["Mois", "Offre", "Comptes", "CV", "Appels", "Coût", "$/CV"], lignes),
-      "En dollars (facture Anthropic), petits appels compris dans le coût par CV. Mise en cache et Haiku déjà pondérés."));
-    var top = D.comptes.filter(function(c){ return c.usd > 0; }).sort(function(a, b){ return b.usd - a.usd; }).slice(0, 10)
-      .map(function(c){ return [pill(c.offre), c.email ? masque(c.email) : (c.client || "—"), c.cv, c.appels, usd(c.usd)]; });
-    P.appendChild(carte("Les 10 comptes qui coûtent le plus (depuis le début)", top.length ? table(["Offre", "Client", "CV", "Appels", "Coût"], top) : el("p", "vide", "Aucune consommation.")));
-  }
-
-  function traiter(){
-    var P = document.querySelector('[data-p="traiter"]'); P.innerHTML = "";
-    var R = (D.retractations || []).filter(function(r){ return !r.traite; });
-    $("#n-traiter").textContent = R.length ? "(" + R.length + ")" : "";
-    P.appendChild(carte("Rétractations à rembourser (" + R.length + ")",
-      R.length ? table(["Reçue le", "Réf.", "Nom", "E-mail", "Offre", "Souscrit le", "Message"], R.map(function(r){ return [date(r.cree), r.ref, r.nom, r.email, r.offre || "—", r.souscription || "—", r.message || "—"]; }))
-               : el("p", "vide", "Aucune rétractation en attente."),
-      "À rembourser dans Stripe sous 14 jours (au prorata des jours écoulés si l'accès immédiat a été demandé)."));
-    P.appendChild(carte("Liste d'attente Jaltio Pro", el("p", "vide", "Dans le Google Sheet « Jaltio – Liste d'attente », onglet Pro (alimenté par n8n [JLT] 21).")));
-    P.appendChild(carte("Messages reçus sur contact@jaltio.fr", el("p", "vide", "Bouton « Messagerie contact@ » en haut de la page.")));
-  }
-
-  $("#f-login").addEventListener("submit", function(e){ e.preventDefault(); try{ sessionStorage.setItem("jaltio_admin", $("#mdp").value); }catch(x){} $("#mdp").value = ""; $("#m-login").textContent = "Vérification…"; ouvrir(); });
-  $("#b-maj").addEventListener("click", ouvrir);
-  $("#b-sortir").addEventListener("click", function(){ try{ sessionStorage.removeItem("jaltio_admin"); }catch(x){} location.reload(); });
-  document.querySelectorAll(".tabs button").forEach(function(b){ b.addEventListener("click", function(){
-    document.querySelectorAll(".tabs button").forEach(function(x){ x.setAttribute("aria-selected", x === b ? "true" : "false"); });
-    document.querySelectorAll("[data-p]").forEach(function(p){ p.hidden = p.dataset.p !== b.dataset.t; });
-  }); });
-  if(mdp()) ouvrir();
+  var ecranConnexion = MAQUETTE && /[?&]ecran=connexion/.test(location.search);
+  if(!ecranConnexion && (MAQUETTE || S.jeton)) demarrer().then(function(){ if($("#console").hidden) $("#connexion").hidden = false; });
+  else $("#connexion").hidden = false;
 })();
 </script>
 </body>
